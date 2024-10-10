@@ -46,8 +46,6 @@ public class Controller extends LinearOpMode {
             //drivingAssist.gripLed(gamepad1, gamepad2);
             //drivingAssist.endgameCountdown(gamepad1, gamepad2, runtime);
 
-            armUtils.moveLinearSlides(gamepad2);
-
             // Debugging
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 
