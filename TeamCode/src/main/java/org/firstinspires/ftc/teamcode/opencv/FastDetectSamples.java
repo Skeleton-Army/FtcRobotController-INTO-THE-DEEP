@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opencv;
 
-import org.opencv.core.Core;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -12,7 +12,6 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,35 +38,30 @@ public class FastDetectSamples extends OpenCvPipeline {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(yellowMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Point[] coordinates = new Point[contours.size()];
+        Mat contours_black = new Mat(input.size(), input.type(), new Scalar(0, 0, 0));
+        Imgproc.drawContours(contours_black, contours, -1, new Scalar(255, 255, 255), -1);
+        Core.bitwise_and(input, contours_black, contours_black);
         for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
             // Calculate the epsilon (accuracy parameter)
-            double epsilon = 0.02 * Imgproc.arcLength(contour2f, true);
-
+            double epsilon = 0.03 * Imgproc.arcLength(contour2f, true);
             MatOfPoint2f contour_approx = new MatOfPoint2f(contour.toArray());
             Imgproc.approxPolyDP(contour2f, contour_approx, epsilon, true);
             MatOfPoint points = new MatOfPoint(contour_approx.toArray());
 
             Point[] vertices = points.toArray();
             telemetry.addData("Vertices", vertices.length);
-            double max = 0, x;
-            for (int i = 0; i < vertices.length; i++) {
-                //telemetry.addData(String.valueOf(i), "");
-                Imgproc.circle(input, vertices[i], 2, new Scalar(0, 255, 0), 1);
-                Point start = vertices[i];
-                Point end = vertices[(i + 1) % vertices.length];
-                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
-                if (Math.abs(start.x - end.x) < 0.2 * length) {
-                    if (length > max)
-                        max = length;
-                    //Imgproc.line(input, start, end, new Scalar(0, 255, 0), 1);
-                    //Imgproc.putText(input, Math.round(length) + "", new Point((start.x + end.x) / 2, (start.y + end.y) / 2), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
-                }
-            }
-            x = calculateX(max);
+
+            double length_pixels = calculatePixels(vertices);
+            double x = calculateX(length_pixels);
             double angle = calculateHorizontalAngle(vertices[0].x);
-            Imgproc.putText(input, Math.round(x) + "," + (calculateY(angle, x)) + "  " + angle, vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
+            double y = calculateY(angle, x);
+
+            coordinates[contours.indexOf(contour)] = new Point(x, y);
+
+            Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
         }
         telemetry.update();
         return input;
@@ -100,13 +94,43 @@ public class FastDetectSamples extends OpenCvPipeline {
     public double calculateVerticalAngle(double center_y) {
         return (center_y - imageHeight / 2) * v_hov / imageHeight;
     }
+    public double calculatePixels(Point[] vertices) {
+        telemetry.addData("Vertices", vertices.length);
+        if (vertices.length == 6) {
+            double sum = 0;
+            for (int i = 0; i < vertices.length; i++) {
+                Point start = vertices[i];
+                Point end = vertices[(i + 1) % vertices.length];
+                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
+                if (Math.abs(start.x - end.x) < 0.2 * length) {
+                    sum += length;
+                }
+            }
+            return sum / 2;
+        }
+        if (vertices.length == 4) {
+            for (int i = 0; i < 4; i++) {
+                Point start = vertices[i];
+                Point end = vertices[(i + 1) % vertices.length];
+                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
+                if (Math.abs(start.x - end.x) < 0.2 * length) {
+                    double wanted_length = Math.tan(Math.toRadians(calculateVerticalAngle(vertices[0].y))) * length;
+                    double horizontal_length = Math.sqrt(Math.pow(vertices[(i + 2) % vertices.length].x - vertices[(i + 3) % vertices.length].x, 2) + Math.pow(vertices[(i + 2) % vertices.length].y - vertices[(i + 3) % vertices.length].y, 2));
+                    if (Math.abs(2 * wanted_length - horizontal_length) < horizontal_length * 0.2)
+                        return wanted_length;
+                    return horizontal_length;
+                }
+            }
+        }
+        return -1;
+    }
 
     @Override
     public void onViewportTapped()
     {
         viewportPaused = !viewportPaused;
 
-        if(viewportPaused)
+        if (viewportPaused)
         {
             webcam.pauseViewport();
         }
