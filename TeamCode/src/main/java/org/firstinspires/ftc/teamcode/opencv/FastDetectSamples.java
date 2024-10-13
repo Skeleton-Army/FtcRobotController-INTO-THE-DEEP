@@ -116,7 +116,7 @@ public class FastDetectSamples extends OpenCvPipeline {
                 if (Math.abs(start.x - end.x) < 0.2 * length) {
                     double wanted_length = Math.tan(Math.toRadians(calculateVerticalAngle(vertices[0].y))) * length;
                     double horizontal_length = Math.sqrt(Math.pow(vertices[(i + 2) % vertices.length].x - vertices[(i + 3) % vertices.length].x, 2) + Math.pow(vertices[(i + 2) % vertices.length].y - vertices[(i + 3) % vertices.length].y, 2));
-                    if (Math.abs(2 * wanted_length - horizontal_length) < horizontal_length * 0.2)
+                    if (Math.abs(2.33 * wanted_length - horizontal_length) < horizontal_length * 0.2)
                         return wanted_length;
                     return horizontal_length;
                 }
