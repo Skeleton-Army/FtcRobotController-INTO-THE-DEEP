@@ -110,7 +110,11 @@ public class DetectSamples extends OpenCvPipeline {
         }
         return -1;
     }
-
+    // calculates the orientation of the sample based on the bottom/top of the sample i dont know if it works yet
+    public double calculateOrientation(Point point1, Point point2) {
+        double verticalAngle = calculateVerticalAngle(point1.y);
+        return Math.toDegrees(Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle)))));
+    }
     @Override
     public void onViewportTapped()
     {
