@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.opencv;
-import org.opencv.core.Core;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -15,78 +14,45 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class DetectSamples extends OpenCvPipeline {
-    public /*final*/ OpenCvCamera webcam;
-    boolean viewportPaused;
 
+    public /*final*/ OpenCvCamera webcam;
+    boolean viewportPaused; //Do we really need this?
     private final Telemetry telemetry;
 
-    public DetectSamples(/*OpenCvCamera webcam*/ Telemetry telemetry){
-        //this.webcam = webcam;
+    public DetectSamples(Telemetry telemetry){
         this.telemetry = telemetry;
     }
-    @Override
+
     public Mat processFrame(Mat input) {
         Mat yellowMask = preprocessFrame(input);
-
-        // Find contours of the detected yellow regions
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(yellowMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        List<Double> verticalLineLengths = new ArrayList<Double>();
-        Mat black = Mat.zeros(input.size(), input.type());
-        Imgproc.drawContours(black, contours, -1, new Scalar(255, 255, 255), -1);
-        Mat yosi = new Mat();
-        Core.bitwise_and(input, black, yosi);
-
-        Mat edges = new Mat();
-        Imgproc.Canny(yosi, edges, 100, 190, 3, true);
-        Mat show_lines = Mat.zeros(input.size(), input.type());
+        Mat contours_black = new Mat(input.size(), input.type(), new Scalar(0, 0, 0));
+        Imgproc.drawContours(contours_black, contours, -1, new Scalar(255, 255, 255), -1);
+        Core.bitwise_and(input, contours_black, contours_black);
         for (MatOfPoint contour : contours) {
-            MatOfInt4 lines = new MatOfInt4();
-            Rect boundingRect = Imgproc.boundingRect(contour);
-            int padding = 5; // Add padding of 5 pixels to capture edges near the boundary
-            Rect expandedRect = new Rect(
-                    Math.max(boundingRect.x - padding, 0),
-                    Math.max(boundingRect.y - padding, 0),
-                    Math.min(boundingRect.width + 2 * padding, input.cols() - boundingRect.x),
-                    Math.min(boundingRect.height + 2 * padding, input.rows() - boundingRect.y)
-            );
-            Mat roiEdges = new Mat(edges, expandedRect);
-            Imgproc.dilate(edges, edges, new Mat(), new Point(0, -1), 1);
-            Imgproc.erode(edges, edges, new Mat(), new Point(-1, -1), 1);
-            Imgproc.HoughLinesP(roiEdges, lines, 1, Math.PI / 180, 12, 10, 10);
-            telemetry.addData("Number of lines", lines.rows());
+            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
-            int[] linesArray;
-            try {
-                linesArray = lines.toArray();
-                for (int i = 0; i < linesArray.length; i += 4) {
-                    int x1 = linesArray[i], y1 = linesArray[i + 1], x2 = linesArray[i + 2], y2 = linesArray[i + 3];
-                    // Check if the line is vertical (x1 ~ x2)
-                    if (Math.abs(x1 - x2) < 7) { // Adjust threshold for verticality
-                        double length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                        Imgproc.line(show_lines, new Point(x1 + expandedRect.x, y1 + expandedRect.y),new Point(x2 + expandedRect.x, y2 + expandedRect.y), new Scalar(255, 255, 255), 1);
-                        verticalLineLengths.add(length);
+            double epsilon = 0.03 * Imgproc.arcLength(contour2f, true); //why 0.03?
+            MatOfPoint2f contour_approx = new MatOfPoint2f(contour.toArray());
+            Imgproc.approxPolyDP(contour2f, contour_approx, epsilon, true);
+            MatOfPoint points = new MatOfPoint(contour_approx.toArray());
 
-                        telemetry.addData("Vertical Line Length", length);
-                    }
-                }
-            }
+            Point[] vertices = points.toArray();
+            telemetry.addData("Vertices", vertices.length);
 
-            catch (Exception e) {
-                telemetry.addData("Error", e.getMessage());
-            }
+            double x = Camera.inchXfocal / calculatePixels(vertices);
+            double angle = (vertices[0].x - Camera.halfImageWidth) * Camera.hOVERwidth;
+            double y = calculateY(angle, x);
 
-            telemetry.update();
 
+            Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
         }
-        /*
-
-        */
-        return show_lines;
+        telemetry.update();
+        return input;
     }
 
     private Mat preprocessFrame(Mat frame) {
@@ -105,24 +71,56 @@ public class DetectSamples extends OpenCvPipeline {
 
         return yellowMask;
     }
+
+    public double calculateY(double horizontalAngle, double sampleX) {
+        return  Math.tan(Math.toRadians(horizontalAngle)) * sampleX;
+    }
+
+    public double calculateVerticalAngle(double center_y) {
+        return (center_y - Camera.halfImageHeight) * Camera.vOVERheight;
+    }
+
+    public double calculatePixels(Point[] vertices) {
+        telemetry.addData("Vertices", vertices.length);
+        if (vertices.length == 6) {
+            double sum = 0;
+            for (int i = 0; i < vertices.length; i++) {
+                Point start = vertices[i];
+                Point end = vertices[(i + 1) % vertices.length];
+                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
+                if (Math.abs(start.x - end.x) < 0.2 * length) {
+                    sum += length;
+                }
+            }
+            return sum / 2;
+        }
+        if (vertices.length == 4) {
+            for (int i = 0; i < 4; i++) {
+                Point start = vertices[i];
+                Point end = vertices[(i + 1) % vertices.length];
+                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
+                if (Math.abs(start.x - end.x) < 0.2 * length) {
+                    double wanted_length = Math.tan(Math.toRadians(calculateVerticalAngle(vertices[0].y))) * length;
+                    double horizontal_length = Math.sqrt(Math.pow(vertices[(i + 2) % vertices.length].x - vertices[(i + 3) % vertices.length].x, 2) + Math.pow(vertices[(i + 2) % vertices.length].y - vertices[(i + 3) % vertices.length].y, 2));
+                    if (Math.abs(2.33 * wanted_length - horizontal_length) < horizontal_length * 0.2) //why these values?
+                        return wanted_length;
+                    return horizontal_length;
+                }
+            }
+        }
+        return -1;
+    }
+    // calculates the orientation of the sample based on the bottom/top of the sample i dont know if it works yet
+    public double calculateOrientation(Point point1, Point point2) {
+        double verticalAngle = calculateVerticalAngle(point1.y);
+        return Math.toDegrees(Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle)))));
+    }
     @Override
     public void onViewportTapped()
     {
-        /*
-         * The viewport (if one was specified in the constructor) can also be dynamically "paused"
-         * and "resumed". The primary use case of this is to reduce CPU, memory, and power load
-         * when you need your vision pipeline running, but do not require a live preview on the
-         * robot controller screen. For instance, this could be useful if you wish to see the live
-         * camera preview as you are initializing your robot, but you no longer require the live
-         * preview after you have finished your initialization process; pausing the viewport does
-         * not stop running your pipeline.
-         *
-         * Here we demonstrate dynamically pausing/resuming the viewport when the user taps it
-         */
-
         viewportPaused = !viewportPaused;
 
-        if(viewportPaused)
+        if (viewportPaused)
         {
             webcam.pauseViewport();
         }
@@ -131,5 +129,4 @@ public class DetectSamples extends OpenCvPipeline {
             webcam.resumeViewport();
         }
     }
-
 }
