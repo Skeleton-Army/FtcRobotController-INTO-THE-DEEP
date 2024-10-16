@@ -17,68 +17,66 @@ import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
 
-    public /*final*/ OpenCvCamera webcam;
+    public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this?
     private final Telemetry telemetry;
+
+    //yellow:
+    private final Scalar lowerBoundMask = new Scalar(0, 138, 0);
+    private final Scalar upperBoundMask = new Scalar(255, 200, 100);
+
 
     public DetectSamples(Telemetry telemetry){
         this.telemetry = telemetry;
     }
 
     public Mat processFrame(Mat input) {
-        Mat yellowMask = preprocessFrame(input);
+        Mat Mask = mask(input);
         List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(yellowMask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(Mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+
+        //is this solely for us to see that it works, or does it have any computational value?
         Mat contours_black = new Mat(input.size(), input.type(), new Scalar(0, 0, 0));
         Imgproc.drawContours(contours_black, contours, -1, new Scalar(255, 255, 255), -1);
         Core.bitwise_and(input, contours_black, contours_black);
+
         for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
-            double epsilon = 0.03 * Imgproc.arcLength(contour2f, true); //why 0.03?
+            double epsilon = 0.03 * Imgproc.arcLength(contour2f, true); //what value did we end up puuting here?
             MatOfPoint2f contour_approx = new MatOfPoint2f(contour.toArray());
             Imgproc.approxPolyDP(contour2f, contour_approx, epsilon, true);
-            MatOfPoint points = new MatOfPoint(contour_approx.toArray());
 
+            MatOfPoint points = new MatOfPoint(contour_approx.toArray()); //why are we doing this only to instantly make this an array again?
             Point[] vertices = points.toArray();
-            telemetry.addData("Vertices", vertices.length);
 
             double x = Camera.inchXfocal / calculatePixels(vertices);
             double angle = (vertices[0].x - Camera.halfImageWidth) * Camera.hOVERwidth;
-            double y = calculateY(angle, x);
+            double y = Math.tan(Math.toRadians(angle)) * x;
 
-
+            //This is just so we can check if it works, right?
             Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
         }
         telemetry.update();
         return input;
     }
 
-    private Mat preprocessFrame(Mat frame) {
+
+
+    private Mat mask(Mat frame) {
         Mat hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2YCrCb);
 
-        Scalar lowerYellow = new Scalar(0, 138, 0);
-        Scalar upperYellow = new Scalar(255, 200, 100);
-
-
-        Mat yellowMask = new Mat();
-        Core.inRange(hsvFrame, lowerYellow, upperYellow, yellowMask);
+        Mat Mask = new Mat();
+        Core.inRange(hsvFrame, lowerBoundMask, upperBoundMask, Mask);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-        Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_OPEN, kernel);
-        Imgproc.morphologyEx(yellowMask, yellowMask, Imgproc.MORPH_CLOSE, kernel);
+        Imgproc.morphologyEx(Mask, Mask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(Mask, Mask, Imgproc.MORPH_CLOSE, kernel);
 
-        return yellowMask;
+        return Mask;
     }
 
-    public double calculateY(double horizontalAngle, double sampleX) {
-        return  Math.tan(Math.toRadians(horizontalAngle)) * sampleX;
-    }
-
-    public double calculateVerticalAngle(double center_y) {
-        return (center_y - Camera.halfImageHeight) * Camera.vOVERheight;
-    }
 
     public double calculatePixels(Point[] vertices) {
         telemetry.addData("Vertices", vertices.length);
@@ -94,27 +92,46 @@ public class DetectSamples extends OpenCvPipeline {
             }
             return sum / 2;
         }
-        if (vertices.length == 4) {
+
+        else if (vertices.length == 4) {
             for (int i = 0; i < 4; i++) {
                 Point start = vertices[i];
                 Point end = vertices[(i + 1) % vertices.length];
                 double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
                 if (Math.abs(start.x - end.x) < 0.2 * length) {
-                    double wanted_length = Math.tan(Math.toRadians(calculateVerticalAngle(vertices[0].y))) * length;
+                    double wanted_length = length / (1 + Math.tan(Math.toRadians((vertices[0].y - Camera.halfImageHeight) * Camera.vOVERheight))); //I saw this wasn't up to date with what we did on 15.10, recovered from what I remembered
                     double horizontal_length = Math.sqrt(Math.pow(vertices[(i + 2) % vertices.length].x - vertices[(i + 3) % vertices.length].x, 2) + Math.pow(vertices[(i + 2) % vertices.length].y - vertices[(i + 3) % vertices.length].y, 2));
-                    if (Math.abs(2.33 * wanted_length - horizontal_length) < horizontal_length * 0.2) //why these values?
+                    if (Math.abs(2.33 * wanted_length - horizontal_length) < horizontal_length * 0.2)
                         return wanted_length;
                     return horizontal_length;
                 }
             }
         }
+
+        else if (vertices.length == 5){
+            //I think the same thing will work for the 3 vertices case, but I won't put it here yet until we check so not to cause more bugs
+
+            double minX = 0, minY = 0, maxX = 0, maxY = 0;
+            for (Point vertex : vertices) {
+                minX = Math.min(minX, vertex.x);
+                minY = Math.min(minY, vertex.y);
+                maxX = Math.min(maxX, vertex.x);
+                maxY = Math.min(maxY, vertex.y);
+            }
+
+            //we said the order doesn't matter, right? anyway please verify this
+            Point[] corrected = {new Point(minX, maxY), new Point(maxX, maxY), new Point(maxX, minY), new Point(minX, minY)};
+            return calculatePixels(corrected);
+        }
+
         return -1;
     }
-    // calculates the orientation of the sample based on the bottom/top of the sample i dont know if it works yet
-    public double calculateOrientation(Point point1, Point point2) {
-        double verticalAngle = calculateVerticalAngle(point1.y);
-        return Math.toDegrees(Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle)))));
-    }
+
+
+
+
+
+    //please explain this function
     @Override
     public void onViewportTapped()
     {
