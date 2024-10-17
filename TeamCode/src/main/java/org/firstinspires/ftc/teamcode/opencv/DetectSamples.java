@@ -150,7 +150,7 @@ public class DetectSamples extends OpenCvPipeline {
         double Orientation = Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle))));
         double wanted_length = (point2.x - point1.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Orientation));
         if (wanted_length < (point2.x - point3.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(90 - Orientation))) {
-            Orientation = 90 - Orientation;
+            Orientation = Orientation - 90;
             wanted_length *= 2.33;
         }
         return new double[] {wanted_length / 2.33, Math.toDegrees(Orientation)};
