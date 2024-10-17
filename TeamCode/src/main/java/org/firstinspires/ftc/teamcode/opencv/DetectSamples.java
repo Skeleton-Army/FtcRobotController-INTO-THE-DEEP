@@ -17,13 +17,21 @@ import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
 
+    //Raviv: general question - in most Imgproc functions there is a destination matrix,
+    // that we create a new one most of the time for but then never use the original again,
+    // will there be a problem if we use the same matrix in the dst as the origin?
+    // because I think it will save a lot of (slow) matrix creations
+
     public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this?
     private final Telemetry telemetry;
 
-    //yellow:
+    //yellow
     private final Scalar lowerBoundMask = new Scalar(0, 138, 0);
     private final Scalar upperBoundMask = new Scalar(255, 200, 100);
+
+    private static final float epsilonConstant = 0.025f;
+    private static final Size kernelSize = new Size(5, 5); //Why did we choose this value?
 
 
     public DetectSamples(Telemetry telemetry){
@@ -31,25 +39,15 @@ public class DetectSamples extends OpenCvPipeline {
     }
 
     public Mat processFrame(Mat input) {
-        Mat Mask = mask(input);
         List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(Mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-
-        //is this solely for us to see that it works, or does it have any computational value? Iddo: i think we wanted to use it for edge detection but it's not needed anymore
-        Mat contours_black = new Mat(input.size(), input.type(), new Scalar(0, 0, 0));
-        Imgproc.drawContours(contours_black, contours, -1, new Scalar(255, 255, 255), -1);
-        Core.bitwise_and(input, contours_black, contours_black);
+        Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
-            double epsilon = 0.025 * Imgproc.arcLength(contour2f, true);
-            MatOfPoint2f contour_approx = new MatOfPoint2f(contour.toArray());
-            Imgproc.approxPolyDP(contour2f, contour_approx, epsilon, true);
-
-            MatOfPoint points = new MatOfPoint(contour_approx.toArray()); //why are we doing this only to instantly make this an array again?
-            Point[] vertices = points.toArray();
+            double epsilon = epsilonConstant * Imgproc.arcLength(contour2f, true);
+            Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
+            Point[] vertices = contour2f.toArray();
 
             double x = Camera.inchXfocal / calculatePixels(vertices);
             double x_new_function = calculateXWithZ(vertices);
@@ -67,16 +65,12 @@ public class DetectSamples extends OpenCvPipeline {
 
 
     private Mat mask(Mat frame) {
-        Mat hsvFrame = new Mat();
-        Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2YCrCb);
-
-        Mat Mask = new Mat();
-        Core.inRange(hsvFrame, lowerBoundMask, upperBoundMask, Mask);
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-        Imgproc.morphologyEx(Mask, Mask, Imgproc.MORPH_OPEN, kernel);
-        Imgproc.morphologyEx(Mask, Mask, Imgproc.MORPH_CLOSE, kernel);
-
-        return Mask;
+        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGB2YCrCb);
+        Core.inRange(frame, lowerBoundMask, upperBoundMask, frame);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
+        Imgproc.morphologyEx(frame, frame, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(frame, frame, Imgproc.MORPH_CLOSE, kernel);
+        return frame;
     }
 
 
@@ -96,7 +90,7 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         else if (vertices.length == 4) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < vertices.length; i++) {
                 Point start = vertices[i];
                 Point end = vertices[(i + 1) % vertices.length];
                 double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
@@ -114,6 +108,7 @@ public class DetectSamples extends OpenCvPipeline {
             //I think the same thing will work for the 3 vertices case, but I won't put it here yet until we check so not to cause more bugs
 
             //What if it recognizes 5 vertices but when there should be 6?
+            //Raviv: did we encounter that case?
 
             double minX = 0, minY = 0, maxX = 0, maxY = 0;
             for (Point vertex : vertices) {
@@ -130,6 +125,8 @@ public class DetectSamples extends OpenCvPipeline {
 
         return -1;
     }
+
+
     public double calculateXWithZ(Point[] vertices) {
         double lowest = vertices[0].y;
         for (Point vertex : vertices) {
@@ -137,7 +134,7 @@ public class DetectSamples extends OpenCvPipeline {
                 lowest = vertex.y;
             }
         }
-        return Camera.camera_z / Math.tan(Math.toRadians((lowest - Camera.halfImageHeight) * Camera.vOVERheight));
+        return Camera.z / Math.tan(Math.toRadians((lowest - Camera.halfImageHeight) * Camera.vOVERheight));
     }
 
 

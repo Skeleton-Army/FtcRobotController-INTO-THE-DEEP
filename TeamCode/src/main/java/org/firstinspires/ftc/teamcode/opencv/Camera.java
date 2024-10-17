@@ -9,7 +9,7 @@ public final class Camera {
     //public static final int imageWidth = 320;
     //public static final int imageHeight = 240;
 
-    public static final double camera_z = -1; //TODO: figure out what this is
+    public static final double z = -1; //TODO: figure out what this is
     public static final int inchXfocal = 408;
     public static final float hOVERwidth = 0.24375f;
     public static final float vOVERheight = 0.1725f;
