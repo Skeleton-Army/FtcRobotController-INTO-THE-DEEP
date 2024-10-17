@@ -36,7 +36,7 @@ public class DetectSamples extends OpenCvPipeline {
         Imgproc.findContours(Mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 
-        //is this solely for us to see that it works, or does it have any computational value?
+        //is this solely for us to see that it works, or does it have any computational value? Iddo: i think we wanted to use it for edge detection but it's not needed anymore
         Mat contours_black = new Mat(input.size(), input.type(), new Scalar(0, 0, 0));
         Imgproc.drawContours(contours_black, contours, -1, new Scalar(255, 255, 255), -1);
         Core.bitwise_and(input, contours_black, contours_black);
@@ -52,10 +52,12 @@ public class DetectSamples extends OpenCvPipeline {
             Point[] vertices = points.toArray();
 
             double x = Camera.inchXfocal / calculatePixels(vertices);
+            double x_new_function = calculateXWithZ(vertices);
             double angle = (vertices[0].x - Camera.halfImageWidth) * Camera.hOVERwidth;
             double y = Math.tan(Math.toRadians(angle)) * x;
+            double y_new_function = Math.tan(Math.toRadians(angle)) * x_new_function;
 
-            //This is just so we can check if it works, right?
+            //This is just so we can check if it works, right? Iddo: yes
             Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
         }
         telemetry.update();
@@ -111,6 +113,8 @@ public class DetectSamples extends OpenCvPipeline {
         else if (vertices.length == 5){
             //I think the same thing will work for the 3 vertices case, but I won't put it here yet until we check so not to cause more bugs
 
+            //What if it recognizes 5 vertices but when there should be 6?
+
             double minX = 0, minY = 0, maxX = 0, maxY = 0;
             for (Point vertex : vertices) {
                 minX = Math.min(minX, vertex.x);
@@ -126,8 +130,15 @@ public class DetectSamples extends OpenCvPipeline {
 
         return -1;
     }
-
-
+    public double calculateXWithZ(Point[] vertices) {
+        double lowest = vertices[0].y;
+        for (Point vertex : vertices) {
+            if (vertex.y > lowest) {
+                lowest = vertex.y;
+            }
+        }
+        return Camera.camera_z / Math.tan((lowest - Camera.halfImageHeight) * Camera.vOVERheight);
+    }
 
 
 
