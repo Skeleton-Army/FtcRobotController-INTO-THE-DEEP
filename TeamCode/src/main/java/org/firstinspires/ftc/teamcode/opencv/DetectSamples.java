@@ -44,7 +44,7 @@ public class DetectSamples extends OpenCvPipeline {
         for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
-            double epsilon = 0.03 * Imgproc.arcLength(contour2f, true); //what value did we end up puuting here?
+            double epsilon = 0.025 * Imgproc.arcLength(contour2f, true);
             MatOfPoint2f contour_approx = new MatOfPoint2f(contour.toArray());
             Imgproc.approxPolyDP(contour2f, contour_approx, epsilon, true);
 
@@ -137,7 +137,7 @@ public class DetectSamples extends OpenCvPipeline {
                 lowest = vertex.y;
             }
         }
-        return Camera.camera_z / Math.tan((lowest - Camera.halfImageHeight) * Camera.vOVERheight);
+        return Camera.camera_z / Math.tan(Math.toRadians((lowest - Camera.halfImageHeight) * Camera.vOVERheight));
     }
 
 
