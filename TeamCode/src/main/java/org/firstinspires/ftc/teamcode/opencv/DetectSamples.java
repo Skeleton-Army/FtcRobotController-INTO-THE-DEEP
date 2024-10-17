@@ -55,7 +55,7 @@ public class DetectSamples extends OpenCvPipeline {
             double y = Math.tan(Math.toRadians(angle)) * x;
             double y_new_function = Math.tan(Math.toRadians(angle)) * x_new_function;
 
-            //This is just so we can check if it works, right? Iddo: yes
+            //This is just so we can check if it works, right? Iddo: yes Amit: For debugging purposes
             Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
             //Imgproc.putText(input, Math.round(calculatePixelLengthAndOrientation(vertices)[1]) + "", vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(70, 0, 0), 1);
         }
