@@ -57,6 +57,7 @@ public class DetectSamples extends OpenCvPipeline {
 
             //This is just so we can check if it works, right? Iddo: yes
             Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
+            //Imgproc.putText(input, Math.round(calculatePixelLengthAndOrientation(vertices)[1]) + "", vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(70, 0, 0), 1);
         }
         telemetry.update();
         return input;
@@ -143,17 +144,20 @@ public class DetectSamples extends OpenCvPipeline {
                 index = i;
             }
         }
-        Point point1 = vertices[(index -1) % vertices.length];
+        Point point1 = vertices[(index - 1 + vertices.length) % vertices.length];
         Point point2 = vertices[index];
         Point point3 = vertices[(index + 1) % vertices.length];
         double verticalAngle = (vertices[index].y - Camera.halfImageHeight) * Camera.vOVERheight;
-        double Orientation = Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle))));
-        double wanted_length = (point2.x - point1.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Orientation));
-        if (wanted_length < (point2.x - point3.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(90 - Orientation))) {
-            Orientation = Orientation - 90;
-            wanted_length *= 2.33;
+        double Orientation = Math.atan((point2.y - point1.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle))));
+        double wanted_length = (point3.x - point2.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Math.PI / 2 - Orientation));
+        telemetry.addData("Length 2-3",wanted_length);
+        double other_length = (point2.x - point1.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Orientation));
+        telemetry.addData("Length 1-2",other_length);
+        if (other_length < wanted_length) {
+            Orientation = Orientation - Math.PI / 2;
+            wanted_length = other_length;
         }
-        return new double[] {wanted_length / 2.33, Math.toDegrees(Orientation)};
+        return new double[] {wanted_length, Math.toDegrees(Orientation)};
     }
 
 
