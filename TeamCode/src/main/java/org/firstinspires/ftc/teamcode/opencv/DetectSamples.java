@@ -136,6 +136,25 @@ public class DetectSamples extends OpenCvPipeline {
         }
         return Camera.z / Math.tan(Math.toRadians((lowest - Camera.halfImageHeight) * Camera.vOVERheight));
     }
+    public double[] calculatePixelLengthAndOrientation(Point[] vertices) {
+        int index = 0;
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i].y < vertices[index].y) {
+                index = i;
+            }
+        }
+        Point point1 = vertices[(index -1) % vertices.length];
+        Point point2 = vertices[index];
+        Point point3 = vertices[(index + 1) % vertices.length];
+        double verticalAngle = (vertices[index].y - Camera.halfImageHeight) * Camera.vOVERheight;
+        double Orientation = Math.atan((point1.y - point2.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle))));
+        double wanted_length = (point2.x - point1.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Orientation));
+        if (wanted_length < (point2.x - point3.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(90 - Orientation))) {
+            Orientation = 90 - Orientation;
+            wanted_length *= 2.33;
+        }
+        return new double[] {wanted_length, Math.toDegrees(Orientation)};
+    }
 
 
 
