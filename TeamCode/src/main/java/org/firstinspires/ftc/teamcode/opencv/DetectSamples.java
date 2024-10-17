@@ -153,7 +153,7 @@ public class DetectSamples extends OpenCvPipeline {
             Orientation = 90 - Orientation;
             wanted_length *= 2.33;
         }
-        return new double[] {wanted_length, Math.toDegrees(Orientation)};
+        return new double[] {wanted_length / 2.33, Math.toDegrees(Orientation)};
     }
 
 
