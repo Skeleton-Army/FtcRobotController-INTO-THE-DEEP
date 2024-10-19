@@ -3,17 +3,14 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-//import org.firstinspires.ftc.teamcode.util.PoseStorage;
+import org.firstinspires.ftc.teamcode.roadrunner.DriveConstants;
+import org.firstinspires.ftc.teamcode.roadrunner.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.util.PoseStorage;
 
 public class MovementUtils {
     final double AXIAL_SPEED = 1;
@@ -45,7 +42,7 @@ public class MovementUtils {
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Retrieve our pose from the PoseStorage.currentPose static field
-        //drive.setPoseEstimate(PoseStorage.currentPose);
+        drive.setPoseEstimate(PoseStorage.currentPose);
 
         headingController.setInputBounds(-Math.PI, Math.PI);
     }

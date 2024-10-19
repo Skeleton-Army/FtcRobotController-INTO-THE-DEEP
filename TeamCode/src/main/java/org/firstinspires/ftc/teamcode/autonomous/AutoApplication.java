@@ -1,34 +1,42 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-public class AutoApplication extends AutoMain{
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-    //gamepad1 is driver, gamepad2 is arm
+import org.firstinspires.ftc.teamcode.utils.ChoiceMenu;
+import org.firstinspires.ftc.teamcode.utils.prompts.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.prompts.ValuePrompt;
+
+public class AutoApplication extends OpMode {
+    private ChoiceMenu choiceMenu;
 
     @Override
     public void init() {
-        telemetry.addLine("x = Blue, b = RED");
-    }
+        choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
 
-    @Override
-    public void loop() {
-
+        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("position", "SELECT THE STARTING POSITION:", "Audience", "Rear wall"));
+        choiceMenu.enqueuePrompt(new ValuePrompt("delay", "ENTER A START DELAY:", 0, 10, 0, 0.5));
     }
 
     @Override
     public void init_loop(){
-        if (gamepad1.x) {
-            us = Alliance.BLUE;
-            others = Alliance.RED;
-        }
-        else if (gamepad1.b) {
-            us = Alliance.RED;
-            others = Alliance.BLUE;
-        }
+        choiceMenu.processPrompts();
         telemetry.update();
     }
 
     @Override
     public void start(){
+        String alliance = (String)choiceMenu.getValueOf("alliance");
+        String position = (String)choiceMenu.getValueOf("position");
+        double delay = (double)choiceMenu.getValueOf("delay");
+
+        telemetry.addData("Selected Alliance", alliance);
+        telemetry.addData("Selected Position", position);
+        telemetry.addData("Selected Delay", delay);
+    }
+
+    @Override
+    public void loop() {
 
     }
 }
