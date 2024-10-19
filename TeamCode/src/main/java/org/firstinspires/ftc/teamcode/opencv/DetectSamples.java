@@ -17,11 +17,6 @@ import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
 
-    //Raviv: general question - in most Imgproc functions there is a destination matrix,
-    // that we create a new one most of the time for but then never use the original again,
-    // will there be a problem if we use the same matrix in the dst as the origin?
-    // because I think it will save a lot of (slow) matrix creations
-
     public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this?
     private final Telemetry telemetry;
@@ -39,6 +34,7 @@ public class DetectSamples extends OpenCvPipeline {
     }
 
     public Mat processFrame(Mat input) {
+
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
@@ -49,95 +45,40 @@ public class DetectSamples extends OpenCvPipeline {
             Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
             Point[] vertices = contour2f.toArray();
 
-            double x = Camera.inchXfocal / calculatePixels(vertices);
-            double x_new_function = calculateXWithZ(vertices);
-            double angle = (vertices[0].x - Camera.halfImageWidth) * Camera.hOVERwidth;
-            double y = Math.tan(Math.toRadians(angle)) * x;
-            double y_new_function = Math.tan(Math.toRadians(angle)) * x_new_function;
-
-            //This is just so we can check if it works, right? Iddo: yes
-            Imgproc.putText(input, Math.round(x) + "," + Math.round(y) + "  " + Math.round(angle), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
-            //Imgproc.putText(input, Math.round(calculatePixelLengthAndOrientation(vertices)[1]) + "", vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(70, 0, 0), 1);
+            double[] coordinates = getCoordinates(vertices);
+            telemetry.addData("x", coordinates[0]);
+            telemetry.addData("y", coordinates[1]);
+            double orientation = calculateOrientation(vertices);
+            //Imgproc.putText(input, Math.round(coordinates[0]) + "," + Math.round(coordinates[1]), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(0, 0, 0), 1);
+            Imgproc.putText(input, "" + Math.round(Math.toDegrees(orientation)), vertices[0], Imgproc.FONT_HERSHEY_SIMPLEX, 0.3, new Scalar(70, 0, 0), 1);
         }
         telemetry.update();
         return input;
     }
 
 
-
     private Mat mask(Mat frame) {
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGB2YCrCb);
-        Core.inRange(frame, lowerBoundMask, upperBoundMask, frame);
+        Mat masked = new Mat();
+        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
+        Core.inRange(masked, lowerBoundMask, upperBoundMask, masked);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-        Imgproc.morphologyEx(frame, frame, Imgproc.MORPH_OPEN, kernel);
-        Imgproc.morphologyEx(frame, frame, Imgproc.MORPH_CLOSE, kernel);
-        return frame;
+        Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_CLOSE, kernel);
+        return masked;
     }
 
-
-    public double calculatePixels(Point[] vertices) {
-        telemetry.addData("Vertices", vertices.length);
-        if (vertices.length == 6) {
-            double sum = 0;
-            for (int i = 0; i < vertices.length; i++) {
-                Point start = vertices[i];
-                Point end = vertices[(i + 1) % vertices.length];
-                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
-                if (Math.abs(start.x - end.x) < 0.2 * length) {
-                    sum += length;
-                }
-            }
-            return sum / 2;
-        }
-
-        else if (vertices.length == 4) {
-            for (int i = 0; i < vertices.length; i++) {
-                Point start = vertices[i];
-                Point end = vertices[(i + 1) % vertices.length];
-                double length = Math.sqrt(Math.pow(start.x - end.x, 2) + Math.pow(start.y - end.y, 2));
-                if (Math.abs(start.x - end.x) < 0.2 * length) {
-                    double wanted_length = length / (1 + Math.tan(Math.toRadians((vertices[0].y - Camera.halfImageHeight) * Camera.vOVERheight))); //I saw this wasn't up to date with what we did on 15.10, recovered from what I remembered
-                    double horizontal_length = Math.sqrt(Math.pow(vertices[(i + 2) % vertices.length].x - vertices[(i + 3) % vertices.length].x, 2) + Math.pow(vertices[(i + 2) % vertices.length].y - vertices[(i + 3) % vertices.length].y, 2));
-                    if (Math.abs(2.33 * wanted_length - horizontal_length) < horizontal_length * 0.2)
-                        return wanted_length;
-                    return horizontal_length;
-                }
-            }
-        }
-
-        else if (vertices.length == 5){
-            //I think the same thing will work for the 3 vertices case, but I won't put it here yet until we check so not to cause more bugs
-
-            //What if it recognizes 5 vertices but when there should be 6?
-            //Raviv: did we encounter that case?
-
-            double minX = 0, minY = 0, maxX = 0, maxY = 0;
-            for (Point vertex : vertices) {
-                minX = Math.min(minX, vertex.x);
-                minY = Math.min(minY, vertex.y);
-                maxX = Math.min(maxX, vertex.x);
-                maxY = Math.min(maxY, vertex.y);
-            }
-
-            //we said the order doesn't matter, right? anyway please verify this
-            Point[] corrected = {new Point(minX, maxY), new Point(maxX, maxY), new Point(maxX, minY), new Point(minX, minY)};
-            return calculatePixels(corrected);
-        }
-
-        return -1;
-    }
-
-
-    public double calculateXWithZ(Point[] vertices) {
-        double lowest = vertices[0].y;
+    public double[] getCoordinates(Point[] vertices) {
+        Point reference = vertices[0];
         for (Point vertex : vertices) {
-            if (vertex.y > lowest) {
-                lowest = vertex.y;
+            if (vertex.y > reference.y) {
+                reference = vertex;
             }
         }
-        return Camera.z / Math.tan(Math.toRadians((lowest - Camera.halfImageHeight) * Camera.vOVERheight));
+        double y = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight));
+        return new double[] {Math.tan(Math.toRadians((reference.x - Camera.halfImageWidth) * Camera.hOVERwidth)) * y, y};
     }
-    public double[] calculatePixelLengthAndOrientation(Point[] vertices) {
+
+    public double calculateOrientation(Point[] vertices) {
         int index = 0;
         for (int i = 0; i < vertices.length; i++) {
             if (vertices[i].y < vertices[index].y) {
@@ -147,19 +88,15 @@ public class DetectSamples extends OpenCvPipeline {
         Point point1 = vertices[(index - 1 + vertices.length) % vertices.length];
         Point point2 = vertices[index];
         Point point3 = vertices[(index + 1) % vertices.length];
-        double verticalAngle = (vertices[index].y - Camera.halfImageHeight) * Camera.vOVERheight;
-        double Orientation = Math.atan((point2.y - point1.y) / ((point1.x - point2.x) * Math.tan(Math.toRadians(verticalAngle))));
-        double wanted_length = (point3.x - point2.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Math.PI / 2 - Orientation));
-        telemetry.addData("Length 2-3",wanted_length);
-        double other_length = (point2.x - point1.x) / (Math.tan(Math.toRadians(verticalAngle)) * Math.sin(Orientation));
-        telemetry.addData("Length 1-2",other_length);
-        if (other_length < wanted_length) {
-            Orientation = Orientation - Math.PI / 2;
-            wanted_length = other_length;
-        }
-        return new double[] {wanted_length, Math.toDegrees(Orientation)};
+        double verticalAngle = (point2.y - Camera.halfImageHeight) * Camera.vOVERheight;
+        double wanted_length_squared = Math.pow(point3.y - point2.y, 2) + Math.pow(point2.x - point3.x, 2);
+        telemetry.addData("Length 2-3", wanted_length_squared);
+        double other_length_squared = Math.pow(point1.y - point2.y, 2) + Math.pow(point2.x - point1.x, 2);
+        telemetry.addData("Length 1-2", other_length_squared);
+        if (other_length_squared < wanted_length_squared)
+            point1 = point3;
+        return Math.atan((point1.y - point2.y) / ((point2.x - point1.x) * Math.tan(Math.toRadians(verticalAngle))));
     }
-
 
 
     //please explain this function
