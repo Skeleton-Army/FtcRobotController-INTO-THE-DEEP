@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.utils.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.prompts.ValuePrompt;
 
+@Autonomous(name = "Autonomous App", group = "SA_FTC")
 public class AutoApplication extends OpMode {
     private ChoiceMenu choiceMenu;
 
