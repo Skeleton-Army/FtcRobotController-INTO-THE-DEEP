@@ -41,4 +41,8 @@ public class ChoiceMenuInput {
     public static boolean isAButtonPressed(Gamepad gamepad1, Gamepad gamepad2) {
         return isButtonPressed(gamepad1.a, gamepad2.a);
     }
+
+    public static boolean isBButtonPressed(Gamepad gamepad1, Gamepad gamepad2) {
+        return isButtonPressed(gamepad1.b, gamepad2.b);
+    }
 }
