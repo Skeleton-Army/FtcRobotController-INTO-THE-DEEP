@@ -4,8 +4,10 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.prompts.Prompt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -14,10 +16,10 @@ public class ChoiceMenu {
     private final Gamepad gamepad1;
     private final Gamepad gamepad2;
 
-    private final Queue<Prompt> promptQueue = new LinkedList<>();
+    private final List<Prompt> prompts = new ArrayList<>();
     private final Map<String, Object> results = new HashMap<>();
 
-    private Prompt currentPrompt = null;
+    private int currentIndex = 0;
 
     public ChoiceMenu(Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         this.telemetry = telemetry;
@@ -29,7 +31,7 @@ public class ChoiceMenu {
      * Add a prompt to the queue.
      */
     public void enqueuePrompt(Prompt prompt) {
-        promptQueue.add(prompt);
+        prompts.add(prompt);
     }
 
     /**
@@ -46,19 +48,28 @@ public class ChoiceMenu {
      * Handles the prompts and inputs. Call this in the init_loop function.
      */
     public void processPrompts() {
-        // Get the next prompt
-        if (currentPrompt == null && !promptQueue.isEmpty()) {
-            currentPrompt = promptQueue.poll();
+        // Handle back navigation
+        if (ChoiceMenuInput.isBButtonPressed(gamepad1, gamepad2) && currentIndex > 0) {
+            currentIndex--;
         }
 
-        // Process prompt
-        if (currentPrompt != null) {
-            Object result = currentPrompt.process(gamepad1, gamepad2, telemetry);
-
-            if (result != null) {
-                results.put(currentPrompt.getKey(), result);
-                currentPrompt = null;
+        // Display results if no prompts left
+        if (currentIndex >= prompts.size()) {
+            for (Map.Entry<String, Object> entry : results.entrySet()) {
+                telemetry.addData(entry.getKey(), entry.getValue());
             }
+            return;
+        }
+
+        // Get the current prompt
+        Prompt currentPrompt = prompts.get(currentIndex);
+
+        // Process prompt
+        Object result = currentPrompt.process(gamepad1, gamepad2, telemetry);
+
+        if (result != null) {
+            results.put(currentPrompt.getKey(), result);
+            currentIndex++;
         }
     }
 }

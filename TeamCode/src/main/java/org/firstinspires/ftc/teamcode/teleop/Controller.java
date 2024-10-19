@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "controller movement", group = "SA_FTC")
+@TeleOp(name = "TeleOp App", group = "SA_FTC")
 public class Controller extends LinearOpMode {
     public static Controller Instance;
 

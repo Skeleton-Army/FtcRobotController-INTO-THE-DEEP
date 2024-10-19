@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.prompts;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.ChoiceMenuInput;
 
 public class BooleanPrompt extends Prompt {
     private boolean selectedValue;
@@ -17,11 +18,11 @@ public class BooleanPrompt extends Prompt {
         telemetry.addLine(header);
         telemetry.addLine("Current Value: " + (selectedValue ? "Yes" : "No"));
 
-        if (isDpadRightPressed(gamepad1, gamepad2) || isDpadUpPressed(gamepad1, gamepad2) || isDpadLeftPressed(gamepad1, gamepad2) || isDpadDownPressed(gamepad1, gamepad2)) {
+        if (ChoiceMenuInput.isDpadRightPressed(gamepad1, gamepad2) || ChoiceMenuInput.isDpadUpPressed(gamepad1, gamepad2) || ChoiceMenuInput.isDpadLeftPressed(gamepad1, gamepad2) || ChoiceMenuInput.isDpadDownPressed(gamepad1, gamepad2)) {
             selectedValue = !selectedValue;
         }
 
-        if (isAButtonPressed(gamepad1, gamepad2)) {
+        if (ChoiceMenuInput.isAButtonPressed(gamepad1, gamepad2)) {
             return selectedValue;
         }
 

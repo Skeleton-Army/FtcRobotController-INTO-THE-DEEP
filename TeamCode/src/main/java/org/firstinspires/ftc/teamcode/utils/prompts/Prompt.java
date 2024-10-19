@@ -18,25 +18,4 @@ public abstract class Prompt {
     }
 
     public abstract Object process(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry);
-
-    // Helper functions for checking inputs
-    protected boolean isDpadLeftPressed(Gamepad gamepad1, Gamepad gamepad2) {
-        return gamepad1.dpad_left || gamepad2.dpad_left;
-    }
-
-    protected boolean isDpadRightPressed(Gamepad gamepad1, Gamepad gamepad2) {
-        return gamepad1.dpad_right || gamepad2.dpad_right;
-    }
-
-    protected boolean isDpadUpPressed(Gamepad gamepad1, Gamepad gamepad2) {
-        return gamepad1.dpad_up || gamepad2.dpad_up;
-    }
-
-    protected boolean isDpadDownPressed(Gamepad gamepad1, Gamepad gamepad2) {
-        return gamepad1.dpad_down || gamepad2.dpad_down;
-    }
-
-    protected boolean isAButtonPressed(Gamepad gamepad1, Gamepad gamepad2) {
-        return gamepad1.a || gamepad2.a;
-    }
 }
