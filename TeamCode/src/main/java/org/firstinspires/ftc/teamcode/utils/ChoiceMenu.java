@@ -6,10 +6,8 @@ import org.firstinspires.ftc.teamcode.utils.prompts.Prompt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 public class ChoiceMenu {
     private final Telemetry telemetry;
@@ -49,7 +47,7 @@ public class ChoiceMenu {
      */
     public void processPrompts() {
         // Handle back navigation
-        if (ChoiceMenuInput.isBButtonPressed(gamepad1, gamepad2) && currentIndex > 0) {
+        if (Debounce.isButtonPressed(gamepad1.b, gamepad2.b) && currentIndex > 0) {
             currentIndex--;
         }
 
