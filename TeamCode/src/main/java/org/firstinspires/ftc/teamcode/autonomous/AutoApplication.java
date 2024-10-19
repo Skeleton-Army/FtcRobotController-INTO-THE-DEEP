@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utils.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.prompts.ValuePrompt;
 
+@Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "TeleOp App")
 public class AutoApplication extends OpMode {
     private ChoiceMenu choiceMenu;
 
@@ -26,9 +29,9 @@ public class AutoApplication extends OpMode {
 
     @Override
     public void start(){
-        String alliance = (String)choiceMenu.getValueOf("alliance");
-        String position = (String)choiceMenu.getValueOf("position");
-        double delay = (double)choiceMenu.getValueOf("delay");
+        String alliance = choiceMenu.getValueOf("alliance").toString();
+        String position = choiceMenu.getValueOf("position").toString();
+        double delay = Double.parseDouble(choiceMenu.getValueOf("delay").toString());
 
         telemetry.addData("Selected Alliance", alliance);
         telemetry.addData("Selected Position", position);

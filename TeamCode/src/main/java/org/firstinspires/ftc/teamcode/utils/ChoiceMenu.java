@@ -46,8 +46,16 @@ public class ChoiceMenu {
      * Handles the prompts and inputs. Call this in the init_loop function.
      */
     public void processPrompts() {
+        if (currentPrompt == null && promptQueue.isEmpty()) {
+            for (Map.Entry<String, Object> entry : results.entrySet()) {
+                telemetry.addData(entry.getKey(), entry.getValue());
+            }
+
+            return;
+        }
+
         // Get the next prompt
-        if (currentPrompt == null && !promptQueue.isEmpty()) {
+        if (currentPrompt == null) {
             currentPrompt = promptQueue.poll();
         }
 

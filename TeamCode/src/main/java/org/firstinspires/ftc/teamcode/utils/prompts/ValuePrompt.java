@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.prompts;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.ChoiceMenuInput;
 
 public class ValuePrompt extends Prompt {
     private final double minValue;
@@ -21,16 +22,18 @@ public class ValuePrompt extends Prompt {
     @Override
     public Object process(Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
         telemetry.addLine(header);
+        telemetry.addLine();
+
         telemetry.addData("Increment", increment);
         telemetry.addLine("[" + minValue + "] " + selectedValue + " [" + maxValue + "]");
 
-        if (isDpadRightPressed(gamepad1, gamepad2) || isDpadUpPressed(gamepad1, gamepad2)) {
+        if (ChoiceMenuInput.isDpadRightPressed(gamepad1, gamepad2) || ChoiceMenuInput.isDpadUpPressed(gamepad1, gamepad2)) {
             selectedValue = Math.min(maxValue, selectedValue + increment);
-        } else if (isDpadLeftPressed(gamepad1, gamepad2) || isDpadDownPressed(gamepad1, gamepad2)) {
+        } else if (ChoiceMenuInput.isDpadLeftPressed(gamepad1, gamepad2) || ChoiceMenuInput.isDpadDownPressed(gamepad1, gamepad2)) {
             selectedValue = Math.max(minValue, selectedValue - increment);
         }
 
-        if (isAButtonPressed(gamepad1, gamepad2)) {
+        if (ChoiceMenuInput.isAButtonPressed(gamepad1, gamepad2)) {
             return selectedValue;
         }
 
