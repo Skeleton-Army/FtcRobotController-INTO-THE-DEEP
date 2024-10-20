@@ -1,16 +1,19 @@
 package org.firstinspires.ftc.teamcode.opencv;
 import org.opencv.core.Point;
 public class Sample {
-    private double sampleX, sampleY, orientation;
+    private double sampleX, sampleY, orientation, distance;
     private Point[] vertices;
     public Sample(Point[] vertices) {
         this.vertices = vertices;
         calculatePosition();
         calculateOrientation();
+
+        distance = Math.sqrt(Math.pow(sampleX, 2) + Math.pow(sampleY, 2));
     }
     public double getSampleX() {return sampleX;}
     public double getSampleY() {return sampleY;}
     public double getOrientation() {return orientation;}
+    public double getDistance() {return distance;}
 
     private void calculatePosition() {
         Point reference = vertices[0];

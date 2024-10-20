@@ -28,6 +28,8 @@ public class DetectSamples extends OpenCvPipeline {
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //Why did we choose this value?
 
+    public List<Sample> samples;
+
 
     public DetectSamples(Telemetry telemetry){
         this.telemetry = telemetry;
@@ -37,7 +39,7 @@ public class DetectSamples extends OpenCvPipeline {
 
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        List<Sample> samples = new ArrayList<>();
+        samples = new ArrayList<>();
 
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
