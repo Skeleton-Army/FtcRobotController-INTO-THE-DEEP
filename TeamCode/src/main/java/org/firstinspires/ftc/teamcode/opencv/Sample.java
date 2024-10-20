@@ -8,11 +8,11 @@ public class Sample {
         calculatePosition();
         calculateOrientation();
     }
-    private double getSampleX() {return sampleX;}
-    private double getSampleY() {return sampleY;}
-    private double getOrientation() {return orientation;}
+    public double getSampleX() {return sampleX;}
+    public double getSampleY() {return sampleY;}
+    public double getOrientation() {return orientation;}
 
-    public void calculatePosition() {
+    private void calculatePosition() {
         Point reference = vertices[0];
         for (Point vertex : vertices) {
             if (vertex.y > reference.y) {
