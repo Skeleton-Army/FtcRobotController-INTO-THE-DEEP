@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opencv;
 import org.opencv.core.Point;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Sample {
     private double sampleX, sampleY, orientation, distance;
     private Point[] vertices;

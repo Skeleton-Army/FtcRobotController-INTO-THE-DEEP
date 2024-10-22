@@ -26,13 +26,14 @@ public class DetectSamples extends OpenCvPipeline {
     private final Scalar upperBoundMask = new Scalar(255, 200, 100);
 
     private static final float epsilonConstant = 0.025f;
-    private static final Size kernelSize = new Size(5, 5); //Why did we choose this value?
+    private static final Size kernelSize = new Size(5, 5); //We try new one!
 
     public List<Sample> samples;
 
 
-    public DetectSamples(Telemetry telemetry){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam){
         this.telemetry = telemetry;
+        this.webcam = webcam;
     }
 
     public Mat processFrame(Mat input) {
@@ -43,16 +44,21 @@ public class DetectSamples extends OpenCvPipeline {
 
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
-            if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
-                continue;
+            //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
+              //  continue;
 
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
             double epsilon = epsilonConstant * Imgproc.arcLength(contour2f, true);
             Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
             Point[] vertices = contour2f.toArray();
-            samples.add(new Sample(vertices));
+            Sample tempname = new Sample(vertices);
+            samples.add(tempname);
+            telemetry.addData("X", tempname.getSampleX());
+            telemetry.addData("Y", tempname.getSampleY());
+            telemetry.addData("distance", tempname.getDistance());
         }
+
         telemetry.update();
         return input;
     }

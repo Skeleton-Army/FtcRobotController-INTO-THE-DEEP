@@ -44,7 +44,7 @@ public class WebcamStreamingExample extends LinearOpMode
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        DetectSamples Pipeline = new DetectSamples(telemetry);
+        DetectSamples Pipeline = new DetectSamples(telemetry, webcam);
         webcam.setPipeline(Pipeline);
 
         /*
