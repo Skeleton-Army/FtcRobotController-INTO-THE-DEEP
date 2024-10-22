@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,12 +31,12 @@ public class Controller extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        armUtils.startupSequence();
+//        armUtils.startupSequence();
 
         // Run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            movementUtils.movement(gamepad1);
-            //movementUtils.fieldCentricMovement(gamepad1);
+            //movementUtils.movement(gamepad1);
+            movementUtils.fieldCentricMovement(gamepad1, telemetry);
             //movementUtils.testMovement(gamepad1);
             armUtils.roller(gamepad2);
             armUtils.extend(gamepad2);
