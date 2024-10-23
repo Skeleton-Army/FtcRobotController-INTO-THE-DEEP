@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.acmerobotics.roadrunner.control.PIDFController;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Rotation2d;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.DriveConstants;
-import org.firstinspires.ftc.teamcode.roadrunner.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.util.PoseStorage;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 public class MovementUtils {
     final double AXIAL_SPEED = 1;
@@ -29,21 +28,12 @@ public class MovementUtils {
     double lateralMultiplier;
     double yawMultiplier;
 
-    SampleMecanumDrive drive;
-
-    PIDFController headingController = new PIDFController(SampleMecanumDrive.HEADING_PID);
+    MecanumDrive drive;
     Vector2d targetPosition = new Vector2d(0, 0);
 
     public MovementUtils(HardwareMap hardwareMap) {
         // Initialize SampleMecanumDrive
-        drive = new SampleMecanumDrive(hardwareMap);
-
-        // We want to turn off velocity control for teleop
-        // Velocity control per wheel is not necessary outside of motion profiled auto
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Retrieve our pose from the PoseStorage.currentPose static field
-        drive.setPoseEstimate(PoseStorage.currentPose);
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
     }
 
     void calculateMultipliers(Gamepad gamepad) {
@@ -57,41 +47,49 @@ public class MovementUtils {
     public void movement(Gamepad gamepad) {
         calculateMultipliers(gamepad);
 
-        drive.setWeightedDrivePower(
-                new Pose2d(
-                        -gamepad.left_stick_y * axialMultiplier,
-                        -gamepad.left_stick_x * lateralMultiplier,
+        drive.setDrivePowers(
+                new PoseVelocity2d(
+                        new Vector2d(-gamepad.left_stick_y * axialMultiplier, -gamepad.left_stick_x * lateralMultiplier),
                         -gamepad.right_stick_x * yawMultiplier
                 )
         );
 
-        drive.update();
+        drive.updatePoseEstimate();
     }
 
     public void fieldCentricMovement(Gamepad gamepad, Telemetry telemetry) {
         calculateMultipliers(gamepad);
 
         // Read pose
-        Pose2d poseEstimate = drive.getPoseEstimate();
+        Pose2d poseEstimate = drive.pose;
 
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
+
+
+        // TODO: how should we do it?
+        /*
         Vector2d input = new Vector2d(
                 -gamepad.left_stick_y,
                 -gamepad.left_stick_x
-        ).rotated(-poseEstimate.getHeading());
+        ).rotated(-poseEstimate.heading);
+         */
+
+        Vector2d input = new Vector2d(
+                -gamepad.left_stick_y,
+                -gamepad.left_stick_x
+        );
 
         // Pass in the rotated input + right stick value for rotation
         // Rotation is not part of the rotated input thus must be passed in separately
-        drive.setWeightedDrivePower(
-                new Pose2d(
-                        input.getX() * axialMultiplier,
-                        input.getY() * lateralMultiplier,
+        drive.setDrivePowers(
+                new PoseVelocity2d(
+                        new Vector2d(input.x * axialMultiplier, input.y * lateralMultiplier),
                         -gamepad.right_stick_x * yawMultiplier
                 )
         );
 
         // Update everything. Odometry. Etc.
-        drive.update();
+        drive.updatePoseEstimate();
     }
 }
