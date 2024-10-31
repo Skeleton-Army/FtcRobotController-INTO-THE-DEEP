@@ -24,9 +24,9 @@ public class Sample {
                 reference = vertex;
             }
         }
-        horizontalAngle = (reference.x - Camera.halfImageWidth) * Camera.hOVERwidth;
-        sampleY = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight));
-        sampleX = Math.tan(Math.toRadians(horizontalAngle)) * sampleY;
+        horizontalAngle = Math.toRadians((reference.x - Camera.halfImageWidth) * Camera.hOVERwidth);
+        sampleY = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight)) - 3;
+        sampleX = Math.tan(horizontalAngle) * sampleY;
     }
     private void calculateOrientation() {
         int index = 0;

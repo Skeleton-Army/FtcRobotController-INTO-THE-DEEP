@@ -32,6 +32,11 @@ public class GoToSample extends OpMode {
     DetectSamples detectSamples;
     Sample closeSample;
     Trajectory sampleTrajectory;
+    State robot_state = State.LOOK_FOR_SAMPLE;
+    enum State {
+        LOOK_FOR_SAMPLE,
+        GO_TO_SAMPLE;
+    }
 
     private Sample calculateClosest() {
         // searching for the min value of distance
@@ -50,8 +55,10 @@ public class GoToSample extends OpMode {
     }
     public Pose2d sampleFieldPosition(Sample sample) {
         Pose2d robotPose = drive.getPoseEstimate();
-        double x = robotPose.getX() + sample.getSampleY() * Math.cos(robotPose.getHeading()) - sample.getSampleX() * Math.sin(robotPose.getHeading());
-        double y = robotPose.getY() + sample.getSampleY() * Math.sin(robotPose.getHeading()) + sample.getSampleX() * Math.cos(robotPose.getHeading());
+        double sampleAngle = sample.getHorizontalAngle();
+
+        double x = robotPose.getX() + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
+        double y = robotPose.getY() + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
         return new Pose2d(x, y, robotPose.getHeading() + Math.toRadians(sample.getHorizontalAngle()));
     }
     @Override
@@ -103,27 +110,36 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        try {
-            closeSample = calculateClosest();
-        }
-        catch (Exception e) {
-            telemetry.addLine("BASA YOSI");
-        }
-        telemetry.update();
+
     }
 
     @Override
     public void start() {
-        drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
-
-        sampleTrajectory = drive.trajectoryBuilder(new Pose2d())
-                .lineTo(new Vector2d(closeSample.getSampleY() - 5, -closeSample.getSampleX()))
-                .build();
-
-        drive.followTrajectory(sampleTrajectory);
+        //drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
     }
     @Override
     public void loop() {
+        switch (robot_state) {
+            case LOOK_FOR_SAMPLE:
+                try {
+                    closeSample = calculateClosest();
+                }
+                catch (Exception e) {
+                    telemetry.addLine("BASA YOSI");
+                    break;
+                }
+                telemetry.update();
+                Pose2d fieldPose = sampleFieldPosition(closeSample);
+                sampleTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
+                        .splineToSplineHeading(fieldPose, 0)
+                        .build();
 
+                drive.followTrajectoryAsync(sampleTrajectory);
+                robot_state = State.GO_TO_SAMPLE;
+                break;
+            case GO_TO_SAMPLE:
+                if (!drive.isBusy())
+                    robot_state = State.LOOK_FOR_SAMPLE;
+        }
     }
 }
