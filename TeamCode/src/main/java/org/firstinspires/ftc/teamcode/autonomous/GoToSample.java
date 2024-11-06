@@ -124,11 +124,10 @@ public class GoToSample extends OpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(
-                drive.actionBuilder(new Pose2d(0,0,0))
-                        .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
-                        .build()
-        );
+        drive.actionBuilder(new Pose2d(0,0,0))
+                .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
+                .build();
+
     }
     @Override
     public void loop() {
