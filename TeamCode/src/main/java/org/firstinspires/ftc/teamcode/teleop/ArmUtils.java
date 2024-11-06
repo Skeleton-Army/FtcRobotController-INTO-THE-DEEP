@@ -16,7 +16,7 @@ public class ArmUtils {
 
     // Arm
     public static final double ARM_EXTEND_SPEED = 0.5;
-    public static final double ARM_LIFT_SPEED = 40;
+    public static final double ARM_LIFT_SPEED = 20;
     public static final double ARM_LIFT_POWER = 0.6;
     public static final int ARM_MAX_POSITION = 3200;
     public static final int ARM_MIN_POSITION = -200;
