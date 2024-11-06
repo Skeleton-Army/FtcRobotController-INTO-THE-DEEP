@@ -54,6 +54,16 @@ public class GoToSample extends OpMode {
         return closest;
     }
 
+    private Pose2d fieldPosition(Sample sample) {
+        Pose2d robotPose = drive.pose;
+        double sampleAngle = sample.getHorizontalAngle();
+
+        double x = robotPose.position.x + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
+        double y = robotPose.position.y + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
+        return new Pose2d(x, y,  Math.toRadians(sample.getHorizontalAngle()));
+
+    }
+
     @Override
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

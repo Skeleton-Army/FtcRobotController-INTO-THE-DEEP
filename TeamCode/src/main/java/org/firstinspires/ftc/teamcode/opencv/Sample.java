@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.opencv;
+
 import org.opencv.core.Point;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Sample {
-    private double sampleX, sampleY, orientation, distance;
+    private double sampleX, sampleY, orientation, distance, horizontalAngle;
     private Point[] vertices;
     public Sample(Point[] vertices) {
         this.vertices = vertices;
@@ -15,6 +15,7 @@ public class Sample {
     public double getSampleY() {return sampleY;}
     public double getOrientation() {return orientation;}
     public double getDistance() {return distance;}
+    public double getHorizontalAngle() {return horizontalAngle;}
 
     private void calculatePosition() {
         Point reference = vertices[0];
@@ -23,9 +24,9 @@ public class Sample {
                 reference = vertex;
             }
         }
-        double y = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight));
-        sampleX = Math.tan(Math.toRadians((reference.x - Camera.halfImageWidth) * Camera.hOVERwidth)) * y;
-        sampleY = y;
+        horizontalAngle = Math.toRadians((reference.x - Camera.halfImageWidth) * Camera.hOVERwidth);
+        sampleY = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight)) - 3;
+        sampleX = Math.tan(horizontalAngle) * sampleY;
     }
     private void calculateOrientation() {
         int index = 0;
