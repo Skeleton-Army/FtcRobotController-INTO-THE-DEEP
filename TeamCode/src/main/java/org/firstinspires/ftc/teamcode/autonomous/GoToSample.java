@@ -60,7 +60,7 @@ public class GoToSample extends OpMode {
 
         double x = robotPose.position.x + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
         double y = robotPose.position.y + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
-        return new Pose2d(x, y,  Math.toRadians(sample.getHorizontalAngle()));
+        return new Pose2d(x, y,  sample.getHorizontalAngle());
 
     }
 

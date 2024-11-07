@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,12 +16,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Autonomous(name = "ApriltagLocalization", group = "test")
-public class ApriltagLocalization extends OpMode {
+@TeleOp(name = "ApriltagLocalization", group = "test")
+public class apriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
-            0, 0, 0, 0); //TODO: figure out these!!!
+            6.6, 8.2, 9.4, 0); //TODO: figure out these!!!
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0); //TODO: figure out these!!!
 
