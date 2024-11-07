@@ -57,7 +57,7 @@ public class IntakeTest extends LinearOpMode {
 
             drive.setDrivePowers(
                     new PoseVelocity2d(
-                            new Vector2d(-gamepad1.left_stick_y * axialMultiplier, -gamepad1.left_stick_x * lateralMultiplier),
+                            new Vector2d(gamepad1.left_stick_y * axialMultiplier, -gamepad1.left_stick_x * lateralMultiplier),
                             -gamepad1.right_stick_x * yawMultiplier
                     )
             );
