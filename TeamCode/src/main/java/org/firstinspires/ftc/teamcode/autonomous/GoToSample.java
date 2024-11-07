@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
 import org.firstinspires.ftc.teamcode.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.opencv.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -95,6 +96,7 @@ public class GoToSample extends OpMode {
                  * away from the user.
                  */
                 webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+
             }
 
             @Override
