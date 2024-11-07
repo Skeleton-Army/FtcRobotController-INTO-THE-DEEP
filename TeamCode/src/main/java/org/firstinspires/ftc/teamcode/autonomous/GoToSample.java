@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Trajectory;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.opencv.Sample;
-import org.firstinspires.ftc.teamcode.roadrunner.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -28,15 +32,11 @@ import java.util.List;
 public class GoToSample extends OpMode {
 
     OpenCvWebcam webcam;
-    SampleMecanumDrive drive;
+    MecanumDrive drive;
     DetectSamples detectSamples;
     Sample closeSample;
-    Trajectory sampleTrajectory;
-    State robot_state = State.LOOK_FOR_SAMPLE;
-    enum State {
-        LOOK_FOR_SAMPLE,
-        GO_TO_SAMPLE;
-    }
+
+    Pose2d startingPos = new Pose2d(0,0,0); // TOOD: if desired, change it to the actual pos of the robot that stems from the detected sample
 
     private Sample calculateClosest() {
         // searching for the min value of distance
@@ -53,14 +53,17 @@ public class GoToSample extends OpMode {
 
         return closest;
     }
-    public Pose2d sampleFieldPosition(Sample sample) {
-        Pose2d robotPose = drive.getPoseEstimate();
+
+    private Pose2d fieldPosition(Sample sample) {
+        Pose2d robotPose = drive.pose;
         double sampleAngle = sample.getHorizontalAngle();
 
-        double x = robotPose.getX() + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
-        double y = robotPose.getY() + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
-        return new Pose2d(x, y, robotPose.getHeading() + Math.toRadians(sample.getHorizontalAngle()));
+        double x = robotPose.position.x + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
+        double y = robotPose.position.y + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
+        return new Pose2d(x, y,  Math.toRadians(sample.getHorizontalAngle()));
+
     }
+
     @Override
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -105,41 +108,29 @@ public class GoToSample extends OpMode {
 
         //webcam.startStreaming(320, 240);
 
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new MecanumDrive(hardwareMap, startingPos);
     }
 
     @Override
     public void init_loop() {
-
+        try {
+            closeSample = calculateClosest();
+        }
+        catch (Exception e) {
+            telemetry.addLine("BASA YOSI");
+        }
+        telemetry.update();
     }
 
     @Override
     public void start() {
-        //drive.setPoseEstimate(new Pose2d(0,0,Math.toRadians(0)));
+        drive.actionBuilder(new Pose2d(0,0,0))
+                .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
+                .build();
+
     }
     @Override
     public void loop() {
-        switch (robot_state) {
-            case LOOK_FOR_SAMPLE:
-                try {
-                    closeSample = calculateClosest();
-                }
-                catch (Exception e) {
-                    telemetry.addLine("BASA YOSI");
-                    break;
-                }
-                telemetry.update();
-                Pose2d fieldPose = sampleFieldPosition(closeSample);
-                sampleTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
-                        .splineToSplineHeading(fieldPose, 0)
-                        .build();
 
-                drive.followTrajectoryAsync(sampleTrajectory);
-                robot_state = State.GO_TO_SAMPLE;
-                break;
-            case GO_TO_SAMPLE:
-                if (!drive.isBusy())
-                    robot_state = State.LOOK_FOR_SAMPLE;
-        }
     }
 }
