@@ -15,7 +15,7 @@ public class ContinuousServoTest extends OpMode {
 
     @Override
     public void init() {
-        crServo = hardwareMap.get(CRServo.class, "testServo");
+        crServo = hardwareMap.get(CRServo.class, "testCRServo");
     }
 
     @Override
