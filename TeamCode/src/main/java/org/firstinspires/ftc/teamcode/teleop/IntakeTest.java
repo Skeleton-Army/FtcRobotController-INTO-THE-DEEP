@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.roadrunner.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 @TeleOp(name = "Intake Test", group = "SA_FTC")
 public class IntakeTest extends LinearOpMode {
@@ -22,18 +24,14 @@ public class IntakeTest extends LinearOpMode {
     Servo servo;
     CRServo crServo;
 
-    SampleMecanumDrive drive;
+    MecanumDrive drive;
 
     ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
         // Initialize SampleMecanumDrive
-        drive = new SampleMecanumDrive(hardwareMap);
-
-        // We want to turn off velocity control for teleop
-        // Velocity control per wheel is not necessary outside of motion profiled auto
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
         armExtend = hardwareMap.get(DcMotor.class, "armExtend");
         servo = hardwareMap.get(Servo.class, "testServo");
@@ -57,15 +55,14 @@ public class IntakeTest extends LinearOpMode {
             lateralMultiplier = (slowModeActive ? SLOW_MODE_MULTIPLIER : 1);
             yawMultiplier = (slowModeActive ? SLOW_MODE_MULTIPLIER : 1);
 
-            drive.setWeightedDrivePower(
-                    new Pose2d(
-                            -gamepad1.left_stick_y * axialMultiplier,
-                            -gamepad1.left_stick_x * lateralMultiplier,
+            drive.setDrivePowers(
+                    new PoseVelocity2d(
+                            new Vector2d(-gamepad1.left_stick_y * axialMultiplier, -gamepad1.left_stick_x * lateralMultiplier),
                             -gamepad1.right_stick_x * yawMultiplier
                     )
             );
 
-            drive.update();
+            drive.updatePoseEstimate();
 
 //            if ((-armExtend.getCurrentPosition() < 2000 || -gamepad2.right_stick_y < 0) && (-armExtend.getCurrentPosition() > 300 || -gamepad2.right_stick_y > 0)) {
 //                armExtend.setPower(-gamepad2.right_stick_y);
