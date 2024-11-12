@@ -20,9 +20,10 @@ public class IntakeTest extends LinearOpMode {
     double lateralMultiplier;
     double yawMultiplier;
 
-    DcMotor armExtend;
-    Servo servo;
-    CRServo crServo;
+    DcMotor extend;
+    Servo claw;
+    Servo wrist;
+//    CRServo crServo;
 
     MecanumDrive drive;
 
@@ -33,12 +34,13 @@ public class IntakeTest extends LinearOpMode {
         // Initialize SampleMecanumDrive
         drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
-        armExtend = hardwareMap.get(DcMotor.class, "armExtend");
-        servo = hardwareMap.get(Servo.class, "testServo");
-        crServo = hardwareMap.get(CRServo.class, "testCRServo");
+        extend = hardwareMap.get(DcMotor.class, "extend");
+        claw = hardwareMap.get(Servo.class, "claw");
+        wrist = hardwareMap.get(Servo.class, "wrist");
+//        crServo = hardwareMap.get(CRServo.class, "testCRServo");
 
-        armExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -68,25 +70,31 @@ public class IntakeTest extends LinearOpMode {
 //                armExtend.setPower(-gamepad2.right_stick_y);
 //            }
 
-            armExtend.setPower(-gamepad2.right_stick_y);
+            extend.setPower(-gamepad2.right_stick_y);
 
             if (gamepad2.a) {
-                servo.setPosition(0.5);
+                claw.setPosition(IntakeParams.clawOpen);
             } else if (gamepad2.b) {
-                servo.setPosition(0);
+                claw.setPosition(IntakeParams.clawClosed);
             }
 
             if (gamepad2.x) {
-                crServo.setPower(1);
+                wrist.setPosition(IntakeParams.wristOpen);
             } else if (gamepad2.y) {
-                crServo.setPower(-1);
-            } else {
-                crServo.setPower(0);
+                wrist.setPosition(IntakeParams.wristClosed);
             }
+
+//            if (gamepad2.x) {
+//                crServo.setPower(1);
+//            } else if (gamepad2.y) {
+//                crServo.setPower(-1);
+//            } else {
+//                crServo.setPower(0);
+//            }
 
             // Debugging
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("pos", -armExtend.getCurrentPosition());
+            telemetry.addData("pos", -extend.getCurrentPosition());
             telemetry.addData("stick y", -gamepad2.right_stick_y);
 
             telemetry.update();
