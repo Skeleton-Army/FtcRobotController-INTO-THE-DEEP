@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
 import org.firstinspires.ftc.teamcode.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.opencv.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -61,7 +60,7 @@ public class GoToSample extends OpMode {
 
         double x = robotPose.position.x + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
         double y = robotPose.position.y + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
-        return new Pose2d(x, y,  sample.getHorizontalAngle());
+        return new Pose2d(x, y,  Math.toRadians(sample.getHorizontalAngle()));
 
     }
 
@@ -96,7 +95,6 @@ public class GoToSample extends OpMode {
                  * away from the user.
                  */
                 webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
-
             }
 
             @Override
@@ -126,10 +124,11 @@ public class GoToSample extends OpMode {
 
     @Override
     public void start() {
-        drive.actionBuilder(new Pose2d(0,0,0))
-                .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
-                .build();
-
+        Actions.runBlocking(
+                drive.actionBuilder(new Pose2d(0,0,0))
+                        .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
+                        .build()
+        );
     }
     @Override
     public void loop() {
