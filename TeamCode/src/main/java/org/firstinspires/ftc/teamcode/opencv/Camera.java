@@ -15,6 +15,8 @@ public final class Camera {
     public static final float vOVERheight = 0.1725f;
     public static final int halfImageWidth = 160;
     public static final int halfImageHeight = 120;
+    public static final double offsetX = 6.6;
+    public static final double offsetY = 8.2;
 }
 
 //double x = Camera.inchXfocal / calculatePixels(vertices);
