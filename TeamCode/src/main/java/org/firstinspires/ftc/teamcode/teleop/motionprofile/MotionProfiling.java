@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.motionprofile;
 
-import static org.firstinspires.ftc.teamcode.teleop.motionprofile.MotionProfilingConstans.*;
+import static org.firstinspires.ftc.teamcode.teleop.motionprofile.MotionProfilingConstants.*;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;

@@ -14,15 +14,11 @@ public class Controller extends LinearOpMode {
 
     ElapsedTime runtime = new ElapsedTime();
 
-    List<DebugData> debugDataList = new ArrayList<>();
-
     @Override
     public void runOpMode() {
         Instance = this;
 
         MovementUtils movementUtils = new MovementUtils(hardwareMap);
-        ArmUtils armUtils = new ArmUtils(hardwareMap);
-        //DrivingAssist drivingAssist = new DrivingAssist(hardwareMap);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -31,46 +27,13 @@ public class Controller extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-//        armUtils.startupSequence();
-
         // Run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             movementUtils.movement(gamepad1);
             //movementUtils.fieldCentricMovement(gamepad1, telemetry);
-            //movementUtils.testMovement(gamepad1);
-            //armUtils.roller(gamepad2);
-            //armUtils.extend(gamepad2);
-            armUtils.lift(gamepad2);
-            //armUtils.grip(gamepad2);
-            //armUtils.drone(gamepad1);
-            armUtils.runSequences(gamepad2);
-            //drivingAssist.gripLed(gamepad1, gamepad2);
-            //drivingAssist.endgameCountdown(gamepad1, gamepad2, runtime);
 
             // Debugging
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-
-            for (DebugData data : debugDataList) {
-                telemetry.addData(data.caption, data.value);
-            }
-            debugDataList.clear();
-
             telemetry.update();
         }
-    }
-
-    public void Debug(String caption, Object value) {
-        DebugData newData = new DebugData(caption, value);
-        debugDataList.add(newData);
-    }
-}
-
-class DebugData {
-    public String caption;
-    public Object value;
-
-    public DebugData(String caption, Object value) {
-        this.caption = caption;
-        this.value = value;
     }
 }

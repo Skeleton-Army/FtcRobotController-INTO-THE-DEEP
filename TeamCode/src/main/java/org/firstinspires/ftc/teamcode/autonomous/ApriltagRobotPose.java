@@ -16,8 +16,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@TeleOp(name = "ApriltagLocalization", group = "test")
-public class apriltagRobotPose extends OpMode {
+@TeleOp(name = "Apriltag Localization", group = "test")
+public class ApriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
