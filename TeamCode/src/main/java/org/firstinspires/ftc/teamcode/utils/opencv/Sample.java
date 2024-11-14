@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opencv;
+package org.firstinspires.ftc.teamcode.utils.opencv;
 
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 public class Sample {
     private double sampleX, sampleY, orientation, distance, horizontalAngle;
@@ -24,9 +25,9 @@ public class Sample {
                 reference = vertex;
             }
         }
-        horizontalAngle = Math.toRadians((reference.x - Camera.halfImageWidth) * Camera.hOVERwidth);
-        sampleY = Camera.z / Math.tan(Math.toRadians((reference.y - Camera.halfImageHeight) * Camera.vOVERheight)) - Camera.offsetY;
-        sampleX = Math.tan(horizontalAngle) * sampleY - Camera.offsetX;
+        horizontalAngle = Math.toRadians((reference.x - CameraConfig.halfImageWidth) * CameraConfig.hOVERwidth);
+        sampleY = CameraConfig.z / Math.tan(Math.toRadians((reference.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight)) - CameraConfig.offsetY;
+        sampleX = Math.tan(horizontalAngle) * sampleY - CameraConfig.offsetX;
     }
     private void calculateOrientation() {
         int index = 0;
@@ -38,7 +39,7 @@ public class Sample {
         Point point1 = vertices[(index - 1 + vertices.length) % vertices.length];
         Point point2 = vertices[index];
         Point point3 = vertices[(index + 1) % vertices.length];
-        double verticalAngle = (point2.y - Camera.halfImageHeight) * Camera.vOVERheight;
+        double verticalAngle = (point2.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight;
         double wanted_length_squared = Math.pow(point3.y - point2.y, 2) + Math.pow(point2.x - point3.x, 2);
         double other_length_squared = Math.pow(point1.y - point2.y, 2) + Math.pow(point2.x - point1.x, 2);
         if (other_length_squared < wanted_length_squared)

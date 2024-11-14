@@ -1,18 +1,25 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.opModes;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.utils.ChoiceMenu;
-import org.firstinspires.ftc.teamcode.utils.prompts.OptionPrompt;
-import org.firstinspires.ftc.teamcode.utils.prompts.ValuePrompt;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
+import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
+import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.general.prompts.ValuePrompt;
 
-@Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "TeleOp App")
+@Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "Teleop App")
 public class AutoApplication extends OpMode {
+    MecanumDrive drive;
+
     private ChoiceMenu choiceMenu;
 
     @Override
     public void init() {
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
         choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
 
         choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
@@ -40,5 +47,10 @@ public class AutoApplication extends OpMode {
     @Override
     public void loop() {
 
+    }
+
+    @Override
+    public void stop() {
+        PoseStorage.currentPose = drive.pose;
     }
 }

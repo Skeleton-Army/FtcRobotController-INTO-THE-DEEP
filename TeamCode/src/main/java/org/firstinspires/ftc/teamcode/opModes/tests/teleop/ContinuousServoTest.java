@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import org.firstinspires.ftc.teamcode.utils.Debounce;
+import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 
 @TeleOp(name = "Continuous Servo Test", group = "SA_FTC")
 public class ContinuousServoTest extends OpMode {

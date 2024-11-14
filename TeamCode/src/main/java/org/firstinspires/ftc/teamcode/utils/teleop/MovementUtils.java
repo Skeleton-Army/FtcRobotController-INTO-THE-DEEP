@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.utils.teleop;
 
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -6,28 +6,25 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 public class MovementUtils {
     final double SLOW_MODE_MULTIPLIER = 0.3;
 
-    double axialMultiplier;
-    double lateralMultiplier;
-    double yawMultiplier;
+    double multiplier;
 
     MecanumDrive drive;
 
-    public MovementUtils(HardwareMap hardwareMap) {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+    public MovementUtils(HardwareMap hardwareMap, Pose2d startPose) {
+        drive = new MecanumDrive(hardwareMap, startPose);
     }
 
     void calculateMultipliers() {
-        boolean slowModeActive = Controller.Instance.gamepad1.right_bumper || Controller.Instance.gamepad2.start;
+        boolean slowModeActive = TeleopApplication.Instance.gamepad1.right_bumper || TeleopApplication.Instance.gamepad2.start;
 
-        axialMultiplier = slowModeActive ? SLOW_MODE_MULTIPLIER : 1;
-        lateralMultiplier = slowModeActive ? SLOW_MODE_MULTIPLIER : 1;
-        yawMultiplier = slowModeActive ? SLOW_MODE_MULTIPLIER : 1;
+        multiplier = slowModeActive ? SLOW_MODE_MULTIPLIER : 1;
     }
 
     public void movement(Gamepad gamepad) {
@@ -35,8 +32,8 @@ public class MovementUtils {
 
         drive.setDrivePowers(
                 new PoseVelocity2d(
-                        new Vector2d(-gamepad.left_stick_y * axialMultiplier, -gamepad.left_stick_x * lateralMultiplier),
-                        -gamepad.right_stick_x * yawMultiplier
+                        new Vector2d(-gamepad.left_stick_y * multiplier, -gamepad.left_stick_x * multiplier),
+                        -gamepad.right_stick_x * multiplier
                 )
         );
 
@@ -52,17 +49,17 @@ public class MovementUtils {
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
 
-        Vector2d input = new Vector2d(
-                -Controller.Instance.gamepad1.left_stick_y,
-                -Controller.Instance.gamepad1.left_stick_x
-        );
+        Vector2d input = Utilities.rotate(new Vector2d(
+                -TeleopApplication.Instance.gamepad1.left_stick_y,
+                -TeleopApplication.Instance.gamepad1.left_stick_x
+        ), -poseEstimate.heading.toDouble());
 
         // Pass in the rotated input + right stick value for rotation
         // Rotation is not part of the rotated input thus must be passed in separately
         drive.setDrivePowers(
                 new PoseVelocity2d(
-                        new Vector2d(input.x * axialMultiplier, input.y * lateralMultiplier),
-                        -Controller.Instance.gamepad1.right_stick_x * yawMultiplier
+                        new Vector2d(input.x * multiplier, input.y * multiplier),
+                        -TeleopApplication.Instance.gamepad1.right_stick_x * multiplier
                 )
         );
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 
 @Autonomous(name = "Auto Test", group = "SA_FTC")
 public class AutoTest extends OpMode {
@@ -37,5 +38,10 @@ public class AutoTest extends OpMode {
     @Override
     public void loop() {
 
+    }
+
+    @Override
+    public void stop() {
+        PoseStorage.currentPose = drive.pose;
     }
 }

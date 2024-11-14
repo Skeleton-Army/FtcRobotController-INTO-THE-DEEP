@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.utils.general;
 
 public class Debounce {
     private static final long DEBOUNCE_DELAY = 500; // in milliseconds

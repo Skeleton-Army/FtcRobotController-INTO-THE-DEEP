@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.utils.general;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.prompts.Prompt;
+import org.firstinspires.ftc.teamcode.utils.general.prompts.Prompt;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop.motionprofile;
-
-import static org.firstinspires.ftc.teamcode.teleop.motionprofile.MotionProfilingConstants.*;
+package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -11,13 +9,14 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
 
 @TeleOp(name="MotionProfilingTest", group = "tests")
 public class MotionProfiling extends OpMode {
     private double previousAxialSpeed = 0;
     private double previousLateralSpeed = 0;
     private double previousYawSpeed = 0;
-    private ElapsedTime timer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime();
     private MecanumDrive drive;
 
     private double lastTime = 0;
@@ -32,7 +31,7 @@ public class MotionProfiling extends OpMode {
         double deltaTime = currentTime - calledTime;
 
         telemetry.addData("delta time: ", deltaTime);
-        double maxChange = MAX_SLEW_RATE * deltaTime;
+        double maxChange = MotionProfileConfig.MAX_SLEW_RATE * deltaTime;
         double speedChange = targetSpeed - previousSpeed;
 
         if (Math.abs(speedChange) > maxChange) {
@@ -43,13 +42,10 @@ public class MotionProfiling extends OpMode {
     }
 
     public void movement(Gamepad gamepad) {
-        //calculateMultipliers(gamepad);
-
-
         // Apply slew rate limiter to each multiplier
-        double limitedLateralSpeed = applySlewRate(-gamepad1.left_stick_x * LATERAL_MULTIPLIER, previousLateralSpeed, lastTime);
-        double limitedAxialSpeed = applySlewRate(-gamepad1.left_stick_y * AXIAL_MULTIPLIER, previousAxialSpeed, lastTime);
-        double limitedYawSpeed = applySlewRate(-gamepad1.right_stick_x * YAW_MULTIPLIER, previousYawSpeed, lastTime);
+        double limitedLateralSpeed = applySlewRate(-gamepad1.left_stick_x * MotionProfileConfig.LATERAL_MULTIPLIER, previousLateralSpeed, lastTime);
+        double limitedAxialSpeed = applySlewRate(-gamepad1.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER, previousAxialSpeed, lastTime);
+        double limitedYawSpeed = applySlewRate(-gamepad1.right_stick_x * MotionProfileConfig.YAW_MULTIPLIER, previousYawSpeed, lastTime);
 
         // Update previous speeds for the next cycle
         previousAxialSpeed = limitedAxialSpeed;
@@ -82,6 +78,4 @@ public class MotionProfiling extends OpMode {
         telemetry.addData("time: ", currentTime);
         telemetry.update();
     }
-
 }
-

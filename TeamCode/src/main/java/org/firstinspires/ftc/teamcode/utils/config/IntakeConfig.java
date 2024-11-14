@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.utils.config;
 
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-public class IntakeParams {
+public class IntakeConfig {
     public static double clawClosed = 0.8;
     public static double clawOpen = 1;
 

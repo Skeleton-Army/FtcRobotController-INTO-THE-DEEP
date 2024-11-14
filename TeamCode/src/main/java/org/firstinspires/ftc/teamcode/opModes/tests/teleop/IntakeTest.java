@@ -1,16 +1,16 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 @TeleOp(name = "Intake Test", group = "SA_FTC")
 public class IntakeTest extends LinearOpMode {
@@ -73,15 +73,15 @@ public class IntakeTest extends LinearOpMode {
             extend.setPower(-gamepad2.right_stick_y);
 
             if (gamepad2.a) {
-                claw.setPosition(IntakeParams.clawOpen);
+                claw.setPosition(IntakeConfig.clawOpen);
             } else if (gamepad2.b) {
-                claw.setPosition(IntakeParams.clawClosed);
+                claw.setPosition(IntakeConfig.clawClosed);
             }
 
             if (gamepad2.x) {
-                wrist.setPosition(IntakeParams.wristOpen);
+                wrist.setPosition(IntakeConfig.wristOpen);
             } else if (gamepad2.y) {
-                wrist.setPosition(IntakeParams.wristClosed);
+                wrist.setPosition(IntakeConfig.wristClosed);
             }
 
 //            if (gamepad2.x) {

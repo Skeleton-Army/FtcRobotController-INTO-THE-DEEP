@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.utils.prompts;
+package org.firstinspires.ftc.teamcode.utils.general.prompts;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.Debounce;
+import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 
 public class OptionPrompt extends Prompt {
     private final String[] options;
