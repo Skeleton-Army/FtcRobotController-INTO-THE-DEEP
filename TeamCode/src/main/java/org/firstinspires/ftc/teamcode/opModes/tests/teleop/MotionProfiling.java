@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
 
-@TeleOp(name="MotionProfilingTest", group = "tests")
+@TeleOp(name="Motion Profiling Test", group = "tests")
 public class MotionProfiling extends OpMode {
     private double previousAxialSpeed = 0;
     private double previousLateralSpeed = 0;
@@ -21,13 +21,11 @@ public class MotionProfiling extends OpMode {
 
     private double lastTime = 0;
 
-    double currentTime = timer.seconds();
-
-
+    /**
+     * Linear slew rate limiter
+     */
     private double applySlewRate(double targetSpeed, double previousSpeed, double calledTime) {
-
-        //timer.reset();
-
+        double currentTime = timer.seconds();
         double deltaTime = currentTime - calledTime;
 
         telemetry.addData("delta time: ", deltaTime);
@@ -41,7 +39,14 @@ public class MotionProfiling extends OpMode {
         return previousSpeed + speedChange;
     }
 
-    public void movement(Gamepad gamepad) {
+    /**
+     * Exponential smoothing method
+     */
+    private double applyExponentialSmoothing(double targetSpeed, double previousSpeed, double alpha) {
+        return previousSpeed + alpha * (targetSpeed - previousSpeed);
+    }
+
+    public void slewRateMovement() {
         // Apply slew rate limiter to each multiplier
         double limitedLateralSpeed = applySlewRate(-gamepad1.left_stick_x * MotionProfileConfig.LATERAL_MULTIPLIER, previousLateralSpeed, lastTime);
         double limitedAxialSpeed = applySlewRate(-gamepad1.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER, previousAxialSpeed, lastTime);
@@ -63,9 +68,52 @@ public class MotionProfiling extends OpMode {
                         limitedYawSpeed
                 )
         );
-        drive.updatePoseEstimate();
 
+        drive.updatePoseEstimate();
     }
+
+    public void exponentialSmoothingMovement() {
+        double alpha = MotionProfileConfig.EXPONENTIAL_SMOOTHING_ALPHA;
+
+        // Apply exponential smoothing to each multiplier
+        double smoothedLateralSpeed = applyExponentialSmoothing(
+                -gamepad1.left_stick_x * MotionProfileConfig.LATERAL_MULTIPLIER,
+                previousLateralSpeed,
+                alpha
+        );
+
+        double smoothedAxialSpeed = applyExponentialSmoothing(
+                -gamepad1.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER,
+                previousAxialSpeed,
+                alpha
+        );
+
+        double smoothedYawSpeed = applyExponentialSmoothing(
+                -gamepad1.right_stick_x * MotionProfileConfig.YAW_MULTIPLIER,
+                previousYawSpeed,
+                alpha
+        );
+
+        // Update previous speeds for the next cycle
+        previousAxialSpeed = smoothedAxialSpeed;
+        previousLateralSpeed = smoothedLateralSpeed;
+        previousYawSpeed = smoothedYawSpeed;
+
+        lastTime = timer.seconds();
+
+        drive.setDrivePowers(
+                new PoseVelocity2d(
+                        new Vector2d(
+                                smoothedAxialSpeed,
+                                smoothedLateralSpeed
+                        ),
+                        smoothedYawSpeed
+                )
+        );
+
+        drive.updatePoseEstimate();
+    }
+
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -73,9 +121,10 @@ public class MotionProfiling extends OpMode {
 
     @Override
     public void loop() {
-        movement(gamepad1);
-        currentTime = timer.seconds();
-        telemetry.addData("time: ", currentTime);
+        //slewRateMovement();
+        exponentialSmoothingMovement();
+
+        telemetry.addData("time: ", timer.seconds());
         telemetry.update();
     }
 }
