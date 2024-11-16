@@ -9,4 +9,6 @@ public class IntakeConfig {
 
     public static double wristClosed = 0.2;
     public static double wristOpen = 0;
+
+    public static double maxExtend = 100;
 }
