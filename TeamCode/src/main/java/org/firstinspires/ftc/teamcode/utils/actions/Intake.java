@@ -31,7 +31,7 @@ public class Intake {
                 initialized = true;
             }
 
-            return motor.isBusy();
+            return !motor.isBusy();
         }
     }
 

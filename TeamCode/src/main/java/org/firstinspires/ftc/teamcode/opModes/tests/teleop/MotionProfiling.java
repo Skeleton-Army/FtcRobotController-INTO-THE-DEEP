@@ -178,8 +178,8 @@ public class MotionProfiling extends OpMode {
     @Override
     public void loop() {
         //slewRateMovement();
-        exponentialSmoothingMovement();
-        //parabolicSmoothingMovement();
+//        exponentialSmoothingMovement();
+        parabolicSmoothingMovement();
 
         telemetry.addData("time: ", timer.seconds());
         telemetry.update();
