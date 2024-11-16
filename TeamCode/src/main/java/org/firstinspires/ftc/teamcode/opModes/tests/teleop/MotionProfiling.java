@@ -5,13 +5,12 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
 
-@TeleOp(name="Motion Profiling Test", group = "tests")
+@TeleOp(name = "Motion Profiling Test", group = "tests")
 public class MotionProfiling extends OpMode {
     private double previousAxialSpeed = 0;
     private double previousLateralSpeed = 0;
@@ -20,6 +19,7 @@ public class MotionProfiling extends OpMode {
     private MecanumDrive drive;
 
     private double lastTime = 0;
+    private boolean isJoystickActive = false;
 
     /**
      * Linear slew rate limiter
@@ -47,17 +47,30 @@ public class MotionProfiling extends OpMode {
     }
 
     /**
-     * Parabolic smoothing method
+     * Parabolic smoothing method with time adjustment
      */
-    private double applyParabolicSmoothing(double targetSpeed, double previousSpeed, double beta) {
+    private double applyParabolicSmoothing(double targetSpeed, double previousSpeed, double beta, int power) {
+        double currentTime = timer.seconds();
+        double deltaTime = currentTime - lastTime;
+
         // Calculate the distance (difference) between the target and the current speed
         double speedDifference = targetSpeed - previousSpeed;
 
         // Apply the parabolic formula
-        double change = beta * Math.pow(speedDifference, 2) * Math.signum(speedDifference);
+        double parabolicChange = beta * Math.pow(speedDifference, power * 2) * Math.signum(speedDifference) * deltaTime;
 
-        // Return the updated speed
-        return previousSpeed + change;
+        // Blend with a small linear adjustment to prevent stalling for small differences
+        double linearChange = 0.1 * speedDifference;
+
+        // Final change is a combination of linear and parabolic smoothing
+        double totalChange = linearChange + parabolicChange;
+
+        // Clamp the result to avoid overshooting the target speed
+        if (Math.abs(targetSpeed - (previousSpeed + totalChange)) < Math.abs(speedDifference)) {
+            return previousSpeed + totalChange;
+        } else {
+            return targetSpeed;
+        }
     }
 
     public void slewRateMovement() {
@@ -130,24 +143,28 @@ public class MotionProfiling extends OpMode {
 
     public void parabolicSmoothingMovement() {
         double beta = MotionProfileConfig.PARABOLIC_SMOOTHING_BETA;
+        int power = MotionProfileConfig.PARABOLIC_SMOOTHING_POWER;
 
         // Apply parabolic smoothing to each multiplier
         double smoothedLateralSpeed = applyParabolicSmoothing(
                 -gamepad1.left_stick_x * MotionProfileConfig.LATERAL_MULTIPLIER,
                 previousLateralSpeed,
-                beta
+                beta,
+                power
         );
 
         double smoothedAxialSpeed = applyParabolicSmoothing(
                 -gamepad1.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER,
                 previousAxialSpeed,
-                beta
+                beta,
+                power
         );
 
         double smoothedYawSpeed = applyParabolicSmoothing(
                 -gamepad1.right_stick_x * MotionProfileConfig.YAW_MULTIPLIER,
                 previousYawSpeed,
-                beta
+                beta,
+                power
         );
 
         // Update previous speeds for the next cycle
@@ -170,6 +187,58 @@ public class MotionProfiling extends OpMode {
         drive.updatePoseEstimate();
     }
 
+    /**
+     * Global joystick movement with ramp-up and deceleration.
+     */
+    public void globalJoystickMovement() {
+        double currentTime = timer.seconds();
+
+        // Joystick inputs
+        double lateralInput = -gamepad1.left_stick_x;
+        double axialInput = -gamepad1.left_stick_y;
+        double yawInput = -gamepad1.right_stick_x;
+
+        // Determine if joystick is active
+        boolean isActive = Math.abs(lateralInput) > 0.01 || Math.abs(axialInput) > 0.01 || Math.abs(yawInput) > 0.01;
+
+        if (isActive) {
+            if (!isJoystickActive) {
+                // Transition from inactive to active: ramp-up
+                previousAxialSpeed = applySlewRate(axialInput * MotionProfileConfig.AXIAL_MULTIPLIER, previousAxialSpeed, lastTime);
+                previousLateralSpeed = applySlewRate(lateralInput * MotionProfileConfig.LATERAL_MULTIPLIER, previousLateralSpeed, lastTime);
+                previousYawSpeed = applySlewRate(yawInput * MotionProfileConfig.YAW_MULTIPLIER, previousYawSpeed, lastTime);
+            } else {
+                // Maintain speed during joystick movement
+                previousAxialSpeed = axialInput * MotionProfileConfig.AXIAL_MULTIPLIER;
+                previousLateralSpeed = lateralInput * MotionProfileConfig.LATERAL_MULTIPLIER;
+                previousYawSpeed = yawInput * MotionProfileConfig.YAW_MULTIPLIER;
+            }
+        } else if (isJoystickActive) {
+            // Deceleration when joystick is released
+            previousAxialSpeed = applySlewRate(0, previousAxialSpeed, lastTime);
+            previousLateralSpeed = applySlewRate(0, previousLateralSpeed, lastTime);
+            previousYawSpeed = applySlewRate(0, previousYawSpeed, lastTime);
+        }
+
+        // Update joystick state
+        isJoystickActive = isActive;
+
+        // Apply calculated speeds to the drive
+        drive.setDrivePowers(
+                new PoseVelocity2d(
+                        new Vector2d(previousAxialSpeed, previousLateralSpeed),
+                        previousYawSpeed
+                )
+        );
+
+        drive.updatePoseEstimate();
+        lastTime = currentTime;
+
+        telemetry.addData("Axial Speed", previousAxialSpeed);
+        telemetry.addData("Lateral Speed", previousLateralSpeed);
+        telemetry.addData("Yaw Speed", previousYawSpeed);
+    }
+
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -178,8 +247,9 @@ public class MotionProfiling extends OpMode {
     @Override
     public void loop() {
         //slewRateMovement();
-//        exponentialSmoothingMovement();
+        //exponentialSmoothingMovement();
         parabolicSmoothingMovement();
+        //globalJoystickMovement();
 
         telemetry.addData("time: ", timer.seconds());
         telemetry.update();
