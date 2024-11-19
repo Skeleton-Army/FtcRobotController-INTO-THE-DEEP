@@ -30,12 +30,7 @@ public class MovementUtils {
     public void movement(Gamepad gamepad) {
         calculateMultipliers();
 
-        drive.setDrivePowers(
-                new PoseVelocity2d(
-                        new Vector2d(-gamepad.left_stick_y * multiplier, -gamepad.left_stick_x * multiplier),
-                        -gamepad.right_stick_x * multiplier
-                )
-        );
+        drive.setDrivePowers(MotionProfiling.getSmoothingPowersVelPose(TeleopApplication.Instance.gamepad1));
 
         drive.updatePoseEstimate();
     }
@@ -49,9 +44,7 @@ public class MovementUtils {
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
 
-        Vector2d input = Utilities.rotate(new Vector2d(
-                -TeleopApplication.Instance.gamepad1.left_stick_y,
-                -TeleopApplication.Instance.gamepad1.left_stick_x
+        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(TeleopApplication.Instance.gamepad1)
         ), -poseEstimate.heading.toDouble());
 
         // Pass in the rotated input + right stick value for rotation
@@ -59,7 +52,7 @@ public class MovementUtils {
         drive.setDrivePowers(
                 new PoseVelocity2d(
                         new Vector2d(input.x * multiplier, input.y * multiplier),
-                        -TeleopApplication.Instance.gamepad1.right_stick_x * multiplier
+                        MotionProfiling.calculateSmoothedYawSpeed(TeleopApplication.Instance.gamepad1)
                 )
         );
 

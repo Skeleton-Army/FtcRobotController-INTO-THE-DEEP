@@ -4,15 +4,15 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.actions.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 
 @Autonomous(name = "TestActions", group = "SA_FTC")
 public class ActionsTest extends OpMode {
     MecanumDrive drive;
     Intake intake;
+
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
@@ -20,7 +20,12 @@ public class ActionsTest extends OpMode {
     }
 
     @Override
+    public void start() {
+        Actions.runBlocking(intake.moveArm(-2700, 1));
+    }
+
+    @Override
     public void loop() {
-        Actions.runBlocking(intake.moveArm(1000));
+
     }
 }
