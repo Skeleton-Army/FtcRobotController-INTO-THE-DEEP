@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
@@ -27,6 +30,7 @@ public class AutoApplication extends OpMode {
 
     MecanumDrive drive;
     Intake intake;
+    Outtake outtake;
 
     private void setPrompts() {
         choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
@@ -40,7 +44,9 @@ public class AutoApplication extends OpMode {
         choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
         setPrompts();
 
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
     }
 
     @Override
@@ -61,7 +67,7 @@ public class AutoApplication extends OpMode {
         telemetry.addData("Selected Strategy", strategy);
         telemetry.addData("Selected Delay", delay);
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, -61.5, Math.toRadians(90.00)));
+        drive.pose = new Pose2d(10, -61.5, Math.toRadians(90.00));
     }
 
     @Override
@@ -69,12 +75,19 @@ public class AutoApplication extends OpMode {
         switch (state) {
             case HANG_SPECIMEN:
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose)
-                                .splineToConstantHeading(new Vector2d(10,-30), Math.toRadians(90.00))
-                                .build()
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .splineToConstantHeading(new Vector2d(10,-30), Math.toRadians(90.00))
+                                        .build(),
+                                new SleepAction(1),
+                                drive.actionBuilder(drive.pose)
+                                        .splineToConstantHeading(new Vector2d(10,-40), Math.toRadians(90.00))
+                                        .build()
+                        )
                 );
-                state = State.PICKUP_SPECIMEN;
 
+                state = State.PICKUP_SPECIMEN;
+                break;
             case PICKUP_SPECIMEN:
 //                Actions.runBlocking(
 //                        drive.actionBuilder(drive.pose)
@@ -88,8 +101,9 @@ public class AutoApplication extends OpMode {
                 state = State.HANG_SPECIMEN;
                 break;
             default:
-                // should never be reached, as state should never be null
+                // Should never be reached, as state should never be null
                 state = State.HANG_SPECIMEN;
+                break;
         }
     }
 
