@@ -21,7 +21,7 @@ public class ActionsTest extends OpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(intake.moveArm(-2700, 1));
+        Actions.runBlocking(intake.motorToPosition(-2700, 1));
     }
 
     @Override
