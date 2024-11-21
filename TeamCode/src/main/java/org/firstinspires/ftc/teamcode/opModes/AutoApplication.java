@@ -89,14 +89,16 @@ public class AutoApplication extends OpMode {
                 state = State.PICKUP_SPECIMEN;
                 break;
             case PICKUP_SPECIMEN:
-//                Actions.runBlocking(
-//                        drive.actionBuilder(drive.pose)
-//                                .splineToConstantHeading(new Vector2d(10, -32), Math.toRadians(-90))
-//                                .splineToConstantHeading(new Vector2d(27.48, -35.49), Math.toRadians(30.78))
-//                                .splineToLinearHeading(new Pose2d(47.41, -15.74, Math.toRadians(-90)), Math.PI / 2)
-//                                .splineToConstantHeading(new Vector2d(47.41, -50), Math.toRadians(270))
-//                                .build()
-//                );
+                Actions.runBlocking(
+                        drive.actionBuilder(drive.pose)
+                                .splineTo(new Vector2d(38,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
+                                .splineTo(new Vector2d(47,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
+                                .splineTo(new Vector2d(57,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
+                                .build()
+                );
 
                 state = State.HANG_SPECIMEN;
                 break;
