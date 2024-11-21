@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
@@ -22,18 +26,27 @@ public class AutoApplication extends OpMode {
 
     State state = State.HANG_SPECIMEN;
 
+    ChoiceMenu choiceMenu;
+
     MecanumDrive drive;
+    Intake intake;
+    Outtake outtake;
 
-    private ChoiceMenu choiceMenu;
-
-    @Override
-    public void init() {
-        choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
-
+    private void setPrompts() {
         choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
         choiceMenu.enqueuePrompt(new OptionPrompt("position", "SELECT THE STARTING POSITION:", "Audience", "Rear Wall"));
         choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Yellow Basket"));
         choiceMenu.enqueuePrompt(new ValuePrompt("delay", "ENTER A START DELAY:", 0, 10, 0, 0.5));
+    }
+
+    @Override
+    public void init() {
+        choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
+        setPrompts();
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
     }
 
     @Override
@@ -54,7 +67,7 @@ public class AutoApplication extends OpMode {
         telemetry.addData("Selected Strategy", strategy);
         telemetry.addData("Selected Delay", delay);
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(10, -61.5, Math.toRadians(90.00)));
+        drive.pose = new Pose2d(10, -61.5, Math.toRadians(90.00));
     }
 
     @Override
@@ -62,31 +75,37 @@ public class AutoApplication extends OpMode {
         switch (state) {
             case HANG_SPECIMEN:
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose)
-                                .splineToConstantHeading(new Vector2d(10,-31), Math.toRadians(90.00))
-                                .build()
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .splineToConstantHeading(new Vector2d(10,-30), Math.toRadians(90.00))
+                                        .build(),
+                                new SleepAction(1),
+                                drive.actionBuilder(drive.pose)
+                                        .splineToConstantHeading(new Vector2d(10,-40), Math.toRadians(90.00))
+                                        .build()
+                        )
                 );
-                state = State.PICKUP_SPECIMEN;
 
+                state = State.PICKUP_SPECIMEN;
+                break;
             case PICKUP_SPECIMEN:
                 Actions.runBlocking(
                         drive.actionBuilder(drive.pose)
-                                .splineToConstantHeading(new Vector2d(10, -32), Math.toRadians(-90))
-                                .splineToConstantHeading(new Vector2d(27.48, -35.49), Math.toRadians(30.78))
-                                .splineToLinearHeading(new Pose2d(47.41, -15.74, Math.toRadians(-90)), Math.PI / 2)
-                                .splineToConstantHeading(new Vector2d(47.41, -50), Math.toRadians(270))
-
+                                .splineTo(new Vector2d(38,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
+                                .splineTo(new Vector2d(47,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
+                                .splineTo(new Vector2d(57,-43), Math.toRadians(45.00))
+                                .turnTo(Math.toRadians(-45.00))
                                 .build()
                 );
 
                 state = State.HANG_SPECIMEN;
                 break;
-
-
-
             default:
-                // should never be reached, as state should never be null
+                // Should never be reached, as state should never be null
                 state = State.HANG_SPECIMEN;
+                break;
         }
     }
 

@@ -5,18 +5,61 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
+import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 public class Intake {
-    private final DcMotorEx intakeExtend;
+    private final DcMotorEx intakeMotor;
+    private final Servo clawServo;
+    private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeExtend = hardwareMap.get(DcMotorEx.class, "extend");
-        intakeExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        clawServo = hardwareMap.get(Servo.class, "claw");
+        wristServo = hardwareMap.get(Servo.class, "wrist");
     }
 
-    public Action moveArm(int targetPos, double power) {
-        return new MotorToPosition(intakeExtend, targetPos, power);
+    // General actions
+    public Action motorToPosition(int targetPos, double power) {
+        return new MotorToPosition(intakeMotor, targetPos, power);
+    }
+
+    public Action clawToPosition(double targetPos) {
+        return new ServoToPosition(clawServo, targetPos);
+    }
+
+    public Action wristToPosition(double targetPos) {
+        return new ServoToPosition(wristServo, targetPos);
+    }
+
+    // Specific actions
+    public Action extendIntake() {
+        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower);
+    }
+
+    public Action retractIntake() {
+        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower);
+    }
+
+    public Action closeClaw() {
+        return clawToPosition(IntakeConfig.clawClosed);
+    }
+
+    public Action openClaw() {
+        return clawToPosition(IntakeConfig.clawOpen);
+    }
+
+    public Action extendWrist() {
+        return wristToPosition(IntakeConfig.wristClosed);
+    }
+
+    public Action retractWrist() {
+        return wristToPosition(IntakeConfig.wristOpen);
     }
 }
