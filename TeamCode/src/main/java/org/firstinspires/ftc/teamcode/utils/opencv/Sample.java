@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 public class Sample {
     private double sampleX, sampleY, orientation, distance, horizontalAngle;
+    public Point reference;
     private Point[] vertices;
     public Sample(Point[] vertices) {
         this.vertices = vertices;
@@ -19,15 +20,17 @@ public class Sample {
     public double getHorizontalAngle() {return horizontalAngle;}
 
     private void calculatePosition() {
-        Point reference = vertices[0];
+        reference = vertices[0];
         for (Point vertex : vertices) {
             if (vertex.y > reference.y) {
                 reference = vertex;
             }
         }
         horizontalAngle = Math.toRadians((reference.x - CameraConfig.halfImageWidth) * CameraConfig.hOVERwidth);
-        sampleY = CameraConfig.z / Math.tan(Math.toRadians((reference.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight)) - CameraConfig.offsetY;
-        sampleX = Math.tan(horizontalAngle) * sampleY - CameraConfig.offsetX;
+        sampleY = CameraConfig.z / Math.tan(Math.toRadians((reference.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight));
+        sampleX = Math.tan(horizontalAngle) * sampleY;
+        sampleY += CameraConfig.offsetY;
+        sampleX += CameraConfig.offsetX;
     }
     private void calculateOrientation() {
         int index = 0;

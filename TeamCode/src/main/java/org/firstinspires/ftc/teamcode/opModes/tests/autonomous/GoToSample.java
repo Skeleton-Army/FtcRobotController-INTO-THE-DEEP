@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -50,13 +51,13 @@ public class GoToSample extends OpMode {
         return closest;
     }
 
-    private Pose2d fieldPosition(Sample sample) {
+    private Vector2d fieldPosition(Sample sample) {
         Pose2d robotPose = drive.pose;
         double sampleAngle = sample.getHorizontalAngle();
 
-        double x = robotPose.position.x + sample.getSampleY() * Math.cos(sampleAngle) - sample.getSampleX() * Math.sin(sampleAngle);
-        double y = robotPose.position.y + sample.getSampleY() * Math.sin(sampleAngle) + sample.getSampleX() * Math.cos(sampleAngle);
-        return new Pose2d(x, y,  Math.toRadians(sample.getHorizontalAngle()));
+        double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
+        double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
+        return new Vector2d(x, y);
 
     }
 
@@ -111,6 +112,15 @@ public class GoToSample extends OpMode {
     public void init_loop() {
         try {
             closeSample = calculateClosest();
+            telemetry.addData("x: ", fieldPosition(closeSample).x);
+            telemetry.addData("y: ", fieldPosition(closeSample).y);
+            telemetry.addLine();
+
+            telemetry.addData("Point reference: ", closeSample.reference);
+
+            telemetry.addLine();
+            telemetry.addData("relative x: ", closeSample.getSampleX());
+            telemetry.addData("relative y: ", closeSample.getSampleY());
         }
         catch (Exception e) {
             telemetry.addLine("BASA YOSI");
@@ -122,7 +132,7 @@ public class GoToSample extends OpMode {
     public void start() {
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0,0,0))
-                        .splineToConstantHeading(new Vector2d(closeSample.getSampleX(), closeSample.getSampleY()), 0)
+                        .splineToConstantHeading(fieldPosition(closeSample) , Math.PI / 2)
                         .build()
         );
     }

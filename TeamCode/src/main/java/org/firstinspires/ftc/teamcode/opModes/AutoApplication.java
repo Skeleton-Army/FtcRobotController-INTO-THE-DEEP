@@ -75,6 +75,7 @@ public class AutoApplication extends OpMode {
                                 .splineToConstantHeading(new Vector2d(27.48, -35.49), Math.toRadians(30.78))
                                 .splineToLinearHeading(new Pose2d(47.41, -15.74, Math.toRadians(-90)), Math.PI / 2)
                                 .splineToConstantHeading(new Vector2d(47.41, -50), Math.toRadians(270))
+
                                 .build()
                 );
 

@@ -101,6 +101,7 @@ public class ApriltagRobotPose extends OpMode {
                         detection.robotPose.getPosition().x,
                         detection.robotPose.getPosition().y,
                         detection.robotPose.getPosition().z));
+
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
                         detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
