@@ -8,29 +8,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 public class MovementUtils {
-    final double SLOW_MODE_MULTIPLIER = 0.3;
+    MecanumDrive drive;
+
+    Gamepad gamepad1;
+    Gamepad gamepad2;
 
     double multiplier;
 
-    MecanumDrive drive;
-
-    public MovementUtils(HardwareMap hardwareMap, Pose2d startPose) {
-        drive = new MecanumDrive(hardwareMap, startPose);
+    public MovementUtils(HardwareMap hardwareMap) {
+        drive = TeleopApplication.Instance.drive;
+        gamepad1 = TeleopApplication.Instance.gamepad1;
+        gamepad2 = TeleopApplication.Instance.gamepad2;
     }
 
     void calculateMultipliers() {
-        boolean slowModeActive = TeleopApplication.Instance.gamepad1.right_bumper || TeleopApplication.Instance.gamepad2.start;
+        boolean slowModeActive = gamepad1.right_bumper || gamepad2.start;
 
-        multiplier = slowModeActive ? SLOW_MODE_MULTIPLIER : 1;
+        multiplier = slowModeActive ? MotionProfileConfig.SLOW_MODE_MULTIPLIER : 1;
     }
 
-    public void movement(Gamepad gamepad) {
+    public void movement() {
         calculateMultipliers();
 
-        drive.setDrivePowers(MotionProfiling.getSmoothingPowersVelPose(TeleopApplication.Instance.gamepad1));
+        drive.setDrivePowers(MotionProfiling.getSmoothingPowersVelPose(gamepad1));
 
         drive.updatePoseEstimate();
     }
@@ -44,7 +48,7 @@ public class MovementUtils {
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
 
-        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(TeleopApplication.Instance.gamepad1)
+        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
         ), -poseEstimate.heading.toDouble());
 
         // Pass in the rotated input + right stick value for rotation
@@ -52,7 +56,7 @@ public class MovementUtils {
         drive.setDrivePowers(
                 new PoseVelocity2d(
                         new Vector2d(input.x * multiplier, input.y * multiplier),
-                        MotionProfiling.calculateSmoothedYawSpeed(TeleopApplication.Instance.gamepad1)
+                        MotionProfiling.calculateSmoothedYawSpeed(gamepad1)
                 )
         );
 

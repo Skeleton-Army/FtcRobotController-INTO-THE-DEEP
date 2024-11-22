@@ -39,11 +39,11 @@ public class Intake {
     }
 
     // Specific actions
-    public Action extendIntake() {
+    public Action extend() {
         return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower);
     }
 
-    public Action retractIntake() {
+    public Action retract() {
         return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower);
     }
 

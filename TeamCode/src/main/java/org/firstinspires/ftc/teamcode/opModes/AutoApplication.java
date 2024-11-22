@@ -21,7 +21,6 @@ public class AutoApplication extends OpMode {
     public enum State {
         HANG_SPECIMEN,
         PICKUP_SPECIMEN
-
     };
 
     State state = State.HANG_SPECIMEN;
@@ -45,8 +44,8 @@ public class AutoApplication extends OpMode {
         setPrompts();
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-        intake = new Intake(hardwareMap);
-        outtake = new Outtake(hardwareMap);
+        //intake = new Intake(hardwareMap);
+        //outtake = new Outtake(hardwareMap);
     }
 
     @Override
