@@ -17,12 +17,12 @@ public class Intake {
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        clawServo = hardwareMap.get(Servo.class, "claw");
-        wristServo = hardwareMap.get(Servo.class, "wrist");
+        clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
+        wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
     }
 
     // General actions

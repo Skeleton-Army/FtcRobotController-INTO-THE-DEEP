@@ -4,6 +4,10 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class IntakeConfig {
+    public static String motorName = "intake";
+    public static String clawName = "claw";
+    public static String wristName = "wrist";
+
     public static double motorPower = 1;
     public static int extendPosition = -2700;
     public static int retractPosition = 100;
