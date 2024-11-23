@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -84,15 +85,9 @@ public class AutoApplication extends OpMode {
         switch (state) {
             case HANG_SPECIMEN:
                 Actions.runBlocking(
-                        new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .splineToConstantHeading(new Vector2d(10,-30), Math.toRadians(90.00))
-                                        .build(),
-                                new SleepAction(1),
-                                drive.actionBuilder(drive.pose)
-                                        .splineToConstantHeading(new Vector2d(10,-40), Math.toRadians(90.00))
-                                        .build()
-                        )
+                        drive.actionBuilder(drive.pose)
+                                .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-1000, 100))
+                                .build()
                 );
 
                 state = State.PICKUP_SPECIMEN;
@@ -100,12 +95,9 @@ public class AutoApplication extends OpMode {
             case PICKUP_SPECIMEN:
                 Actions.runBlocking(
                         drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(38,-43), Math.toRadians(45.00))
-                                .turnTo(Math.toRadians(-45.00))
-                                .splineTo(new Vector2d(47,-43), Math.toRadians(45.00))
-                                .turnTo(Math.toRadians(-45.00))
-                                .splineTo(new Vector2d(57,-43), Math.toRadians(45.00))
-                                .turnTo(Math.toRadians(-45.00))
+                                .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
+                                .splineToLinearHeading(new Pose2d(41.94, -39.98, Math.toRadians(60)), Math.toRadians(67.62))
+                                .splineTo(new Vector2d(46.07, -45.68), Math.toRadians(-70.35))
                                 .build()
                 );
 
