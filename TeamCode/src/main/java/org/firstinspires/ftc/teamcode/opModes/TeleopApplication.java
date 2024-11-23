@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,8 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
+
+import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends OpMode {
@@ -37,6 +40,16 @@ public class TeleopApplication extends OpMode {
         outtake = new Outtake(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
+    }
+
+    @Override
+    public void start() {
+        // Enable Auto Bulk Reads
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -15,6 +16,8 @@ import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.ValuePrompt;
+
+import java.util.List;
 
 @Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "Teleop App")
 public class AutoApplication extends OpMode {
@@ -56,6 +59,13 @@ public class AutoApplication extends OpMode {
 
     @Override
     public void start(){
+        // Enable Auto Bulk Reads
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         String alliance = choiceMenu.getValueOf("alliance").toString();
         String position = choiceMenu.getValueOf("position").toString();
         String strategy = choiceMenu.getValueOf("strategy").toString();
