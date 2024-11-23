@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Pose2dDual;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -35,11 +36,13 @@ public class AutoApplication extends OpMode {
     Intake intake;
     Outtake outtake;
 
+    String alliance;
+
     private void setPrompts() {
         choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("position", "SELECT THE STARTING POSITION:", "Audience", "Rear Wall"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Yellow Basket"));
-        choiceMenu.enqueuePrompt(new ValuePrompt("delay", "ENTER A START DELAY:", 0, 10, 0, 0.5));
+        choiceMenu.enqueuePrompt(new OptionPrompt("position", "SELECT THE STARTING POSITION:", "Basket Side", "Observation Zone Side"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Yellow Samples"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
     }
 
     @Override
@@ -67,15 +70,15 @@ public class AutoApplication extends OpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        String alliance = choiceMenu.getValueOf("alliance").toString();
+        alliance = choiceMenu.getValueOf("alliance").toString();
         String position = choiceMenu.getValueOf("position").toString();
         String strategy = choiceMenu.getValueOf("strategy").toString();
-        double delay = Double.parseDouble(choiceMenu.getValueOf("delay").toString());
+        String specimens = choiceMenu.getValueOf("specimens").toString();
 
         telemetry.addData("Selected Alliance", alliance);
         telemetry.addData("Selected Position", position);
         telemetry.addData("Selected Strategy", strategy);
-        telemetry.addData("Selected Delay", delay);
+        telemetry.addData("Selected Specimen", specimens);
 
         drive.pose = new Pose2d(10, -61.5, Math.toRadians(90.00));
     }
@@ -85,7 +88,7 @@ public class AutoApplication extends OpMode {
         switch (state) {
             case HANG_SPECIMEN:
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose)
+                        drive.actionBuilder(drive.pose, alliance.equals("Blue"))
                                 .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-1000, 100))
                                 .build()
                 );
@@ -94,7 +97,7 @@ public class AutoApplication extends OpMode {
                 break;
             case PICKUP_SPECIMEN:
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose)
+                        drive.actionBuilder(drive.pose, alliance.equals("Blue"))
                                 .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
                                 .splineToLinearHeading(new Pose2d(41.94, -39.98, Math.toRadians(60)), Math.toRadians(67.62))
                                 .splineTo(new Vector2d(46.07, -45.68), Math.toRadians(-70.35))
