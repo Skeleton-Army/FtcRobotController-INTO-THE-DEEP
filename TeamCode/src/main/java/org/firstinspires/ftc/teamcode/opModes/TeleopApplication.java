@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class TeleopApplication extends OpMode {
     public static TeleopApplication Instance;
 
     public MecanumDrive drive;
+
     Intake intake;
     Outtake outtake;
 
@@ -44,12 +46,8 @@ public class TeleopApplication extends OpMode {
 
     @Override
     public void start() {
-        // Enable Auto Bulk Reads
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-
-        for (LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        }
+        // Enable auto bulk reads
+        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
     }
 
     @Override
