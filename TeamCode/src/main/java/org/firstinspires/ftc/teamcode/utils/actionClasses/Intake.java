@@ -14,8 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 public class Intake {
     private final DcMotorEx intakeMotor;
     private final Servo clawServo;
-    private final Servo wristFrontServo;
-    private final Servo wristBackServo;
+    private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
@@ -23,8 +22,7 @@ public class Intake {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
-        wristFrontServo = hardwareMap.get(Servo.class, IntakeConfig.wristFrontName);
-        wristBackServo = hardwareMap.get(Servo.class, IntakeConfig.wristBackName);
+        wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
     }
 
     // General actions
@@ -36,12 +34,8 @@ public class Intake {
         return new ServoToPosition(clawServo, targetPos);
     }
 
-    public Action wristFrontToPosition(double targetPos) {
-        return new ServoToPosition(wristFrontServo, targetPos);
-    }
-
-    public Action wristBackToPosition(double targetPos) {
-        return new ServoToPosition(wristBackServo, targetPos);
+    public Action wristToPosition(double targetPos) {
+        return new ServoToPosition(wristServo, targetPos);
     }
 
     // Specific actions
@@ -61,19 +55,11 @@ public class Intake {
         return clawToPosition(IntakeConfig.clawOpen);
     }
 
-    public Action extendFrontWrist() {
-        return wristFrontToPosition(IntakeConfig.wristClosed);
+    public Action extendWrist() {
+        return wristToPosition(IntakeConfig.wristClosed);
     }
 
-    public Action extendBackWrist() {
-        return wristBackToPosition(IntakeConfig.wristClosed);
-    }
-
-    public Action retractFrontWrist() {
-        return wristFrontToPosition(IntakeConfig.wristOpen);
-    }
-
-    public Action retractBackWrist() {
-        return wristBackToPosition(IntakeConfig.wristOpen);
+    public Action retractWrist() {
+        return wristToPosition(IntakeConfig.wristOpen);
     }
 }

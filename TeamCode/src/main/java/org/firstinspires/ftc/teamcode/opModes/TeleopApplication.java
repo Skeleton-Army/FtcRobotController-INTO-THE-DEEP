@@ -85,11 +85,9 @@ public class TeleopApplication extends OpMode {
 
         // Wrist
         if (gamepad2.right_trigger > 0.1) {
-            Actions.runBlocking(intake.extendFrontWrist());
-            Actions.runBlocking(intake.extendBackWrist());
+            Actions.runBlocking(intake.extendWrist());
         } else if (gamepad2.left_trigger > 0.1) {
-            Actions.runBlocking(intake.retractFrontWrist());
-            Actions.runBlocking(intake.retractBackWrist());
+            Actions.runBlocking(intake.retractWrist());
         }
 
         // Bucket
