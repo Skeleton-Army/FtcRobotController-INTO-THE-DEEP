@@ -20,7 +20,8 @@ import java.util.List;
 public class AutoApplication extends AutoOpMode {
     public enum State {
         HANG_SPECIMEN,
-        PICKUP_SPECIMEN
+        PICKUP_SPECIMEN,
+        COLLECT_SAMPLES
     }
 
     Intake intake;
@@ -30,13 +31,14 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     protected State initialState() {
-        return State.HANG_SPECIMEN;
+        return State.COLLECT_SAMPLES;
     }
 
     @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.PICKUP_SPECIMEN, this::pickupSpecimen);
+        addState(State.COLLECT_SAMPLES, this::collectSamples);
     }
 
     @Override
@@ -77,10 +79,28 @@ public class AutoApplication extends AutoOpMode {
         drive.pose = new Pose2d(10, -61.5, Math.toRadians(90.00));
     }
 
+    private void collectSamples() {
+        Actions.runBlocking(
+                drive.actionBuilder(drive.pose, alliance.equals("Blue"))
+                        .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
+                        .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
+                        .splineToLinearHeading(new Pose2d(48, -43, Math.toRadians(90)), Math.toRadians(67.62))
+                        .turnTo(Math.toRadians(60))
+                        .waitSeconds(0.5)
+                        .turnTo(Math.toRadians(90))
+                        .turnTo(Math.toRadians(40))
+                        .waitSeconds(0.5)
+                        .turnTo(Math.toRadians(90))
+                        .build()
+        );
+
+        setState(State.PICKUP_SPECIMEN);
+    }
+
     private void hangSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance.equals("Blue"))
-                        .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-1000, 100))
+                        .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
                         .build()
         );
 
@@ -90,9 +110,7 @@ public class AutoApplication extends AutoOpMode {
     private void pickupSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance.equals("Blue"))
-                        .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
-                        .splineToLinearHeading(new Pose2d(41.94, -39.98, Math.toRadians(60)), Math.toRadians(67.62))
-                        .splineTo(new Vector2d(46.07, -45.68), Math.toRadians(-70.35))
+                        .splineToLinearHeading(new Pose2d(35, -55, Math.toRadians(-90)), Math.toRadians(180))
                         .build()
         );
 

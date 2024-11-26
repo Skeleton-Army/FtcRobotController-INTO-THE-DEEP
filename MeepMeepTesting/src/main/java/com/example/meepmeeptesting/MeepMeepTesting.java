@@ -24,10 +24,16 @@ public class MeepMeepTesting {
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
         myBot.runAction(customDriveShim.actionBuilder(new Pose2d(10, -61.5, Math.toRadians(90.00)), false)
-                .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-1000, 100))
+                .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-100, 100))
                 .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
-                .splineToLinearHeading(new Pose2d(41.94, -39.98, Math.toRadians(60)), Math.toRadians(67.62))
-                .splineTo(new Vector2d(46.07, -45.68), Math.toRadians(-70.35))
+                .splineToLinearHeading(new Pose2d(48, -43, Math.toRadians(90)), Math.toRadians(67.62))
+                .turnTo(Math.toRadians(60))
+                .waitSeconds(0.5)
+                .turnTo(Math.toRadians(90))
+                .turnTo(Math.toRadians(40))
+                .waitSeconds(0.5)
+                .turnTo(Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(35, -58, Math.toRadians(-90)), Math.toRadians(180))
                 .build()
         );
 
