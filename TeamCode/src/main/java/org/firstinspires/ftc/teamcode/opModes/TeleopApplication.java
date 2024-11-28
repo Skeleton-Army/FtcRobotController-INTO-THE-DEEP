@@ -4,10 +4,14 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
@@ -33,6 +37,9 @@ public class TeleopApplication extends OpMode {
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
 
+    private DcMotorEx outtakeMotor;
+    private DcMotorEx intakeMotor;
+
     @Override
     public void init() {
         Instance = this;
@@ -42,6 +49,9 @@ public class TeleopApplication extends OpMode {
         outtake = new Outtake(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
+
+        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
+        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
     }
 
     @Override
@@ -52,6 +62,9 @@ public class TeleopApplication extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addData("Intake", intakeMotor.getCurrentPosition());
+        telemetry.addData("Outtake", outtakeMotor.getCurrentPosition());
+
         movementUtils.fieldCentricMovement();
 
         // Intake

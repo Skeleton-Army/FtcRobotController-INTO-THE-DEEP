@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class MotorToPosition implements Action {
@@ -25,9 +26,12 @@ public class MotorToPosition implements Action {
             initialized = true;
 
             motor.setTargetPosition(targetPos);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(power);
         }
 
-        return !motor.isBusy();
+        telemetryPacket.put("Motor Position", motor.getCurrentPosition());
+
+        return motor.isBusy();
     }
 }
