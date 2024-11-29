@@ -9,12 +9,11 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
-
-import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
@@ -66,7 +65,7 @@ public class TeleopApplication extends TeleopOpMode {
         movementUtils.fieldCentricMovement();
 
         // Intake
-        if (gamepad2.a) {
+        if (Debounce.isButtonPressed("a", gamepad2.a)) {
             if (intakeState == ExtensionState.RETRACTED) {
                 intakeState = ExtensionState.EXTENDED;
                 runAction(intake.extend());
@@ -77,7 +76,7 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         // Outtake
-        if (gamepad2.y) {
+        if (Debounce.isButtonPressed("y", gamepad2.y)) {
             if (outtakeState == ExtensionState.RETRACTED) {
                 outtakeState = ExtensionState.EXTENDED;
                 runAction(outtake.extend());
@@ -88,23 +87,23 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         // Claw
-        if (gamepad2.right_bumper) {
+        if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
             runAction(intake.closeClaw());
-        } else if (gamepad2.left_bumper) {
+        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
             runAction(intake.openClaw());
         }
 
         // Wrist
-        if (gamepad2.right_trigger > 0.1) {
+        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
-        } else if (gamepad2.left_trigger > 0.1) {
+        } else if (Debounce.isButtonPressed("right_trigger", gamepad2.left_trigger > 0.1)) {
             runAction(intake.retractWrist());
         }
 
         // Bucket
-        if (gamepad2.x) {
+        if (Debounce.isButtonPressed("x", gamepad2.x)) {
             runAction(outtake.dunk());
-        } else if (gamepad2.b) {
+        } else if (Debounce.isButtonPressed("b", gamepad2.b)) {
             runAction(outtake.hold());
         }
 
