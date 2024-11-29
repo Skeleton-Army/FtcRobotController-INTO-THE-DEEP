@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -15,17 +12,18 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
+import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
 import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
-public class TeleopApplication extends OpMode {
+public class TeleopApplication extends TeleopOpMode {
+    public static TeleopApplication Instance;
+
     enum ExtensionState {
         EXTENDED,
         RETRACTED
     }
-
-    public static TeleopApplication Instance;
 
     public MecanumDrive drive;
 
@@ -37,8 +35,8 @@ public class TeleopApplication extends OpMode {
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
 
-    private DcMotorEx outtakeMotor;
-    private DcMotorEx intakeMotor;
+    DcMotorEx outtakeMotor;
+    DcMotorEx intakeMotor;
 
     @Override
     public void init() {
@@ -62,8 +60,8 @@ public class TeleopApplication extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Intake", intakeMotor.getCurrentPosition());
-        telemetry.addData("Outtake", outtakeMotor.getCurrentPosition());
+        telemetry.addData("intake", intakeMotor.getCurrentPosition());
+        telemetry.addData("outtake", outtakeMotor.getCurrentPosition());
 
         movementUtils.fieldCentricMovement();
 
@@ -71,10 +69,10 @@ public class TeleopApplication extends OpMode {
         if (gamepad2.a) {
             if (intakeState == ExtensionState.RETRACTED) {
                 intakeState = ExtensionState.EXTENDED;
-                Actions.runBlocking(intake.extend());
+                runAction(intake.extend());
             } else {
                 intakeState = ExtensionState.RETRACTED;
-                Actions.runBlocking(intake.retract());
+                runAction(intake.retract());
             }
         }
 
@@ -82,33 +80,36 @@ public class TeleopApplication extends OpMode {
         if (gamepad2.y) {
             if (outtakeState == ExtensionState.RETRACTED) {
                 outtakeState = ExtensionState.EXTENDED;
-                Actions.runBlocking(outtake.extend());
+                runAction(outtake.extend());
             } else {
                 outtakeState = ExtensionState.RETRACTED;
-                Actions.runBlocking(outtake.retract());
+                runAction(outtake.retract());
             }
         }
 
         // Claw
         if (gamepad2.right_bumper) {
-            Actions.runBlocking(intake.closeClaw());
+            runAction(intake.closeClaw());
         } else if (gamepad2.left_bumper) {
-            Actions.runBlocking(intake.openClaw());
+            runAction(intake.openClaw());
         }
 
         // Wrist
         if (gamepad2.right_trigger > 0.1) {
-            Actions.runBlocking(intake.extendWrist());
+            runAction(intake.extendWrist());
         } else if (gamepad2.left_trigger > 0.1) {
-            Actions.runBlocking(intake.retractWrist());
+            runAction(intake.retractWrist());
         }
 
         // Bucket
         if (gamepad2.x) {
-            Actions.runBlocking(outtake.dunk());
+            runAction(outtake.dunk());
         } else if (gamepad2.b) {
-            Actions.runBlocking(outtake.hold());
+            runAction(outtake.hold());
         }
+
+        // Run all queued actions
+        runAllActions();
 
         // Debugging
         telemetry.update();
