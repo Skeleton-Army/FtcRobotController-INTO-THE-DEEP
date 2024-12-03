@@ -130,9 +130,10 @@ public class GoToSample extends OpMode {
 
     @Override
     public void start() {
+        webcam.stopStreaming();
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0,0,0))
-                        .splineToConstantHeading(fieldPosition(closeSample) , Math.PI / 2)
+                        .splineToConstantHeading(fieldPosition(closeSample) , 0)
                         .build()
         );
     }
