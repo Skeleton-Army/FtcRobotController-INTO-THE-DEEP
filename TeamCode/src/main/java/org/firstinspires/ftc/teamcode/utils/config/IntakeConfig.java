@@ -9,8 +9,8 @@ public class IntakeConfig {
     public static String wristName = "wrist";
 
     public static double motorPower = 1;
-    public static int extendPosition = -2700;
-    public static int retractPosition = -600;
+    public static int extendPosition = -2100;
+    public static int retractPosition = 0;
 
     public static double clawClosed = 0.8;
     public static double clawOpen = 1;
