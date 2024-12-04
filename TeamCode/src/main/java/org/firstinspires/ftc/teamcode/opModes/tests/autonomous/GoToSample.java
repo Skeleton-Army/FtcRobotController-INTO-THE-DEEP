@@ -57,8 +57,7 @@ public class GoToSample extends OpMode {
 
         double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
         double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
-        return new Vector2d(x, y);
-
+        return new Vector2d(x,-y);
     }
 
     @Override
@@ -134,7 +133,10 @@ public class GoToSample extends OpMode {
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0,0,0))
                         .splineToConstantHeading(fieldPosition(closeSample) , 0)
+                        .waitSeconds(5)
+                        .splineToConstantHeading(new Vector2d(0,0) , 0)
                         .build()
+
         );
     }
     @Override
