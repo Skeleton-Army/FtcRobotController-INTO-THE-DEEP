@@ -53,11 +53,10 @@ public class GoToSample extends OpMode {
 
     private Vector2d fieldPosition(Sample sample) {
         Pose2d robotPose = drive.pose;
-        double sampleAngle = sample.getHorizontalAngle();
 
         double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
         double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
-        return new Vector2d(x,-y);
+        return new Vector2d(x, y);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class GoToSample extends OpMode {
                  * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
                  * away from the user.
                  */
-                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
