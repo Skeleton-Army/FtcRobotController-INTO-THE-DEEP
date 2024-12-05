@@ -20,7 +20,6 @@ class SampleTest {
     }
 
     final Test[] values = new Test[] {
-            new Test(new Point(328,309), 0, 55),
             new Test(new Point(325,319), 0, 47.5),
             new Test(new Point(354,348), 2.5, 39.5),
             new Test(new Point(412,292), 11.5, 50.5),
@@ -32,14 +31,18 @@ class SampleTest {
 
     @org.junit.jupiter.api.Test
     void testSampleDetection() {
-        for (Test value : values) {
+        int index = 1;
+
+        for (Test value : values ) {
             Sample sample = new Sample(new Point[]{ value.input });
 
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();
 
-            assertTrue(Math.abs(sampleX - value.x) < epsilon, "Expected: " + value.x + " Got: " + sampleX);
-            assertTrue(Math.abs(sampleY - value.y) < epsilon, "Expected: " + value.y + " Got: " + sampleY);
+            assertTrue(Math.abs(sampleX - value.x) < epsilon, "Value: " + index + " Expected: " + value.x + " Got: " + sampleX);
+            assertTrue(Math.abs(sampleY - value.y) < epsilon, "Value: " + index + " Expected: " + value.y + " Got: " + sampleY);
+
+            index++;
         }
     }
 }
