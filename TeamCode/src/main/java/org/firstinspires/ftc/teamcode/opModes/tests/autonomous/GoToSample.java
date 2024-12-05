@@ -110,6 +110,8 @@ public class GoToSample extends OpMode {
     public void init_loop() {
         try {
             closeSample = calculateClosest();
+            telemetry.addLine();
+
             telemetry.addData("x: ", fieldPosition(closeSample).x);
             telemetry.addData("y: ", fieldPosition(closeSample).y);
             telemetry.addLine();
@@ -133,7 +135,7 @@ public class GoToSample extends OpMode {
                 drive.actionBuilder(new Pose2d(0,0,0))
                         .splineToConstantHeading(fieldPosition(closeSample) , 0)
                         .waitSeconds(5)
-                        .splineToConstantHeading(new Vector2d(0,0) , 0)
+                        .splineToConstantHeading(new Vector2d(0,0) , Math.PI)
                         .build()
 
         );
