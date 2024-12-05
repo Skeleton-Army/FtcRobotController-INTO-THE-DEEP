@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
-
+    final int THRESHOLD = 200;
     public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this?
     private final Telemetry telemetry;
@@ -39,6 +39,9 @@ public class DetectSamples extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
 
         List<MatOfPoint> contours = new ArrayList<>();
+
+        Mat rowsToBlack = input.rowRange(0, THRESHOLD);
+        rowsToBlack.setTo(new Scalar(0, 0, 0));
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         samples = new ArrayList<>();
 
@@ -46,20 +49,18 @@ public class DetectSamples extends OpenCvPipeline {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
               //  continue;
-
             MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
             double epsilon = epsilonConstant * Imgproc.arcLength(contour2f, true);
             Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
             Point[] vertices = contour2f.toArray();
-            Sample tempname = new Sample(vertices);
-            samples.add(tempname);
-            telemetry.addData("X", tempname.getSampleX());
-            telemetry.addData("Y", tempname.getSampleY());
-            telemetry.addData("distance", tempname.getDistance());
+            Sample tempName = new Sample(vertices);
+            samples.add(tempName);
+            telemetry.addData("X", tempName.getSampleX());
+            telemetry.addData("Y", tempName.getSampleY());
+            telemetry.addData("distance", tempName.getDistance());
 
-            Imgproc.drawMarker(input, vertices[0], new Scalar(255,255,255));
-            Imgproc.putText(input, "x:" + vertices[0].x, vertices[0], 1, 1, new Scalar(255,255,255));
+            Imgproc.drawMarker(input, tempName.reference, new Scalar(255,255,255));
         }
 
         telemetry.update();
