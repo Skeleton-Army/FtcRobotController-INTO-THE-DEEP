@@ -134,7 +134,7 @@ public class GoToSample extends OpMode {
                 drive.actionBuilder(new Pose2d(0,0,0))
                         .splineToConstantHeading(fieldPosition(closeSample) , 0)
                         .waitSeconds(5)
-                        .splineToConstantHeading(new Vector2d(0,0) , 0)
+                        .splineToConstantHeading(new Vector2d(0,0) , Math.PI)
                         .build()
 
         );
