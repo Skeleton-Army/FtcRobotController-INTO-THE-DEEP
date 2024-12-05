@@ -111,6 +111,8 @@ public class GoToSample extends OpMode {
     public void init_loop() {
         try {
             closeSample = calculateClosest();
+            telemetry.addLine();
+
             telemetry.addData("x: ", fieldPosition(closeSample).x);
             telemetry.addData("y: ", fieldPosition(closeSample).y);
             telemetry.addLine();

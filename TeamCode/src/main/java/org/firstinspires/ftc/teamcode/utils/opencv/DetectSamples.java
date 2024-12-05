@@ -59,6 +59,7 @@ public class DetectSamples extends OpenCvPipeline {
             telemetry.addData("distance", tempname.getDistance());
 
             Imgproc.drawMarker(input, vertices[0], new Scalar(255,255,255));
+            Imgproc.putText(input, "x:" + vertices[0].x, vertices[0], 1, 1, new Scalar(255,255,255));
         }
 
         telemetry.update();
