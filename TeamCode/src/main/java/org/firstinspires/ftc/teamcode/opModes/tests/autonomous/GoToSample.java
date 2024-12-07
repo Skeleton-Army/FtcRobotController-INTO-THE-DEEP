@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -33,8 +37,15 @@ public class GoToSample extends OpMode {
     DetectSamples detectSamples;
     Sample closeSample;
 
+    Vector2d closeSamplePos;
+
     Pose2d startingPos = new Pose2d(0,0,0); // TOOD: if desired, change it to the actual pos of the robot that stems from the detected sample
 
+    // Telemetry stuff
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+    TelemetryPacket packet = new TelemetryPacket();
     private Sample calculateClosest() {
         // searching for the min value of distance
         List<Sample> samples = detectSamples.samples;
@@ -63,10 +74,12 @@ public class GoToSample extends OpMode {
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-
+        FtcDashboard.getInstance().startCameraStream(webcam, 0);
         detectSamples = new DetectSamples(telemetry, webcam);
 
         webcam.setPipeline(detectSamples);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -110,10 +123,11 @@ public class GoToSample extends OpMode {
     public void init_loop() {
         try {
             closeSample = calculateClosest();
+            closeSamplePos = fieldPosition(closeSample);
             telemetry.addLine();
 
-            telemetry.addData("x: ", fieldPosition(closeSample).x);
-            telemetry.addData("y: ", fieldPosition(closeSample).y);
+            telemetry.addData("x: ", closeSamplePos.x);
+            telemetry.addData("y: ", closeSamplePos.y);
             telemetry.addLine();
 
             telemetry.addData("Point reference: ", closeSample.reference);
@@ -121,11 +135,23 @@ public class GoToSample extends OpMode {
             telemetry.addLine();
             telemetry.addData("relative x: ", closeSample.getSampleX());
             telemetry.addData("relative y: ", closeSample.getSampleY());
+
+            packet.field()
+                    .fillRect(closeSamplePos.x, closeSamplePos.y, 10, 10)
+                    .fillText("closeSample", closeSamplePos.x, closeSamplePos.y - 20, "10px Arial", 0);
+
+            dashboard.sendTelemetryPacket(packet);
+
+            // uncomment these in case the multiTelemetry doesn't show data on the dashboard
+            //dashboardTelemetry.addData("x: ", closeSamplePos.x);
+            //dashboardTelemetry.addData("y: ", closeSamplePos.y);
         }
         catch (Exception e) {
             telemetry.addLine("BASA YOSI");
         }
         telemetry.update();
+        // also this
+        //dashboardTelemetry.update();
     }
 
     @Override
