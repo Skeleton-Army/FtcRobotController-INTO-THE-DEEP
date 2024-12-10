@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class MotorToPosition implements Action {
+    private final int POSITION_EPSILON = 20;
+
     private boolean initialized = false;
 
     private final DcMotorEx motor;
@@ -30,8 +32,15 @@ public class MotorToPosition implements Action {
             motor.setPower(power);
         }
 
+        if (Math.abs(motor.getCurrentPosition() - targetPos) <= POSITION_EPSILON) {
+            motor.setPower(0);
+//            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            telemetryPacket.put("test", true);
+        }
+
+        telemetryPacket.put("test", false);
         telemetryPacket.put("Motor Position", motor.getCurrentPosition());
 
-        return motor.isBusy();
+        return Math.abs(motor.getCurrentPosition() - targetPos) > POSITION_EPSILON;
     }
 }

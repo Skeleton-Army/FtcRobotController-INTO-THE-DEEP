@@ -20,12 +20,39 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.ThreeDeadWheelInputsMe
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double par0YTicks = -2245.74495240575; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 1851.6087625567409; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = -2426.013700359011; // x position of the perpendicular encoder (in tick units)
+        public String par0;
+        public String par1;
+        public String perp;
+        public double par0YTicks; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks; // x position of the perpendicular encoder (in tick units)
     }
 
-    public static Params PARAMS = new Params();
+    public static class ParamsOld extends Params {
+        public ParamsOld() {
+            par0 = "leftFront";
+            par1 = "rightBack";
+            perp = "rightFront";
+
+            par0YTicks = -2245.74495240575;
+            par1YTicks = 1851.6087625567409;
+            perpXTicks = -2426.013700359011;
+        }
+    }
+
+    public static class ParamsNew extends Params {
+        public ParamsNew() {
+            par0 = "rightFront";
+            par1 = "rightBack";
+            perp = "leftBack";
+
+            par0YTicks = -2245.74495240575;
+            par1YTicks = 1851.6087625567409;
+            perpXTicks = -2426.013700359011;
+        }
+    }
+
+    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
 
     public final Encoder par0, par1, perp;
 
@@ -38,9 +65,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         // TODO: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "leftFront")));
-        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "rightBack")));
-        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "rightFront")));
+        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, PARAMS.par0)));
+        par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, PARAMS.par1)));
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, PARAMS.perp)));
 
         // TODO: reverse encoder directions if needed
         par1.setDirection(DcMotorSimple.Direction.REVERSE);

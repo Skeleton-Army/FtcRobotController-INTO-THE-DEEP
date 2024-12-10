@@ -43,7 +43,7 @@ public class Outtake {
     }
 
     public Action dunk() {
-        return bucketToPosition(OuttakeConfig.bucketRelease);
+        return bucketToPosition(OuttakeConfig.bucketDunk);
     }
 
     public Action hold() {
