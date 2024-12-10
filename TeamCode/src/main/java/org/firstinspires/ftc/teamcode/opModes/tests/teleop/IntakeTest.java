@@ -79,9 +79,9 @@ public class IntakeTest extends LinearOpMode {
             }
 
             if (gamepad2.x) {
-                wrist.setPosition(IntakeConfig.wristOpen);
+                wrist.setPosition(IntakeConfig.wristRetract);
             } else if (gamepad2.y) {
-                wrist.setPosition(IntakeConfig.wristClosed);
+                wrist.setPosition(IntakeConfig.wristExtend);
             }
 
 //            if (gamepad2.x) {

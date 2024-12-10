@@ -55,22 +55,18 @@ import java.util.List;
 public final class MecanumDrive {
     public static class Params {
         // IMU orientation
-        // TODO: fill in these values based on
-        //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
-        public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
-        public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection;
+        public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection;
 
         // drive model parameters
-        public double inPerTick = (double) 124 / 42125;
-        public double lateralInPerTick = 0.002353990335623929;
-        public double trackWidthTicks = 5042.472012250225;
+        public double inPerTick;
+        public double lateralInPerTick;
+        public double trackWidthTicks;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.6780465835298033;
-        public double kV = 0.0005688538116122192;
-        public double kA = 0.000112;
+        public double kS;
+        public double kV;
+        public double kA;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -82,16 +78,68 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 7.5;
-        public double lateralGain = 16;
-        public double headingGain = 13.4; // shared with turn
+        public double axialGain;
+        public double lateralGain;
+        public double headingGain; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
         public double headingVelGain = 0.0; // shared with turn
     }
 
-    public static Params PARAMS = new Params();
+    public static class ParamsOld extends Params {
+        public ParamsOld() {
+            // IMU orientation
+            // TODO: fill in these values based on
+            //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
+            logoFacingDirection =
+                    RevHubOrientationOnRobot.LogoFacingDirection.DOWN;
+            usbFacingDirection =
+                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+
+            // drive model parameters
+            inPerTick = (double) 124 / 42125;
+            lateralInPerTick = 0.002353990335623929;
+            trackWidthTicks = 5042.472012250225;
+
+            // feedforward parameters (in tick units)
+            kS = 0.6780465835298033;
+            kV = 0.0005688538116122192;
+            kA = 0.000112;
+
+            // path controller gains
+            axialGain = 7.5;
+            lateralGain = 16;
+            headingGain = 13.4; // shared with turn
+        }
+    }
+
+    public static class ParamsNew extends Params {
+        public ParamsNew() {
+            // IMU orientation
+            // TODO: fill in these values based on
+            //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
+            logoFacingDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+            usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
+
+            // drive model parameters
+            inPerTick = (double) 124 / 42125;
+            lateralInPerTick = 0.002353990335623929;
+            trackWidthTicks = 5042.472012250225;
+
+            // feedforward parameters (in tick units)
+            kS = 0.6780465835298033;
+            kV = 0.0005688538116122192;
+            kA = 0.000112;
+
+            // path controller gains
+            axialGain = 7.5;
+            lateralGain = 16;
+            headingGain = 13.4; // shared with turn
+        }
+    }
+
+    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);

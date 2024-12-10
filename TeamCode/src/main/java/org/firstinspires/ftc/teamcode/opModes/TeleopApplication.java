@@ -24,6 +24,11 @@ public class TeleopApplication extends TeleopOpMode {
         RETRACTED
     }
 
+    enum ClawState {
+        CLOSED,
+        OPENED
+    }
+
     public MecanumDrive drive;
 
     Intake intake;
@@ -33,6 +38,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
+    ClawState clawState = ClawState.OPENED;
 
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
@@ -62,7 +68,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("intake", intakeMotor.getCurrentPosition());
         telemetry.addData("outtake", outtakeMotor.getCurrentPosition());
 
-        movementUtils.fieldCentricMovement();
+//        movementUtils.fieldCentricMovement();
+        movementUtils.movement();
 
         // Intake
         if (Debounce.isButtonPressed("a", gamepad2.a)) {
@@ -88,16 +95,22 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Claw
         if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
-            runAction(intake.closeClaw());
-        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
-            runAction(intake.openClaw());
+            if (clawState == ClawState.OPENED) {
+                clawState = ClawState.CLOSED;
+                runAction(intake.closeClaw());
+            } else {
+                clawState = ClawState.OPENED;
+                runAction(intake.openClaw());
+            }
         }
 
         // Wrist
         if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
-        } else if (Debounce.isButtonPressed("right_trigger", gamepad2.left_trigger > 0.1)) {
+        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
             runAction(intake.retractWrist());
+        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
+            runAction(intake.wristMiddle());
         }
 
         // Bucket
