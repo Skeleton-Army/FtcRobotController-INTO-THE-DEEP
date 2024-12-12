@@ -13,7 +13,6 @@ public class CameraConfig {
     public static double offsetY = 0;
     public static double offsetHorizontal = 0;
     public static double offsetVertical = 0;
-
     public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
     public static float vOVERheight = verticalFOV / (halfImageHeight * 2); //0.195
 }

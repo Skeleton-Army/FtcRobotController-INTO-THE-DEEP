@@ -27,7 +27,7 @@ public class Sample {
             }
         }
         horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - reference.x) * CameraConfig.hOVERwidth + CameraConfig.offsetHorizontal);
-        sampleY = CameraConfig.z / Math.tan(Math.toRadians((reference.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight));
+        sampleY = CameraConfig.z / Math.tan(Math.toRadians((reference.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight + CameraConfig.offsetVertical));
         sampleX = Math.tan(horizontalAngle) * sampleY;
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
