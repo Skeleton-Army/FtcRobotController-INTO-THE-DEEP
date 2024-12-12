@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
-    final int THRESHOLD = 200;
+    //final int THRESHOLD = 200;
     public OpenCvCamera webcam;
-    boolean viewportPaused; //Do we really need this?
+    boolean viewportPaused; //Do we really need this? yes
     private final Telemetry telemetry;
 
     //yellow
@@ -40,8 +40,8 @@ public class DetectSamples extends OpenCvPipeline {
 
         List<MatOfPoint> contours = new ArrayList<>();
 
-        Mat rowsToBlack = input.rowRange(0, THRESHOLD);
-        rowsToBlack.setTo(new Scalar(0, 0, 0));
+        //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
+        //rowsToBlack.setTo(new Scalar(0, 0, 0));
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         samples = new ArrayList<>();
 

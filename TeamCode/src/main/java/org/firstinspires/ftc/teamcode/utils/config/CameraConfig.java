@@ -12,7 +12,7 @@ public class CameraConfig {
     public static double offsetX = 0; //x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 0;
     public static double offsetHorizontal = 0;
-    public static double offsetVertical = 0;
+    public static double offsetVertical = 14;
     public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
     public static float vOVERheight = verticalFOV / (halfImageHeight * 2); //0.195
 }

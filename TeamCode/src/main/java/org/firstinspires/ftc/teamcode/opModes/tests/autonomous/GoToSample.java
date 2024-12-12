@@ -143,15 +143,15 @@ public class GoToSample extends OpMode {
             dashboard.sendTelemetryPacket(packet);
 
             // uncomment these in case the multiTelemetry doesn't show data on the dashboard
-            //dashboardTelemetry.addData("x: ", closeSamplePos.x);
-            //dashboardTelemetry.addData("y: ", closeSamplePos.y);
+            dashboardTelemetry.addData("x: ", closeSamplePos.x);
+            dashboardTelemetry.addData("y: ", closeSamplePos.y);
         }
         catch (Exception e) {
             telemetry.addLine("BASA YOSI");
         }
         telemetry.update();
         // also this
-        //dashboardTelemetry.update();
+        dashboardTelemetry.update();
     }
 
     @Override
