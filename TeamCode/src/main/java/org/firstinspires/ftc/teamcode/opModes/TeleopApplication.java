@@ -47,6 +47,8 @@ public class TeleopApplication extends TeleopOpMode {
     public void init() {
         Instance = this;
 
+        telemetry.setMsTransmissionInterval(100); // Default is 250ms
+
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
