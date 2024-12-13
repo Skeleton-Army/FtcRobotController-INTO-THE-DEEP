@@ -12,7 +12,9 @@ import java.util.List;
 
 /*
     A tool for fetching accurate poses for autonomous trajectories.
-    At the start, the robot is placed with its center at the intersection of the tiles in front of the red specimen rungs.
+
+    At the start, the robot should be placed with its center at the
+    intersection of the tiles in front of the red specimen rungs, facing the rungs.
  */
 @TeleOp(name = "Autonomous Pose Tool", group = "SA_FTC")
 public class AutonomousPoseTool extends TeleopApplication {
