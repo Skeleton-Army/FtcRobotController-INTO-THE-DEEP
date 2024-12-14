@@ -64,9 +64,6 @@ public class TeleopApplication extends TeleopOpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("intake", intakeMotor.getCurrentPosition());
-        telemetry.addData("outtake", outtakeMotor.getCurrentPosition());
-
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();
 
@@ -128,6 +125,11 @@ public class TeleopApplication extends TeleopOpMode {
         runAllActions();
 
         // Debugging
+        telemetry.addData("Intake Position", intakeMotor.getCurrentPosition());
+        telemetry.addData("Intake Velocity", intakeMotor.getVelocity());
+        telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
+        telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
+
         telemetry.update();
     }
 }

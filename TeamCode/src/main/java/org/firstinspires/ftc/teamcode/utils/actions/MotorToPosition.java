@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class MotorToPosition implements Action {
-    private final int POSITION_EPSILON = 20;
+    private final int VELOCITY_THRESHOLD = 5;
 
     private boolean initialized = false;
 
@@ -32,15 +32,12 @@ public class MotorToPosition implements Action {
             motor.setPower(power);
         }
 
-        if (Math.abs(motor.getCurrentPosition() - targetPos) <= POSITION_EPSILON) {
-            motor.setPower(0);
-//            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            telemetryPacket.put("test", true);
-        }
+        double currentVelocity = motor.getVelocity();
+        boolean isStopped = Math.abs(currentVelocity) < VELOCITY_THRESHOLD;
 
-        telemetryPacket.put("test", false);
         telemetryPacket.put("Motor Position", motor.getCurrentPosition());
+        telemetryPacket.put("Motor Velocity", currentVelocity);
 
-        return Math.abs(motor.getCurrentPosition() - targetPos) > POSITION_EPSILON;
+        return !isStopped;
     }
 }
