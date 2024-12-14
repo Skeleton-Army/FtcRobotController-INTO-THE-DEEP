@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 public class Outtake {
@@ -17,7 +18,7 @@ public class Outtake {
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        outtakeMotor.setTargetPosition(0);
+        outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
         outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 

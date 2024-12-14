@@ -18,7 +18,7 @@ public class Intake {
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        intakeMotor.setTargetPosition(0);
+        intakeMotor.setTargetPosition(IntakeConfig.retractPosition);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
