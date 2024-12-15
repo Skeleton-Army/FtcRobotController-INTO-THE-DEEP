@@ -15,6 +15,10 @@ import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
+import java.util.List;
+
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
     public static TeleopApplication Instance;
@@ -40,8 +44,10 @@ public class TeleopApplication extends TeleopOpMode {
     ExtensionState outtakeState = ExtensionState.RETRACTED;
     ClawState clawState = ClawState.OPENED;
 
-    DcMotorEx outtakeMotor;
-    DcMotorEx intakeMotor;
+    CachingDcMotorEx outtakeMotor;
+    CachingDcMotorEx intakeMotor;
+
+    List<LynxModule> allHubs;
 
     @Override
     public void init() {
@@ -53,20 +59,24 @@ public class TeleopApplication extends TeleopOpMode {
 
         movementUtils = new MovementUtils(hardwareMap);
 
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
+        outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
     }
 
     @Override
     public void start() {
         // Enable auto bulk reads
-        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+        allHubs = Utilities.setBulkReadsModeGetHubs(hardwareMap, LynxModule.BulkCachingMode.AUTO);
     }
 
     @Override
     public void loop() {
         telemetry.addData("intake", intakeMotor.getCurrentPosition());
         telemetry.addData("outtake", outtakeMotor.getCurrentPosition());
+
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
 
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();

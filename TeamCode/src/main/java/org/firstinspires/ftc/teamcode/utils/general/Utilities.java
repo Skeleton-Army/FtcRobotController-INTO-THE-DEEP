@@ -14,11 +14,14 @@ public class Utilities {
         return new Vector2d(rx, ry);
     }
 
-    public static void setBulkReadsMode(HardwareMap hardwareMap, LynxModule.BulkCachingMode mode) {
+    public static List<LynxModule> setBulkReadsModeGetHubs(HardwareMap hardwareMap, LynxModule.BulkCachingMode mode) {
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(mode);
         }
+
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        return allHubs;
     }
 }
