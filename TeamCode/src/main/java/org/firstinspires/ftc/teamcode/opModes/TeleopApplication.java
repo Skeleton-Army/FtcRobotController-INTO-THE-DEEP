@@ -135,7 +135,7 @@ public class TeleopApplication extends TeleopOpMode {
         // Specimen Grip
         if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
             runAction(specimenArm.gripToOuttake());
-        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_right)) {
+        } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
             runAction(specimenArm.gripToIntake());
         }
 
