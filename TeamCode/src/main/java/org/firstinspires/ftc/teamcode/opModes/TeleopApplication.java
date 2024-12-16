@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
@@ -31,6 +32,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     Intake intake;
     Outtake outtake;
+    SpecimenArm specimenArm;
 
     MovementUtils movementUtils;
 
@@ -47,8 +49,10 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.setMsTransmissionInterval(100); // Default is 250ms
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
+        specimenArm = new SpecimenArm(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -119,6 +123,20 @@ public class TeleopApplication extends TeleopOpMode {
             runAction(intake.closeClaw());
         } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
             runAction(intake.openClaw());
+        }
+
+        // Specimen Arm
+        if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
+            runAction(specimenArm.armToOuttake());
+        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
+            runAction(specimenArm.armToIntake());
+        }
+
+        // Specimen Grip
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
+            runAction(specimenArm.gripToOuttake());
+        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_right)) {
+            runAction(specimenArm.gripToIntake());
         }
 
         // Run all queued actions
