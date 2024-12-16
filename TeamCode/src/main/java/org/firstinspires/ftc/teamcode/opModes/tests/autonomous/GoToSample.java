@@ -90,6 +90,8 @@ public class GoToSample extends OpMode {
         // uncomment these in case the multiTelemetry doesn't show data on the dashboard
         dashboardTelemetry.addData("x: ", pos.x);
         dashboardTelemetry.addData("y: ", pos.y);
+
+        dashboardTelemetry.update();
     }
 
     @Override
@@ -97,11 +99,10 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         detectSamples = new DetectSamples(telemetry, webcam);
 
         webcam.setPipeline(detectSamples);
-
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
