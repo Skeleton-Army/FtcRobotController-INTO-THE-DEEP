@@ -51,23 +51,47 @@ public class GoToSample extends OpMode {
         List<Sample> samples = detectSamples.samples;
         Sample closest = samples.get(0);
 
-        for (Sample theYellowThingy : detectSamples.samples) {
-            if (closest.getDistance() > theYellowThingy.getDistance()) {
-                closest = theYellowThingy;
+        for (Sample currentSample : detectSamples.samples) {
+            if (closest.getDistance() > currentSample.getDistance()) {
+                closest = currentSample;
             }
         }
 
-        telemetry.addData("closest: ", closest.getDistance());
-
         return closest;
-    }
 
-    private Vector2d fieldPosition(Sample sample) {
+    }
+    private Vector2d fieldPosition(Sample inputSample) {
         Pose2d robotPose = drive.pose;
 
-        double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
-        double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
+        double x = robotPose.position.x + inputSample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(robotPose.heading.toDouble());
+        double y = robotPose.position.y + inputSample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(robotPose.heading.toDouble());
         return new Vector2d(x, y);
+    }
+
+    void printSampleData(Sample inputSample, Vector2d pos) {
+        telemetry.addLine();
+
+        telemetry.addData("x: ", pos.x);
+        telemetry.addData("y: ", pos.y);
+        telemetry.addLine();
+
+        telemetry.addData("Point reference: ", closeSample.reference);
+
+        telemetry.addLine();
+        telemetry.addData("relative x: ", inputSample.getSampleX());
+        telemetry.addData("relative y: ", inputSample.getSampleY());
+
+        packet.field()
+                .fillRect(pos.x, pos.y, 10, 10)
+                .fillText("closeSample", pos.x, pos.y - 20, "10px Arial", 0);
+
+        dashboard.sendTelemetryPacket(packet);
+
+        // uncomment these in case the multiTelemetry doesn't show data on the dashboard
+        dashboardTelemetry.addData("x: ", pos.x);
+        dashboardTelemetry.addData("y: ", pos.y);
+
+        dashboardTelemetry.update();
     }
 
     @Override
@@ -75,11 +99,10 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         detectSamples = new DetectSamples(telemetry, webcam);
 
         webcam.setPipeline(detectSamples);
-
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -121,34 +144,15 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        try {
+        if (!detectSamples.samples.isEmpty()) {
             closeSample = calculateClosest();
             closeSamplePos = fieldPosition(closeSample);
-            telemetry.addLine();
-
-            telemetry.addData("x: ", closeSamplePos.x);
-            telemetry.addData("y: ", closeSamplePos.y);
-            telemetry.addLine();
-
-            telemetry.addData("Point reference: ", closeSample.reference);
-
-            telemetry.addLine();
-            telemetry.addData("relative x: ", closeSample.getSampleX());
-            telemetry.addData("relative y: ", closeSample.getSampleY());
-
-            packet.field()
-                    .fillRect(closeSamplePos.x, closeSamplePos.y, 10, 10)
-                    .fillText("closeSample", closeSamplePos.x, closeSamplePos.y - 20, "10px Arial", 0);
-
-            dashboard.sendTelemetryPacket(packet);
-
-            // uncomment these in case the multiTelemetry doesn't show data on the dashboard
-            dashboardTelemetry.addData("x: ", closeSamplePos.x);
-            dashboardTelemetry.addData("y: ", closeSamplePos.y);
+            printSampleData(closeSample, closeSamplePos);
         }
-        catch (Exception e) {
+        else {
             telemetry.addLine("BASA YOSI");
         }
+
         telemetry.update();
         // also this
         dashboardTelemetry.update();

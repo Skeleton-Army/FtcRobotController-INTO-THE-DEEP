@@ -5,18 +5,19 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class MotorToPosition implements Action {
     private final int VELOCITY_THRESHOLD = 5;
 
     private boolean initialized = false;
 
-    private final DcMotorEx motor;
+    private final CachingDcMotorEx motor;
     private final int targetPos;
     private final double power;
 
-    public MotorToPosition(DcMotorEx motor, int targetPos, double power) {
+    public MotorToPosition(CachingDcMotorEx motor, int targetPos, double power) {
         this.motor = motor;
         this.targetPos = targetPos;
         this.power = power;

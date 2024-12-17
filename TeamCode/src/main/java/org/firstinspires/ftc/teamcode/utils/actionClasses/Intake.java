@@ -11,13 +11,16 @@ import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 public class Intake {
-    private final DcMotorEx intakeMotor;
+    private final CachingDcMotorEx intakeMotor;
     private final Servo clawServo;
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        intakeMotor.setTargetPosition(0);
         intakeMotor.setTargetPosition(IntakeConfig.retractPosition);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
