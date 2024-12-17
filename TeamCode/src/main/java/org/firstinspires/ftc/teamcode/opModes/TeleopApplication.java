@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -7,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
@@ -24,21 +28,16 @@ public class TeleopApplication extends TeleopOpMode {
         RETRACTED
     }
 
-    enum ClawState {
-        CLOSED,
-        OPENED
-    }
-
     public MecanumDrive drive;
 
     Intake intake;
     Outtake outtake;
+    SpecimenArm specimenArm;
 
     MovementUtils movementUtils;
 
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
-    ClawState clawState = ClawState.OPENED;
 
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
@@ -47,9 +46,13 @@ public class TeleopApplication extends TeleopOpMode {
     public void init() {
         Instance = this;
 
+        telemetry.setMsTransmissionInterval(100); // Default is 250ms
+
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
+        specimenArm = new SpecimenArm(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -65,9 +68,6 @@ public class TeleopApplication extends TeleopOpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("intake", intakeMotor.getCurrentPosition());
-        telemetry.addData("outtake", outtakeMotor.getCurrentPosition());
-
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();
 
@@ -75,10 +75,26 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("a", gamepad2.a)) {
             if (intakeState == ExtensionState.RETRACTED) {
                 intakeState = ExtensionState.EXTENDED;
-                runAction(intake.extend());
+                runAction(
+                        new ParallelAction(
+                                intake.extend(),
+                                intake.extendWrist(),
+                                intake.openClaw()
+                        )
+                );
             } else {
                 intakeState = ExtensionState.RETRACTED;
-                runAction(intake.retract());
+                runAction(
+                        new ParallelAction(
+                                intake.retractWrist(),
+                                outtake.hold(),
+                                new SequentialAction(
+                                        intake.retract(),
+                                        intake.openClaw(),
+                                        intake.wristMiddle()
+                                )
+                        )
+                );
             }
         }
 
@@ -89,41 +105,49 @@ public class TeleopApplication extends TeleopOpMode {
                 runAction(outtake.extend());
             } else {
                 outtakeState = ExtensionState.RETRACTED;
-                runAction(outtake.retract());
+                runAction(
+                        new SequentialAction(
+                                outtake.dunk(),
+                                new SleepAction(1),
+                                new ParallelAction(
+                                        outtake.retract(),
+                                        outtake.hold()
+                                )
+                        )
+                );
             }
         }
 
         // Claw
         if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
-            if (clawState == ClawState.OPENED) {
-                clawState = ClawState.CLOSED;
-                runAction(intake.closeClaw());
-            } else {
-                clawState = ClawState.OPENED;
-                runAction(intake.openClaw());
-            }
-        }
-
-        // Wrist
-        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
-            runAction(intake.extendWrist());
-        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
-            runAction(intake.retractWrist());
+            runAction(intake.closeClaw());
         } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
-            runAction(intake.wristMiddle());
+            runAction(intake.openClaw());
         }
 
-        // Bucket
-        if (Debounce.isButtonPressed("x", gamepad2.x)) {
-            runAction(outtake.dunk());
-        } else if (Debounce.isButtonPressed("b", gamepad2.b)) {
-            runAction(outtake.hold());
+        // Specimen Arm
+        if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
+            runAction(specimenArm.armToOuttake());
+        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
+            runAction(specimenArm.armToIntake());
+        }
+
+        // Specimen Grip
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
+            runAction(specimenArm.gripToOuttake());
+        } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
+            runAction(specimenArm.gripToIntake());
         }
 
         // Run all queued actions
         runAllActions();
 
         // Debugging
+        telemetry.addData("Intake Position", intakeMotor.getCurrentPosition());
+        telemetry.addData("Intake Velocity", intakeMotor.getVelocity());
+        telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
+        telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
+
         telemetry.update();
     }
 }
