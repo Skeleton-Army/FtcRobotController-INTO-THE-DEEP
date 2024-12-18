@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
@@ -41,6 +42,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
+    DcMotorEx specimenArmMotor;
 
     @Override
     public void init() {
@@ -58,6 +60,7 @@ public class TeleopApplication extends TeleopOpMode {
 
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
+        specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
     }
 
     @Override
@@ -91,6 +94,7 @@ public class TeleopApplication extends TeleopOpMode {
                                 new SequentialAction(
                                         intake.retract(),
                                         intake.openClaw(),
+                                        new SleepAction(0.5),
                                         intake.wristMiddle()
                                 )
                         )
@@ -147,6 +151,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Intake Velocity", intakeMotor.getVelocity());
         telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
+        telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
 
         telemetry.update();
     }

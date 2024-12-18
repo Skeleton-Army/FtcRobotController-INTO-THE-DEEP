@@ -25,7 +25,7 @@ public class SpecimenArm {
 
     // General actions
     public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(motor, targetPos, power);
+        return new MotorToPosition(motor, targetPos, power, true);
     }
 
     public Action gripToPosition(double targetPos) {

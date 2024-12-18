@@ -8,8 +8,8 @@ public class SpecimenArmConfig {
     public static String servoName = "specimenGrip";
 
     public static double motorPower = 0.5;
-    public static int intakePosition = -1000;
-    public static int outtakePosition = -500;
+    public static int intakePosition = -40;
+    public static int outtakePosition = -280;
     public static int disabledPosition = -20;
 
     public static double gripIntake = 0;

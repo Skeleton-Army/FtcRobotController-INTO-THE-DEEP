@@ -13,7 +13,7 @@ public class IntakeConfig {
     public static int retractPosition = -20;
 
     public static double clawClosed = 0;
-    public static double clawOpen = 0.1;
+    public static double clawOpen = 0.2;
 
     public static double wristExtend = 1;
     public static double wristRetract = 0.4;

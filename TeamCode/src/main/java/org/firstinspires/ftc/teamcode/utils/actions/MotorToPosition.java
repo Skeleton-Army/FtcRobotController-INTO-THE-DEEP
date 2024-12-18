@@ -21,13 +21,15 @@ public class MotorToPosition implements Action {
     private final DcMotorEx motor;
     private final int targetPos;
     private final double power;
+    private final boolean holdPosition;
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    public MotorToPosition(DcMotorEx motor, int targetPos, double power) {
+    public MotorToPosition(DcMotorEx motor, int targetPos, double power, boolean holdPosition) {
         this.motor = motor;
         this.targetPos = targetPos;
         this.power = power;
+        this.holdPosition = holdPosition;
     }
 
     @Override
@@ -52,8 +54,8 @@ public class MotorToPosition implements Action {
 
         boolean shouldStop = timeReached && lowVelocity;
 
-        if (shouldStop) {
-motor.setTargetPosition(motor.getCurrentPosition());
+        if (shouldStop && holdPosition) {
+            motor.setTargetPosition(motor.getCurrentPosition());
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(power / 2);
         }

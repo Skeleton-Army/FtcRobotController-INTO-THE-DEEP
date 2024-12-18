@@ -20,14 +20,14 @@ public class Outtake {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
         outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
     }
 
     // General actions
     public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(outtakeMotor, targetPos, power);
+        return new MotorToPosition(outtakeMotor, targetPos, power, true);
     }
 
     public Action bucketToPosition(double targetPos) {

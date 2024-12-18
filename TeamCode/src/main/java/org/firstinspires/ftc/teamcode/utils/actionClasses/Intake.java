@@ -20,7 +20,7 @@ public class Intake {
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         intakeMotor.setTargetPosition(IntakeConfig.retractPosition);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
@@ -28,7 +28,7 @@ public class Intake {
 
     // General actions
     public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(intakeMotor, targetPos, power);
+        return new MotorToPosition(intakeMotor, targetPos, power, false);
     }
 
     public Action clawToPosition(double targetPos) {
