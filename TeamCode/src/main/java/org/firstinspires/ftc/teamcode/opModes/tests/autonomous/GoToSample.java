@@ -49,6 +49,8 @@ public class GoToSample extends OpMode {
     private Sample calculateClosest() {
         // searching for the min value of distance
         List<Sample> samples = detectSamples.samples;
+        if (samples.isEmpty())
+            return null;
         Sample closest = samples.get(0);
 
         for (Sample currentSample : detectSamples.samples) {
@@ -144,8 +146,8 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        if (!detectSamples.samples.isEmpty()) {
-            closeSample = calculateClosest();
+        closeSample = calculateClosest();
+        if (closeSample != null) {
             closeSamplePos = fieldPosition(closeSample);
             printSampleData(closeSample, closeSamplePos);
         }

@@ -17,9 +17,8 @@ public class Outtake {
     private final Servo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
         outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
         outtakeMotor.setTargetPosition(0);
         outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

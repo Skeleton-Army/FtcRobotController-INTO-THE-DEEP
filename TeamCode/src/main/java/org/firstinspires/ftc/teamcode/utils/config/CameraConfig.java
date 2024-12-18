@@ -14,7 +14,7 @@ public class CameraConfig {
     public static double offsetX = 0;
     public static double offsetY = 0;
     public static double offsetHorizontal = 0; // 0 = Forward of the robot
-    public static double offsetVertical = 14; // 0 = Parallel to the ground
+    public static double offsetVertical = 9; // 0 = Parallel to the ground
 
     public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
     public static float vOVERheight = verticalFOV / (halfImageHeight * 2);

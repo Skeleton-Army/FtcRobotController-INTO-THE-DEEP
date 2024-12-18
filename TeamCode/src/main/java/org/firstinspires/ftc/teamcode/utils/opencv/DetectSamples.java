@@ -28,7 +28,7 @@ public class DetectSamples extends OpenCvPipeline {
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
 
-    public List<Sample> samples;
+    public List<Sample> samples = new ArrayList<>();
 
 
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam){
@@ -43,7 +43,7 @@ public class DetectSamples extends OpenCvPipeline {
         //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        samples = new ArrayList<>();
+        samples.clear();
 
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
@@ -61,6 +61,7 @@ public class DetectSamples extends OpenCvPipeline {
             telemetry.addData("distance", tempName.getDistance());
 
             Imgproc.drawMarker(input, tempName.reference, new Scalar(255,255,255));
+            contour2f.release();
         }
 
         telemetry.update();
