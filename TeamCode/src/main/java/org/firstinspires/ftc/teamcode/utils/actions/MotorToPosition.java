@@ -43,19 +43,21 @@ public class MotorToPosition implements Action {
         }
 
         double currentVelocity = motor.getVelocity();
-        boolean isStopped = Math.abs(currentVelocity) < VELOCITY_THRESHOLD;
+        boolean lowVelocity = Math.abs(currentVelocity) < VELOCITY_THRESHOLD;
         boolean timeReached = timer.seconds() > START_THRESHOLD;
 
         telemetryPacket.put("Motor Position", motor.getCurrentPosition());
         telemetryPacket.put("Motor Velocity", currentVelocity);
         telemetryPacket.put("Timer", timer.seconds());
 
-        boolean continueRunning = timeReached && isStopped;
+        boolean shouldStop = timeReached && lowVelocity;
 
-        if (continueRunning) {
-            motor.setPower(0);
+        if (shouldStop) {
+motor.setTargetPosition(motor.getCurrentPosition());
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(power / 2);
         }
 
-        return !continueRunning;
+        return !shouldStop;
     }
 }
