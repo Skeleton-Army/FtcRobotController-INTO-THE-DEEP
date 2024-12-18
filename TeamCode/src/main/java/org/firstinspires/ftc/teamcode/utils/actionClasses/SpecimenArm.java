@@ -16,16 +16,14 @@ public class SpecimenArm {
 
     public SpecimenArm(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
-        motor.setTargetPosition(SpecimenArmConfig.disabledPosition);
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         servo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
     }
 
     // General actions
-    public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(motor, targetPos, power, true);
+    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
+        return new MotorToPosition(motor, targetPos, power, holdPosition);
     }
 
     public Action gripToPosition(double targetPos) {
@@ -34,11 +32,11 @@ public class SpecimenArm {
 
     // Specific actions
     public Action armToIntake() {
-        return motorToPosition(SpecimenArmConfig.intakePosition, SpecimenArmConfig.motorPower);
+        return motorToPosition(SpecimenArmConfig.intakePosition, SpecimenArmConfig.motorPower, true);
     }
 
     public Action armToOuttake() {
-        return motorToPosition(SpecimenArmConfig.outtakePosition, SpecimenArmConfig.motorPower);
+        return motorToPosition(SpecimenArmConfig.outtakePosition, SpecimenArmConfig.motorPower, true);
     }
 
     public Action gripToIntake() {

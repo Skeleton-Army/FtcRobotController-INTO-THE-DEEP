@@ -10,7 +10,6 @@ public class SpecimenArmConfig {
     public static double motorPower = 0.5;
     public static int intakePosition = -40;
     public static int outtakePosition = -280;
-    public static int disabledPosition = -20;
 
     public static double gripIntake = 0;
     public static double gripOuttake = 0.1;

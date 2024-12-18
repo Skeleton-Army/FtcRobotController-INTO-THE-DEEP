@@ -44,6 +44,8 @@ public class TeleopApplication extends TeleopOpMode {
     DcMotorEx intakeMotor;
     DcMotorEx specimenArmMotor;
 
+    boolean manuallyMoved = false;
+
     @Override
     public void init() {
         Instance = this;
@@ -100,6 +102,15 @@ public class TeleopApplication extends TeleopOpMode {
                         )
                 );
             }
+        }
+
+        // Intake Joystick Control
+        if (Math.abs(gamepad2.left_stick_y) > 0.1) {
+            manuallyMoved = true;
+            intake.setPower(gamepad2.left_stick_y);
+        } else if (manuallyMoved) {
+            manuallyMoved = false;
+            intake.setPower(0);
         }
 
         // Outtake

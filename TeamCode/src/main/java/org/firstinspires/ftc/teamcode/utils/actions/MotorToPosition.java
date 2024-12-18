@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.concurrent.TimeUnit;
-
 @Config
 public class MotorToPosition implements Action {
     public static int VELOCITY_THRESHOLD = 1500;
@@ -54,10 +52,16 @@ public class MotorToPosition implements Action {
 
         boolean shouldStop = timeReached && lowVelocity;
 
-        if (shouldStop && holdPosition) {
-            motor.setTargetPosition(motor.getCurrentPosition());
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(power / 2);
+        // Reached target position / physically stopped (End of action)
+        if (shouldStop) {
+            if (holdPosition) {
+                motor.setTargetPosition(motor.getCurrentPosition());
+                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motor.setPower(power / 2);
+            } else {
+                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                motor.setPower(0);
+            }
         }
 
         return !shouldStop;
