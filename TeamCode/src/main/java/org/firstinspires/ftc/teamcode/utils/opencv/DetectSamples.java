@@ -37,13 +37,12 @@ public class DetectSamples extends OpenCvPipeline {
     }
 
     public Mat processFrame(Mat input) {
-
+        List<Sample> samplesFrame = new ArrayList<>();
         List<MatOfPoint> contours = new ArrayList<>();
 
         //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        samples.clear();
 
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
@@ -55,7 +54,7 @@ public class DetectSamples extends OpenCvPipeline {
             Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
             Point[] vertices = contour2f.toArray();
             Sample tempName = new Sample(vertices);
-            samples.add(tempName);
+            samplesFrame.add(tempName);
             telemetry.addData("X", tempName.getSampleX());
             telemetry.addData("Y", tempName.getSampleY());
             telemetry.addData("distance", tempName.getDistance());
@@ -63,7 +62,7 @@ public class DetectSamples extends OpenCvPipeline {
             Imgproc.drawMarker(input, tempName.reference, new Scalar(255,255,255));
             contour2f.release();
         }
-
+        samples = samplesFrame;
         telemetry.update();
         return input;
     }

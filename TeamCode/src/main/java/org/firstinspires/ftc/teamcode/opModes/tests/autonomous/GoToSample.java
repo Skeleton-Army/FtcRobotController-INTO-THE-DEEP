@@ -46,14 +46,13 @@ public class GoToSample extends OpMode {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     TelemetryPacket packet = new TelemetryPacket();
-    private Sample calculateClosest() {
+    private Sample calculateClosest(List<Sample> samples) {
         // searching for the min value of distance
-        List<Sample> samples = detectSamples.samples;
         if (samples.isEmpty())
             return null;
         Sample closest = samples.get(0);
 
-        for (Sample currentSample : detectSamples.samples) {
+        for (Sample currentSample : samples) {
             if (closest.getDistance() > currentSample.getDistance()) {
                 closest = currentSample;
             }
@@ -146,7 +145,8 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        closeSample = calculateClosest();
+        List<Sample> samples = detectSamples.samples;
+        closeSample = calculateClosest(samples);
         if (closeSample != null) {
             closeSamplePos = fieldPosition(closeSample);
             printSampleData(closeSample, closeSamplePos);
