@@ -26,6 +26,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         public double par0YTicks; // y position of the first parallel encoder (in tick units)
         public double par1YTicks; // y position of the second parallel encoder (in tick units)
         public double perpXTicks; // x position of the perpendicular encoder (in tick units)
+        public DcMotorSimple.Direction par0Direction;
+        public DcMotorSimple.Direction par1Direction;
+        public DcMotorSimple.Direction perpDirection;
     }
 
     public static class ParamsOld extends Params {
@@ -34,21 +37,29 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
             par1 = "rightBack";
             perp = "rightFront";
 
-            par0YTicks = -2245.74495240575;
-            par1YTicks = 1851.6087625567409;
-            perpXTicks = -2426.013700359011;
+            par0YTicks = -1543.0794907953825;
+            par1YTicks = 1204.655444097044;
+            perpXTicks = -2275.980598365463;
+
+            par0Direction = DcMotorSimple.Direction.FORWARD;
+            par1Direction = DcMotorSimple.Direction.FORWARD;
+            perpDirection = DcMotorSimple.Direction.REVERSE;
         }
     }
 
     public static class ParamsNew extends Params {
         public ParamsNew() {
-            par0 = "rightFront";
-            par1 = "rightBack";
-            perp = "leftBack";
+            par0 = "leftFront";
+            par1 = "leftBack";
+            perp = "rightFront";
 
-            par0YTicks = -2245.74495240575;
-            par1YTicks = 1851.6087625567409;
-            perpXTicks = -2426.013700359011;
+            par0YTicks = -1551.5132956874056;
+            par1YTicks = 1185.7633530949524;
+            perpXTicks = -2268.4354870009133;
+
+            par0Direction = DcMotorSimple.Direction.REVERSE;
+            par1Direction = DcMotorSimple.Direction.FORWARD;
+            perpDirection = DcMotorSimple.Direction.FORWARD;
         }
     }
 
@@ -70,7 +81,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, PARAMS.perp)));
 
         // TODO: reverse encoder directions if needed
-        par1.setDirection(DcMotorSimple.Direction.REVERSE);
+        par0.setDirection(PARAMS.par0Direction);
+        par1.setDirection(PARAMS.par1Direction);
+        perp.setDirection(PARAMS.perpDirection);
 
         this.inPerTick = inPerTick;
 
