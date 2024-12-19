@@ -104,6 +104,12 @@ public class TeleopApplication extends TeleopOpMode {
             }
         }
 
+        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
+            runAction(intake.extendWrist());
+        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
+            runAction(intake.retractWrist());
+        }
+
         // Intake Joystick Control
         if (Math.abs(gamepad2.left_stick_y) > 0.1) {
             manuallyMoved = true;
