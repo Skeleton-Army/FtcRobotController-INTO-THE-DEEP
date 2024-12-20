@@ -14,8 +14,6 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 
-import java.util.List;
-
 @Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "Teleop App")
 public class AutoApplication extends AutoOpMode {
     public enum State {
@@ -64,7 +62,7 @@ public class AutoApplication extends AutoOpMode {
         super.start();
 
         // Enable auto bulk reads
-        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+        Utilities.setBulkReadsModeGetHubs(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         alliance = choiceMenu.getValueOf("alliance").toString();
         String position = choiceMenu.getValueOf("position").toString();
