@@ -21,9 +21,10 @@ public class DetectSamples extends OpenCvPipeline {
     boolean viewportPaused; //Do we really need this? yes
     private final Telemetry telemetry;
 
-    //yellow
-    private final Scalar lowerBoundMask = new Scalar(0, 138, 0);
-    private final Scalar upperBoundMask = new Scalar(255, 200, 100);
+    // Adjusted yellow HSV bounds
+    private final Scalar lowerBoundMask = new Scalar(20, 100, 100); // Lower bound for yellow
+    private final Scalar upperBoundMask = new Scalar(30, 255, 255); // Upper bound for yellow
+
 
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
@@ -70,8 +71,13 @@ public class DetectSamples extends OpenCvPipeline {
 
     private Mat mask(Mat frame) {
         Mat masked = new Mat();
-        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
+
+        // Convert the frame to HSV color space
+        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_BGR2HSV);
+
+        // Apply color filtering to isolate yellow objects
         Core.inRange(masked, lowerBoundMask, upperBoundMask, masked);
+
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
         Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_CLOSE, kernel);
