@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.utils.opencv;
+package org.firstinspires.ftc.teamcode.utils.opencv.pipelines;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -22,8 +23,8 @@ public class DetectSamples extends OpenCvPipeline {
     private final Telemetry telemetry;
 
     // Adjusted yellow HSV bounds
-    private final Scalar lowerBoundMask = new Scalar(20, 100, 100); // Lower bound for yellow
-    private final Scalar upperBoundMask = new Scalar(30, 255, 255); // Upper bound for yellow
+    private final Scalar lowerBoundMask = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
+    private final Scalar upperBoundMask = new Scalar(32.6, 255, 255); // Upper bound for yellow
 
 
     private static final float epsilonConstant = 0.025f;
