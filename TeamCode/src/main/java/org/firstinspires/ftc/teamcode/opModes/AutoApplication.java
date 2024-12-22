@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -126,31 +130,64 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
+        Action extendSequence = new ParallelAction(
+                intake.extend(),
+                intake.extendWrist(),
+                intake.openClaw()
+        );
+
+        Action retractSequence = new ParallelAction(
+                intake.closeClaw(),
+                intake.retractWrist(),
+                outtake.hold(),
+                new SequentialAction(
+                        intake.retract(),
+                        intake.openClaw(),
+                        new SleepAction(0.5),
+                        intake.wristMiddle()
+                )
+        );
+
         switch (collectedSamples) {
             case 1:
                 // Collect first sample
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToConstantHeading(new Vector2d(10, -50), Math.PI / 2)
-                                .splineTo(new Vector2d(-55, -48), Math.toRadians(75))
-                                .build()
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToConstantHeading(new Vector2d(10, -50), Math.PI / 2)
+                                        .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
+                                        .build(),
+                                new SequentialAction(
+                                        new SleepAction(1),
+                                        extendSequence
+                                )
+                        )
                 );
+                Actions.runBlocking(retractSequence);
                 break;
             case 2:
                 // Collect second sample
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineTo(new Vector2d(-60, -48), Math.toRadians(90))
-                                .build()
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(90)), Math.PI)
+                                        .build(),
+                                extendSequence
+                        )
                 );
+                Actions.runBlocking(retractSequence);
                 break;
             case 3:
                 // Collect third sample
                 Actions.runBlocking(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineTo(new Vector2d(-60, -48), Math.toRadians(105))
-                                .build()
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(105)), Math.PI)
+                                        .build(),
+                                extendSequence
+                        )
                 );
+                Actions.runBlocking(retractSequence);
                 break;
         }
 
@@ -160,9 +197,23 @@ public class AutoApplication extends AutoOpMode {
     private void putInBasket() {
         // Put the sample in the basket
         Actions.runBlocking(
-                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                        .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(225)), Math.PI / 2)
-                        .build()
+                new ParallelAction(
+                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                                .build(),
+                        outtake.extend()
+                )
+        );
+
+        Actions.runBlocking(
+                new SequentialAction(
+                        outtake.dunk(),
+                        new SleepAction(1),
+                        new ParallelAction(
+                                outtake.retract(),
+                                outtake.hold()
+                        )
+                )
         );
 
         addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.PARK);
@@ -182,7 +233,6 @@ public class AutoApplication extends AutoOpMode {
                 // Park at bars
                 Actions.runBlocking(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .turnTo(Math.toRadians(90))
                                 .splineTo(new Vector2d(-25, -10), Math.toRadians(0))
                                 .build()
                 );
