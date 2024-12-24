@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -38,6 +39,12 @@ public class ApriltagRobotPose extends OpMode {
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
+                .setLensIntrinsics(
+                        3.6/(2*Math.tan((CameraConfig.horizontalFOV) * Math.PI)/180)/(3.6/1280),
+                        2.7/(2*Math.tan((CameraConfig.verticalFOV) * Math.PI)/180)/(2.7/720),
+                        CameraConfig.halfImageWidth * 2,
+                        CameraConfig.halfImageHeight * 2
+                )
 
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
