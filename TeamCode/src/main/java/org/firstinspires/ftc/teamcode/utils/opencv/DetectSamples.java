@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.utils.opencv.pipelines;
+package org.firstinspires.ftc.teamcode.utils.opencv;
+
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.*;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -23,8 +24,8 @@ public class DetectSamples extends OpenCvPipeline {
     private final Telemetry telemetry;
 
     // Adjusted yellow HSV bounds
-    private final Scalar lowerBoundMask = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
-    private final Scalar upperBoundMask = new Scalar(32.6, 255, 255); // Upper bound for yellow
+    private Scalar lowerBound = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
+    private Scalar upperBound = new Scalar(32.6, 255, 255); // Upper bound for yellow
 
 
     private static final float epsilonConstant = 0.025f;
@@ -33,9 +34,23 @@ public class DetectSamples extends OpenCvPipeline {
     public List<Sample> samples = new ArrayList<>();
 
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
+
+        switch (color) {
+            case RED:
+                this.lowerBound = lowerRed;
+                this.upperBound = upperRed;
+
+            case BLUE:
+                this.lowerBound = lowerYellow;
+                this.upperBound = upperYellow;
+
+            case YELLOW:
+                this.lowerBound = lowerBlue;
+                this.upperBound = upperBlue;
+        }
     }
 
     public Mat processFrame(Mat input) {
@@ -44,6 +59,7 @@ public class DetectSamples extends OpenCvPipeline {
 
         //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
+
         Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         for (MatOfPoint contour : contours) {
@@ -77,7 +93,7 @@ public class DetectSamples extends OpenCvPipeline {
         Imgproc.cvtColor(frame, masked, Imgproc.COLOR_BGR2HSV);
 
         // Apply color filtering to isolate yellow objects
-        Core.inRange(masked, lowerBoundMask, upperBoundMask, masked);
+        Core.inRange(masked, lowerBound, upperBound, masked);
 
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
         Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_OPEN, kernel);
