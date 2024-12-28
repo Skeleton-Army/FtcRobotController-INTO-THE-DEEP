@@ -18,17 +18,21 @@ public class Intake {
 
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        intakeMotor.setTargetPosition(0);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
     }
 
+    // Manual control
+    public void setPower(double power) {
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setPower(power);
+    }
+
     // General actions
-    public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(intakeMotor, targetPos, power);
+    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
+        return new MotorToPosition(intakeMotor, targetPos, power, holdPosition);
     }
 
     public Action clawToPosition(double targetPos) {
@@ -41,11 +45,11 @@ public class Intake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower);
+        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
     }
 
     public Action retract() {
-        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower);
+        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
     }
 
     public Action closeClaw() {
