@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -10,7 +11,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
@@ -46,6 +50,11 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean manuallyMoved = false;
 
+
+    Webcam webcamSequences;
+    Drive actionsDrive;
+    Apriltag apriltag;
+
     @Override
     public void init() {
         Instance = this;
@@ -63,6 +72,10 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+
+        apriltag = new Apriltag(hardwareMap, drive);
+        actionsDrive = new Drive(drive, apriltag);
+        webcamSequences = new Webcam(actionsDrive, intake, outtake, apriltag, "red");
     }
 
     @Override
@@ -159,6 +172,21 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
             runAction(specimenArm.gripToIntake());
         }
+
+        // cycles actions
+        if (Debounce.isButtonPressed("left_bumper", gamepad1.left_bumper)) {
+            runAction(actionsDrive.moveApriltag(new Pose2d(0,0,0)));
+        }
+        if (Debounce.isButtonPressed("dpad_up", gamepad1.dpad_up)) {
+            runAction(webcamSequences.basketCycle());
+        }
+        if (Debounce.isButtonPressed("dpad_right", gamepad1.dpad_right)) {
+            runAction(webcamSequences.specimenCycle());
+        }
+        if (Debounce.isButtonPressed("dpad_left", gamepad1.dpad_left)) {
+            runAction(webcamSequences.pickupSample());
+        }
+
 
         // Run all queued actions
         runAllActions();
