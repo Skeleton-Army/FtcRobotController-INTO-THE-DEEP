@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
+import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
 /*
     the following test will ensure that robot can utilize the apriltag to move across the field
     namely , do spline to the apriltag he detects
  */
 
-public class GoToApriltag extends OpMode {
+public class GoToApriltag extends TeleopOpMode {
 
     MecanumDrive drive;
 
@@ -30,7 +30,7 @@ public class GoToApriltag extends OpMode {
         apriltag = new Apriltag(hardwareMap, drive);
         apriltag.enableApriltag();
 
-        driveActions = new Drive(drive);
+        driveActions = new Drive(drive, apriltag);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class GoToApriltag extends OpMode {
     @Override
     public void start() {
 
-        driveActions.moveApriltag(new Pose2d(0,0,0));
+        runAction(driveActions.moveApriltag(new Pose2d(0,0,0)));
     }
 
     @Override
