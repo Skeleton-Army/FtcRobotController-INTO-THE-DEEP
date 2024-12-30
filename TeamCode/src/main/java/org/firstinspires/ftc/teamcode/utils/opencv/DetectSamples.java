@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.*;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerBlue;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerRed;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerYellow;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperBlue;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperRed;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYellow;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -53,6 +57,18 @@ public class DetectSamples extends OpenCvPipeline {
         }
     }
 
+    private Point getLowestPoint(MatOfPoint contour) {
+        Point[] points = contour.toArray();
+        Point lowestPoint = points[0];
+
+        for (Point point : points) {
+            if (point.y > lowestPoint.y) {
+                lowestPoint = point;
+            }
+        }
+
+        return lowestPoint;
+    }
     public Mat processFrame(Mat input) {
         List<Sample> samplesFrame = new ArrayList<>();
         List<MatOfPoint> contours = new ArrayList<>();
@@ -65,20 +81,14 @@ public class DetectSamples extends OpenCvPipeline {
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
-              //  continue;
-            MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
-
-            double epsilon = epsilonConstant * Imgproc.arcLength(contour2f, true);
-            Imgproc.approxPolyDP(contour2f, contour2f, epsilon, true);
-            Point[] vertices = contour2f.toArray();
-            Sample tempName = new Sample(vertices);
+            Point lowestPoint = getLowestPoint(contour);
+            Sample tempName = new Sample(lowestPoint);
             samplesFrame.add(tempName);
             telemetry.addData("X", tempName.getSampleX());
             telemetry.addData("Y", tempName.getSampleY());
             telemetry.addData("distance", tempName.getDistance());
 
-            Imgproc.drawMarker(input, tempName.reference, new Scalar(255,255,255));
-            contour2f.release();
+            Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
         }
         samples = samplesFrame;
         telemetry.update();

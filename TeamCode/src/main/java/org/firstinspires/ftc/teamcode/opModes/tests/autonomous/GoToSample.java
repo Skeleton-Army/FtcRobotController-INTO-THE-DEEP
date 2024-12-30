@@ -78,7 +78,7 @@ public class GoToSample extends OpMode {
         telemetry.addData("y: ", pos.y);
         telemetry.addLine();
 
-        telemetry.addData("Point reference: ", closeSample.reference);
+        telemetry.addData("Point reference: ", closeSample.lowest);
 
         telemetry.addLine();
         telemetry.addData("relative x: ", inputSample.getSampleX());

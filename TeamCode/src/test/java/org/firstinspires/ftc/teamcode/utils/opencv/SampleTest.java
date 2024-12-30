@@ -36,7 +36,7 @@ class SampleTest {
         int index = 1;
 
         for (Test value : values ) {
-            Sample sample = new Sample(new Point[]{ value.input });
+            Sample sample = new Sample(value.input);
 
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();
