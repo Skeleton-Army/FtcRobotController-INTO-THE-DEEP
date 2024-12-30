@@ -75,8 +75,9 @@ public class DetectSamples extends OpenCvPipeline {
 
         //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
-
-        Imgproc.findContours(mask(input), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Mat masked = mask(input);
+        Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        masked.release();
 
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
