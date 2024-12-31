@@ -73,8 +73,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     @Override
     public void loop() {
-        movementUtils.fieldCentricMovement();
-//        movementUtils.movement();
+//        movementUtils.fieldCentricMovement();
+        movementUtils.movement();
 
         // Intake
         if (Debounce.isButtonPressed("a", gamepad2.a)) {
