@@ -101,7 +101,7 @@ public class DetectSamples extends OpenCvPipeline {
         Mat masked = new Mat();
 
         // Convert the frame to HSV color space
-        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGBA2RGB);
 
         // Apply color filtering to isolate yellow objects
         Core.inRange(masked, lowerBound, upperBound, masked);
