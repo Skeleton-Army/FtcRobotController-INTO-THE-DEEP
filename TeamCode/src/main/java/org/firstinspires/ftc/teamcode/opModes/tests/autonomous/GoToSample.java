@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
+import com.acmerobotics.dashboard.DashboardCore;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -44,7 +45,7 @@ public class GoToSample extends OpMode {
 
     // Telemetry stuff
     FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    Telemetry dashboardTelemetry;
 
     TelemetryPacket packet = new TelemetryPacket();
     private Sample calculateClosest(List<Sample> samples) {
@@ -105,7 +106,8 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+/*        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());*/
+        dashboardTelemetry = telemetry;
         detectSamples = new DetectSamples(telemetry, webcam, SampleColor.YELLOW);
 
         webcam.setPipeline(detectSamples);

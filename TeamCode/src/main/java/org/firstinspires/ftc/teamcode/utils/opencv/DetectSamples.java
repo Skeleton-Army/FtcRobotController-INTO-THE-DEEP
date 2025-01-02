@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperRed;
 import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYellow;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.config.SampleConfig;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
+    private SampleColor color;
     //final int THRESHOLD = 200;
     public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this? yes
@@ -41,19 +43,19 @@ public class DetectSamples extends OpenCvPipeline {
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
-
+        this.color = color;
         switch (color) {
             case RED:
                 this.lowerBound = lowerRed;
                 this.upperBound = upperRed;
 
             case BLUE:
-                this.lowerBound = lowerYellow;
-                this.upperBound = upperYellow;
-
-            case YELLOW:
                 this.lowerBound = lowerBlue;
                 this.upperBound = upperBlue;
+
+            case YELLOW:
+                this.lowerBound = lowerYellow;
+                this.upperBound = upperYellow;
         }
     }
 
@@ -77,6 +79,7 @@ public class DetectSamples extends OpenCvPipeline {
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
         Mat masked = mask(input);
         Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        //Core.bitwise_and(input, masked, input);
         masked.release();
 
         for (MatOfPoint contour : contours) {
@@ -89,19 +92,19 @@ public class DetectSamples extends OpenCvPipeline {
             telemetry.addData("Y", tempName.getSampleY());
             telemetry.addData("distance", tempName.getDistance());
 
-            Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
+            //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
         }
         samples = samplesFrame;
         telemetry.update();
+        Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
         return input;
     }
 
 
     private Mat mask(Mat frame) {
         Mat masked = new Mat();
-
         // Convert the frame to HSV color space
-        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGBA2RGB);
+        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
 
         // Apply color filtering to isolate yellow objects
         Core.inRange(masked, lowerBound, upperBound, masked);
