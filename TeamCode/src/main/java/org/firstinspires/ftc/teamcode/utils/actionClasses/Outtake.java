@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,20 +10,25 @@ import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 public class Outtake {
-    private final DcMotorEx outtakeMotor;
+    private final CachingDcMotorEx outtakeMotor;
     private final Servo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        outtakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
+        outtakeMotor.setTargetPosition(0);
+        outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
     }
 
     // General actions
-    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(outtakeMotor, targetPos, power, holdPosition);
+    public Action motorToPosition(int targetPos, double power) {
+        return new MotorToPosition(outtakeMotor, targetPos, power);
     }
 
     public Action bucketToPosition(double targetPos) {
@@ -33,11 +37,11 @@ public class Outtake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower, true);
+        return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower);
     }
 
     public Action retract() {
-        return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower, false);
+        return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower);
     }
 
     public Action dunk() {

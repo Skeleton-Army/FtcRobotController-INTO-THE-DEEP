@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -44,7 +45,7 @@ public class SamplePipelineTest extends LinearOpMode
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        DetectSamples Pipeline = new DetectSamples(telemetry, webcam);
+        DetectSamples Pipeline = new DetectSamples(telemetry, webcam, SampleColor.YELLOW);
         webcam.setPipeline(Pipeline);
 
         /*

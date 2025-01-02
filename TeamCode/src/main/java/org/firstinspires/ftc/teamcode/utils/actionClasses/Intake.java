@@ -11,28 +11,27 @@ import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 public class Intake {
-    private final DcMotorEx intakeMotor;
+    private final CachingDcMotorEx intakeMotor;
     private final Servo clawServo;
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        intakeMotor.setTargetPosition(0);
+        intakeMotor.setTargetPosition(IntakeConfig.retractPosition);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
     }
 
-    // Manual control
-    public void setPower(double power) {
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setPower(power);
-    }
-
     // General actions
-    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(intakeMotor, targetPos, power, holdPosition);
+    public Action motorToPosition(int targetPos, double power) {
+        return new MotorToPosition(intakeMotor, targetPos, power);
     }
 
     public Action clawToPosition(double targetPos) {
@@ -45,11 +44,11 @@ public class Intake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
+        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower);
     }
 
     public Action retract() {
-        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
+        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower);
     }
 
     public Action closeClaw() {
