@@ -80,8 +80,8 @@ public class AutoApplication extends AutoOpMode {
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
-        //intake = new Intake(hardwareMap);
-        //outtake = new Outtake(hardwareMap);
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
     }
 
     @Override
@@ -107,12 +107,12 @@ public class AutoApplication extends AutoOpMode {
                 startingXPos = 10;
                 break;
             case BASKET:
-                startingXPos = -10;
+                startingXPos = -14.5;
                 break;
         }
 
         // Set starting position
-        drive.pose = new Pose2d(startingXPos, -61.5, Math.toRadians(90.00));
+        drive.pose = new Pose2d(startingXPos, -62.5, Math.toRadians(90.00));
     }
 
     // -------------- States --------------
@@ -120,7 +120,8 @@ public class AutoApplication extends AutoOpMode {
     private void hangSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                        .splineTo(new Vector2d(startingXPos, -35), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
+                        .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
+                        .splineToConstantHeading(new Vector2d(startingXPos, -50), Math.PI / 2)
                         .build()
         );
 
@@ -130,22 +131,22 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
-        Action extendSequence = new ParallelAction(
+        Action extendSequence = new SequentialAction(
                 intake.extend(),
                 intake.extendWrist(),
-                intake.openClaw()
+                intake.openClaw(),
+                new SleepAction(0.5)
         );
 
-        Action retractSequence = new ParallelAction(
+        Action retractSequence = new SequentialAction(
                 intake.closeClaw(),
+                new SleepAction(0.2),
                 intake.retractWrist(),
                 outtake.hold(),
-                new SequentialAction(
-                        intake.retract(),
-                        intake.openClaw(),
-                        new SleepAction(0.5),
-                        intake.wristMiddle()
-                )
+                intake.retract(),
+                intake.clawDeposit(),
+                new SleepAction(0.5),
+                intake.wristMiddle()
         );
 
         switch (collectedSamples) {
@@ -154,13 +155,9 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToConstantHeading(new Vector2d(10, -50), Math.PI / 2)
-                                        .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -53, Math.toRadians(75)), Math.PI)
                                         .build(),
-                                new SequentialAction(
-                                        new SleepAction(1),
-                                        extendSequence
-                                )
+                                extendSequence
                         )
                 );
                 Actions.runBlocking(retractSequence);
@@ -170,7 +167,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -51, Math.toRadians(95)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
@@ -182,7 +179,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(105)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -48, Math.toRadians(105)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
@@ -199,7 +196,7 @@ public class AutoApplication extends AutoOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                                .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
                                 .build(),
                         outtake.extend()
                 )
