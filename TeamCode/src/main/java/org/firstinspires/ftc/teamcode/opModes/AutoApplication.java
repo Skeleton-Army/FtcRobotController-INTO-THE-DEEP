@@ -146,7 +146,8 @@ public class AutoApplication extends AutoOpMode {
                 intake.retract(),
                 intake.clawDeposit(),
                 new SleepAction(0.5),
-                intake.wristMiddle()
+                intake.wristMiddle(),
+                new SleepAction(0.2)
         );
 
         switch (collectedSamples) {
@@ -157,7 +158,10 @@ public class AutoApplication extends AutoOpMode {
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-50, -53, Math.toRadians(75)), Math.PI)
                                         .build(),
-                                extendSequence
+                                new SequentialAction(
+                                        new SleepAction(0.2),
+                                        extendSequence
+                                )
                         )
                 );
                 Actions.runBlocking(retractSequence);
