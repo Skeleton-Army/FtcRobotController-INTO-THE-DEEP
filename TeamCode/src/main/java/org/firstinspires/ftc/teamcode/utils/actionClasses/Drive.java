@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
 import org.firstinspires.ftc.teamcode.utils.actions.alignToSample;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
-import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 
 //TODO: do stuff here sometime!!
 public class Drive {
@@ -17,11 +17,9 @@ public class Drive {
 
     Apriltag apriltag;
     HardwareMap hardwareMap;
-    DetectSamples detectSamples;
-    public Drive(MecanumDrive drive, Apriltag apriltag, DetectSamples detectSamples) {
+    public Drive(MecanumDrive drive, Apriltag apriltag) {
         this.drive = drive;
         this.apriltag = apriltag;
-        this.detectSamples = detectSamples;
     }
 
     public Action moveApriltag(Pose2d targetPose) {
@@ -29,8 +27,8 @@ public class Drive {
 
     }
 
-    public Action alignToSample() {
-        return new alignToSample(drive, detectSamples);
+    public Action alignToSample(Vector2d targetSamplePos) {
+        return new alignToSample(drive, targetSamplePos);
     }
 
 }

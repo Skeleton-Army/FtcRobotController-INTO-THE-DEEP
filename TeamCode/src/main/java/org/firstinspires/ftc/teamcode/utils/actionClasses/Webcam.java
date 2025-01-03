@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.utils.actions.BasketCycle;
 import org.firstinspires.ftc.teamcode.utils.actions.PickupSample;
@@ -14,7 +15,6 @@ public class Webcam {
     Outtake outtake;
 
     Apriltag apriltag;
-
     String alliance;
     public Webcam(Drive drive, Intake intake, Outtake outtake, String alliance) {
         this.Actionsdrive = drive;
@@ -31,7 +31,7 @@ public class Webcam {
         return new SpecimenCycle();
     }
 
-    public Action pickupSample() {
-        return new PickupSample(intake, Actionsdrive);
+    public Action pickupSample(Vector2d targetSamplePos) {
+        return new PickupSample(intake, Actionsdrive, targetSamplePos);
     }
 }

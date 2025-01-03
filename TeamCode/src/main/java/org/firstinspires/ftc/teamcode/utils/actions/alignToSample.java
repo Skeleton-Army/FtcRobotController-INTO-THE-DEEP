@@ -8,27 +8,24 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
-import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
 public class alignToSample implements Action {
 
     MecanumDrive drive;
-    DetectSamples detectSamples;
-    public alignToSample(MecanumDrive drive, DetectSamples detectSamples) {
+    Vector2d targetSamplePos;
+    public alignToSample(MecanumDrive drive, Vector2d targetSamplePos) {
         this.drive = drive;
-        this.detectSamples = detectSamples;
+        this.targetSamplePos = targetSamplePos;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
-            Sample targetSample = Utilities.calculateClosest(detectSamples);
+
 
             Actions.runBlocking(
                     drive.actionBuilder(drive.pose)
-                            .splineTo(new Vector2d(targetSample.getSampleY(), targetSample.getSampleX() - 11), drive.pose.heading.toDouble())
+                            .splineTo(new Vector2d(targetSamplePos.x, targetSamplePos.y - 11), drive.pose.heading.toDouble())
                             .build()
             );
         }

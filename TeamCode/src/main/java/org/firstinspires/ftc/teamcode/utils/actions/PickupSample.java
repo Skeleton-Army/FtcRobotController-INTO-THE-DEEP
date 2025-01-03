@@ -6,29 +6,30 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
 public class PickupSample implements Action {
 
     Drive actionsDrive;
     Intake intake;
-    Sample targetSample;
+    Vector2d targetSamplePos;
 
 
-    public PickupSample(Intake intake, Drive actionsDrive) {
+    public PickupSample(Intake intake, Drive actionsDrive, Vector2d targetSamplePos) {
         this.intake = intake;
         this.actionsDrive = actionsDrive;
+        this.targetSamplePos = targetSamplePos;
     }
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         Actions.runBlocking(
             new SequentialAction(
                     // the robot's detecting the sample, and moving to intake position
-                    actionsDrive.alignToSample(),
+                    actionsDrive.alignToSample(targetSamplePos),
                     // doing the intake part which collects the sample
                     intake.extend(),
                     new SleepAction(0.2),

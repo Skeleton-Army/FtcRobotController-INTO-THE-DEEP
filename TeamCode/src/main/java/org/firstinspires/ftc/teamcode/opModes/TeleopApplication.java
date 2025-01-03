@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
@@ -23,9 +25,12 @@ import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 import org.openftc.easyopencv.OpenCvWebcam;
+
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
@@ -47,9 +52,9 @@ public class TeleopApplication extends TeleopOpMode {
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
 
-    DcMotorEx outtakeMotor;
-    DcMotorEx intakeMotor;
-    DcMotorEx specimenArmMotor;
+    CachingDcMotorEx outtakeMotor;
+    CachingDcMotorEx intakeMotor;
+    CachingDcMotorEx specimenArmMotor;
 
     boolean manuallyMoved = false;
 
@@ -60,6 +65,7 @@ public class TeleopApplication extends TeleopOpMode {
     OpenCvWebcam webcamOpencv;
     DetectSamples detectSamples;
 
+    WebcamCV webcamCV;
     boolean streaming = false;
     @Override
     public void init() {
@@ -75,16 +81,17 @@ public class TeleopApplication extends TeleopOpMode {
 
         movementUtils = new MovementUtils(hardwareMap);
 
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+        outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        specimenArmMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
 
         apriltag = new Apriltag(hardwareMap, drive);
-        driveActions = new Drive(drive, apriltag, Utilities.initializeCamera(telemetry, Utilities.createWebcam(hardwareMap)));
+        driveActions = new Drive(drive, apriltag);
 
-        webcamOpencv.setPipeline(detectSamples);
-        Utilities.OpenCamera(webcamOpencv);
-        webcamOpencv.stopStreaming();
+        webcamCV = new WebcamCV(hardwareMap, telemetry, drive);
+
+        webcamCV.configureWebcam(SampleColor.YELLOW);
+        webcamCV.webcam.stopStreaming(); // let's see if that breaks it
         // webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
 
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
@@ -197,7 +204,7 @@ public class TeleopApplication extends TeleopOpMode {
         }
         if (Debounce.isButtonPressed("dpad_left", gamepad1.dpad_left)) {
             if (streaming) {
-                runAction(webcamSequences.pickupSample());
+                runAction(webcamSequences.pickupSample(webcamCV.getBestSamplePos(new Vector2d(drive.pose.position.x, drive.pose.position.y))));
                 webcamOpencv.stopStreaming();
                 streaming = false;
             }

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -73,7 +74,7 @@ public class Utilities {
     }
 
     // initializing the camera to start detect the yellow thingies :)
-    public static DetectSamples initializeCamera(Telemetry telemetry,OpenCvWebcam webcam) {
-        return new DetectSamples(telemetry, webcam);
+    public static DetectSamples initializeCamera(Telemetry telemetry, OpenCvWebcam webcam, SampleColor color) {
+        return new DetectSamples(telemetry, webcam, color);
     }
 }

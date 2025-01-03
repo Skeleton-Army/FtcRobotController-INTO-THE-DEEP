@@ -20,7 +20,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.List;
 
 public class WebcamCV {
-    static OpenCvWebcam webcam;
+    public OpenCvWebcam webcam;
     DetectSamples detectSamples;
     List<Sample> samples;
     Sample closeSample;
@@ -42,7 +42,9 @@ public class WebcamCV {
         return new Vector2d(x, y);
     }
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
-        return Math.pow(currSample.getSampleX() - pos.x, 2) + Math.pow(currSample.getSampleY() - pos.y, 2);
+        Vector2d samplePos = fieldPosition(currSample);
+
+        return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
     public Vector2d getBestSamplePos(Vector2d pos) {
         // searching for the min value of distance
@@ -71,7 +73,7 @@ public class WebcamCV {
         telemetry.addData("relative x: ", inputSample.getSampleX());
         telemetry.addData("relative y: ", inputSample.getSampleY());
     }
-    public static void configureWebcam(HardwareMap hardwareMap, Telemetry telemetry, SampleColor sampleColor) {
+    public void configureWebcam(SampleColor sampleColor) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
