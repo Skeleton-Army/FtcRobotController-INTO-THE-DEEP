@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
+import com.acmerobotics.dashboard.DashboardCore;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -43,31 +45,60 @@ public class GoToSample extends OpMode {
 
     // Telemetry stuff
     FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    Telemetry dashboardTelemetry;
 
     TelemetryPacket packet = new TelemetryPacket();
-    private Sample calculateClosest() {
+    private Sample calculateClosest(List<Sample> samples) {
         // searching for the min value of distance
-        List<Sample> samples = detectSamples.samples;
+        if (samples.isEmpty())
+            return null;
         Sample closest = samples.get(0);
 
-        for (Sample theYellowThingy : detectSamples.samples) {
-            if (closest.getDistance() > theYellowThingy.getDistance()) {
-                closest = theYellowThingy;
+        for (Sample currentSample : samples) {
+            if (closest.getDistance() > currentSample.getDistance()) {
+                closest = currentSample;
             }
         }
 
-        telemetry.addData("closest: ", closest.getDistance());
-
         return closest;
+
     }
 
-    private Vector2d fieldPosition(Sample sample) {
+    private Vector2d fieldPosition(Sample inputSample) {
         Pose2d robotPose = drive.pose;
 
-        double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
-        double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
+        double x = robotPose.position.x + inputSample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(robotPose.heading.toDouble());
+        double y = robotPose.position.y + inputSample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(robotPose.heading.toDouble());
         return new Vector2d(x, y);
+    }
+
+    void printSampleData(Sample inputSample, Vector2d pos) {
+        telemetry.addLine();
+
+        telemetry.addData("x: ", pos.x);
+        telemetry.addData("y: ", pos.y);
+        telemetry.addLine();
+
+        telemetry.addData("Point reference: ", closeSample.lowest);
+
+        telemetry.addLine();
+        telemetry.addData("relative x: ", inputSample.getSampleX());
+        telemetry.addData("relative y: ", inputSample.getSampleY());
+
+        /*
+        packet.field()
+                .fillRect(pos.x, pos.y, 10, 10)
+                .fillText("closeSample", pos.x, pos.y - 20, "10px Arial", 0);
+
+        dashboard.sendTelemetryPacket(packet);
+
+        // uncomment these in case the multiTelemetry doesn't show data on the dashboard
+        dashboardTelemetry.addData("x: ", pos.x);
+        dashboardTelemetry.addData("y: ", pos.y);
+
+        dashboardTelemetry.update();
+
+         */
     }
 
     @Override
@@ -75,11 +106,11 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
-        detectSamples = new DetectSamples(telemetry, webcam);
+/*        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());*/
+        dashboardTelemetry = telemetry;
+        detectSamples = new DetectSamples(telemetry, webcam, SampleColor.YELLOW);
 
         webcam.setPipeline(detectSamples);
-
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -121,37 +152,19 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        try {
-            closeSample = calculateClosest();
+        List<Sample> samples = detectSamples.samples;
+        closeSample = calculateClosest(samples);
+        if (closeSample != null) {
             closeSamplePos = fieldPosition(closeSample);
-            telemetry.addLine();
-
-            telemetry.addData("x: ", closeSamplePos.x);
-            telemetry.addData("y: ", closeSamplePos.y);
-            telemetry.addLine();
-
-            telemetry.addData("Point reference: ", closeSample.reference);
-
-            telemetry.addLine();
-            telemetry.addData("relative x: ", closeSample.getSampleX());
-            telemetry.addData("relative y: ", closeSample.getSampleY());
-
-            packet.field()
-                    .fillRect(closeSamplePos.x, closeSamplePos.y, 10, 10)
-                    .fillText("closeSample", closeSamplePos.x, closeSamplePos.y - 20, "10px Arial", 0);
-
-            dashboard.sendTelemetryPacket(packet);
-
-            // uncomment these in case the multiTelemetry doesn't show data on the dashboard
-            //dashboardTelemetry.addData("x: ", closeSamplePos.x);
-            //dashboardTelemetry.addData("y: ", closeSamplePos.y);
+            printSampleData(closeSample, closeSamplePos);
         }
-        catch (Exception e) {
+        else {
             telemetry.addLine("BASA YOSI");
         }
+
         telemetry.update();
         // also this
-        //dashboardTelemetry.update();
+        dashboardTelemetry.update();
     }
 
     @Override
