@@ -60,6 +60,10 @@ public class Intake {
         return clawToPosition(IntakeConfig.clawOpen);
     }
 
+    public Action clawDeposit() {
+        return clawToPosition(IntakeConfig.clawDeposit);
+    }
+
     public Action extendWrist() {
         return wristToPosition(IntakeConfig.wristExtend);
     }
