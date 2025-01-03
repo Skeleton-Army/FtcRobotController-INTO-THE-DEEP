@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
-import com.acmerobotics.dashboard.DashboardCore;
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -14,9 +12,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -61,7 +59,6 @@ public class GoToSample extends OpMode {
         }
 
         return closest;
-
     }
 
     private Vector2d fieldPosition(Sample inputSample) {
