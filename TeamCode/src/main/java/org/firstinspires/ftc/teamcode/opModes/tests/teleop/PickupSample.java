@@ -1,61 +1,59 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import com.acmerobotics.roadrunner.Pose2d;
-
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
+import org.openftc.easyopencv.OpenCvWebcam;
 
-/*
-    the following test will ensure that robot can utilize the apriltag to move across the field
-    namely , do spline to the apriltag he detects
- */
-
-public class GoToApriltag extends TeleopOpMode {
-
+public class PickupSample extends TeleopOpMode {
     MecanumDrive drive;
+
+    Intake intake;
+    Outtake outtake;
 
     Apriltag apriltag;
 
     Drive driveActions;
 
     DetectSamples detectSamples;
-    boolean updatePos = false;
+
+    Webcam webcamSequences;
+
+    OpenCvWebcam webcamOpencv;
 
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
 
         apriltag = new Apriltag(hardwareMap, drive);
         apriltag.enableApriltag();
 
-        detectSamples = Utilities.initializeCamera(telemetry, Utilities.createWebcam(hardwareMap));
+        webcamOpencv = Utilities.createWebcam(hardwareMap);
+        detectSamples = Utilities.initializeCamera(telemetry, webcamOpencv);
+        Utilities.OpenCamera(webcamOpencv);
+
         driveActions = new Drive(drive, apriltag, detectSamples);
+        webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
     @Override
     public void init_loop() {
-        if (Apriltag.getCurrentDetections() != null) {
-            // setting the position
-            apriltag.updateRobotPos(Apriltag.getCurrentDetections().get(0));
-            updatePos = true;
-        }
-
-        telemetry.addData("Robot Position is updated? ",updatePos);
-        telemetry.addLine();
-        telemetry.addData("Robot position: ", drive.pose);
-
+        telemetry.addLine("let it run to start the camera");
         telemetry.update();
     }
 
     @Override
     public void start() {
-
-        runAction(driveActions.moveApriltag(new Pose2d(0,0,0)));
+        runAction(webcamSequences.pickupSample());
     }
 
     @Override

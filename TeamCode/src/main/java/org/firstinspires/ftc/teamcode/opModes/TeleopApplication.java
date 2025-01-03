@@ -9,20 +9,23 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
@@ -52,9 +55,12 @@ public class TeleopApplication extends TeleopOpMode {
 
 
     Webcam webcamSequences;
-    Drive actionsDrive;
+    Drive driveActions;
     Apriltag apriltag;
+    OpenCvWebcam webcamOpencv;
+    DetectSamples detectSamples;
 
+    boolean streaming = false;
     @Override
     public void init() {
         Instance = this;
@@ -74,8 +80,14 @@ public class TeleopApplication extends TeleopOpMode {
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
 
         apriltag = new Apriltag(hardwareMap, drive);
-        actionsDrive = new Drive(drive, apriltag);
-        webcamSequences = new Webcam(actionsDrive, intake, outtake, apriltag, "red");
+        driveActions = new Drive(drive, apriltag, Utilities.initializeCamera(telemetry, Utilities.createWebcam(hardwareMap)));
+
+        webcamOpencv.setPipeline(detectSamples);
+        Utilities.OpenCamera(webcamOpencv);
+        webcamOpencv.stopStreaming();
+        // webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
+
+        webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
     @Override
@@ -175,7 +187,7 @@ public class TeleopApplication extends TeleopOpMode {
 
         // cycles actions
         if (Debounce.isButtonPressed("left_bumper", gamepad1.left_bumper)) {
-            runAction(actionsDrive.moveApriltag(new Pose2d(0,0,0)));
+            runAction(driveActions.moveApriltag(new Pose2d(0,0,0)));
         }
         if (Debounce.isButtonPressed("dpad_up", gamepad1.dpad_up)) {
             runAction(webcamSequences.basketCycle());
@@ -184,7 +196,17 @@ public class TeleopApplication extends TeleopOpMode {
             runAction(webcamSequences.specimenCycle());
         }
         if (Debounce.isButtonPressed("dpad_left", gamepad1.dpad_left)) {
-            runAction(webcamSequences.pickupSample());
+            if (streaming) {
+                runAction(webcamSequences.pickupSample());
+                webcamOpencv.stopStreaming();
+                streaming = false;
+            }
+        }
+
+        // starts camera streaming for sample detection
+        if (Debounce.isButtonPressed("dpad_down", gamepad1.dpad_down)) {
+            streaming = true;
+            webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
         }
 
 

@@ -16,16 +16,15 @@ public class Webcam {
     Apriltag apriltag;
 
     String alliance;
-    public Webcam(Drive drive, Intake intake, Outtake outtake, Apriltag apriltag, String alliance) {
+    public Webcam(Drive drive, Intake intake, Outtake outtake, String alliance) {
         this.Actionsdrive = drive;
         this.intake = intake;
         this.outtake = outtake;
-        this.apriltag = apriltag;
         this.alliance = alliance;
     }
 
     public Action basketCycle() {
-        return new BasketCycle(Actionsdrive, apriltag, outtake, alliance);
+        return new BasketCycle(Actionsdrive, Actionsdrive.apriltag, outtake, alliance);
     }
 
     public Action specimenCycle() {
@@ -33,6 +32,6 @@ public class Webcam {
     }
 
     public Action pickupSample() {
-        return new PickupSample();
+        return new PickupSample(intake, Actionsdrive);
     }
 }

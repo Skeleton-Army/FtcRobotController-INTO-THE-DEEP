@@ -4,6 +4,16 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
+
 import java.util.List;
 
 public class Utilities {
@@ -20,5 +30,50 @@ public class Utilities {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(mode);
         }
+    }
+
+    // opencv stuff here
+    public static OpenCvWebcam createWebcam(HardwareMap hardwareMap) {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        return webcam;
+    }
+
+    public static void OpenCamera(OpenCvWebcam webcamOpencv) {
+        webcamOpencv.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+                /*
+                 * This will be called if the camera could not be opened
+                 */
+            }
+        });
+    }
+
+    public static Sample calculateClosest(DetectSamples detectSamples) {
+        // searching for the min value of distance
+        List<Sample> samples = detectSamples.samples;
+        Sample closest = samples.get(0);
+
+        for (Sample theYellowThingy : detectSamples.samples) {
+            if (closest.getDistance() > theYellowThingy.getDistance()) {
+                closest = theYellowThingy;
+            }
+        }
+
+        return closest;
+    }
+
+    // initializing the camera to start detect the yellow thingies :)
+    public static DetectSamples initializeCamera(Telemetry telemetry,OpenCvWebcam webcam) {
+        return new DetectSamples(telemetry, webcam);
     }
 }

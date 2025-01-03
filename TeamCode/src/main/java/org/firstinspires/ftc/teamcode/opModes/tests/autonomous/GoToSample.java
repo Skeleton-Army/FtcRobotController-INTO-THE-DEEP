@@ -13,14 +13,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
-
-import java.util.List;
 
 
 /*
@@ -46,21 +45,6 @@ public class GoToSample extends OpMode {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     TelemetryPacket packet = new TelemetryPacket();
-    private Sample calculateClosest() {
-        // searching for the min value of distance
-        List<Sample> samples = detectSamples.samples;
-        Sample closest = samples.get(0);
-
-        for (Sample theYellowThingy : detectSamples.samples) {
-            if (closest.getDistance() > theYellowThingy.getDistance()) {
-                closest = theYellowThingy;
-            }
-        }
-
-        telemetry.addData("closest: ", closest.getDistance());
-
-        return closest;
-    }
 
     private Vector2d fieldPosition(Sample sample) {
         Pose2d robotPose = drive.pose;
@@ -122,7 +106,7 @@ public class GoToSample extends OpMode {
     @Override
     public void init_loop() {
         try {
-            closeSample = calculateClosest();
+            closeSample = Utilities.calculateClosest(detectSamples);
             closeSamplePos = fieldPosition(closeSample);
             telemetry.addLine();
 
