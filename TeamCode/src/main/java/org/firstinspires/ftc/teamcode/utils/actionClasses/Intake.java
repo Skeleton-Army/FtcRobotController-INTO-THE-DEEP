@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,13 +10,15 @@ import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 public class Intake {
-    private final DcMotorEx intakeMotor;
+    private final CachingDcMotorEx intakeMotor;
     private final Servo clawServo;
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
