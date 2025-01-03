@@ -12,5 +12,5 @@ public class OuttakeConfig {
     public static int retractPosition = -20;
 
     public static double bucketDunk = 0.35;
-    public static double bucketHold = 0.1;
+    public static double bucketHold = 0.05;
 }

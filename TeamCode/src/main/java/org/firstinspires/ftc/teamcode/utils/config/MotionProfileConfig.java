@@ -11,6 +11,6 @@ public class MotionProfileConfig {
     public static double SLOW_MODE_MULTIPLIER = 0.3;
 
     // Larger value - less smoothing
-    public static double PARABOLIC_SMOOTHING_BETA = 0.5;
-    public static double PARABOLIC_SMOOTHING_POWER = 0;
+    public static double PARABOLIC_SMOOTHING_BETA = 1; // y = *b*x^n
+    public static double PARABOLIC_SMOOTHING_POWER = 0; // y = bx^*n* - 0 is linear function, 1 and up is parabolic
 }

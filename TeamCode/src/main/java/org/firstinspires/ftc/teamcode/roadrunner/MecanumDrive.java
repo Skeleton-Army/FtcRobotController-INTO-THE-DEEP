@@ -81,7 +81,7 @@ public final class MecanumDrive {
         public double kA;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
+        public double maxWheelVel = 40; // Previously 50
         public double minProfileAccel = -30;
         public double maxProfileAccel = 50;
 
@@ -94,9 +94,9 @@ public final class MecanumDrive {
         public double lateralGain;
         public double headingGain; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain;
+        public double lateralVelGain;
+        public double headingVelGain; // shared with turn
     }
 
     public static class ParamsOld extends Params {
@@ -123,6 +123,10 @@ public final class MecanumDrive {
             axialGain = 7.5;
             lateralGain = 16;
             headingGain = 13.4; // shared with turn
+
+            axialVelGain = 0.0;
+            lateralVelGain = 0.0;
+            headingVelGain = 0.0;
         }
     }
 
@@ -135,19 +139,23 @@ public final class MecanumDrive {
             usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
             // drive model parameters
-            inPerTick = (double) 124 / 42125;
-            lateralInPerTick = 0.002353990335623929;
-            trackWidthTicks = 5042.472012250225;
+            inPerTick = (double) 124 / 42175;
+            lateralInPerTick = 0.0022348028092135383;
+            trackWidthTicks = 5199.69816230359;
 
             // feedforward parameters (in tick units)
-            kS = 0.6780465835298033;
-            kV = 0.0005688538116122192;
-            kA = 0.000112;
+            kS = 0.9359335991228757;
+            kV = 0.0005837278597627018;
+            kA = 0.00009;
 
             // path controller gains
-            axialGain = 7.5;
-            lateralGain = 16;
-            headingGain = 13.4; // shared with turn
+            axialGain = 7;
+            lateralGain = 14;
+            headingGain = 20; // shared with turn
+
+            axialVelGain = 3;
+            lateralVelGain = 0.0;
+            headingVelGain = 0.0;
         }
     }
 
