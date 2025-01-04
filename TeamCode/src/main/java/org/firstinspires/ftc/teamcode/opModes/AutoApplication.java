@@ -120,7 +120,8 @@ public class AutoApplication extends AutoOpMode {
     private void hangSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                        .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
+                        .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
+                        .waitSeconds(0.1)
                         .splineToConstantHeading(new Vector2d(startingXPos, -50), Math.PI / 2)
                         .build()
         );
@@ -156,7 +157,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -53, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
                                         .build(),
                                 new SequentialAction(
                                         new SleepAction(0.2),
@@ -164,33 +165,32 @@ public class AutoApplication extends AutoOpMode {
                                 )
                         )
                 );
-                Actions.runBlocking(retractSequence);
                 break;
             case 2:
                 // Collect second sample
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -51, Math.toRadians(95)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
                 );
-                Actions.runBlocking(retractSequence);
                 break;
             case 3:
                 // Collect third sample
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -48, Math.toRadians(105)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
                 );
-                Actions.runBlocking(retractSequence);
                 break;
         }
+
+        Actions.runBlocking(retractSequence);
 
         addTransition(State.PUT_IN_BASKET);
     }
