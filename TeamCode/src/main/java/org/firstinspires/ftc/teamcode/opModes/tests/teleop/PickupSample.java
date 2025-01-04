@@ -1,17 +1,23 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+@Autonomous
 public class PickupSample extends TeleopOpMode {
     MecanumDrive drive;
 
@@ -22,11 +28,9 @@ public class PickupSample extends TeleopOpMode {
 
     Drive driveActions;
 
-    DetectSamples detectSamples;
-
     Webcam webcamSequences;
 
-    OpenCvWebcam webcamOpencv;
+    WebcamCV camCV;
 
     @Override
     public void init() {
@@ -37,27 +41,37 @@ public class PickupSample extends TeleopOpMode {
         apriltag = new Apriltag(hardwareMap, drive);
         apriltag.enableApriltag();
 
-        webcamOpencv = Utilities.createWebcam(hardwareMap);
-        detectSamples = Utilities.initializeCamera(telemetry, webcamOpencv);
-        Utilities.OpenCamera(webcamOpencv);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(SampleColor.YELLOW);
 
-        driveActions = new Drive(drive, apriltag, detectSamples);
+
+        driveActions = new Drive(drive, apriltag);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
     @Override
     public void init_loop() {
-        telemetry.addLine("let it run to start the camera");
-        telemetry.update();
+        if (camCV.lookForSamples()) {
+            Vector2d sample = camCV.getBestSamplePos(drive.pose.position, drive.pose);
+            telemetry.addLine("Detected samples");
+            telemetry.addData("X: ", "" + sample.x);
+            telemetry.addData("Y: ", "" + sample.y);
+        }
+        else {
+            telemetry.addLine("No samples detected");
+        }
     }
 
     @Override
     public void start() {
-        runAction(webcamSequences.pickupSample());
+        Vector2d sample = camCV.getBestSamplePos(drive.pose.position, drive.pose);
+        telemetry.addData("X: ", "" + sample.x);
+        telemetry.addData("Y: ", "" + sample.y);
+        runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
     }
 
     @Override
     public void loop() {
-
+        runAllActions();
     }
 }

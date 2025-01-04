@@ -204,7 +204,7 @@ public class TeleopApplication extends TeleopOpMode {
         }
         if (Debounce.isButtonPressed("dpad_left", gamepad1.dpad_left)) {
             if (streaming) {
-                runAction(webcamSequences.pickupSample(webcamCV.getBestSamplePos(new Vector2d(drive.pose.position.x, drive.pose.position.y))));
+                runAction(webcamSequences.pickupSample(webcamCV.getBestSamplePos(drive.pose.position, drive.pose)));
                 webcamOpencv.stopStreaming();
                 streaming = false;
             }

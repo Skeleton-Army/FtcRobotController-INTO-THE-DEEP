@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -16,17 +17,20 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
+*/
 /*
     A test that will go to the nearest sample once, and end the opmode
     This test assumes that the robot is located in the origin (0,0)!
 
- */
+ *//*
+
 
 @Autonomous(name = "GoToSample", group = "SA_FTC")
 public class GoToSample extends OpMode {
@@ -59,7 +63,7 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
-        detectSamples = new DetectSamples(telemetry, webcam);
+        detectSamples = new DetectSamples(telemetry, webcam, SampleColor.YELLOW);
 
         webcam.setPipeline(detectSamples);
 
@@ -70,7 +74,8 @@ public class GoToSample extends OpMode {
             @Override
             public void onOpened()
             {
-                /*
+                */
+/*
                  * Tell the webcam to start streaming images to us! Note that you must make sure
                  * the resolution you specify is supported by the camera. If it is not, an exception
                  * will be thrown.
@@ -85,16 +90,19 @@ public class GoToSample extends OpMode {
                  * For a front facing camera, rotation is defined assuming the user is looking at the screen.
                  * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
                  * away from the user.
-                 */
+                 *//*
+
                 webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
             public void onError(int errorCode)
             {
-                /*
+                */
+/*
                  * This will be called if the camera could not be opened
-                 */
+                 *//*
+
             }
         });
 
@@ -155,3 +163,4 @@ public class GoToSample extends OpMode {
 
     }
 }
+*/

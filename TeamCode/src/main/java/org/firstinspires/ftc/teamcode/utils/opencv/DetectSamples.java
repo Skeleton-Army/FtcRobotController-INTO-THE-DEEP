@@ -39,7 +39,6 @@ public class DetectSamples extends OpenCvPipeline {
 
     public List<Sample> samples = new ArrayList<>();
 
-
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;

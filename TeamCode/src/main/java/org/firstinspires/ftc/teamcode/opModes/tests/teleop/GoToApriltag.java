@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -10,10 +11,12 @@ import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
+*/
 /*
     the following test will ensure that robot can utilize the apriltag to move across the field
     namely , do spline to the apriltag he detects
- */
+ *//*
+
 
 public class GoToApriltag extends TeleopOpMode {
 
@@ -63,3 +66,4 @@ public class GoToApriltag extends TeleopOpMode {
 
     }
 }
+*/

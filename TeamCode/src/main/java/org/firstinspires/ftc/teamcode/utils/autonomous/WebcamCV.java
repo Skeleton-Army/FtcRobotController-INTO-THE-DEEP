@@ -34,31 +34,29 @@ public class WebcamCV {
         this.telemetry = telemetry;
         this.drive = drive;
     }
-    private Vector2d fieldPosition(Sample inputSample) {
-        Pose2d robotPose = drive.pose;
-
-        double x = robotPose.position.x + inputSample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(robotPose.heading.toDouble());
-        double y = robotPose.position.y + inputSample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(robotPose.heading.toDouble());
+    private Vector2d fieldPosition(Sample inputSample, Pose2d detectionPose) {
+        double x = detectionPose.position.x + inputSample.getSampleY() * Math.cos(detectionPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(detectionPose.heading.toDouble());
+        double y = detectionPose.position.y + inputSample.getSampleY() * Math.sin(detectionPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(detectionPose.heading.toDouble());
         return new Vector2d(x, y);
     }
-    private double distanceFromPosition(Sample currSample, Vector2d pos) {
-        Vector2d samplePos = fieldPosition(currSample);
+    private double distanceFromPosition(Sample currSample, Vector2d pos, Pose2d detectionPose) {
+        Vector2d samplePos = fieldPosition(currSample, detectionPose);
 
         return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
-    public Vector2d getBestSamplePos(Vector2d pos) {
+    public Vector2d getBestSamplePos(Vector2d pos, Pose2d detectionPose) {
         // searching for the min value of distance
         if (samples.isEmpty())
             return null;
         Sample closest = samples.get(0);
 
         for (Sample currSample : samples) {
-            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
+            if (distanceFromPosition(closest, pos, detectionPose) > distanceFromPosition(currSample, pos, detectionPose)) {
                 closest = currSample;
             }
         }
 
-        return fieldPosition(closest);
+        return fieldPosition(closest, detectionPose);
     }
     private void printSampleData(Sample inputSample, Vector2d pos) {
         telemetry.addLine();
@@ -76,9 +74,11 @@ public class WebcamCV {
     public void configureWebcam(SampleColor sampleColor) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        telemetry.addLine("ooooo");
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
-        webcam.setPipeline(new DetectSamples(telemetry, webcam, sampleColor));
-
+        detectSamples = new DetectSamples(telemetry, webcam, sampleColor);
+        webcam.setPipeline(detectSamples);
+        telemetry.addLine("nnnnnnn");
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -93,12 +93,14 @@ public class WebcamCV {
                 telemetry.addData("Webcam", "Error: " + errorCode);
             }
         });
+        telemetry.addLine("yyyyyyyyyyy");
     }
     public boolean lookForSamples() {
         List<Sample> newSamples = detectSamples.samples;
+
         if (!(newSamples.isEmpty())) {
             samples = newSamples;
         }
-        return samples.isEmpty();
+        return (samples != null) && (samples.isEmpty());
     }
 }
