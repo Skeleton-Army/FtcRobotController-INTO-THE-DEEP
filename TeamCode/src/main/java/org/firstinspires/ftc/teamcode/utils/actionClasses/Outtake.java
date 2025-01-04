@@ -18,17 +18,14 @@ public class Outtake {
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
-        outtakeMotor.setTargetPosition(OuttakeConfig.retractPosition);
-        outtakeMotor.setTargetPosition(0);
-        outtakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        outtakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
     }
 
     // General actions
-    public Action motorToPosition(int targetPos, double power) {
-        return new MotorToPosition(outtakeMotor, targetPos, power);
+    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
+        return new MotorToPosition(outtakeMotor, targetPos, power, holdPosition);
     }
 
     public Action bucketToPosition(double targetPos) {
@@ -37,11 +34,11 @@ public class Outtake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower);
+        return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower, true);
     }
 
     public Action retract() {
-        return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower);
+        return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower, false);
     }
 
     public Action dunk() {
