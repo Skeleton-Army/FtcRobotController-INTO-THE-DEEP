@@ -24,7 +24,7 @@ public class PickupSample extends TeleopOpMode {
     Intake intake;
     Outtake outtake;
 
-    Apriltag apriltag;
+    /*Apriltag apriltag;*/
 
     Drive driveActions;
 
@@ -38,14 +38,14 @@ public class PickupSample extends TeleopOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
 
-        apriltag = new Apriltag(hardwareMap, drive);
-        apriltag.enableApriltag();
+        /*apriltag = new Apriltag(hardwareMap, drive);
+        apriltag.enableApriltag();*/
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(SampleColor.YELLOW);
 
 
-        driveActions = new Drive(drive, apriltag);
+        driveActions = new Drive(drive);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 

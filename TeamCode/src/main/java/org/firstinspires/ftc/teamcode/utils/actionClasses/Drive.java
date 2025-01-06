@@ -22,6 +22,10 @@ public class Drive {
         this.apriltag = apriltag;
     }
 
+    public Drive(MecanumDrive drive) {
+        this.drive = drive;
+    }
+
     public Action moveApriltag(Pose2d targetPose) {
         return new MoveApriltag(targetPose, drive, apriltag);
 
