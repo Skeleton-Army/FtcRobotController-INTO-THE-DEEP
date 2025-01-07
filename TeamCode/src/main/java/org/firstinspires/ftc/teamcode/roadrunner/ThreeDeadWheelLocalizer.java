@@ -34,7 +34,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class ParamsOld extends Params {
         public ParamsOld() {
             par0 = "leftFront";
-            par1 = "leftBack";
+            par1 = "rightBack";
             perp = "rightFront";
 
             par0YTicks = -1551.5132956874056;
@@ -63,7 +63,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         }
     }
 
-    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
+    public static Params PARAMS = new ParamsOld(); // TODO: Change this depending on the robot
 
     public final Encoder par0, par1, perp;
 
