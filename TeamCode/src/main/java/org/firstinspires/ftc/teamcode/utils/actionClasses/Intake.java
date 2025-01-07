@@ -47,11 +47,11 @@ public class Intake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower);
+        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
     }
 
     public Action retract() {
-        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower);
+        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
     }
 
     public Action closeClaw() {
