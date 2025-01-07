@@ -20,14 +20,14 @@ import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
+enum ExtensionState {
+    EXTENDED,
+    RETRACTED
+}
+
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
     public static TeleopApplication Instance;
-
-    enum ExtensionState {
-        EXTENDED,
-        RETRACTED
-    }
 
     public MecanumDrive drive;
 
@@ -107,13 +107,13 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
         } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
-            runAction(intake.retractWrist());
+            runAction(intake.wristMiddle());
         }
 
         // Intake Joystick Control
-        if (Math.abs(gamepad2.left_stick_y) > 0.1) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1 && intakeState == ExtensionState.EXTENDED) {
             manuallyMoved = true;
-            intake.setPower(gamepad2.left_stick_y);
+            intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
             manuallyMoved = false;
             intake.setPower(0);

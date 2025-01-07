@@ -7,7 +7,7 @@ public class SpecimenArmConfig {
     public static String motorName = "specimenArm";
     public static String servoName = "specimenGrip";
 
-    public static double motorPower = 0.5;
+    public static double motorPower = 0.2;
     public static int intakePosition = -40;
     public static int outtakePosition = -280;
 

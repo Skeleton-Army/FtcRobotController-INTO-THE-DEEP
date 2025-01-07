@@ -50,7 +50,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class ParamsNew extends Params {
         public ParamsNew() {
             par0 = "leftFront";
-            par1 = "leftBack";
+            par1 = "rightBack";
             perp = "rightFront";
 
             par0YTicks = -1551.5132956874056;

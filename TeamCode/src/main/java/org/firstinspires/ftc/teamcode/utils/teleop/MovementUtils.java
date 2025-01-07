@@ -34,7 +34,19 @@ public class MovementUtils {
     public void movement() {
         calculateMultipliers();
 
-        drive.setDrivePowers(MotionProfiling.getSmoothingPowersVelPose(gamepad1));
+        // Get the smoothed velocity and pose
+        PoseVelocity2d smoothedVelPose = MotionProfiling.getSmoothingPowersVelPose(gamepad1);
+
+        // Apply the slow mode multiplier to the input
+        PoseVelocity2d velPoseWithMultiplier = new PoseVelocity2d(
+                new Vector2d(
+                        smoothedVelPose.linearVel.x * multiplier,
+                        smoothedVelPose.linearVel.y * multiplier
+                ),
+                smoothedVelPose.angVel * multiplier
+        );
+
+        drive.setDrivePowers(velPoseWithMultiplier);
 
         drive.updatePoseEstimate();
     }
@@ -47,7 +59,6 @@ public class MovementUtils {
 
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
-
         Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
         ), -poseEstimate.heading.toDouble());
 
@@ -56,7 +67,7 @@ public class MovementUtils {
         drive.setDrivePowers(
                 new PoseVelocity2d(
                         new Vector2d(input.x * multiplier, input.y * multiplier),
-                        MotionProfiling.calculateSmoothedYawSpeed(gamepad1)
+                        MotionProfiling.calculateSmoothedYawSpeed(gamepad1) * multiplier
                 )
         );
 
