@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -52,7 +54,7 @@ public class PickupSample extends TeleopOpMode {
     @Override
     public void init_loop() {
         if (camCV.lookForSamples()) {
-            Vector2d sample = camCV.getBestSamplePos(drive.pose.position, drive.pose);
+            Vector2d sample = camCV.getBestSamplePos(new Vector2d(0,0), new Pose2d(0,0,0));
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + sample.x);
             telemetry.addData("Y: ", "" + sample.y);
@@ -67,7 +69,16 @@ public class PickupSample extends TeleopOpMode {
         Vector2d sample = camCV.getBestSamplePos(drive.pose.position, drive.pose);
         telemetry.addData("X: ", "" + sample.x);
         telemetry.addData("Y: ", "" + sample.y);
-        runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
+        //runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
+
+        Actions.runBlocking(
+                drive.actionBuilder(new Pose2d(0,0,0))
+                        .splineToConstantHeading(new Vector2d(30,0) , 0)
+                        .waitSeconds(5)
+                        .splineToConstantHeading(new Vector2d(0,0) , Math.PI)
+                        .build()
+
+        );
     }
 
     @Override

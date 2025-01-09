@@ -157,7 +157,7 @@ public final class MecanumDrive {
         }
     }
 
-    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
+    public static Params PARAMS = new ParamsOld(); // TODO: Change this depending on the robot
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);

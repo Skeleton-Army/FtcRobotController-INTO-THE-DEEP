@@ -101,6 +101,6 @@ public class WebcamCV {
         if (!(newSamples.isEmpty())) {
             samples = newSamples;
         }
-        return (samples != null) && (samples.isEmpty());
+        return (samples != null) && (!samples.isEmpty());
     }
 }
