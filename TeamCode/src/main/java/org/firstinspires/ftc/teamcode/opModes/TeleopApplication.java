@@ -20,6 +20,11 @@ import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
+
 enum ExtensionState {
     EXTENDED,
     RETRACTED
@@ -63,6 +68,8 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+
+        specimenArmMotor.setVelocityPIDFCoefficients(p, i, d, f);
     }
 
     @Override
