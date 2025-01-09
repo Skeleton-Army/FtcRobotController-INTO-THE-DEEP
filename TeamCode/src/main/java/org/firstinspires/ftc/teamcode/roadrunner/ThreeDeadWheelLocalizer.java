@@ -53,9 +53,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
             par1 = "rightBack";
             perp = "rightFront";
 
-            par0YTicks = -1570.7488649068375;
-            par1YTicks = 1175.8211744937003;
-            perpXTicks = -2351.257598973171;
+            par0YTicks = -1565.0896710891532;
+            par1YTicks = 1194.7677426565272;
+            perpXTicks = -2377.718135727591;
 
             par0Direction = DcMotorSimple.Direction.REVERSE;
             par1Direction = DcMotorSimple.Direction.FORWARD;
@@ -63,7 +63,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         }
     }
 
-    public static Params PARAMS = new ParamsOld(); // TODO: Change this depending on the robot
+    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
 
     public final Encoder par0, par1, perp;
 

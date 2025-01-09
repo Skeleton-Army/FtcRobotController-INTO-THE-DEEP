@@ -127,7 +127,7 @@ public final class MecanumDrive {
             // drive model parameters
             inPerTick = (double) 124 / 42182.5;
             lateralInPerTick = 0.002316444466011111;
-            trackWidthTicks = 5065.2163787132;
+            trackWidthTicks = 4903.51132323272;
 
             // feedforward parameters (in tick units)
             kS = 1.3903403004062191;
@@ -145,7 +145,7 @@ public final class MecanumDrive {
         }
     }
 
-    public static Params PARAMS = new ParamsOld(); // TODO: Change this depending on the robot
+    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
