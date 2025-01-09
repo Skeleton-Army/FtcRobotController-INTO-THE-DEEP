@@ -25,7 +25,7 @@ public class alignToSample implements Action {
 
             Actions.runBlocking(
                     drive.actionBuilder(drive.pose)
-                            .splineTo(new Vector2d(targetSamplePos.x, targetSamplePos.y - 11), drive.pose.heading.toDouble())
+                            .splineTo(new Vector2d(targetSamplePos.x - 30, targetSamplePos.y - 3), drive.pose.heading.toDouble())
                             .build()
             );
         }

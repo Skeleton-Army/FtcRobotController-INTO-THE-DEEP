@@ -32,14 +32,14 @@ public class PickupSample implements Action {
                     actionsDrive.alignToSample(targetSamplePos),
                     // doing the intake part which collects the sample
                     intake.extend(),
-                    new SleepAction(0.2),
                     intake.extendWrist(),
-                    new SleepAction(0.2),
+                    new SleepAction(1),
                     intake.closeClaw(),
-                    new SleepAction(0.2),
-                    intake.retract(),
+                    new SleepAction(0.6),
                     intake.retractWrist(),
-                    new SleepAction(0.2),
+                    new SleepAction(0.7),
+                    intake.retract(),
+                    new SleepAction(0.5),
                     intake.openClaw()
             )
         );
