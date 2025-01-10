@@ -34,7 +34,7 @@ public class Intake {
 
     // General actions
     public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(intakeMotor, targetPos, power, holdPosition);
+        return new MotorToPosition(intakeMotor, targetPos, power, IntakeConfig.velocityThreshold, IntakeConfig.startThreshold, holdPosition);
     }
 
     public Action clawToPosition(double targetPos) {

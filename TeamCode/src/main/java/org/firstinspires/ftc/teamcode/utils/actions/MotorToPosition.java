@@ -12,21 +12,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 @Config
 public class MotorToPosition implements Action {
-    public static int VELOCITY_THRESHOLD = 1500;
-    public static double START_THRESHOLD = 0.5; // in seconds
-
     private boolean initialized = false;
 
     private final CachingDcMotorEx motor;
     private final int targetPos;
     private final double power;
     private final boolean holdPosition;
+    private int velocityThreshold;
+    private double startThreshold;
 
     private final ElapsedTime timer = new ElapsedTime();
-    public MotorToPosition(CachingDcMotorEx motor, int targetPos, double power, boolean holdPosition) {
+    public MotorToPosition(CachingDcMotorEx motor, int targetPos, double power, int velocityThreshold, double startThreshold, boolean holdPosition) {
         this.motor = motor;
         this.targetPos = targetPos;
         this.power = power;
+        this.velocityThreshold = velocityThreshold;
+        this.startThreshold = startThreshold;
         this.holdPosition = holdPosition;
     }
 
@@ -43,8 +44,8 @@ public class MotorToPosition implements Action {
         }
 
         double currentVelocity = motor.getVelocity();
-        boolean lowVelocity = Math.abs(currentVelocity) < VELOCITY_THRESHOLD;
-        boolean timeReached = timer.seconds() > START_THRESHOLD;
+        boolean lowVelocity = Math.abs(currentVelocity) < velocityThreshold;
+        boolean timeReached = timer.seconds() > startThreshold;
 
         telemetryPacket.put("Motor Position", motor.getCurrentPosition());
         telemetryPacket.put("Motor Velocity", currentVelocity);
