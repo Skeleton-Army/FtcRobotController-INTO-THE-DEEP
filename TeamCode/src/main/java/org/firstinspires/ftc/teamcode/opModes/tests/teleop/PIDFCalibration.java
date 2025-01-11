@@ -41,12 +41,17 @@ public class PIDFCalibration extends OpMode {
         motor = hardwareMap.get(DcMotorEx.class, motorName);
         specimenArmAction = new SpecimenArmPIDF(motor);
 
-        Actions.runBlocking(specimenArmAction);
+        //Actions.runBlocking(specimenArmAction);
+    }
+
+    @Override
+    public void init_loop() {
+        //Actions.runBlocking(specimenArmAction);
     }
 
     @Override
     public void loop() {
-        //Actions.runBlocking(specimenArmAction);
+        Actions.runBlocking(specimenArmAction);
 
         telemetry.addData("Current Position", motor.getCurrentPosition());
         telemetry.addData("Target Position", target);

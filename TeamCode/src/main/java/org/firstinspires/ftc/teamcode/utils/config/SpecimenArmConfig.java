@@ -15,6 +15,6 @@ public class SpecimenArmConfig {
     public static double gripOuttake = 0.1;
     public static double p = 0, i = 0, d = 0, f = 0;
     public static double tP = 0;
-    public static int power = 1;
+    public static double power = 0.5;
     public static int target = -150;
 }

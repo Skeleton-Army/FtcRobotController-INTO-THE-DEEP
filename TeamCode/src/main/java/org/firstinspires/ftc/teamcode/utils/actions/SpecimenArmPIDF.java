@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.power;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.tP;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.target;
 
 import androidx.annotation.NonNull;
@@ -24,19 +25,23 @@ public class SpecimenArmPIDF  implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        while  (target - 10 > motor.getCurrentPosition() && motor.getCurrentPosition() > target + 10) {
-            motor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,new PIDFCoefficients(p, i, d, f));
+         {
+            /*motor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,new PIDFCoefficients(p, i, d, f));
             motor.setTargetPosition(target);
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
+*/
             // Use this instead for RUN_USING_ENCODER
-            //motor.setVelocityPIDFCoefficients(p, i, d, f);
-            //        motor.setPositionPIDFCoefficients(tP);
-            //motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setVelocityPIDFCoefficients(p, i, d, f);
+            motor.setPositionPIDFCoefficients(tP);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
+            telemetryPacket.put("pos", motor.getCurrentPosition());
 
             motor.setPower(power);
         }
 
-        return false;
+        return (target > motor.getCurrentPosition() || target < motor.getCurrentPosition());
     }
 }
