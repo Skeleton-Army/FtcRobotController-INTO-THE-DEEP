@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.*;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.target;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -26,7 +25,7 @@ import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
     https://youtu.be/E6H6Nqe6qJo?si=uIy-0d7pSVbfyAzb&t=442
  */
-@TeleOp
+@TeleOp(name = "specimenArm PIDF calibration", group = "test")
 public class PIDFCalibration extends OpMode {
 
     public static String motorName = SpecimenArmConfig.motorName;
@@ -41,11 +40,13 @@ public class PIDFCalibration extends OpMode {
 
         motor = hardwareMap.get(DcMotorEx.class, motorName);
         specimenArmAction = new SpecimenArmPIDF(motor);
+
+        Actions.runBlocking(specimenArmAction);
     }
 
     @Override
     public void loop() {
-        Actions.runBlocking(specimenArmAction);
+        //Actions.runBlocking(specimenArmAction);
 
         telemetry.addData("Current Position", motor.getCurrentPosition());
         telemetry.addData("Target Position", target);
