@@ -53,6 +53,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
             par1 = "rightBack";
             perp = "rightFront";
 
+            //1381.741431
             par0YTicks = -1565.0896710891532;
             par1YTicks = 1194.7677426565272;
             perpXTicks = -2377.718135727591;

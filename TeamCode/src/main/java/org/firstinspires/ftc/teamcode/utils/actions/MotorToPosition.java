@@ -13,7 +13,7 @@ import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 @Config
 public class MotorToPosition implements Action {
     public static int VELOCITY_THRESHOLD = 1500;
-    public static double START_THRESHOLD = 0.5; // in seconds
+    public static double START_THRESHOLD = 1.5; // in seconds
 
     private boolean initialized = false;
 
