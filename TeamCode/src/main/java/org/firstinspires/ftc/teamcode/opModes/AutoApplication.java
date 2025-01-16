@@ -132,29 +132,15 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
-        Action extendSequence = new SequentialAction(
-                intake.extend(),
-                intake.extendWrist(),
-                intake.openClaw(),
-                new SleepAction(0.5)
-        );
-
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
                 new SleepAction(0.5)
         );
 
-        Action retractSequence = new SequentialAction(
-                intake.closeClaw(),
-                new SleepAction(0.2),
-                intake.retractWrist(),
-                outtake.hold(),
-                intake.retract(),
-                intake.clawDeposit(),
-                new SleepAction(0.5),
-                intake.wristMiddle(),
-                new SleepAction(0.2)
+        Action extendSequence = new SequentialAction(
+                intake.extend(),
+                wristSequence
         );
 
         switch (collectedSamples) {
@@ -166,7 +152,7 @@ public class AutoApplication extends AutoOpMode {
                                         .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
                                         .build(),
                                 new SequentialAction(
-                                        new SleepAction(0.2),
+                                        new SleepAction(0.3),
                                         extendSequence
                                 )
                         )
@@ -175,7 +161,7 @@ public class AutoApplication extends AutoOpMode {
             case 2:
                 // Collect second sample
                 Actions.runBlocking(
-                        new ParallelAction(
+                        new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
                                         .build(),
@@ -186,7 +172,7 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 Actions.runBlocking(
-                        new ParallelAction(
+                        new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
                                         .build(),
@@ -196,15 +182,16 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        //Actions.runBlocking(retractSequence);
-
         addTransition(State.PUT_IN_BASKET);
     }
 
     private void putInBasket() {
-        Action retractSequence = new SequentialAction(
+        Action grab = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.2),
+                new SleepAction(0.2)
+        );
+
+        Action intakeRetract = new SequentialAction(
                 intake.retractWrist(),
                 outtake.hold(),
                 intake.retract(),
@@ -213,35 +200,33 @@ public class AutoApplication extends AutoOpMode {
                 intake.wristMiddle(),
                 new SleepAction(0.2)
         );
-        // Put the sample in the basket
+
+        Action dunkSample = new SequentialAction(
+                outtake.extend(),
+                outtake.dunk(),
+                new SleepAction(0.5),
+                outtake.hold(),
+                outtake.retract()
+        );
+
+        // Grab sample
+        Actions.runBlocking(grab);
+
+        // Retract and go to basket
         Actions.runBlocking(
                 new ParallelAction(
-                    new SequentialAction(
-                        new SleepAction(0.4),
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                 .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
-                                .build()
-                    ),
-                    new SequentialAction(
-                            retractSequence,
-                            new SleepAction(0.2),
-                            outtake.extend()
-                    )
+                                .build(),
+                        intakeRetract
                 )
         );
 
+        // Put the sample in the basket
         Actions.runBlocking(
-                new SequentialAction(
-                        outtake.dunk(),
-                        new SleepAction(1),
-                        new ParallelAction(
-                                intake.extend(),
-                                outtake.hold(),
-                                new SequentialAction(
-                                    new SleepAction(0.2),
-                                    outtake.retract()
-                                )
-                        )
+                new ParallelAction(
+                        dunkSample,
+                        intake.extend()
                 )
         );
 
