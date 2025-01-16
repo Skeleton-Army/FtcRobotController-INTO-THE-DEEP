@@ -135,6 +135,7 @@ public class AutoApplication extends AutoOpMode {
         Action extendSequence = new SequentialAction(
                 intake.extend(),
                 intake.extendWrist(),
+                new SleepAction(0.3),
                 intake.openClaw(),
                 new SleepAction(0.5)
         );
@@ -157,7 +158,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -54, Math.toRadians(75)), Math.PI)
                                         .build(),
                                 new SequentialAction(
                                         new SleepAction(0.2),
@@ -171,7 +172,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-54, -54, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
@@ -182,7 +183,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-53, -50, Math.toRadians(115)), Math.PI)
                                         .build(),
                                 extendSequence
                         )
@@ -200,7 +201,7 @@ public class AutoApplication extends AutoOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
+                                .splineToLinearHeading(new Pose2d(-56, -54, Math.toRadians(45)), Math.PI / 2)
                                 .build(),
                         outtake.extend()
                 )

@@ -98,7 +98,7 @@ public final class MecanumDrive {
             // drive model parameters
             inPerTick = (double) 124 / 42175;
             lateralInPerTick = 0.0022348028092135383;
-            trackWidthTicks = 5199.69816230359;
+            trackWidthTicks = 4964.293504649703;
 
             // feedforward parameters (in tick units)
             kS = 0.9359335991228757;
@@ -125,13 +125,13 @@ public final class MecanumDrive {
             usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
             // drive model parameters
-            inPerTick = (double) 121 / 41193.5;
-            lateralInPerTick = 0.002295574542973707;
-            trackWidthTicks = 5224.644539031752;
+            inPerTick = (double) 124 / 42175;
+            lateralInPerTick = 0.0023430964489703026;
+            trackWidthTicks = 4964.293504649703;
 
             // feedforward parameters (in tick units)
-            kS = 1.380748834092008;
-            kV = 0.0005505737152397146;
+            kS = 0.9186611348347422;
+            kV = 0.0006092400681915193;
             kA = 0.0001;
 
             // path controller gains

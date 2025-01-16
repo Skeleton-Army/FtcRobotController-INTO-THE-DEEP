@@ -37,9 +37,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
             par1 = "rightBack";
             perp = "rightFront";
 
-            par0YTicks = -1582.4228884857944; //-1551.8046131562276
-            par1YTicks = 1182.215243229251;
-            perpXTicks = -2294.0947291490634;
+            par0YTicks = -1588.3165304906013;
+            par1YTicks = 1167.8869563896696;
+            perpXTicks = -2281.1565197558366;
 
             par0Direction = DcMotorSimple.Direction.REVERSE;
             par1Direction = DcMotorSimple.Direction.FORWARD;
@@ -54,9 +54,9 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
             perp = "rightFront";
 
             //1381.741431
-            par0YTicks = -1565.0896710891532;
-            par1YTicks = 1194.7677426565272;
-            perpXTicks = -2377.718135727591;
+            par0YTicks = -1588.3165304906013; //-1565.0896710891532
+            par1YTicks = 1167.8869563896696; // 1194.7677426565272
+            perpXTicks = -2281.1565197558366;
 
             par0Direction = DcMotorSimple.Direction.REVERSE;
             par1Direction = DcMotorSimple.Direction.FORWARD;
