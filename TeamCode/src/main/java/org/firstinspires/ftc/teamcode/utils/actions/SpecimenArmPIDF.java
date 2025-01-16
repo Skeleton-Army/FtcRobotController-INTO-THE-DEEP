@@ -25,22 +25,20 @@ public class SpecimenArmPIDF  implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-         {
-            /*motor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,new PIDFCoefficients(p, i, d, f));
-            motor.setTargetPosition(target);
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        /*motor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,new PIDFCoefficients(p, i, d, f));
+        motor.setTargetPosition(target);
+        motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 */
-            // Use this instead for RUN_USING_ENCODER
-            motor.setVelocityPIDFCoefficients(p, i, d, f);
-            motor.setPositionPIDFCoefficients(tP);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setTargetPosition(target);
 
+        // Use this instead for RUN_USING_ENCODER
+        motor.setVelocityPIDFCoefficients(p, i, d, f);
+        motor.setPositionPIDFCoefficients(tP);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        telemetryPacket.put("pos", motor.getCurrentPosition());
 
-            telemetryPacket.put("pos", motor.getCurrentPosition());
-
-            motor.setPower(power);
-        }
+        motor.setPower(power);
 
         return (target > motor.getCurrentPosition() || target < motor.getCurrentPosition());
     }
