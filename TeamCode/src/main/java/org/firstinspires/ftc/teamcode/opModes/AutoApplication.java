@@ -122,7 +122,7 @@ public class AutoApplication extends AutoOpMode {
                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                         .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
                         .waitSeconds(0.1)
-                        .splineToConstantHeading(new Vector2d(startingXPos, -50), Math.PI / 2)
+                        .setTangent(Math.toRadians(275))
                         .build()
         );
 
@@ -135,7 +135,12 @@ public class AutoApplication extends AutoOpMode {
         Action extendSequence = new SequentialAction(
                 intake.extend(),
                 intake.extendWrist(),
-                new SleepAction(0.3),
+                intake.openClaw(),
+                new SleepAction(0.5)
+        );
+
+        Action wristSequence = new SequentialAction(
+                intake.extendWrist(),
                 intake.openClaw(),
                 new SleepAction(0.5)
         );
@@ -158,7 +163,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -54, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
                                         .build(),
                                 new SequentialAction(
                                         new SleepAction(0.2),
@@ -172,9 +177,9 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-54, -54, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
                                         .build(),
-                                extendSequence
+                                wristSequence
                         )
                 );
                 break;
@@ -183,27 +188,45 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-53, -50, Math.toRadians(115)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
                                         .build(),
-                                extendSequence
+                                wristSequence
                         )
                 );
                 break;
         }
 
-        Actions.runBlocking(retractSequence);
+        //Actions.runBlocking(retractSequence);
 
         addTransition(State.PUT_IN_BASKET);
     }
 
     private void putInBasket() {
+        Action retractSequence = new SequentialAction(
+                intake.closeClaw(),
+                new SleepAction(0.2),
+                intake.retractWrist(),
+                outtake.hold(),
+                intake.retract(),
+                intake.clawDeposit(),
+                new SleepAction(0.5),
+                intake.wristMiddle(),
+                new SleepAction(0.2)
+        );
         // Put the sample in the basket
         Actions.runBlocking(
                 new ParallelAction(
+                    new SequentialAction(
+                        new SleepAction(0.4),
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToLinearHeading(new Pose2d(-56, -54, Math.toRadians(45)), Math.PI / 2)
-                                .build(),
-                        outtake.extend()
+                                .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
+                                .build()
+                    ),
+                    new SequentialAction(
+                            retractSequence,
+                            new SleepAction(0.2),
+                            outtake.extend()
+                    )
                 )
         );
 
@@ -212,8 +235,12 @@ public class AutoApplication extends AutoOpMode {
                         outtake.dunk(),
                         new SleepAction(1),
                         new ParallelAction(
-                                outtake.retract(),
-                                outtake.hold()
+                                intake.extend(),
+                                outtake.hold(),
+                                new SequentialAction(
+                                    new SleepAction(0.2),
+                                    outtake.retract()
+                                )
                         )
                 )
         );
