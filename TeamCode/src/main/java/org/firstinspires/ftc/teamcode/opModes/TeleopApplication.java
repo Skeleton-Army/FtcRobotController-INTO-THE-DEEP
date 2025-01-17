@@ -84,6 +84,7 @@ public class TeleopApplication extends TeleopOpMode {
         movementUtils.movement();
 
         // Run systems
+        runIntakeWithDeposit();
         runIntake();
         runWrist();
         runManualIntakeControl();
@@ -121,11 +122,11 @@ public class TeleopApplication extends TeleopOpMode {
         }
     }
 
-    public void runIntake() {
+    public void runIntakeWithDeposit() {
         if (Debounce.isButtonPressed("a", gamepad2.a)) {
             runToggleAction(
                     "extend_intake",
-                    new ParallelAction(
+                    new SequentialAction(
                             intake.extend(),
                             intake.extendWrist(),
                             intake.openClaw()
@@ -142,6 +143,25 @@ public class TeleopApplication extends TeleopOpMode {
                                     intake.wristMiddle(),
                                     new SleepAction(0.2)
                             )
+                    )
+            );
+        }
+    }
+
+    public void runIntake() {
+        if (Debounce.isButtonPressed("x", gamepad2.x)) {
+            runToggleAction(
+                    "extend_intake",
+                    new SequentialAction(
+                            intake.extend(),
+                            intake.extendWrist(),
+                            intake.openClaw()
+                    ),
+
+                    "retract_intake",
+                    new ParallelAction(
+                            intake.retract(),
+                            intake.wristMiddle()
                     )
             );
         }
