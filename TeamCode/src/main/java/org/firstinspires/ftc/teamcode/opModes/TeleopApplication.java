@@ -91,6 +91,7 @@ public class TeleopApplication extends TeleopOpMode {
         runOuttake();
         runClaw();
         runSpecimenArm();
+        runEmergencyStop();
 
         // Run all queued actions
         runAllActions();
@@ -171,16 +172,15 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("y", gamepad2.y) && !isActionRunning("retract_intake")) {
             runToggleAction(
                     "extend_outtake",
-                    outtake.extend(),
+                    new SequentialAction(
+                            outtake.extend(),
+                            outtake.dunk()
+                    ),
 
                     "retract_outtake",
-                    new SequentialAction(
-                            outtake.dunk(),
-                            new SleepAction(1),
-                            new ParallelAction(
-                                    outtake.retract(),
-                                    outtake.hold()
-                            )
+                    new ParallelAction(
+                            outtake.retract(),
+                            outtake.hold()
                     )
             );
         }
@@ -221,6 +221,12 @@ public class TeleopApplication extends TeleopOpMode {
             armTarget = -100;
             armMoving = true;
             runAction(specimenArm.gripToIntake());
+        }
+    }
+
+    public void runEmergencyStop() {
+        if (Debounce.isButtonPressed("b", gamepad2.b)) {
+            stopAllActions();
         }
     }
 
