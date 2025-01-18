@@ -20,8 +20,10 @@ public class MotorToPosition implements Action {
     private final boolean holdPosition;
     private int velocityThreshold;
     private double startThreshold;
+    private boolean stop;
 
     private final ElapsedTime timer = new ElapsedTime();
+
     public MotorToPosition(CachingDcMotorEx motor, int targetPos, double power, int velocityThreshold, double startThreshold, boolean holdPosition) {
         this.motor = motor;
         this.targetPos = targetPos;
@@ -60,7 +62,6 @@ public class MotorToPosition implements Action {
                 motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 motor.setPower(power / 2);
             } else {
-                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 motor.setPower(0);
             }
         }

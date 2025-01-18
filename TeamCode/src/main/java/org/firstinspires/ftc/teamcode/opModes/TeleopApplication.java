@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -27,6 +28,8 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
+
+import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
@@ -227,6 +230,15 @@ public class TeleopApplication extends TeleopOpMode {
     public void runEmergencyStop() {
         if (Debounce.isButtonPressed("b", gamepad2.b)) {
             stopAllActions();
+
+            // Stop all motors
+            List<DcMotorEx> allMotors = hardwareMap.getAll(DcMotorEx.class);
+
+            for (DcMotorEx motor : allMotors) {
+                if (motor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+                    motor.setTargetPosition(motor.getCurrentPosition());
+                }
+            }
         }
     }
 
