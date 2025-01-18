@@ -110,6 +110,6 @@ public abstract class TeleopOpMode extends OpMode {
      * Get the current state of the toggle.
      */
     protected boolean isInState(String name) {
-        return actionStates.get(name);
+        return Boolean.TRUE.equals(actionStates.get(name));
     }
 }
