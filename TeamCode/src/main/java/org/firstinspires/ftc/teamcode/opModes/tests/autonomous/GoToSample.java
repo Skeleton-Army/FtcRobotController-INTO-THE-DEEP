@@ -1,6 +1,6 @@
+/*
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
-import com.acmerobotics.dashboard.DashboardCore;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -14,22 +14,23 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-import java.util.List;
 
-
+*/
 /*
     A test that will go to the nearest sample once, and end the opmode
     This test assumes that the robot is located in the origin (0,0)!
 
- */
+ *//*
+
 
 @Autonomous(name = "GoToSample", group = "SA_FTC")
 public class GoToSample extends OpMode {
@@ -45,60 +46,16 @@ public class GoToSample extends OpMode {
 
     // Telemetry stuff
     FtcDashboard dashboard = FtcDashboard.getInstance();
-    Telemetry dashboardTelemetry;
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     TelemetryPacket packet = new TelemetryPacket();
-    private Sample calculateClosest(List<Sample> samples) {
-        // searching for the min value of distance
-        if (samples.isEmpty())
-            return null;
-        Sample closest = samples.get(0);
 
-        for (Sample currentSample : samples) {
-            if (closest.getDistance() > currentSample.getDistance()) {
-                closest = currentSample;
-            }
-        }
-
-        return closest;
-
-    }
-
-    private Vector2d fieldPosition(Sample inputSample) {
+    private Vector2d fieldPosition(Sample sample) {
         Pose2d robotPose = drive.pose;
 
-        double x = robotPose.position.x + inputSample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(robotPose.heading.toDouble());
-        double y = robotPose.position.y + inputSample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(robotPose.heading.toDouble());
+        double x = robotPose.position.x + sample.getSampleY() * Math.cos(robotPose.heading.toDouble()) - sample.getSampleX() * Math.sin(robotPose.heading.toDouble());
+        double y = robotPose.position.y + sample.getSampleY() * Math.sin(robotPose.heading.toDouble()) + sample.getSampleX() * Math.cos(robotPose.heading.toDouble());
         return new Vector2d(x, y);
-    }
-
-    void printSampleData(Sample inputSample, Vector2d pos) {
-        telemetry.addLine();
-
-        telemetry.addData("x: ", pos.x);
-        telemetry.addData("y: ", pos.y);
-        telemetry.addLine();
-
-        telemetry.addData("Point reference: ", closeSample.lowest);
-
-        telemetry.addLine();
-        telemetry.addData("relative x: ", inputSample.getSampleX());
-        telemetry.addData("relative y: ", inputSample.getSampleY());
-
-        /*
-        packet.field()
-                .fillRect(pos.x, pos.y, 10, 10)
-                .fillText("closeSample", pos.x, pos.y - 20, "10px Arial", 0);
-
-        dashboard.sendTelemetryPacket(packet);
-
-        // uncomment these in case the multiTelemetry doesn't show data on the dashboard
-        dashboardTelemetry.addData("x: ", pos.x);
-        dashboardTelemetry.addData("y: ", pos.y);
-
-        dashboardTelemetry.update();
-
-         */
     }
 
     @Override
@@ -106,18 +63,19 @@ public class GoToSample extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
-/*        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());*/
-        dashboardTelemetry = telemetry;
         detectSamples = new DetectSamples(telemetry, webcam, SampleColor.YELLOW);
 
         webcam.setPipeline(detectSamples);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                /*
+                */
+/*
                  * Tell the webcam to start streaming images to us! Note that you must make sure
                  * the resolution you specify is supported by the camera. If it is not, an exception
                  * will be thrown.
@@ -132,16 +90,19 @@ public class GoToSample extends OpMode {
                  * For a front facing camera, rotation is defined assuming the user is looking at the screen.
                  * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
                  * away from the user.
-                 */
+                 *//*
+
                 webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
             public void onError(int errorCode)
             {
-                /*
+                */
+/*
                  * This will be called if the camera could not be opened
-                 */
+                 *//*
+
             }
         });
 
@@ -152,19 +113,37 @@ public class GoToSample extends OpMode {
 
     @Override
     public void init_loop() {
-        List<Sample> samples = detectSamples.samples;
-        closeSample = calculateClosest(samples);
-        if (closeSample != null) {
+        try {
+            closeSample = Utilities.calculateClosest(detectSamples);
             closeSamplePos = fieldPosition(closeSample);
-            printSampleData(closeSample, closeSamplePos);
+            telemetry.addLine();
+
+            telemetry.addData("x: ", closeSamplePos.x);
+            telemetry.addData("y: ", closeSamplePos.y);
+            telemetry.addLine();
+
+            telemetry.addData("Point reference: ", closeSample.reference);
+
+            telemetry.addLine();
+            telemetry.addData("relative x: ", closeSample.getSampleX());
+            telemetry.addData("relative y: ", closeSample.getSampleY());
+
+            packet.field()
+                    .fillRect(closeSamplePos.x, closeSamplePos.y, 10, 10)
+                    .fillText("closeSample", closeSamplePos.x, closeSamplePos.y - 20, "10px Arial", 0);
+
+            dashboard.sendTelemetryPacket(packet);
+
+            // uncomment these in case the multiTelemetry doesn't show data on the dashboard
+            //dashboardTelemetry.addData("x: ", closeSamplePos.x);
+            //dashboardTelemetry.addData("y: ", closeSamplePos.y);
         }
-        else {
+        catch (Exception e) {
             telemetry.addLine("BASA YOSI");
         }
-
         telemetry.update();
         // also this
-        dashboardTelemetry.update();
+        //dashboardTelemetry.update();
     }
 
     @Override
@@ -184,3 +163,4 @@ public class GoToSample extends OpMode {
 
     }
 }
+*/

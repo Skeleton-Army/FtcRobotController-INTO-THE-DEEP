@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 
@@ -21,10 +22,19 @@ import java.util.List;
 public class AutonomousPoseTool extends TeleopApplication {
     List<Pose2d> savedPoses = new ArrayList<>();
 
+    MecanumDrive drive;
+
+    // splines to last entered pos, from the robot's current position on the field
+    public void splineToPos() {
+        //TODO: fill this!!
+    }
+
     @Override
     public void init() {
         PoseStorage.currentPose = new Pose2d(0.00, -48.00, Math.toRadians(90.00));
 
+
+        drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
         super.init();
     }
 

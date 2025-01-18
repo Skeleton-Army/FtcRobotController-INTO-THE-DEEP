@@ -1,33 +1,45 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
+import org.openftc.easyopencv.OpenCvWebcam;
 
-enum ExtensionState {
-    EXTENDED,
-    RETRACTED
-}
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
     public static TeleopApplication Instance;
+
+    enum ExtensionState {
+        EXTENDED,
+        RETRACTED
+    }
 
     public MecanumDrive drive;
 
@@ -40,12 +52,21 @@ public class TeleopApplication extends TeleopOpMode {
     ExtensionState intakeState = ExtensionState.RETRACTED;
     ExtensionState outtakeState = ExtensionState.RETRACTED;
 
-    DcMotorEx outtakeMotor;
-    DcMotorEx intakeMotor;
-    DcMotorEx specimenArmMotor;
+    CachingDcMotorEx outtakeMotor;
+    CachingDcMotorEx intakeMotor;
+    CachingDcMotorEx specimenArmMotor;
 
     boolean manuallyMoved = false;
 
+
+    Webcam webcamSequences;
+    Drive driveActions;
+    Apriltag apriltag;
+    OpenCvWebcam webcamOpencv;
+    DetectSamples detectSamples;
+
+    WebcamCV webcamCV;
+    boolean streaming = false;
     @Override
     public void init() {
         Instance = this;
@@ -60,9 +81,20 @@ public class TeleopApplication extends TeleopOpMode {
 
         movementUtils = new MovementUtils(hardwareMap);
 
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+        outtakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        specimenArmMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
+
+        apriltag = new Apriltag(hardwareMap, drive);
+        driveActions = new Drive(drive, apriltag);
+
+        webcamCV = new WebcamCV(hardwareMap, telemetry, drive);
+
+        webcamCV.configureWebcam(SampleColor.YELLOW);
+        webcamCV.webcam.stopStreaming(); // let's see if that breaks it
+        // webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
+
+        webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
     @Override
@@ -107,13 +139,13 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
         } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
-            runAction(intake.wristMiddle());
+            runAction(intake.retractWrist());
         }
 
         // Intake Joystick Control
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && intakeState == ExtensionState.EXTENDED) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1) {
             manuallyMoved = true;
-            intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
+            intake.setPower(gamepad2.left_stick_y);
         } else if (manuallyMoved) {
             manuallyMoved = false;
             intake.setPower(0);
@@ -159,6 +191,31 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
             runAction(specimenArm.gripToIntake());
         }
+
+        // cycles actions
+        if (Debounce.isButtonPressed("left_bumper", gamepad1.left_bumper)) {
+            runAction(driveActions.moveApriltag(new Pose2d(0,0,0)));
+        }
+        if (Debounce.isButtonPressed("dpad_up", gamepad1.dpad_up)) {
+            runAction(webcamSequences.basketCycle());
+        }
+        if (Debounce.isButtonPressed("dpad_right", gamepad1.dpad_right)) {
+            runAction(webcamSequences.specimenCycle());
+        }
+        if (Debounce.isButtonPressed("dpad_left", gamepad1.dpad_left)) {
+            if (streaming) {
+                runAction(webcamSequences.pickupSample(webcamCV.getBestSamplePos(drive.pose.position, drive.pose)));
+                webcamOpencv.stopStreaming();
+                streaming = false;
+            }
+        }
+
+        // starts camera streaming for sample detection
+        if (Debounce.isButtonPressed("dpad_down", gamepad1.dpad_down)) {
+            streaming = true;
+            webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
+        }
+
 
         // Run all queued actions
         runAllActions();
