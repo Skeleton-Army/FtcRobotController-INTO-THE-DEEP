@@ -26,13 +26,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.target;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
-
-enum ExtensionState {
-    EXTENDED,
-    RETRACTED
-}
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
@@ -45,9 +39,6 @@ public class TeleopApplication extends TeleopOpMode {
     SpecimenArm specimenArm;
 
     MovementUtils movementUtils;
-
-    ExtensionState intakeState = ExtensionState.RETRACTED;
-    ExtensionState outtakeState = ExtensionState.RETRACTED;
 
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
@@ -65,8 +56,6 @@ public class TeleopApplication extends TeleopOpMode {
     @Override
     public void init() {
         Instance = this;
-
-        telemetry.setMsTransmissionInterval(100); // Default is 250ms
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
@@ -94,86 +83,14 @@ public class TeleopApplication extends TeleopOpMode {
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();
 
-        // Intake
-        if (Debounce.isButtonPressed("a", gamepad2.a)) {
-            if (intakeState == ExtensionState.RETRACTED) {
-                intakeState = ExtensionState.EXTENDED;
-                runAction(
-                        new ParallelAction(
-                                intake.extend(),
-                                intake.extendWrist(),
-                                intake.openClaw()
-                        )
-                );
-            } else {
-                intakeState = ExtensionState.RETRACTED;
-                runAction(
-                        new ParallelAction(
-                                intake.retractWrist(),
-                                outtake.hold(),
-                                new SequentialAction(
-                                        intake.retract(),
-                                        intake.openClaw(),
-                                        new SleepAction(0.5),
-                                        intake.wristMiddle()
-                                )
-                        )
-                );
-            }
-        }
-
-        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
-            runAction(intake.extendWrist());
-        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
-            runAction(intake.wristMiddle());
-        }
-
-        // Intake Joystick Control
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && intakeState == ExtensionState.EXTENDED) {
-            manuallyMoved = true;
-            intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
-        } else if (manuallyMoved) {
-            manuallyMoved = false;
-            intake.setPower(0);
-        }
-
-        // Outtake
-        if (Debounce.isButtonPressed("y", gamepad2.y)) {
-            if (outtakeState == ExtensionState.RETRACTED) {
-                outtakeState = ExtensionState.EXTENDED;
-                runAction(outtake.extend());
-            } else {
-                outtakeState = ExtensionState.RETRACTED;
-                runAction(
-                        new SequentialAction(
-                                outtake.dunk(),
-                                new SleepAction(1),
-                                new ParallelAction(
-                                        outtake.retract(),
-                                        outtake.hold()
-                                )
-                        )
-                );
-            }
-        }
-
-        // Claw
-        if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
-            runAction(intake.closeClaw());
-        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
-            runAction(intake.openClaw());
-        }
-
-        // Specimen Arm
-        if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
-            armTarget = -280;
-            runAction(specimenArm.gripToOuttake());
-        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
-            armTimer.reset();
-            armTarget = -100;
-            armMoving = true;
-            runAction(specimenArm.gripToIntake());
-        }
+        // Run systems
+        runIntakeWithDeposit();
+        runIntake();
+        runWrist();
+        runManualIntakeControl();
+        runOuttake();
+        runClaw();
+        runSpecimenArm();
 
         // Run all queued actions
         runAllActions();
@@ -187,13 +104,14 @@ public class TeleopApplication extends TeleopOpMode {
 
         telemetry.update();
 
+        // Temporary specimen arm code
         controller.setPID(p, i, d);
         int pos = specimenArmMotor.getCurrentPosition();
         double pid = controller.calculate(pos, armTarget);
         double ff = Math.cos(Math.toRadians(armTarget / ticks_in_degree)) * f;
 
         double power = pid + ff;
-        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2)) )) * 2 * SpecimenArmConfig.power) + 0.15;
+        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
         double actualPower = clamp(power, -limitPower, limitPower);
 
         specimenArmMotor.setPower(actualPower);
@@ -201,6 +119,108 @@ public class TeleopApplication extends TeleopOpMode {
         if (armTimer.seconds() > 1.5 && armMoving) {
             armTarget = -45;
             armMoving = false;
+        }
+    }
+
+    public void runIntakeWithDeposit() {
+        if (Debounce.isButtonPressed("a", gamepad2.a)) {
+            runToggleAction(
+                    "extend_intake",
+                    new SequentialAction(
+                            intake.extend(),
+                            intake.extendWrist(),
+                            intake.openClaw()
+                    ),
+
+                    "retract_intake",
+                    new ParallelAction(
+                            intake.retractWrist(),
+                            outtake.hold(),
+                            new SequentialAction(
+                                    intake.retract(),
+                                    intake.openClaw(),
+                                    new SleepAction(0.2),
+                                    intake.wristMiddle(),
+                                    new SleepAction(0.2)
+                            )
+                    )
+            );
+        }
+    }
+
+    public void runIntake() {
+        if (Debounce.isButtonPressed("x", gamepad2.x)) {
+            runToggleAction(
+                    "extend_intake",
+                    new SequentialAction(
+                            intake.extend(),
+                            intake.extendWrist(),
+                            intake.openClaw()
+                    ),
+
+                    "retract_intake",
+                    new ParallelAction(
+                            intake.retract(),
+                            intake.wristMiddle()
+                    )
+            );
+        }
+    }
+
+    public void runOuttake() {
+        if (Debounce.isButtonPressed("y", gamepad2.y) && !isActionRunning("retract_intake")) {
+            runToggleAction(
+                    "extend_outtake",
+                    outtake.extend(),
+
+                    "retract_outtake",
+                    new SequentialAction(
+                            outtake.dunk(),
+                            new SleepAction(0.5),
+                            new ParallelAction(
+                                    outtake.retract(),
+                                    outtake.hold()
+                            )
+                    )
+            );
+        }
+    }
+
+    public void runManualIntakeControl() {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("extend_intake")) {
+            manuallyMoved = true;
+            intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
+        } else if (manuallyMoved) {
+            manuallyMoved = false;
+            intake.setPower(0);
+        }
+    }
+
+    public void runWrist() {
+        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
+            runAction(intake.extendWrist());
+        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
+            runAction(intake.wristMiddle());
+        }
+    }
+
+    public void runClaw() {
+        if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
+            runAction(intake.closeClaw());
+        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
+            runAction(intake.openClaw());
+        }
+    }
+
+    public void runSpecimenArm() {
+        if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
+            armTarget = -280;
+            runAction(specimenArm.gripToOuttake());
+        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
+            armTimer.reset();
+            armTarget = -100;
+            armMoving = true;
+            runAction(specimenArm.gripToIntake());
         }
     }
 
