@@ -15,8 +15,10 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
 enum Alliance {
     RED,
@@ -48,6 +50,7 @@ public class AutoApplication extends AutoOpMode {
 
     Alliance alliance;
     Strategy strategy;
+    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, drive);
 
     double startingXPos = 0;
     int collectedSamples = 0;
@@ -79,7 +82,7 @@ public class AutoApplication extends AutoOpMode {
         super.init();
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
+        camCV.configureWebcam(SampleColor.YELLOW);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
     }
