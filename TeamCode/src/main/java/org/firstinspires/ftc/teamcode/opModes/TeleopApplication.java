@@ -176,7 +176,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "retract_outtake",
                     new SequentialAction(
                             outtake.dunk(),
-                            new SleepAction(0.5),
+                            new SleepAction(1),
                             new ParallelAction(
                                     outtake.retract(),
                                     outtake.hold()
