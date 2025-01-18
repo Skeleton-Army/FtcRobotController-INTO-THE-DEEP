@@ -4,7 +4,6 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -94,7 +93,7 @@ public class TeleopApplication extends TeleopOpMode {
         webcamCV.webcam.stopStreaming(); // let's see if that breaks it
         // webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2);
 
-        webcamSequences = new Webcam(driveActions, intake, outtake, "red");
+        webcamSequences = new Webcam(driveActions, intake, outtake);
     }
 
     @Override
@@ -197,7 +196,7 @@ public class TeleopApplication extends TeleopOpMode {
             runAction(driveActions.moveApriltag(new Pose2d(0,0,0)));
         }
         if (Debounce.isButtonPressed("dpad_up", gamepad1.dpad_up)) {
-            runAction(webcamSequences.basketCycle());
+            runAction(webcamSequences.basketCycle("red"));
         }
         if (Debounce.isButtonPressed("dpad_right", gamepad1.dpad_right)) {
             runAction(webcamSequences.specimenCycle());

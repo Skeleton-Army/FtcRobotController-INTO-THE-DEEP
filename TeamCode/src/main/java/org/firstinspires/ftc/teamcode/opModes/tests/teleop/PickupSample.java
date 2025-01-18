@@ -10,14 +10,10 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
-import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous
 public class PickupSample extends TeleopOpMode {
@@ -48,7 +44,7 @@ public class PickupSample extends TeleopOpMode {
 
 
         driveActions = new Drive(drive);
-        webcamSequences = new Webcam(driveActions, intake, outtake, "red");
+        webcamSequences = new Webcam(driveActions, intake, outtake);
     }
 
     @Override

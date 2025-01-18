@@ -12,8 +12,10 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
@@ -51,6 +53,8 @@ public class AutoApplication extends AutoOpMode {
     Alliance alliance;
     Strategy strategy;
     WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, drive);
+    Drive driveSeq = new Drive(drive);
+    Webcam camSeq;
 
     double startingXPos = 0;
     int collectedSamples = 0;
@@ -85,6 +89,7 @@ public class AutoApplication extends AutoOpMode {
         camCV.configureWebcam(SampleColor.YELLOW);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
+        camSeq = new Webcam(driveSeq, intake, outtake);
     }
 
     @Override
@@ -151,6 +156,8 @@ public class AutoApplication extends AutoOpMode {
                 // Collect first sample
                 Actions.runBlocking(
                         new ParallelAction(
+                                //camSeq.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)),
+
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
                                         .build(),
@@ -164,6 +171,8 @@ public class AutoApplication extends AutoOpMode {
             case 2:
                 // Collect second sample
                 Actions.runBlocking(
+                        //camSeq.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)),
+
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
@@ -175,6 +184,8 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 Actions.runBlocking(
+                        //camSeq.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)),
+
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                         .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
