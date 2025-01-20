@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.ApriltagPipeline;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -74,17 +76,26 @@ public class WebcamCV {
     public void configureWebcam(SampleColor sampleColor) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        telemetry.addLine("ooooo");
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
+
         detectSamples = new DetectSamples(telemetry, webcam, sampleColor);
         webcam.setPipeline(detectSamples);
-        telemetry.addLine("nnnnnnn");
+
+        Apriltag apriltag = new Apriltag(hardwareMap,drive);
+
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
+                ApriltagPipeline apriltagPipeline = new ApriltagPipeline(apriltag.createAprilTagProcessor());
+                if (webcam instanceof OpenCvWebcam)
+                {
+                    apriltagPipeline.noteCalibrationIdentity(((OpenCvWebcam) webcam).getCalibrationIdentity());
+                }
+
                 webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+                webcam.setPipeline(apriltagPipeline);
             }
 
             @Override
@@ -93,7 +104,6 @@ public class WebcamCV {
                 telemetry.addData("Webcam", "Error: " + errorCode);
             }
         });
-        telemetry.addLine("yyyyyyyyyyy");
     }
     public boolean lookForSamples() {
         List<Sample> newSamples = detectSamples.samples;

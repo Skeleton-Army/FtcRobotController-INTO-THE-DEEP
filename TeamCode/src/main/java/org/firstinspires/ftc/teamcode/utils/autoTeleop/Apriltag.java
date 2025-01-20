@@ -41,8 +41,7 @@ public class Apriltag {
         disableApriltag();
     }
 
-    private void initAprilTag() {
-
+    public AprilTagProcessor createAprilTagProcessor() {
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
 
@@ -68,6 +67,13 @@ public class Apriltag {
                 // ... these parameters are fx, fy, cx, cy.
 
                 .build();
+        return aprilTag;
+    }
+
+    private void initAprilTag() {
+
+        // Create the AprilTag processor.
+        aprilTag = createAprilTagProcessor();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
         // eg: Some typical detection data using a Logitech C920 WebCam
