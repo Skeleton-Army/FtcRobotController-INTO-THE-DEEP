@@ -10,12 +10,14 @@ import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 public class SpecimenArm {
-    private final DcMotorEx motor;
+    private final CachingDcMotorEx motor;
     private final Servo servo;
 
     public SpecimenArm(HardwareMap hardwareMap) {
-        motor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         servo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);

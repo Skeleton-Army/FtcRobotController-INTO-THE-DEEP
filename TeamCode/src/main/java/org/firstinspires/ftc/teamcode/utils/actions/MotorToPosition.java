@@ -9,21 +9,21 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 @Config
 public class MotorToPosition implements Action {
     public static int VELOCITY_THRESHOLD = 1500;
-    public static double START_THRESHOLD = 0.5; // in seconds
+    public static double START_THRESHOLD = 1.5; // in seconds
 
     private boolean initialized = false;
 
-    private final DcMotorEx motor;
+    private final CachingDcMotorEx motor;
     private final int targetPos;
     private final double power;
     private final boolean holdPosition;
 
     private final ElapsedTime timer = new ElapsedTime();
-
-    public MotorToPosition(DcMotorEx motor, int targetPos, double power, boolean holdPosition) {
+    public MotorToPosition(CachingDcMotorEx motor, int targetPos, double power, boolean holdPosition) {
         this.motor = motor;
         this.targetPos = targetPos;
         this.power = power;
