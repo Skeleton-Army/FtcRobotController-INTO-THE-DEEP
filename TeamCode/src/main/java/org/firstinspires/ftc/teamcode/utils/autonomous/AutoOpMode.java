@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class AutoOpMode extends OpMode {
     private final Map<Enum<?>, Runnable> stateHandlers = new HashMap<>();
 
-    protected Enum<?> currentState = null;
+    private Enum<?> currentState = null;
 
     protected ChoiceMenu choiceMenu;
     protected MecanumDrive drive;
@@ -47,25 +47,60 @@ public abstract class AutoOpMode extends OpMode {
 
     @Override
     public void loop() {
-        Runnable handler = stateHandlers.get(currentState);
+        if (currentState != null) {
+            Runnable handler = stateHandlers.get(currentState);
 
-        if (handler != null) {
-            handler.run();
-        } else {
-            telemetry.addData("Error", "No handler for state: " + currentState);
+            if (handler != null) {
+                telemetry.addData("State", currentState.toString());
+                handler.run();
+            } else {
+                telemetry.addData("Error", "No handler for state: " + currentState.toString());
+            }
         }
 
         telemetry.update();
     }
 
-    // Method for subclasses to register state handlers
+    private void setState(Enum<?> newState) {
+        currentState = newState;
+    }
+
+    /**
+     * Adds a state handler to the FSM.
+     * @param state The state to add the handler for
+     * @param handler The function to add
+     */
     protected void addState(Enum<?> state, Runnable handler) {
         stateHandlers.put(state, handler);
     }
 
-    // Allow subclasses to transition states
-    protected void setState(Enum<?> newState) {
-        currentState = newState;
+    /**
+     * Adds a transition to the FSM.
+     * @param newState The state to transition to
+     */
+    protected void addTransition(Enum<?> newState) {
+        setState(newState);
+    }
+
+    /**
+     * Adds a conditional transition to the FSM.
+     * @param newState The state to transition to
+     * @param condition The condition to check
+     */
+    protected void addConditionalTransition(boolean condition, Enum<?> newState) {
+        if (condition) {
+            setState(newState);
+        }
+    }
+
+    /**
+     * Adds a conditional transition to the FSM.
+     * @param trueState The state to transition to if the condition is true
+     * @param falseState The state to transition to if the condition is false
+     * @param condition The condition to check
+     */
+    protected void addConditionalTransition(boolean condition, Enum<?> trueState, Enum<?> falseState) {
+        setState(condition ? trueState : falseState);
     }
 
     @Override
