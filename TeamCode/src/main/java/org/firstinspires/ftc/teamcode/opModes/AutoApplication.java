@@ -144,7 +144,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.retractWrist(),
                 outtake.hold(),
                 intake.retract(),
-                intake.clawDeposit(),
+                intake.openClaw(),
                 new SleepAction(0.5),
                 intake.wristMiddle(),
                 new SleepAction(0.2)
