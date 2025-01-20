@@ -218,10 +218,15 @@ public class TeleopApplication extends TeleopOpMode {
     public void runSpecimenArm() {
         if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
             armTarget = -280;
-            runAction(specimenArm.gripToOuttake());
+            runAction(
+                    new SequentialAction(
+                            new SleepAction(0.5),
+                            specimenArm.gripToOuttake()
+                    )
+            );
         } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
-            armTarget = -100;
+            armTarget = -80;
             armMoving = true;
             runAction(specimenArm.gripToIntake());
         }
