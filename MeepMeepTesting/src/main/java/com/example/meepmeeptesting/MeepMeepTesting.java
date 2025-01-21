@@ -23,18 +23,18 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(10, -61.5, Math.toRadians(90.00)), false)
-                .splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-100, 100))
-                .splineToConstantHeading(new Vector2d(10, -50), Math.PI / 2)
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-39, -61.5, Math.toRadians(0)), false)
+                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                .waitSeconds(2)
                 .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
                 .waitSeconds(1)
                 .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
                 .waitSeconds(2)
-                .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(90)), Math.PI)
+                .splineToLinearHeading(new Pose2d(-59, -51, Math.toRadians(90)), Math.PI)
                 .waitSeconds(1)
                 .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
                 .waitSeconds(2)
-                .splineToLinearHeading(new Pose2d(-60, -48, Math.toRadians(105)), Math.PI)
+                .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(125)), Math.PI)
                 .waitSeconds(1)
                 .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
                 .waitSeconds(2)
