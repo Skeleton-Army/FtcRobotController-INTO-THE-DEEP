@@ -49,12 +49,12 @@ public class AutoApplication extends AutoOpMode {
     Alliance alliance;
     Strategy strategy;
 
-    double startingXPos = 0;
+    Pose2d startPose;
     int collectedSamples = 0;
 
     @Override
     protected State initialState() {
-        return State.HANG_SPECIMEN;
+        return State.PUT_IN_BASKET;
     }
 
     @Override
@@ -104,15 +104,15 @@ public class AutoApplication extends AutoOpMode {
 
         switch (strategy) {
             case SPECIMENS:
-                startingXPos = 10;
+                startPose = new Pose2d(10, -62.5, Math.toRadians(90.00));
                 break;
             case BASKET:
-                startingXPos = -14.5;
+                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
                 break;
         }
 
         // Set starting position
-        drive.pose = new Pose2d(startingXPos, -62.5, Math.toRadians(90.00));
+        drive.pose = startPose;
     }
 
     // -------------- States --------------
@@ -120,7 +120,7 @@ public class AutoApplication extends AutoOpMode {
     private void hangSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                        .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
+                        .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
                         .waitSeconds(0.1)
                         .setTangent(Math.toRadians(275))
                         .build()
@@ -149,7 +149,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-50, -52, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
                                         .build(),
                                 new SequentialAction(
                                         new SleepAction(0.3),
@@ -163,7 +163,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-59, -51, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -174,7 +174,7 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(115)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(125)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -216,7 +216,7 @@ public class AutoApplication extends AutoOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
+                                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
                                 .build(),
                         intakeRetract
                 )
