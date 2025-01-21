@@ -49,12 +49,12 @@ public class AutoApplication extends AutoOpMode {
     Alliance alliance;
     Strategy strategy;
 
-    Pose2d startPose;
+    double startingXPos = 0;
     int collectedSamples = 0;
 
     @Override
     protected State initialState() {
-        return State.PUT_IN_BASKET;
+        return State.HANG_SPECIMEN;
     }
 
     @Override
@@ -104,15 +104,15 @@ public class AutoApplication extends AutoOpMode {
 
         switch (strategy) {
             case SPECIMENS:
-                startPose = new Pose2d(10, -62.5, Math.toRadians(90.00));
+                startingXPos = 10;
                 break;
             case BASKET:
-                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
+                startingXPos = -14.5;
                 break;
         }
 
         // Set starting position
-        drive.pose = startPose;
+        drive.pose = new Pose2d(startingXPos, -62.5, Math.toRadians(90.00));
     }
 
     // -------------- States --------------
@@ -120,9 +120,8 @@ public class AutoApplication extends AutoOpMode {
     private void hangSpecimen() {
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                        .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
-                        .waitSeconds(0.1)
-                        .setTangent(Math.toRadians(275))
+                        .splineTo(new Vector2d(startingXPos, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 100))
+                        .splineToConstantHeading(new Vector2d(startingXPos, -50), Math.PI / 2)
                         .build()
         );
 
@@ -132,66 +131,16 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
-        Action wristSequence = new SequentialAction(
+        Action extendSequence = new SequentialAction(
+                intake.extend(),
                 intake.extendWrist(),
                 intake.openClaw(),
                 new SleepAction(0.5)
         );
 
-        Action extendSequence = new SequentialAction(
-                intake.extend(),
-                wristSequence
-        );
-
-        switch (collectedSamples) {
-            case 1:
-                // Collect first sample
-                Actions.runBlocking(
-                        new ParallelAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
-                                        .build(),
-                                new SequentialAction(
-                                        new SleepAction(0.3),
-                                        extendSequence
-                                )
-                        )
-                );
-                break;
-            case 2:
-                // Collect second sample
-                Actions.runBlocking(
-                        new SequentialAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-59, -51, Math.toRadians(90)), Math.PI)
-                                        .build(),
-                                wristSequence
-                        )
-                );
-                break;
-            case 3:
-                // Collect third sample
-                Actions.runBlocking(
-                        new SequentialAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(125)), Math.PI)
-                                        .build(),
-                                wristSequence
-                        )
-                );
-                break;
-        }
-
-        addTransition(State.PUT_IN_BASKET);
-    }
-
-    private void putInBasket() {
-        Action grab = new SequentialAction(
+        Action retractSequence = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.2)
-        );
-
-        Action intakeRetract = new SequentialAction(
+                new SleepAction(0.2),
                 intake.retractWrist(),
                 outtake.hold(),
                 intake.retract(),
@@ -201,32 +150,70 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2)
         );
 
-        Action dunkSample = new SequentialAction(
-                outtake.extend(),
-                outtake.dunk(),
-                new SleepAction(0.5),
-                outtake.hold(),
-                outtake.retract()
-        );
+        switch (collectedSamples) {
+            case 1:
+                // Collect first sample
+                Actions.runBlocking(
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToLinearHeading(new Pose2d(-50, -53, Math.toRadians(75)), Math.PI)
+                                        .build(),
+                                new SequentialAction(
+                                        new SleepAction(0.2),
+                                        extendSequence
+                                )
+                        )
+                );
+                Actions.runBlocking(retractSequence);
+                break;
+            case 2:
+                // Collect second sample
+                Actions.runBlocking(
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToLinearHeading(new Pose2d(-50, -51, Math.toRadians(95)), Math.PI)
+                                        .build(),
+                                extendSequence
+                        )
+                );
+                Actions.runBlocking(retractSequence);
+                break;
+            case 3:
+                // Collect third sample
+                Actions.runBlocking(
+                        new ParallelAction(
+                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        .splineToLinearHeading(new Pose2d(-50, -48, Math.toRadians(105)), Math.PI)
+                                        .build(),
+                                extendSequence
+                        )
+                );
+                Actions.runBlocking(retractSequence);
+                break;
+        }
 
-        // Grab sample
-        Actions.runBlocking(grab);
+        addTransition(State.PUT_IN_BASKET);
+    }
 
-        // Retract and go to basket
-        Actions.runBlocking(
-                new ParallelAction(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
-                                .build(),
-                        intakeRetract
-                )
-        );
-
+    private void putInBasket() {
         // Put the sample in the basket
         Actions.runBlocking(
                 new ParallelAction(
-                        dunkSample,
-                        intake.extend()
+                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                .splineToLinearHeading(new Pose2d(-57, -55, Math.toRadians(45)), Math.PI / 2)
+                                .build(),
+                        outtake.extend()
+                )
+        );
+
+        Actions.runBlocking(
+                new SequentialAction(
+                        outtake.dunk(),
+                        new SleepAction(1),
+                        new ParallelAction(
+                                outtake.retract(),
+                                outtake.hold()
+                        )
                 )
         );
 

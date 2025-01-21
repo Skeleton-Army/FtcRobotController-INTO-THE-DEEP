@@ -25,7 +25,7 @@ public class Outtake {
 
     // General actions
     public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(outtakeMotor, targetPos, power, holdPosition);
+        return new MotorToPosition(outtakeMotor, targetPos, power, OuttakeConfig.velocityThreshold, OuttakeConfig.startThreshold, holdPosition);
     }
 
     public Action bucketToPosition(double targetPos) {

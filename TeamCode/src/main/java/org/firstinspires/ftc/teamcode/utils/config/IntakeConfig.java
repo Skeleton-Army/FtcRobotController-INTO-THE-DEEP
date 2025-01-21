@@ -9,16 +9,18 @@ public class IntakeConfig {
     public static String wristName = "wrist";
 
     public static double motorPower = 1;
-    public static int extendPosition = -2100;
+    public static int extendPosition = -1700;
     public static int retractPosition = -20;
 
-    public static double clawClosed = 1;
-    public static double clawOpen = 0.8;
-    public static double clawDeposit = 0.9;
+    public static int velocityThreshold = 1200;
+    public static double startThreshold = 0.5;
 
-    public static double wristExtend = 0.93;
-    public static double wristRetract = 0.45;
+    public static double clawClosed = 1;
+    public static double clawOpen = 0.75;
+
+    public static double wristExtend = 0.95;
+    public static double wristRetract = 0.42;
     public static double wristMiddle = 0.6;
 
-    public static double manualSpeed = 0.5;
+    public static double manualSpeed = 0.6;
 }
