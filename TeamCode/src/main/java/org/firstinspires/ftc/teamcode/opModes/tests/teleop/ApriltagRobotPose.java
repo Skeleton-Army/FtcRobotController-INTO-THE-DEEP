@@ -39,7 +39,7 @@ public class ApriltagRobotPose extends OpMode {
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                .setCameraPose(cameraPosition, cameraOrientation)
+                //.setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
                         996.576,
                         996.576,

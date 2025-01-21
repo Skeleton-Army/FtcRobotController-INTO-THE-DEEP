@@ -57,6 +57,7 @@ public class TeleopApplication extends TeleopOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
+        hang = new Hang(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -226,10 +227,16 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("gamepad1_guide", gamepad1.guide)) {
             runToggleAction(
                     "extend_hang",
-                    hang.extend(),
+                    new ParallelAction(
+                            hang.extendHang(),
+                            hang.extendOuttake()
+                    ),
 
                     "retract_hang",
-                    hang.retract()
+                    new ParallelAction(
+                            hang.retractHang(),
+                            hang.retractOuttake()
+                    )
             );
         }
     }
