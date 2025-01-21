@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+@Disabled
 @TeleOp(name = "Apriltag Localization", group = "test")
 public class ApriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
