@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opModes;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,12 +21,6 @@ import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
-
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import java.util.List;
 
@@ -49,9 +42,6 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean manuallyMoved = false;
 
-    private PIDController controller;
-
-    int armTarget = 0;
     boolean armMoving = false;
 
     private final ElapsedTime armTimer = new ElapsedTime();
@@ -71,8 +61,6 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
-
-        controller = new PIDController(p, i, d);
     }
 
     @Override
@@ -107,23 +95,6 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
 
         telemetry.update();
-
-        // Temporary specimen arm code
-        controller.setPID(p, i, d);
-        int pos = specimenArmMotor.getCurrentPosition();
-        double pid = controller.calculate(pos, armTarget);
-        double ff = Math.cos(Math.toRadians(armTarget / ticks_in_degree)) * f;
-
-        double power = pid + ff;
-        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
-        double actualPower = clamp(power, -limitPower, limitPower);
-
-        specimenArmMotor.setPower(actualPower);
-
-        if (armTimer.seconds() > 1.5 && armMoving) {
-            armTarget = -45;
-            armMoving = false;
-        }
     }
 
     public void runIntakeWithDeposit() {
@@ -217,7 +188,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runSpecimenArm() {
         if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
-            armTarget = -280;
+            specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
+
             runAction(
                     new SequentialAction(
                             new SleepAction(0.5),
@@ -226,10 +198,19 @@ public class TeleopApplication extends TeleopOpMode {
             );
         } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
-            armTarget = -80;
             armMoving = true;
+
+            specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
         }
+
+        if (armTimer.seconds() > 1 && armMoving) {
+            armMoving = false;
+
+            specimenArm.setTarget(SpecimenArmConfig.intakePosition);
+        }
+
+        specimenArm.update();
     }
 
     public void runEmergencyStop() {
@@ -245,9 +226,5 @@ public class TeleopApplication extends TeleopOpMode {
                 }
             }
         }
-    }
-
-    public static double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
     }
 }
