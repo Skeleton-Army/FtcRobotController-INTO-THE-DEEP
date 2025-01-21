@@ -202,6 +202,8 @@ public class TeleopApplication extends TeleopOpMode {
 
             specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
+        } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
+            specimenArm.setTarget(0);
         }
 
         if (armTimer.seconds() > 1 && armMoving) {
