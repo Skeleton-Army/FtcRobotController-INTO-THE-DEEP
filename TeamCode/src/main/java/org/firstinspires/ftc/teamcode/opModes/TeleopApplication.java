@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -197,13 +198,6 @@ public class TeleopApplication extends TeleopOpMode {
     public void runSpecimenArm() {
         if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
-
-            runAction(
-                    new SequentialAction(
-                            new SleepAction(0.5),
-                            specimenArm.gripToOuttake()
-                    )
-            );
         } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
             armMoving = true;
@@ -211,13 +205,17 @@ public class TeleopApplication extends TeleopOpMode {
             specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
         } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
-            specimenArm.setTarget(0);
+            specimenArm.setTarget(SpecimenArmConfig.disabledPosition);
         }
 
         if (armTimer.seconds() > 1 && armMoving) {
             armMoving = false;
 
             specimenArm.setTarget(SpecimenArmConfig.intakePosition);
+        }
+
+        if (specimenArmMotor.getCurrentPosition() < -200 && !armMoving) {
+            runAction(specimenArm.gripToOuttake());
         }
 
         specimenArm.update();

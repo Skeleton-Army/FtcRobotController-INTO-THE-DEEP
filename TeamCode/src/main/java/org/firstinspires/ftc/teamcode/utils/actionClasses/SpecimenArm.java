@@ -32,6 +32,8 @@ public class SpecimenArm {
         servo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
 
         controller = new PIDController(p, i, d);
+
+        target = motor.getCurrentPosition();
     }
 
     public void resetMotor() {

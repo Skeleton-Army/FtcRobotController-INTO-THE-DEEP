@@ -54,7 +54,7 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     protected State initialState() {
-        return State.HANG_SPECIMEN;
+        return State.PUT_IN_BASKET;
     }
 
     @Override
@@ -196,6 +196,13 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void putInBasket() {
+        Actions.runBlocking(
+                new SequentialAction(
+                        intake.wristMiddle(),
+                        new SleepAction(0.2)
+                )
+        );
+
         // Put the sample in the basket
         Actions.runBlocking(
                 new ParallelAction(
