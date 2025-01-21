@@ -69,9 +69,9 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void setPrompts() {
-        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
+//        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
+//        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
+//        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
     }
 
     @Override
@@ -90,9 +90,13 @@ public class AutoApplication extends AutoOpMode {
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // Fetch choices
-        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
-        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
+//        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
+//        String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
+//        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
+
+        String selectedAlliance = "Red";
+        String selectedStrategy = "Basket";
+        String selectedSpecimens = "0";
 
         telemetry.addData("Selected Alliance", selectedAlliance);
         telemetry.addData("Selected Strategy", selectedStrategy);
