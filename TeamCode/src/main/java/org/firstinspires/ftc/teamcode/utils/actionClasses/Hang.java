@@ -4,12 +4,9 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.HangConfig;
-import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
-import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
@@ -17,7 +14,12 @@ public class Hang {
     private final CachingDcMotorEx motor;
 
     public Hang(HardwareMap hardwareMap) {
-        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, HangConfig.motorName));
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void resetMotor() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 

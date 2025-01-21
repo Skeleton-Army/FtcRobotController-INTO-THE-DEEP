@@ -86,6 +86,7 @@ public class TeleopApplication extends TeleopOpMode {
         runSpecimenArm();
         runHang();
         runEmergencyStop();
+        runResetMotors();
 
         // Run all queued actions
         runAllActions();
@@ -222,7 +223,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Debounce.isButtonPressed("guide", gamepad1.guide)) {
+        if (Debounce.isButtonPressed("gamepad1_guide", gamepad1.guide)) {
             runToggleAction(
                     "extend_hang",
                     hang.extend(),
@@ -245,6 +246,14 @@ public class TeleopApplication extends TeleopOpMode {
                     motor.setTargetPosition(motor.getCurrentPosition());
                 }
             }
+        }
+    }
+
+    public void runResetMotors() {
+        if (Debounce.isButtonPressed("gamepad2_guide", gamepad2.guide)) {
+            intake.resetMotor();
+            outtake.resetMotor();
+            specimenArm.resetMotor();
         }
     }
 }

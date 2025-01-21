@@ -34,6 +34,11 @@ public class SpecimenArm {
         controller = new PIDController(p, i, d);
     }
 
+    public void resetMotor() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     // General actions
     /**
      * Updates the motor power. Call this every loop.

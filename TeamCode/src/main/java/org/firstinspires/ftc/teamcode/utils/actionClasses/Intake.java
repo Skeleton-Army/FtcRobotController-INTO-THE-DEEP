@@ -14,27 +14,32 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class Intake {
-    private final CachingDcMotorEx intakeMotor;
+    private final CachingDcMotorEx motor;
     private final Servo clawServo;
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
-        intakeMotor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
     }
 
+    public void resetMotor() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     // Manual control
     public void setPower(double power) {
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setPower(power);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setPower(power);
     }
 
     // General actions
     public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(intakeMotor, targetPos, power, IntakeConfig.velocityThreshold, IntakeConfig.startThreshold, holdPosition);
+        return new MotorToPosition(motor, targetPos, power, IntakeConfig.velocityThreshold, IntakeConfig.startThreshold, holdPosition);
     }
 
     public Action clawToPosition(double targetPos) {
