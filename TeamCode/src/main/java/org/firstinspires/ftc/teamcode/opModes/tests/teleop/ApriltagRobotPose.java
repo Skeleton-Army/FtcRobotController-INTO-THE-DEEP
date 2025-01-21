@@ -18,7 +18,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@Disabled
 @TeleOp(name = "Apriltag Localization", group = "test")
 public class ApriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
@@ -42,10 +41,14 @@ public class ApriltagRobotPose extends OpMode {
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
-                        3.6/(2*Math.tan((CameraConfig.horizontalFOV) * Math.PI)/180)/(3.6/1280),
+                        996.576,
+                        996.576,
+                        479.696,
+                        336.616
+                        /*3.6/(2*Math.tan((CameraConfig.horizontalFOV) * Math.PI)/180)/(3.6/1280),
                         2.7/(2*Math.tan((CameraConfig.verticalFOV) * Math.PI)/180)/(2.7/720),
                         CameraConfig.halfImageWidth * 2,
-                        CameraConfig.halfImageHeight * 2
+                        CameraConfig.halfImageHeight * 2*/
                 )
 
                 // == CAMERA CALIBRATION ==

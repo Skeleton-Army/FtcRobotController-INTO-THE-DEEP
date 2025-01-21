@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
@@ -33,6 +34,7 @@ public class TeleopApplication extends TeleopOpMode {
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
+    Hang hang;
 
     MovementUtils movementUtils;
 
@@ -82,6 +84,7 @@ public class TeleopApplication extends TeleopOpMode {
         runOuttake();
         runClaw();
         runSpecimenArm();
+        runHang();
         runEmergencyStop();
 
         // Run all queued actions
@@ -95,6 +98,9 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
 
         telemetry.update();
+
+        // Tune PID
+        specimenArm.setPID(SpecimenArmConfig.p, SpecimenArmConfig.i, SpecimenArmConfig.d);
     }
 
     public void runIntakeWithDeposit() {
@@ -213,6 +219,18 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         specimenArm.update();
+    }
+
+    public void runHang() {
+        if (Debounce.isButtonPressed("guide", gamepad2.guide)) {
+            runToggleAction(
+                    "extend_hang",
+                    hang.extend(),
+
+                    "retract_hang",
+                    hang.retract()
+            );
+        }
     }
 
     public void runEmergencyStop() {

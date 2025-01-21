@@ -35,12 +35,15 @@ public class SpecimenArm {
     }
 
     // General actions
-
     /**
      * Updates the motor power. Call this every loop.
      */
     public void update() {
         motor.setPower(calculateArmPower());
+    }
+
+    public void setPID(double kp, double ki, double kd) {
+        controller.setPID(kp, ki, kd);
     }
 
     public void setTarget(int target) {
