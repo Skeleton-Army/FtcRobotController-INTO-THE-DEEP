@@ -222,7 +222,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Debounce.isButtonPressed("guide", gamepad2.guide)) {
+        if (Debounce.isButtonPressed("guide", gamepad1.guide)) {
             runToggleAction(
                     "extend_hang",
                     hang.extend(),
