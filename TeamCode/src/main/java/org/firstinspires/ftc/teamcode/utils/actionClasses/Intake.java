@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
 
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,6 +25,8 @@ public class Intake {
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
+
+        Actions.runBlocking(wristMiddle());
     }
 
     public void resetMotor() {

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -21,6 +22,8 @@ public class Outtake {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
+
+        Actions.runBlocking(hold());
     }
 
     public void resetMotor() {

@@ -258,7 +258,6 @@ public class TeleopApplication extends TeleopOpMode {
         if (Debounce.isButtonPressed("gamepad2_guide", gamepad2.guide)) {
             intake.resetMotor();
             outtake.resetMotor();
-            specimenArm.resetMotor();
         }
     }
 }
