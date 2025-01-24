@@ -1,9 +1,7 @@
 package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.QuinticSpline1d;
-import com.acmerobotics.roadrunner.QuinticSpline2d;
-import com.acmerobotics.roadrunner.Rotation2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.Constraints;
@@ -25,21 +23,26 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        QuinticSpline1d splinex = new QuinticSpline1d(287.9999999999997, -719.9999999999994, 479.9999999999996, 0.0, 0.0, -24.0);
-        QuinticSpline1d spliney = new QuinticSpline1d(221.99999999999983, -554.9999999999995, 369.99999999999966, 0.0, 0.0, -37.0);
-
-        QuinticSpline2d  spline = new QuinticSpline2d(splinex, spliney);
-
-        Vector2d v1 = spline.get(1, 1).value();
-
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-24, 50, Math.toRadians(0)), false)
-                //.splineTo(new Vector2d(10, -35), Math.PI / 2, null, new ProfileAccelConstraint(-100, 100))
-                .splineTo(v1, new Rotation2d(Math.toRadians(-180),Math.toRadians(-25)))
-//                .splineToConstantHeading(v1, Math.toRadians(90))
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-39, -61.5, Math.toRadians(0)), false)
+                .waitSeconds(3)
+                .setTangent(Math.PI / 2)
+                .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
+                .waitSeconds(2)
+                .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
+                .waitSeconds(1)
+                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                .waitSeconds(2)
+                .splineToLinearHeading(new Pose2d(-59, -51, Math.toRadians(90)), Math.PI)
+                .waitSeconds(1)
+                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                .waitSeconds(2)
+                .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(125)), Math.PI)
+                .waitSeconds(1)
+                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
+                .waitSeconds(2)
+                .splineTo(new Vector2d(-25, -10), Math.toRadians(0))
                 .build()
         );
-
-        System.out.println(v1);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)
                 .setDarkMode(true)

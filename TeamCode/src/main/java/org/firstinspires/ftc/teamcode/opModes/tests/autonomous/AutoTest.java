@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
+@Disabled
 @Autonomous(name = "Auto Test", group = "SA_FTC")
 public class AutoTest extends OpMode {
     MecanumDrive drive;

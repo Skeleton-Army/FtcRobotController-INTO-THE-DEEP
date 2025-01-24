@@ -98,7 +98,7 @@ public final class MecanumDrive {
             // drive model parameters
             inPerTick = (double) 124 / 42175;
             lateralInPerTick = 0.0022348028092135383;
-            trackWidthTicks = 5199.69816230359;
+            trackWidthTicks = 4964.293504649703;
 
             // feedforward parameters (in tick units)
             kS = 0.9359335991228757;
@@ -125,14 +125,14 @@ public final class MecanumDrive {
             usbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
             // drive model parameters
-            inPerTick = (double) 124 / 42182.5;
-            lateralInPerTick = 0.002316444466011111;
-            trackWidthTicks = 5065.2163787132;
+            inPerTick = (double) 124 / 42175;
+            lateralInPerTick = 0.0023430964489703026;
+            trackWidthTicks = 4964.293504649703;
 
             // feedforward parameters (in tick units)
-            kS = 1.3903403004062191;
-            kV = 0.0005712122155282843;
-            kA = 0.00008;
+            kS = 0.9186611348347422;
+            kV = 0.0006092400681915193;
+            kA = 0.0001;
 
             // path controller gains
             axialGain = 6;
@@ -145,7 +145,7 @@ public final class MecanumDrive {
         }
     }
 
-    public static Params PARAMS = new ParamsOld(); // TODO: Change this depending on the robot
+    public static Params PARAMS = new ParamsNew(); // TODO: Change this depending on the robot
 
     public final MecanumKinematics kinematics = new MecanumKinematics(
             PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
