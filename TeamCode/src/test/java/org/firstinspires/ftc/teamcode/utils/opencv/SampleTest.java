@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.acmerobotics.roadrunner.Pose2d;
+
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 
@@ -36,7 +38,7 @@ class SampleTest {
         int index = 1;
 
         for (Test value : values ) {
-            Sample sample = new Sample(value.input);
+            Sample sample = new Sample(value.input, new Pose2d(0, 0, 0));
 
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();

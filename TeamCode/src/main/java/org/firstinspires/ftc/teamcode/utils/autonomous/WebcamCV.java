@@ -17,6 +17,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WebcamCV {
@@ -34,51 +35,40 @@ public class WebcamCV {
         this.telemetry = telemetry;
         this.drive = drive;
     }
-    private Vector2d fieldPosition(Sample inputSample, Pose2d detectionPose) {
-        double x = detectionPose.position.x + inputSample.getSampleY() * Math.cos(detectionPose.heading.toDouble()) - inputSample.getSampleX() * Math.sin(detectionPose.heading.toDouble());
-        double y = detectionPose.position.y + inputSample.getSampleY() * Math.sin(detectionPose.heading.toDouble()) + inputSample.getSampleX() * Math.cos(detectionPose.heading.toDouble());
-        return new Vector2d(x, y);
-    }
-    private double distanceFromPosition(Sample currSample, Vector2d pos, Pose2d detectionPose) {
-        Vector2d samplePos = fieldPosition(currSample, detectionPose);
-
+    private double distanceFromPosition(Sample currSample, Vector2d pos) {
+        Vector2d samplePos = currSample.getSamplePosition();
         return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
-    public Vector2d getBestSamplePos(Vector2d pos, Pose2d detectionPose) {
+    public Vector2d getBestSamplePos(Vector2d pos) {
         // searching for the min value of distance
         if (samples.isEmpty())
             return null;
         Sample closest = samples.get(0);
 
         for (Sample currSample : samples) {
-            if (distanceFromPosition(closest, pos, detectionPose) > distanceFromPosition(currSample, pos, detectionPose)) {
+            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
                 closest = currSample;
             }
         }
 
-        return fieldPosition(closest, detectionPose);
+        return closest.getSamplePosition();
     }
-    private void printSampleData(Sample inputSample, Vector2d pos) {
+    private void printSampleData(Sample inputSample) {
         telemetry.addLine();
-
-        telemetry.addData("x: ", pos.x);
-        telemetry.addData("y: ", pos.y);
+        Vector2d samplePos = inputSample.getSamplePosition();
+        telemetry.addData("x: ", samplePos.x);
+        telemetry.addData("y: ", samplePos.y);
         telemetry.addLine();
 
         telemetry.addData("Point reference: ", closeSample.lowest);
-
-        telemetry.addLine();
-        telemetry.addData("relative x: ", inputSample.getSampleX());
-        telemetry.addData("relative y: ", inputSample.getSampleY());
+        telemetry.update();
     }
     public void configureWebcam(SampleColor sampleColor) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        telemetry.addLine("ooooo");
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
-        detectSamples = new DetectSamples(telemetry, webcam, sampleColor);
+        detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
         webcam.setPipeline(detectSamples);
-        telemetry.addLine("nnnnnnn");
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -93,7 +83,16 @@ public class WebcamCV {
                 telemetry.addData("Webcam", "Error: " + errorCode);
             }
         });
-        telemetry.addLine("yyyyyyyyyyy");
+    }
+    public void resetSampleList() {
+        samples = new ArrayList<>();
+    }
+    public void stopStream() {
+        webcam.stopStreaming();
+    }
+
+    public void startStream() {
+        webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
     }
     public boolean lookForSamples() {
         List<Sample> newSamples = detectSamples.samples;

@@ -58,23 +58,4 @@ public class Utilities {
             }
         });
     }
-
-    public static Sample calculateClosest(DetectSamples detectSamples) {
-        // searching for the min value of distance
-        List<Sample> samples = detectSamples.samples;
-        Sample closest = samples.get(0);
-
-        for (Sample theYellowThingy : detectSamples.samples) {
-            if (closest.getDistance() > theYellowThingy.getDistance()) {
-                closest = theYellowThingy;
-            }
-        }
-
-        return closest;
-    }
-
-    // initializing the camera to start detect the yellow thingies :)
-    public static DetectSamples initializeCamera(Telemetry telemetry, OpenCvWebcam webcam, SampleColor color) {
-        return new DetectSamples(telemetry, webcam, color);
-    }
 }

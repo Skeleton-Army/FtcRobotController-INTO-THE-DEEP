@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperRed;
 import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYellow;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.SampleConfig;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -36,12 +37,13 @@ public class DetectSamples extends OpenCvPipeline {
 
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
-
+    private MecanumDrive drive;
     public List<Sample> samples = new ArrayList<>();
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, SampleColor color){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
+        this.drive = drive;
         this.color = color;
         switch (color) {
             case RED:
@@ -85,11 +87,8 @@ public class DetectSamples extends OpenCvPipeline {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
-            Sample tempName = new Sample(lowestPoint);
+            Sample tempName = new Sample(lowestPoint, drive.pose);
             samplesFrame.add(tempName);
-            telemetry.addData("X", tempName.getSampleX());
-            telemetry.addData("Y", tempName.getSampleY());
-            telemetry.addData("distance", tempName.getDistance());
 
             //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
         }
@@ -98,7 +97,6 @@ public class DetectSamples extends OpenCvPipeline {
         Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
         return input;
     }
-
 
     private Mat mask(Mat frame) {
         Mat masked = new Mat();

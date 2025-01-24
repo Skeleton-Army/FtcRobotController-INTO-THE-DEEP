@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -10,15 +13,20 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
 enum Alliance {
     RED,
@@ -53,7 +61,13 @@ public class AutoApplication extends AutoOpMode {
     Strategy strategy;
 
     Pose2d startPose;
+    WebcamCV camCV;
     int collectedSamples = 0;
+    Action wristSequence = new SequentialAction(
+            intake.extendWrist(),
+            intake.openClaw(),
+            new SleepAction(0.5)
+    );
 
     @Override
     protected State initialState() {
@@ -82,7 +96,9 @@ public class AutoApplication extends AutoOpMode {
         super.init();
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(SampleColor.YELLOW);
+        //camCV.stopStream(); Maybe?
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
@@ -138,12 +154,6 @@ public class AutoApplication extends AutoOpMode {
 
     private void collectYellowSample() {
         collectedSamples++;
-
-        Action wristSequence = new SequentialAction(
-                intake.extendWrist(),
-                intake.openClaw(),
-                new SleepAction(0.5)
-        );
 
         switch (collectedSamples) {
             case 1:
@@ -252,13 +262,85 @@ public class AutoApplication extends AutoOpMode {
         addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.PARK);
     }
 
+    private void sampleFromSubmersible() {
+        Action dunkSample = new SequentialAction(
+                outtake.extend(),
+                outtake.dunk(),
+                new SleepAction(1.2),
+                outtake.hold()
+        );
+
+        Action intakeRetract = new SequentialAction(
+                intake.retractWrist(),
+                outtake.hold(),
+                intake.retract(),
+                intake.openClaw(),
+                new SleepAction(0.2),
+                intake.wristMiddle(),
+                new SleepAction(0.2)
+        );
+
+        Actions.runBlocking(
+                new SequentialAction(
+                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
+                                .build()
+                )
+        );
+        camCV.resetSampleList();
+        Actions.runBlocking(
+                new Action() {
+                    @Override
+                    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                        return !camCV.lookForSamples();
+                    }
+                }
+        );
+
+        Vector2d samplePos = camCV.getBestSamplePos(drive.pose.position);
+        // TODO: Add some sort of validation For example if (bad == yes): don't.
+
+        Actions.runBlocking(
+                new SequentialAction(
+                    new Action() {
+                        @Override
+                        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                            try {
+                                double heading = drive.pose.heading.toDouble();
+                                Vector2d offset = new Vector2d(30 * Math.cos(heading) - 3 * Math.sin(heading), 30 * Math.sin(heading) + 3 * Math.cos(heading));
+                                samplePos.minus(offset);
+                                Actions.runBlocking(
+                                        drive.actionBuilder(drive.pose)
+                                                .splineTo(samplePos, heading)
+                                                .build()
+                                );
+                            }
+
+                            catch (Exception e) {
+                                telemetryPacket.addLine(e.toString());
+                            }
+
+                            return false;
+                        }
+                    },
+                    wristSequence,
+                    new ParallelAction(
+                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                    .setTangent(Math.toRadians(180))
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .build(),
+                            intakeRetract
+                    ),
+                    dunkSample
+                )
+        );
+    }
     private void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
                 intake.wristMiddle(),
                 outtake.retract()
         );
-
         switch (strategy) {
             case SPECIMENS:
                 // Park in observation zone
