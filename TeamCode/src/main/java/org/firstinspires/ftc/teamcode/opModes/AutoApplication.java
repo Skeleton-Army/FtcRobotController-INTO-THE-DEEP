@@ -220,8 +220,8 @@ public class AutoApplication extends AutoOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                    .splineToLinearHeading(new Pose2d(-39, -53, 0), 0)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .setTangent(Math.PI / 2)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
                                     .build(),
                             intake.extend()
                     )
