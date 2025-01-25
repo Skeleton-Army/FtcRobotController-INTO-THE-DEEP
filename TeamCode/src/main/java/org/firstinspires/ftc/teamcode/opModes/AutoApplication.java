@@ -13,19 +13,15 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
-import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
 enum Alliance {
@@ -79,6 +75,7 @@ public class AutoApplication extends AutoOpMode {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
         addState(State.PUT_IN_BASKET, this::putInBasket);
+        addState(State.COLLECT_ADDITIONAL_SAMPLE, this::sampleFromSubmersible);
         addState(State.PARK, this::park);
 //        addState(State.COLLECT_SPECIMEN, this::pickupSpecimen);
 //        addState(State.COLLECT_COLOR_SAMPLES, this::collectColorSamples);
@@ -334,6 +331,7 @@ public class AutoApplication extends AutoOpMode {
                     dunkSample
                 )
         );
+        collectedSamples++;
     }
     private void park() {
         Action intakeRetract = new ParallelAction(
