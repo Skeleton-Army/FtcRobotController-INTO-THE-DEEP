@@ -273,7 +273,8 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .lineToX(50)
+                                        .setTangent(0)
+                                        .splineToConstantHeading(new Vector2d(50, startPose.position.y), 0)
                                         .build(),
                                 intakeRetract
                         )
