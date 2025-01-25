@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -41,10 +40,15 @@ public class ApriltagRobotPose extends OpMode {
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 //.setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
-                        996.576,
-                        996.576,
-                        479.696,
-                        336.616
+                        CameraConfig.fx,
+                        CameraConfig.fy,
+                        CameraConfig.cx,
+                        CameraConfig.cy
+
+//                        996.576,
+//                        996.576,
+//                        479.696,
+//                        336.616
                         /*3.6/(2*Math.tan((CameraConfig.horizontalFOV) * Math.PI)/180)/(3.6/1280),
                         2.7/(2*Math.tan((CameraConfig.verticalFOV) * Math.PI)/180)/(2.7/720),
                         CameraConfig.halfImageWidth * 2,
@@ -76,7 +80,7 @@ public class ApriltagRobotPose extends OpMode {
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(320, 240));
+        builder.setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableLiveView(true);
