@@ -22,7 +22,7 @@ public class ApriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
-            6.6, 8.2, 9.4, 0); //TODO: figure out these!!!
+            0, 0, 0, 0); //TODO: figure out these!!!
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             0, -90, 0, 0); //TODO: figure out these!!!
 
@@ -38,7 +38,7 @@ public class ApriltagRobotPose extends OpMode {
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                //.setCameraPose(cameraPosition, cameraOrientation)
+                .setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
                         CameraConfig.fx,
                         CameraConfig.fy,
