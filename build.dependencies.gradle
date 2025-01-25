@@ -19,4 +19,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+    implementation 'org.ftclib.ftclib:vision:2.1.0' // vision
+    implementation 'org.ftclib.ftclib:core:2.1.1' // core
+    implementation 'org.ftclib.ftclib:core:2.1.1'
 }

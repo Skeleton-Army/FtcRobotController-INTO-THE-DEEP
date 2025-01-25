@@ -53,6 +53,21 @@ public class WebcamCV {
 
         return closest.getSamplePosition();
     }
+
+    public Sample getCloseSampleObject(Vector2d pos) {
+        // searching for the min value of distance
+        if (samples.isEmpty())
+            return null;
+        Sample closest = samples.get(0);
+
+        for (Sample currSample : samples) {
+            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
+                closest = currSample;
+            }
+        }
+
+        return closest;
+    }
     private void printSampleData(Sample inputSample) {
         telemetry.addLine();
         Vector2d samplePos = inputSample.getSamplePosition();

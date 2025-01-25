@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 
 public class alignToSample implements Action {
     MecanumDrive drive;
@@ -22,8 +23,11 @@ public class alignToSample implements Action {
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
             double heading = drive.pose.heading.toDouble();
-            Vector2d offset = new Vector2d(30 * Math.cos(heading) - 3 * Math.sin(heading), 30 * Math.sin(heading) + 3 * Math.cos(heading));
-            targetSamplePos.minus(offset);
+            Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetX * Math.cos(heading) - CameraConfig.pickupSampleOffsetX2 * Math.sin(heading), CameraConfig.pickupSampleOffsetY * Math.sin(heading) + CameraConfig.pickupSampleOffsetY2 * Math.cos(heading));
+            targetSamplePos = targetSamplePos.minus(offset);
+
+            telemetryPacket.addLine(targetSamplePos.toString());
+
             Actions.runBlocking(
                     drive.actionBuilder(drive.pose)
                             .splineTo(targetSamplePos, heading)

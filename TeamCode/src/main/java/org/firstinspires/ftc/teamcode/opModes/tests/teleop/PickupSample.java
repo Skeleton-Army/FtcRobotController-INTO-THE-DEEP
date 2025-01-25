@@ -58,6 +58,7 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + sample.x);
             telemetry.addData("Y: ", "" + sample.y);
+            telemetry.addData("sample frame pos: ", camCV.getCloseSampleObject(new Vector2d(0,0)).lowest);
         }
         else {
             telemetry.addLine("No samples detected");
