@@ -47,6 +47,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean armMoving = false;
 
+    boolean highBasket = true;
+
     private final ElapsedTime armTimer = new ElapsedTime();
 
     @Override
@@ -86,7 +88,7 @@ public class TeleopApplication extends TeleopOpMode {
         runOuttake();
         runClaw();
         runSpecimenArm();
-        runHang();
+        //runHang();
         runEmergencyStop();
         runResetMotors();
 
@@ -156,7 +158,7 @@ public class TeleopApplication extends TeleopOpMode {
             runToggleAction(
                     "extend_outtake",
                     new SequentialAction(
-                            outtake.extend(),
+                            outtake.extend(highBasket),
                             outtake.dunk()
                     ),
 
@@ -166,6 +168,11 @@ public class TeleopApplication extends TeleopOpMode {
                             outtake.hold()
                     )
             );
+        }
+
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
+            gamepad2.rumble(200);
+            highBasket = !highBasket;
         }
     }
 
