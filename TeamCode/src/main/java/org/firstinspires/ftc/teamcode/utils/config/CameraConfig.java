@@ -18,4 +18,9 @@ public class CameraConfig {
 
     public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
     public static float vOVERheight = verticalFOV / (halfImageHeight * 2);
+
+    public static double fx = (CameraConfig.halfImageWidth * 2) / (2*Math.tan(Math.toRadians(horizontalFOV)));
+    public static double fy = (CameraConfig.halfImageHeight * 2) / (2*Math.tan(Math.toRadians(verticalFOV)));
+    public static double cx = CameraConfig.halfImageWidth;
+    public static double cy = CameraConfig.halfImageHeight;
 }

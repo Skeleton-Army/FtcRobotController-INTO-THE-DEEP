@@ -28,7 +28,7 @@ public abstract class AutoOpMode extends OpMode {
     protected abstract void registerStates();
 
     // Abstract method to set the initial state
-    protected abstract Enum<?> initialState();
+    public abstract void setInitialState();
 
     @Override
     public void init() {
@@ -36,7 +36,6 @@ public abstract class AutoOpMode extends OpMode {
         setPrompts();
 
         registerStates();
-        currentState = initialState();
     }
 
     @Override

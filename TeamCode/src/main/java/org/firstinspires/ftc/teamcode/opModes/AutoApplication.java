@@ -56,11 +56,6 @@ public class AutoApplication extends AutoOpMode {
     int collectedSamples = 0;
 
     @Override
-    protected State initialState() {
-        return State.PUT_IN_BASKET;
-    }
-
-    @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
@@ -73,7 +68,7 @@ public class AutoApplication extends AutoOpMode {
     @Override
     public void setPrompts() {
 //        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
-//        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
 //        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
     }
 
@@ -95,11 +90,10 @@ public class AutoApplication extends AutoOpMode {
 
         // Fetch choices
 //        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-//        String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
+        String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
 //        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
 
         String selectedAlliance = "Red";
-        String selectedStrategy = "Basket";
         String selectedSpecimens = "0";
 
         telemetry.addData("Selected Alliance", selectedAlliance);
@@ -112,7 +106,7 @@ public class AutoApplication extends AutoOpMode {
 
         switch (strategy) {
             case SPECIMENS:
-                startPose = new Pose2d(10, -62.5, Math.toRadians(90.00));
+                startPose = new Pose2d(25, -62.5, Math.toRadians(90.00));
                 break;
             case BASKET:
                 startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
@@ -121,6 +115,20 @@ public class AutoApplication extends AutoOpMode {
 
         // Set starting position
         drive.pose = startPose;
+
+        setInitialState();
+    }
+
+    @Override
+    public void setInitialState() {
+        switch (strategy) {
+            case SPECIMENS:
+                addTransition(State.PARK);
+                break;
+            case BASKET:
+                addTransition(State.PUT_IN_BASKET);
+                break;
+        }
     }
 
     // -------------- States --------------
@@ -220,8 +228,8 @@ public class AutoApplication extends AutoOpMode {
             Actions.runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                    .splineToLinearHeading(new Pose2d(-39, -53, 0), 0)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .setTangent(Math.PI / 2)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
                                     .build(),
                             intake.extend()
                     )
@@ -265,7 +273,8 @@ public class AutoApplication extends AutoOpMode {
                 Actions.runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                        .splineTo(new Vector2d(50, -60), Math.toRadians(0))
+                                        .setTangent(0)
+                                        .splineToConstantHeading(new Vector2d(50, startPose.position.y), 0)
                                         .build(),
                                 intakeRetract
                         )

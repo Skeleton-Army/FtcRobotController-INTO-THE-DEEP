@@ -25,8 +25,8 @@ public class MeepMeepTesting {
 
         myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-39, -61.5, Math.toRadians(0)), false)
                 .waitSeconds(3)
-                .splineToLinearHeading(new Pose2d(-39, -54, 0), 0)
-                .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                .setTangent(Math.PI / 2)
+                .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
                 .waitSeconds(2)
                 .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
                 .waitSeconds(1)
