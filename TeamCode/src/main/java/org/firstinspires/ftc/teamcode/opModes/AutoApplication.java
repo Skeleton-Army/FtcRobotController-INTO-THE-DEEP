@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -233,7 +234,19 @@ public class AutoApplication extends AutoOpMode {
                             intake.extend()
                     )
             );
-        } else {
+        }
+        else if (collectedSamples == 4) {
+            Actions.runBlocking(
+                    new ParallelAction(
+                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                    .setTangent(Math.PI)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .build(),
+                            intakeRetract
+                    )
+            );
+        }
+        else {
             // Grab sample
             Actions.runBlocking(grab);
 
@@ -267,16 +280,6 @@ public class AutoApplication extends AutoOpMode {
                 outtake.hold()
         );
 
-        Action intakeRetract = new SequentialAction(
-                intake.retractWrist(),
-                outtake.hold(),
-                intake.retract(),
-                intake.openClaw(),
-                new SleepAction(0.2),
-                intake.wristMiddle(),
-                new SleepAction(0.2)
-        );
-
         Actions.runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
@@ -304,11 +307,17 @@ public class AutoApplication extends AutoOpMode {
                         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                             try {
                                 double heading = drive.pose.heading.toDouble();
-                                Vector2d offset = new Vector2d(30 * Math.cos(heading) - 3 * Math.sin(heading), 30 * Math.sin(heading) + 3 * Math.cos(heading));
-                                samplePos.minus(offset);
+                                Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
+                                        CameraConfig.pickupSampleOffsetX * Math.sin(heading),
+                                        CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
+                                                CameraConfig.pickupSampleOffsetX * Math.cos(heading));
+                                Vector2d sampleAlignment = samplePos.minus(offset);
+
+                                telemetryPacket.addLine(samplePos.toString());
+
                                 Actions.runBlocking(
                                         drive.actionBuilder(drive.pose)
-                                                .splineTo(samplePos, heading)
+                                                .splineTo(sampleAlignment, heading)
                                                 .build()
                                 );
                             }
@@ -320,18 +329,11 @@ public class AutoApplication extends AutoOpMode {
                             return false;
                         }
                     },
-                    wristSequence,
-                    new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                    .setTangent(Math.toRadians(180))
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
-                                    .build(),
-                            intakeRetract
-                    ),
-                    dunkSample
+                    wristSequence
                 )
         );
         collectedSamples++;
+        addTransition(State.PUT_IN_BASKET);
     }
     private void park() {
         Action intakeRetract = new ParallelAction(

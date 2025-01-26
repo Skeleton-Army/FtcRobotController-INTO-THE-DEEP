@@ -23,7 +23,10 @@ public class alignToSample implements Action {
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
             double heading = drive.pose.heading.toDouble();
-            Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetX * Math.cos(heading) - CameraConfig.pickupSampleOffsetX2 * Math.sin(heading), CameraConfig.pickupSampleOffsetY * Math.sin(heading) + CameraConfig.pickupSampleOffsetY2 * Math.cos(heading));
+            Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
+                    CameraConfig.pickupSampleOffsetX * Math.sin(heading),
+                 CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
+                    CameraConfig.pickupSampleOffsetX * Math.cos(heading));
             targetSamplePos = targetSamplePos.minus(offset);
 
             telemetryPacket.addLine(targetSamplePos.toString());
