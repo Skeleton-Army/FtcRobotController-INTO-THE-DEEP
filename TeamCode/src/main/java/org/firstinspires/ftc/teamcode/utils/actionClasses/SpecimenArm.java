@@ -22,14 +22,16 @@ import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
     private final CachingDcMotorEx motor;
-    private final Servo servo;
+    public final Servo gripServo;
+    public final Servo grabServo;
     private final PIDController controller;
 
     private int target;
 
     public SpecimenArm(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
-        servo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
+        gripServo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
+        grabServo = hardwareMap.get(Servo.class, SpecimenArmConfig.grabServoName);
 
         controller = new PIDController(p, i, d);
 
@@ -57,26 +59,29 @@ public class SpecimenArm {
         this.target = target;
     }
 
-    public Action gripToPosition(double targetPos) {
+    public Action gripToPosition(double targetPos, Servo servo) {
         return new ServoToPosition(servo, targetPos);
     }
 
     // Specific actions
     public Action gripToIntake() {
-        return gripToPosition(SpecimenArmConfig.gripIntake);
+        return gripToPosition(SpecimenArmConfig.gripIntake, gripServo);
     }
 
     public Action gripToOuttake() {
-        return gripToPosition(SpecimenArmConfig.gripOuttake);
+        return gripToPosition(SpecimenArmConfig.gripOuttake, gripServo);
     }
 
-    private double calculateArmPower() {
+    public Action grabToIntake() {return gripToPosition(SpecimenArmConfig.grabIntake, grabServo);}
+    public Action grabToOuttake() {return gripToPosition(SpecimenArmConfig.grabOuttake, grabServo);}
+
+    public double calculateArmPower() {
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
         double power = pid + ff;
-        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
+        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.7;
         double actualPower = clamp(power, -limitPower, limitPower);
 
         return actualPower;

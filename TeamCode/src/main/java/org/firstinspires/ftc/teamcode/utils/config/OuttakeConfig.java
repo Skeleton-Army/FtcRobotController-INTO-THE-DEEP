@@ -9,6 +9,7 @@ public class OuttakeConfig {
 
     public static double motorPower = 1;
     public static int extendPosition = -2950;
+    public static int highBasketPosition = -2000;
     public static int retractPosition = 0;
 
     public static int velocityThreshold = 300;

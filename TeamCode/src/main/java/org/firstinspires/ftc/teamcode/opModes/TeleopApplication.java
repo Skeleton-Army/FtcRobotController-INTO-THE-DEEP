@@ -47,6 +47,11 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean armMoving = false;
 
+    boolean highBasket = true;
+
+    boolean gripOpen = false;
+    boolean grabOpen = false;
+
     private final ElapsedTime armTimer = new ElapsedTime();
 
     @Override
@@ -100,6 +105,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
 
+        telemetry.addData("grip pos: ", specimenArm.gripServo.getPosition());
+        telemetry.addData("grab pos: ", specimenArm.grabServo.getPosition());
         telemetry.update();
 
         // Tune PID
@@ -156,7 +163,7 @@ public class TeleopApplication extends TeleopOpMode {
             runToggleAction(
                     "extend_outtake",
                     new SequentialAction(
-                            outtake.extend(),
+                            outtake.extend(highBasket),
                             outtake.dunk()
                     ),
 
@@ -166,6 +173,40 @@ public class TeleopApplication extends TeleopOpMode {
                             outtake.hold()
                     )
             );
+        }
+
+        if (Debounce.isButtonPressed("guide", gamepad2.guide)) {
+            //highBasket = !highBasket;
+            //gamepad2.rumble(200);
+
+            if(gripOpen) {
+                runAction(specimenArm.gripToIntake());
+//                runAction(specimenArm.grabToIntake());
+//                runAction(specimenArm.gripToIntake());
+            }
+            else{
+                runAction(specimenArm.gripToOuttake());
+//                runAction(specimenArm.grabToOuttake());
+//                runAction(specimenArm.gripToOuttake());
+            }
+
+            gripOpen = !gripOpen;
+        }
+
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
+            //highBasket = !highBasket;
+            //gamepad2.rumble(200);
+
+            if(grabOpen) {
+                runAction(specimenArm.grabToIntake());
+//                runAction(specimenArm.gripToIntake());
+            }
+            else{
+                runAction(specimenArm.grabToOuttake());
+//                runAction(specimenArm.gripToOuttake());
+            }
+
+            grabOpen = !grabOpen;
         }
     }
 
@@ -197,11 +238,12 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runSpecimenArm() {
         if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
+            //runAction(specimenArm.grabToIntake());
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
         } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
             armMoving = true;
-
+            //runAction(specimenArm.grabToOuttake());
             specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
         } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
@@ -216,8 +258,10 @@ public class TeleopApplication extends TeleopOpMode {
 
         if (specimenArmMotor.getCurrentPosition() < -200 && !armMoving) {
             runAction(specimenArm.gripToOuttake());
+            //runAction(specimenArm.grabToOuttake());
         }
 
+        telemetry.addData("specimen power: ", specimenArm.calculateArmPower());
         specimenArm.update();
     }
 
