@@ -161,7 +161,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                                .splineToLinearHeading(new Pose2d(-53, -49.5, Math.toRadians(75)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
@@ -175,7 +175,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                                .splineToLinearHeading(new Pose2d(-56, -49.5, Math.toRadians(90)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
