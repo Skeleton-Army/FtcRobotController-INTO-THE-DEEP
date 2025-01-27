@@ -12,9 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
@@ -51,6 +49,10 @@ public class SpecimenArm {
         motor.setPower(calculateArmPower());
     }
 
+    public void setPower(double power) {
+        motor.setPower(power);
+    }
+
     public void setPID(double kp, double ki, double kd) {
         controller.setPID(kp, ki, kd);
     }
@@ -72,8 +74,8 @@ public class SpecimenArm {
         return gripToPosition(SpecimenArmConfig.gripOuttake, gripServo);
     }
 
-    public Action grabToIntake() {return gripToPosition(SpecimenArmConfig.grabIntake, grabServo);}
-    public Action grabToOuttake() {return gripToPosition(SpecimenArmConfig.grabOuttake, grabServo);}
+    public Action grabOpen() {return gripToPosition(SpecimenArmConfig.grabClose, grabServo);}
+    public Action grabClose() {return gripToPosition(SpecimenArmConfig.grabOpen, grabServo);}
 
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();

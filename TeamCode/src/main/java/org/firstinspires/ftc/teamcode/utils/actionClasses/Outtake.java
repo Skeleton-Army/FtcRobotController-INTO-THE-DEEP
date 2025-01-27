@@ -46,7 +46,7 @@ public class Outtake {
     }
 
     public Action extend(boolean highBasket) {
-        int pos = highBasket ? OuttakeConfig.extendPosition : OuttakeConfig.highBasketPosition;
+        int pos = highBasket ? OuttakeConfig.extendPosition : OuttakeConfig.lowBasketPosition;
         return motorToPosition(pos, OuttakeConfig.motorPower, true);
     }
 

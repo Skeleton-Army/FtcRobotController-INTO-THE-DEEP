@@ -281,8 +281,9 @@ public class AutoApplication extends AutoOpMode {
                 );
                 break;
             case BASKET:
-                specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
-                specimenArm.update();
+//                specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
+//                specimenArm.update();
+                specimenArm.setPower(-1);
 
                 // Park at bars
                 Actions.runBlocking(
@@ -295,8 +296,6 @@ public class AutoApplication extends AutoOpMode {
                 );
                 break;
         }
-
-        requestOpModeStop();
     }
 
 //    private void collectColorSamples() {
