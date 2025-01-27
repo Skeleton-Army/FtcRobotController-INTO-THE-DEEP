@@ -33,14 +33,18 @@ public class PickupSample implements Action {
                     // doing the intake part which collects the sample
                     intake.extend(),
                     intake.extendWrist(),
+                    new SleepAction(0.1),
+                    intake.openClaw(),
                     new SleepAction(1),
                     intake.closeClaw(),
                     new SleepAction(0.6),
                     intake.retractWrist(),
-                    new SleepAction(0.7),
+                    new SleepAction(0.6),
                     intake.retract(),
-                    new SleepAction(0.5),
-                    intake.openClaw()
+                    new SleepAction(0.2),
+                    intake.openClaw(),
+                    new SleepAction(0.1),
+                    intake.wristMiddle()
             )
         );
 

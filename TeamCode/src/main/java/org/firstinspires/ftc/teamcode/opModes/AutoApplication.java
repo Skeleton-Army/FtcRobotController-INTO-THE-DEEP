@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -60,11 +61,6 @@ public class AutoApplication extends AutoOpMode {
     Pose2d startPose;
     WebcamCV camCV;
     int collectedSamples = 0;
-    Action wristSequence = new SequentialAction(
-            intake.extendWrist(),
-            intake.openClaw(),
-            new SleepAction(0.5)
-    );
 
     @Override
     protected State initialState() {
@@ -153,6 +149,12 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
+        Action wristSequence = new SequentialAction(
+                intake.extendWrist(),
+                intake.openClaw(),
+                new SleepAction(0.5)
+        );
+
         switch (collectedSamples) {
             case 1:
                 // Collect first sample
@@ -161,7 +163,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                                .splineToLinearHeading(new Pose2d(-53, -49.5, Math.toRadians(75)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
@@ -175,7 +177,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                                .splineToLinearHeading(new Pose2d(-56, -49.5, Math.toRadians(90)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
@@ -189,7 +191,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                                .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(120)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
@@ -236,13 +238,18 @@ public class AutoApplication extends AutoOpMode {
             );
         }
         else if (collectedSamples == 4) {
+            Actions.runBlocking(grab);
+
             Actions.runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                     .setTangent(Math.PI)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
                                     .build(),
-                            intakeRetract
+                            new SequentialAction(
+                                    intakeRetract,
+                                    dunkSample
+                            )
                     )
             );
         }
@@ -269,22 +276,22 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.PARK);
+        addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
     }
 
     private void sampleFromSubmersible() {
-        Action dunkSample = new SequentialAction(
-                outtake.extend(),
-                outtake.dunk(),
-                new SleepAction(1.2),
-                outtake.hold()
+        Action wristSequence = new SequentialAction(
+                intake.extendWrist(),
+                intake.openClaw(),
+                new SleepAction(0.5)
         );
 
         Actions.runBlocking(
-                new SequentialAction(
+                new ParallelAction(
                         drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
                                 .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
-                                .build()
+                                .build(),
+                        outtake.retract()
                 )
         );
         camCV.resetSampleList();
@@ -297,7 +304,7 @@ public class AutoApplication extends AutoOpMode {
                 }
         );
 
-        Vector2d samplePos = camCV.getBestSamplePos(drive.pose.position);
+        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2));
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
         Actions.runBlocking(
@@ -317,7 +324,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 Actions.runBlocking(
                                         drive.actionBuilder(drive.pose)
-                                                .splineTo(sampleAlignment, heading)
+                                                .splineToConstantHeading(sampleAlignment, 0)
                                                 .build()
                                 );
                             }
@@ -332,6 +339,7 @@ public class AutoApplication extends AutoOpMode {
                     wristSequence
                 )
         );
+
         collectedSamples++;
         addTransition(State.PUT_IN_BASKET);
     }
@@ -369,7 +377,7 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        requestOpModeStop();
+//        requestOpModeStop();
     }
 
 //    private void collectColorSamples() {

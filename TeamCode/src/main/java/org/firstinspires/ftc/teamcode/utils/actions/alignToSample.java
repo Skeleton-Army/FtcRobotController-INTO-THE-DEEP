@@ -33,7 +33,7 @@ public class alignToSample implements Action {
 
             Actions.runBlocking(
                     drive.actionBuilder(drive.pose)
-                            .splineTo(targetSamplePos, heading)
+                            .splineToConstantHeading(targetSamplePos, heading)
                             .build()
             );
         }
