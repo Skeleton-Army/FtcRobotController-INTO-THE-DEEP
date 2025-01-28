@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -47,11 +48,15 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean armMoving = false;
 
+    boolean highBasket = true;
+
     private final ElapsedTime armTimer = new ElapsedTime();
 
     @Override
     public void init() {
         Instance = this;
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
@@ -100,6 +105,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
 
+        telemetry.addData("grip pos: ", specimenArm.gripServo.getPosition());
+        telemetry.addData("grab pos: ", specimenArm.grabServo.getPosition());
         telemetry.update();
 
         // Tune PID
@@ -156,7 +163,7 @@ public class TeleopApplication extends TeleopOpMode {
             runToggleAction(
                     "extend_outtake",
                     new SequentialAction(
-                            outtake.extend(),
+                            outtake.extend(highBasket),
                             outtake.dunk()
                     ),
 
@@ -166,6 +173,11 @@ public class TeleopApplication extends TeleopOpMode {
                             outtake.hold()
                     )
             );
+        }
+
+        if (Debounce.isButtonPressed("back", gamepad2.back)) {
+            highBasket = !highBasket;
+            gamepad2.rumble(200);
         }
     }
 
@@ -197,11 +209,12 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runSpecimenArm() {
         if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
+            //runAction(specimenArm.grabToIntake());
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
         } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
             armMoving = true;
-
+            //runAction(specimenArm.grabToOuttake());
             specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
         } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
@@ -214,10 +227,22 @@ public class TeleopApplication extends TeleopOpMode {
             specimenArm.setTarget(SpecimenArmConfig.intakePosition);
         }
 
-        if (specimenArmMotor.getCurrentPosition() < -200 && !armMoving) {
+        if (specimenArmMotor.getCurrentPosition() < -250 && !armMoving) {
             runAction(specimenArm.gripToOuttake());
+            //runAction(specimenArm.grabToOuttake());
         }
 
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
+            runToggleAction(
+                    "open_grip",
+                    specimenArm.grabOpen(),
+
+                    "close_grip",
+                    specimenArm.grabClose()
+            );
+        }
+
+        telemetry.addData("specimen power: ", specimenArm.calculateArmPower());
         specimenArm.update();
     }
 

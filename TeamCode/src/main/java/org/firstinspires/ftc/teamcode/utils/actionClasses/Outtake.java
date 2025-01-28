@@ -45,6 +45,11 @@ public class Outtake {
         return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower, true);
     }
 
+    public Action extend(boolean highBasket) {
+        int pos = highBasket ? OuttakeConfig.extendPosition : OuttakeConfig.lowBasketPosition;
+        return motorToPosition(pos, OuttakeConfig.motorPower, true);
+    }
+
     public Action retract() {
         return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower, false);
     }

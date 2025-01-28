@@ -8,7 +8,8 @@ public class OuttakeConfig {
     public static String bucketName = "bucket";
 
     public static double motorPower = 1;
-    public static int extendPosition = -2950;
+    public static int extendPosition = -1200;
+    public static int lowBasketPosition = -700;
     public static int retractPosition = 0;
 
     public static int velocityThreshold = 300;
