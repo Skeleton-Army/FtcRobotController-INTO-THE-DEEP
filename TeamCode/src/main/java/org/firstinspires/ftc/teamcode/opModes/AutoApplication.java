@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
 enum Alliance {

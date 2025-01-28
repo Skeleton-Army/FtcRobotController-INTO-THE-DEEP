@@ -7,7 +7,7 @@ public class HangConfig {
     public static String hangMotorName = "hang";
 
     public static double hangPower = 1;
-    public static int hangExtendPosition = 500;
+    public static int hangExtendPosition = 4000;
     public static int hangRetractPosition = 0;
 
     public static double outtakePower = 0.5;

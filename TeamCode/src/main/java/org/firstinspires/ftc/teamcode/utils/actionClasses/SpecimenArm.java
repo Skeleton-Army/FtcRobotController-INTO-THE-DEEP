@@ -83,10 +83,11 @@ public class SpecimenArm {
         double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
         double power = pid + ff;
-        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.7;
-        double actualPower = clamp(power, -limitPower, limitPower);
+//        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
+//        double actualPower = clamp(power, -limitPower, limitPower);
 
-        return actualPower;
+//        return actualPower;
+        return power;
     }
 
     public static double clamp(double val, double min, double max) {
