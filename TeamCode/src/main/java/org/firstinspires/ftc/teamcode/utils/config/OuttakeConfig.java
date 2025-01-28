@@ -16,5 +16,5 @@ public class OuttakeConfig {
     public static double startThreshold = 0.5;
 
     public static double bucketDunk = 0.35;
-    public static double bucketHold = 0;
+    public static double bucketHold = 0.03;
 }
