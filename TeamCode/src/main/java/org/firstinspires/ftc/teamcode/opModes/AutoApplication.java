@@ -371,6 +371,8 @@ public class AutoApplication extends AutoOpMode {
                                 intakeRetract
                         )
                 );
+
+                requestOpModeStop();
                 break;
             case BASKET:
 //                specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
@@ -388,8 +390,6 @@ public class AutoApplication extends AutoOpMode {
                 );
                 break;
         }
-
-//        requestOpModeStop();
     }
 
 //    private void collectColorSamples() {
