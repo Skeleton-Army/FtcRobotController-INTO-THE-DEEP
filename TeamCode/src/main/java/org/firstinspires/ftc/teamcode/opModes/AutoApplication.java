@@ -63,6 +63,8 @@ public class AutoApplication extends AutoOpMode {
     WebcamCV camCV;
     int collectedSamples = 0;
 
+    boolean gotOne = false;
+
     @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
@@ -289,6 +291,13 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void sampleFromSubmersible() {
+        if (gotOne) {
+            requestOpModeStop();
+            return;
+        }
+
+        gotOne = true;
+
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
