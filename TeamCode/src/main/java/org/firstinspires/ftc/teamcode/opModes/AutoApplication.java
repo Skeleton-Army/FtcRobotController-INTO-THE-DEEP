@@ -11,7 +11,6 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -22,7 +21,6 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -61,6 +59,7 @@ public class AutoApplication extends AutoOpMode {
 
     Pose2d startPose;
     WebcamCV camCV;
+
     int collectedSamples = 0;
 
     @Override
@@ -86,7 +85,8 @@ public class AutoApplication extends AutoOpMode {
         super.init();
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
+
         camCV.configureWebcam(SampleColor.YELLOW);
         //camCV.stopStream(); Maybe?
         intake = new Intake(hardwareMap);

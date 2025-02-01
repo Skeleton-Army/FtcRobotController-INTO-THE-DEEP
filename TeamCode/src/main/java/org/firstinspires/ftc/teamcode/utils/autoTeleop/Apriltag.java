@@ -127,6 +127,10 @@ public class Apriltag {
         return aprilTag.getDetections();
     }
 
+    public AprilTagProcessor getAprilTagAprocessor() {
+        return aprilTag;
+    }
+
     public void enableApriltag() {
         visionPortal.setProcessorEnabled(aprilTag, true);
     }

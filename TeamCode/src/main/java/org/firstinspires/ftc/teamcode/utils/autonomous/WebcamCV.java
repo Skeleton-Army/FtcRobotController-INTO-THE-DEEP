@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -21,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WebcamCV {
+    private final boolean withAprilTag;
     public OpenCvWebcam webcam;
     DetectSamples detectSamples;
+    AprilTagSamplesPipeline aprilTagSamplesPipeline;
     List<Sample> samples;
     Sample closeSample;
     Vector2d closeSamplePos;
@@ -30,10 +33,11 @@ public class WebcamCV {
     Telemetry telemetry;
     MecanumDrive drive;
 
-    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive) {
+    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive, boolean withAprilTag) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.drive = drive;
+        this.withAprilTag = withAprilTag;
     }
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
         Vector2d samplePos = currSample.getSamplePosition();
@@ -82,8 +86,6 @@ public class WebcamCV {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
-        detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
-        webcam.setPipeline(detectSamples);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -98,6 +100,12 @@ public class WebcamCV {
                 telemetry.addData("Webcam", "Error: " + errorCode);
             }
         });
+        if (!withAprilTag) {
+            webcam.setPipeline(new DetectSamples(telemetry, webcam, drive, sampleColor)); // settign only the samples detection pipeline
+        }
+        else {
+            webcam.setPipeline(new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor)); // setting both samples and AprilTags pipelines
+        }
     }
     public void resetSampleList() {
         samples = new ArrayList<>();
@@ -110,7 +118,12 @@ public class WebcamCV {
         webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
     }
     public boolean lookForSamples() {
-        List<Sample> newSamples = detectSamples.samples;
+        List<Sample> newSamples;
+        if (!withAprilTag)
+            newSamples = detectSamples.samples;
+
+        else
+            newSamples = AprilTagSamplesPipeline.samples;
 
         if (!(newSamples.isEmpty())) {
             samples = newSamples;
