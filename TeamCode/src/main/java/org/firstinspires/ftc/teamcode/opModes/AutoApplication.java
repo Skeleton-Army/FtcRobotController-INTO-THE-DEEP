@@ -148,7 +148,7 @@ public class AutoApplication extends AutoOpMode {
 
     private void hangSpecimen() {
         Actions.runBlocking(
-                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                drive.actionBuilder(drive.pose)
                         .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
                         .setTangent(Math.toRadians(275))
                         .build()
@@ -173,7 +173,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -187,7 +187,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -201,7 +201,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -240,7 +240,7 @@ public class AutoApplication extends AutoOpMode {
         if (collectedSamples == 0) {
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
                                     .build(),
@@ -253,7 +253,7 @@ public class AutoApplication extends AutoOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
                                     .build(),
@@ -271,7 +271,7 @@ public class AutoApplication extends AutoOpMode {
             // Retract and go to basket
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
                                     .build(),
                             intakeRetract
@@ -306,7 +306,7 @@ public class AutoApplication extends AutoOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                        drive.actionBuilder(drive.pose)
                                 .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
                                 .build(),
                         outtake.retract()
@@ -373,7 +373,7 @@ public class AutoApplication extends AutoOpMode {
                 // Park in observation zone
                 Actions.runBlocking(
                         new ParallelAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                drive.actionBuilder(drive.pose)
                                         .setTangent(0)
                                         .splineToConstantHeading(new Vector2d(50, startPose.position.y), 0)
                                         .build(),
@@ -391,7 +391,7 @@ public class AutoApplication extends AutoOpMode {
                 // Park at bars
                 Actions.runBlocking(
                         new ParallelAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                drive.actionBuilder(drive.pose)
                                     .splineTo(new Vector2d(-27, -10), Math.toRadians(0))
                                     .build(),
                                 intakeRetract
