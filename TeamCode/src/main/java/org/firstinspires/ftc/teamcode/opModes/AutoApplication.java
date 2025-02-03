@@ -63,6 +63,8 @@ public class AutoApplication extends AutoOpMode {
     WebcamCV camCV;
     int collectedSamples = 0;
 
+    boolean gotOne = false;
+
     @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
@@ -146,7 +148,7 @@ public class AutoApplication extends AutoOpMode {
 
     private void hangSpecimen() {
         Actions.runBlocking(
-                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                drive.actionBuilder(drive.pose)
                         .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
                         .setTangent(Math.toRadians(275))
                         .build()
@@ -171,7 +173,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -185,7 +187,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -199,7 +201,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
-                                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                        drive.actionBuilder(drive.pose)
                                                 .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
                                                 .build(),
                                         wristSequence
@@ -238,7 +240,7 @@ public class AutoApplication extends AutoOpMode {
         if (collectedSamples == 0) {
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
                                     .build(),
@@ -251,7 +253,7 @@ public class AutoApplication extends AutoOpMode {
 
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
                                     .build(),
@@ -269,7 +271,7 @@ public class AutoApplication extends AutoOpMode {
             // Retract and go to basket
             Actions.runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                            drive.actionBuilder(drive.pose)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
                                     .build(),
                             intakeRetract
@@ -289,6 +291,13 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void sampleFromSubmersible() {
+        if (gotOne) {
+            requestOpModeStop();
+            return;
+        }
+
+        gotOne = true;
+
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
@@ -297,7 +306,7 @@ public class AutoApplication extends AutoOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                        drive.actionBuilder(drive.pose)
                                 .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
                                 .build(),
                         outtake.retract()
@@ -318,34 +327,34 @@ public class AutoApplication extends AutoOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                    new Action() {
-                        @Override
-                        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                            try {
-                                double heading = drive.pose.heading.toDouble();
-                                Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
-                                        CameraConfig.pickupSampleOffsetX * Math.sin(heading),
-                                        CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
-                                                CameraConfig.pickupSampleOffsetX * Math.cos(heading));
-                                Vector2d sampleAlignment = samplePos.minus(offset);
+                        new Action() {
+                            @Override
+                            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                                try {
+                                    double heading = drive.pose.heading.toDouble();
+                                    Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
+                                            CameraConfig.pickupSampleOffsetX * Math.sin(heading),
+                                            CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
+                                                    CameraConfig.pickupSampleOffsetX * Math.cos(heading));
+                                    Vector2d sampleAlignment = samplePos.minus(offset);
 
-                                telemetryPacket.addLine(samplePos.toString());
+                                    telemetryPacket.addLine(samplePos.toString());
 
-                                Actions.runBlocking(
-                                        drive.actionBuilder(drive.pose)
-                                                .splineToConstantHeading(sampleAlignment, 0)
-                                                .build()
-                                );
+                                    Actions.runBlocking(
+                                            drive.actionBuilder(drive.pose)
+                                                    .splineToConstantHeading(sampleAlignment, 0)
+                                                    .build()
+                                    );
+                                }
+
+                                catch (Exception e) {
+                                    telemetryPacket.addLine(e.toString());
+                                }
+
+                                return false;
                             }
-
-                            catch (Exception e) {
-                                telemetryPacket.addLine(e.toString());
-                            }
-
-                            return false;
-                        }
-                    },
-                    wristSequence
+                        },
+                        wristSequence
                 )
         );
 
@@ -364,7 +373,7 @@ public class AutoApplication extends AutoOpMode {
                 // Park in observation zone
                 Actions.runBlocking(
                         new ParallelAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
+                                drive.actionBuilder(drive.pose)
                                         .setTangent(0)
                                         .splineToConstantHeading(new Vector2d(50, startPose.position.y), 0)
                                         .build(),
@@ -382,9 +391,9 @@ public class AutoApplication extends AutoOpMode {
                 // Park at bars
                 Actions.runBlocking(
                         new ParallelAction(
-                                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-                                    .splineTo(new Vector2d(-27, -10), Math.toRadians(0))
-                                    .build(),
+                                drive.actionBuilder(drive.pose)
+                                        .splineTo(new Vector2d(-27, -10), Math.toRadians(0))
+                                        .build(),
                                 intakeRetract
                         )
                 );
