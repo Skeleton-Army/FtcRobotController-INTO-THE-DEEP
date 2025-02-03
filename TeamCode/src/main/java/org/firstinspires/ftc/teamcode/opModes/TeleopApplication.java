@@ -73,6 +73,7 @@ public class TeleopApplication extends TeleopOpMode {
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
+        outtakeSwitch.setMode(DigitalChannel.Mode.INPUT);
     }
 
     @Override
