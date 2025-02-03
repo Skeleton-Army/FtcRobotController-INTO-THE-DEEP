@@ -9,7 +9,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -21,7 +20,6 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
-import org.firstinspires.ftc.teamcode.utils.general.GamepadHelper;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
@@ -45,8 +43,6 @@ public class TeleopApplication extends TeleopOpMode {
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
     DcMotorEx specimenArmMotor;
-
-    DigitalChannel outtakeSwitch;
 
     boolean manuallyMoved = false;
 
@@ -74,7 +70,6 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
-        outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
     }
 
     @Override
@@ -99,7 +94,6 @@ public class TeleopApplication extends TeleopOpMode {
         runHang();
         runEmergencyStop();
         runResetMotors();
-        outtakeLimitSwitch();
 
         // Run all queued actions
         runAllActions();
@@ -110,7 +104,6 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
-        telemetry.addData("Outtake Limit Switch", outtakeSwitch.getState());
 
         telemetry.update();
 
@@ -119,7 +112,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntakeWithDeposit() {
-        if (GamepadHelper.isButtonPressed(gamepad2.a)) {
+        if (Debounce.isButtonPressed("a", gamepad2.a)) {
             runToggleAction(
                     "extend_intake",
                     new SequentialAction(
@@ -145,7 +138,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntake() {
-        if (GamepadHelper.isButtonPressed(gamepad2.x)) {
+        if (Debounce.isButtonPressed("x", gamepad2.x)) {
             runToggleAction(
                     "extend_intake",
                     new SequentialAction(
@@ -164,9 +157,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runOuttake() {
-        telemetry.addData("bruhhh1", GamepadHelper.getCallSiteHash());
-        telemetry.addData("bruhhh2", GamepadHelper.getCallSiteHash());
-        if (GamepadHelper.isButtonPressed(gamepad2.y) && !isActionRunning("retract_intake")) {
+        if (Debounce.isButtonPressed("y", gamepad2.y) && !isActionRunning("retract_intake")) {
             runToggleAction(
                     "extend_outtake",
                     new SequentialAction(
@@ -182,7 +173,7 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        if (GamepadHelper.isButtonPressed(gamepad2.back)) {
+        if (Debounce.isButtonPressed("back", gamepad2.back)) {
             highBasket = !highBasket;
             gamepad2.rumble(200);
         }
@@ -199,32 +190,32 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runWrist() {
-        if (GamepadHelper.isButtonPressed(gamepad2.right_trigger > 0.1)) {
+        if (Debounce.isButtonPressed("right_trigger", gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
-        } else if (GamepadHelper.isButtonPressed(gamepad2.left_trigger > 0.1)) {
+        } else if (Debounce.isButtonPressed("left_trigger", gamepad2.left_trigger > 0.1)) {
             runAction(intake.wristMiddle());
         }
     }
 
     public void runClaw() {
-        if (GamepadHelper.isButtonPressed(gamepad2.right_bumper)) {
+        if (Debounce.isButtonPressed("right_bumper", gamepad2.right_bumper)) {
             runAction(intake.closeClaw());
-        } else if (GamepadHelper.isButtonPressed(gamepad2.left_bumper)) {
+        } else if (Debounce.isButtonPressed("left_bumper", gamepad2.left_bumper)) {
             runAction(intake.openClaw());
         }
     }
 
     public void runSpecimenArm() {
-        if (GamepadHelper.isButtonPressed(gamepad2.dpad_up)) {
+        if (Debounce.isButtonPressed("dpad_up", gamepad2.dpad_up)) {
             //runAction(specimenArm.grabToIntake());
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
-        } else if (GamepadHelper.isButtonPressed(gamepad2.dpad_down)) {
+        } else if (Debounce.isButtonPressed("dpad_down", gamepad2.dpad_down)) {
             armTimer.reset();
             armMoving = true;
             //runAction(specimenArm.grabToOuttake());
             specimenArm.setTarget(SpecimenArmConfig.middlePosition);
             runAction(specimenArm.gripToIntake());
-        } else if (GamepadHelper.isButtonPressed(gamepad2.dpad_right)) {
+        } else if (Debounce.isButtonPressed("dpad_right", gamepad2.dpad_right)) {
             specimenArm.setTarget(SpecimenArmConfig.disabledPosition);
         }
 
@@ -239,7 +230,7 @@ public class TeleopApplication extends TeleopOpMode {
             //runAction(specimenArm.grabToOuttake());
         }
 
-        if (GamepadHelper.isButtonPressed(gamepad2.dpad_left)) {
+        if (Debounce.isButtonPressed("dpad_left", gamepad2.dpad_left)) {
             runToggleAction(
                     "open_grip",
                     specimenArm.grabOpen(),
@@ -254,7 +245,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (GamepadHelper.isButtonPressed(gamepad1.guide)) {
+        if (Debounce.isButtonPressed("gamepad1_guide", gamepad1.guide)) {
             runToggleAction(
                     "extend_hang",
                     new ParallelAction(
@@ -272,7 +263,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runEmergencyStop() {
-        if (GamepadHelper.isButtonPressed(gamepad2.b)) {
+        if (Debounce.isButtonPressed("b", gamepad2.b)) {
             stopAllActions();
 
             // Stop all motors
@@ -287,15 +278,9 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runResetMotors() {
-        if (GamepadHelper.isButtonPressed(gamepad2.guide)) {
+        if (Debounce.isButtonPressed("gamepad2_guide", gamepad2.guide)) {
             intake.resetMotor();
             outtake.resetMotor();
-        }
-    }
-
-    public void outtakeLimitSwitch() {
-        if (GamepadHelper.isButtonPressed(outtakeSwitch.getState())) {
-
         }
     }
 }
