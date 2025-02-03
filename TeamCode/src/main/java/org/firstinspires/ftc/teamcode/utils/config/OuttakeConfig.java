@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 public class OuttakeConfig {
     public static String motorName = "outtake";
     public static String bucketName = "bucket";
+    public static String limitSwitchName = "outtakeSwitch";
 
     public static double motorPower = 1;
     public static int extendPosition = -1200;
@@ -16,5 +17,5 @@ public class OuttakeConfig {
     public static double startThreshold = 0.5;
 
     public static double bucketDunk = 0.35;
-    public static double bucketHold = 0.03;
+    public static double bucketHold = 0;
 }
