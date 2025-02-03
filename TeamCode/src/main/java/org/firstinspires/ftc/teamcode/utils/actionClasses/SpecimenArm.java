@@ -20,8 +20,8 @@ import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
     private final CachingDcMotorEx motor;
-    public final Servo gripServo;
-    public final Servo grabServo;
+    private final Servo gripServo;
+    private final Servo grabServo;
     private final PIDController controller;
 
     private int target;
