@@ -109,7 +109,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
-        telemetry.addData("Outtake Limit Switch", outtakeSwitch.getState());
+        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 
         telemetry.update();
 
@@ -291,8 +291,8 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void outtakeLimitSwitch() {
-        if (Utilities.isPressed(outtakeSwitch.getState())) {
-
+        if (Utilities.isPressed(!outtakeSwitch.getState())) {
+            outtake.resetMotor();
         }
     }
 }

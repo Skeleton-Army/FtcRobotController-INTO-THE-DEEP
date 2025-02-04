@@ -19,7 +19,7 @@ public class SpecimenArmConfig {
     public static double grabClose = 0.5;
     public static double grabOpen = 0.8;
 
-    public static double p = 0.055, i = 0, d = 0.0001, f = -0.3;
+    public static double p = 0.015, i = 0.01, d = 0, f = -0.5;
     public static double power = 0.5;
 
     public static double ticks_in_degree = 134 / 90.0;
