@@ -44,7 +44,7 @@ public class PickupSample extends TeleopOpMode {
         apriltag.enableApriltag();*/
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(SampleColor.YELLOW);
+        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
 
 
         driveActions = new Drive(drive);

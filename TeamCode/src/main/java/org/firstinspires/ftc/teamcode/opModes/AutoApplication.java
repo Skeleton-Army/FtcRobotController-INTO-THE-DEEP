@@ -89,7 +89,7 @@ public class AutoApplication extends AutoOpMode {
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(SampleColor.YELLOW);
+        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
         //camCV.stopStream(); Maybe?
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);

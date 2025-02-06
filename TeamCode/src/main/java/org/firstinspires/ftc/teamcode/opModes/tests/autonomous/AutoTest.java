@@ -22,7 +22,7 @@ public class AutoTest extends OpMode {
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, beginPose);
-        camCV.configureWebcam(SampleColor.YELLOW);
+        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
     }
 
     @Override

@@ -78,11 +78,14 @@ public class WebcamCV {
         telemetry.addData("Point reference: ", closeSample.lowest);
         telemetry.update();
     }
-    public void configureWebcam(SampleColor sampleColor) {
+    public void configureWebcam(SampleColor[] colors) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
-        detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
+        if (colors.length == 2)
+            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
+        else
+            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0]);
         webcam.setPipeline(detectSamples);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {

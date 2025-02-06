@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.b;
 import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerBlue;
 import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerRed;
 import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerYellow;
@@ -24,17 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetectSamples extends OpenCvPipeline {
-    private SampleColor color;
+    private Threshold[] thresholds;
     //final int THRESHOLD = 200;
     public OpenCvCamera webcam;
     boolean viewportPaused; //Do we really need this? yes
     private final Telemetry telemetry;
 
     // Adjusted yellow HSV bounds
-    private Scalar lowerBound = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
-    private Scalar upperBound = new Scalar(32.6, 255, 255); // Upper bound for yellow
-
-
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
     private MecanumDrive drive;
@@ -44,20 +41,13 @@ public class DetectSamples extends OpenCvPipeline {
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.drive = drive;
-        this.color = color;
-        switch (color) {
-            case RED:
-                this.lowerBound = lowerRed;
-                this.upperBound = upperRed;
-
-            case BLUE:
-                this.lowerBound = lowerBlue;
-                this.upperBound = upperBlue;
-
-            case YELLOW:
-                this.lowerBound = lowerYellow;
-                this.upperBound = upperYellow;
-        }
+        thresholds = new Threshold[] {new Threshold(color)};
+    }
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
+        this.telemetry = telemetry;
+        this.webcam = webcam;
+        this.drive = drive;
+        thresholds = new Threshold[] {new Threshold(color1), new Threshold(color2)};
     }
 
     private Point getLowestPoint(MatOfPoint contour) {
@@ -102,14 +92,16 @@ public class DetectSamples extends OpenCvPipeline {
         Mat masked = new Mat();
         // Convert the frame to HSV color space
         Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
-
+        Mat binary = Mat.zeros(frame.size(), Imgproc.THRESH_BINARY);
         // Apply color filtering to isolate yellow objects
-        Core.inRange(masked, lowerBound, upperBound, masked);
-
+        for (Threshold t : thresholds) {
+            Core.inRange(masked, t.lowerBound, t.upperBound, binary);
+        }
+        masked.release();
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-        Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_OPEN, kernel);
-        Imgproc.morphologyEx(masked, masked, Imgproc.MORPH_CLOSE, kernel);
-        return masked;
+        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_CLOSE, kernel);
+        return binary;
     }
 
 
