@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 public class AutoTest extends OpMode {
     MecanumDrive drive;
     Pose2d beginPose = new Pose2d(-48.34, 59.33, Math.toRadians(-90));
-    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, drive);
+    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, drive, false);
 
     @Override
     public void init() {

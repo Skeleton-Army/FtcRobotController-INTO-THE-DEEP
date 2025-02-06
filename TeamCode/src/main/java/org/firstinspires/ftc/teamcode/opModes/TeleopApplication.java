@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
@@ -50,6 +51,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean highBasket = true;
 
+    WebcamCV camCV;
+
     private final ElapsedTime armTimer = new ElapsedTime();
 
     @Override
@@ -70,6 +73,8 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
         intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
+
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
     }
 
     @Override
