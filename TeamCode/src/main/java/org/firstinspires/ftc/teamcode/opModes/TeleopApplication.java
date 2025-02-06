@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -40,10 +41,6 @@ public class TeleopApplication extends TeleopOpMode {
 
     MovementUtils movementUtils;
 
-    DcMotorEx outtakeMotor;
-    DcMotorEx intakeMotor;
-    DcMotorEx specimenArmMotor;
-
     DigitalChannel outtakeSwitch;
 
     boolean manuallyMoved = false;
@@ -69,9 +66,6 @@ public class TeleopApplication extends TeleopOpMode {
 
         movementUtils = new MovementUtils(hardwareMap);
 
-        outtakeMotor = hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName);
-        intakeMotor = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
-        specimenArmMotor = hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName);
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
         outtakeSwitch.setMode(DigitalChannel.Mode.INPUT);
     }
@@ -104,11 +98,11 @@ public class TeleopApplication extends TeleopOpMode {
         runAllActions();
 
         // Debugging
-        telemetry.addData("Intake Position", intakeMotor.getCurrentPosition());
-        telemetry.addData("Intake Velocity", intakeMotor.getVelocity());
-        telemetry.addData("Outtake Position", outtakeMotor.getCurrentPosition());
-        telemetry.addData("Outtake Velocity", outtakeMotor.getVelocity());
-        telemetry.addData("Specimen Arm Position", specimenArmMotor.getCurrentPosition());
+        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
+        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
+        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
+        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
+        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 
         telemetry.update();
@@ -132,9 +126,12 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.retractWrist(),
                             outtake.hold(),
                             new SequentialAction(
-                                    intake.retract(),
+                                    new ParallelAction(
+                                            intake.retract(),
+                                            new SleepAction(0.8)
+                                    ),
                                     intake.openClaw(),
-                                    new SleepAction(0.2),
+                                    //new SleepAction(0.2),
                                     intake.wristMiddle(),
                                     new SleepAction(0.2)
                             )
@@ -231,7 +228,7 @@ public class TeleopApplication extends TeleopOpMode {
             specimenArm.setTarget(SpecimenArmConfig.intakePosition);
         }
 
-        if (specimenArmMotor.getCurrentPosition() < -250 && !armMoving) {
+        if (specimenArm.motor.getCurrentPosition() < -250 && !armMoving) {
             runAction(specimenArm.gripToOuttake());
             //runAction(specimenArm.grabToOuttake());
         }
@@ -286,7 +283,6 @@ public class TeleopApplication extends TeleopOpMode {
     public void runResetMotors() {
         if (Utilities.isPressed(gamepad2.guide)) {
             intake.resetMotor();
-            outtake.resetMotor();
         }
     }
 

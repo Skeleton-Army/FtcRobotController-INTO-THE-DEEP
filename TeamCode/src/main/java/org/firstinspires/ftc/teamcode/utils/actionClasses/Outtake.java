@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class Outtake {
-    private final CachingDcMotorEx motor;
+    public final CachingDcMotorEx motor;
     private final Servo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
@@ -28,7 +28,7 @@ public class Outtake {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // General actions

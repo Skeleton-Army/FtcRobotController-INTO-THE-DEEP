@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
-    private final CachingDcMotorEx motor;
+    public final CachingDcMotorEx motor;
     private final Servo gripServo;
     private final Servo grabServo;
     private final PIDController controller;
@@ -38,7 +38,7 @@ public class SpecimenArm {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // General actions
