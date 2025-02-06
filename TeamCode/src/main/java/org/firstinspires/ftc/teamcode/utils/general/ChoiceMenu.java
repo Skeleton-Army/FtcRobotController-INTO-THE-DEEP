@@ -47,7 +47,7 @@ public class ChoiceMenu {
      */
     public void processPrompts() {
         // Handle back navigation
-        if (Debounce.isButtonPressed("b", gamepad1.b, gamepad2.b) && currentIndex > 0) {
+        if (Utilities.isPressed(gamepad1.b || gamepad2.b) && currentIndex > 0) {
             currentIndex--;
         }
 

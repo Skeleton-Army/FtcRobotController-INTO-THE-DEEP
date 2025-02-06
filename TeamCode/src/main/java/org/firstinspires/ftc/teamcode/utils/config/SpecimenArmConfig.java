@@ -10,7 +10,7 @@ public class SpecimenArmConfig {
 
     public static int intakePosition = -10;
     public static int middlePosition = -80;
-    public static int outtakePosition = -265;
+    public static int outtakePosition = -252;
     public static int disabledPosition = 0;
 
     public static double gripIntake = 1;
@@ -19,8 +19,11 @@ public class SpecimenArmConfig {
     public static double grabClose = 0.5;
     public static double grabOpen = 0.8;
 
-    public static double p = 0.055, i = 0, d = 0.0001, f = -0.3;
+    public static double p = 0.015, i = 0.01, d = 0;
+    public static double f = 0.0066;
     public static double power = 0.5;
 
     public static double ticks_in_degree = 134 / 90.0;
+
+    public static int topPos = -170;
 }
