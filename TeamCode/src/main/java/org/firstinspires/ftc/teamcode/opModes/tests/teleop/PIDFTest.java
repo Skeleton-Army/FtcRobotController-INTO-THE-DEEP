@@ -3,8 +3,9 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.motorName;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
+
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.motorName;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -36,25 +37,24 @@ public class PIDFTest extends OpMode {
 
     @Override
     public void loop() {
+        target = SpecimenArmConfig.intakePosition;
         controller.setPID(p, i, d);
+
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
-        double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+        double ff = Math.cos(Math.toRadians(pos / ticks_in_degree)) * f;
+//        int diffFromTop = SpecimenArmConfig.topPos - pos;
+//        double ff = diffFromTop * f;
 
         double power = pid + ff;
-//        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2)) )) * 2 * SpecimenArmConfig.power) + 0.15;
-//        double actualPower = clamp(power, -limitPower, limitPower);
 
         motor.setPower(power);
 
         telemetry.addData("pos", pos);
         telemetry.addData("target", target);
         telemetry.addData("power", power);
-        //telemetry.addData("actual power", actualPower);
+        telemetry.addData("motor power: ", motor.getPower());
         telemetry.update();
-    }
-
-    public static double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
     }
 }
