@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class Intake {
-    private final CachingDcMotorEx motor;
+    public final CachingDcMotorEx motor;
     private final Servo clawServo;
     private final Servo wristServo;
 
@@ -31,7 +31,7 @@ public class Intake {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // Manual control

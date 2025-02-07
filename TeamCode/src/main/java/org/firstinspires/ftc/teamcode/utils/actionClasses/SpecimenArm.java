@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -19,9 +18,9 @@ import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
-    private final CachingDcMotorEx motor;
-    public final Servo gripServo;
-    public final Servo grabServo;
+    public final CachingDcMotorEx motor;
+    private final Servo gripServo;
+    private final Servo grabServo;
     private final PIDController controller;
 
     private int target;
@@ -38,7 +37,7 @@ public class SpecimenArm {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // General actions
@@ -80,17 +79,10 @@ public class SpecimenArm {
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
-        double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
-        double power = pid + ff;
-//        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
-//        double actualPower = clamp(power, -limitPower, limitPower);
+        int diffFromTop = SpecimenArmConfig.topPos - pos;
+        double ff = diffFromTop * f;
 
-//        return actualPower;
-        return power;
-    }
-
-    public static double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
+        return pid + ff;
     }
 }
