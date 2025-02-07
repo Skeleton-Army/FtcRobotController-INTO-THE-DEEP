@@ -63,7 +63,6 @@ public class TeleopApplication extends TeleopOpMode {
         movementUtils = new MovementUtils(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
-        outtakeSwitch.setMode(DigitalChannel.Mode.INPUT);
     }
 
     @Override

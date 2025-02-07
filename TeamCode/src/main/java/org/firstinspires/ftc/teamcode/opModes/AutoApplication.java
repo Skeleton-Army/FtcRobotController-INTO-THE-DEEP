@@ -10,10 +10,9 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
@@ -22,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
+import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -61,6 +60,9 @@ public class AutoApplication extends AutoOpMode {
 
     Pose2d startPose;
     WebcamCV camCV;
+
+    DigitalChannel outtakeSwitch;
+
     int collectedSamples = 0;
 
     boolean gotOne = false;
@@ -94,6 +96,8 @@ public class AutoApplication extends AutoOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
+
+        outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
     }
 
     @Override
@@ -130,6 +134,8 @@ public class AutoApplication extends AutoOpMode {
         drive.pose = startPose;
 
         setInitialState();
+
+        runAsync(this::outtakeLimitSwitch);
     }
 
     @Override
@@ -477,24 +483,9 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-//    private void collectColorSamples() {
-//        runBlocking(
-//                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-//                        .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
-//                        .splineToLinearHeading(new Pose2d(48, -43, Math.toRadians(90)), Math.toRadians(67.62))
-//                        .build()
-//        );
-//
-//        setState(State.COLLECT_SPECIMEN);
-//    }
-//
-//    private void pickupSpecimen() {
-//        runBlocking(
-//                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
-//                        .splineToLinearHeading(new Pose2d(35, -55, Math.toRadians(-90)), Math.toRadians(180))
-//                        .build()
-//        );
-//
-//        setState(State.HANG_SPECIMEN);
-//    }
+    public void outtakeLimitSwitch() {
+        if (Utilities.isPressed(!outtakeSwitch.getState())) {
+            outtake.resetMotor();
+        }
+    }
 }
