@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -14,7 +19,9 @@ import java.util.Map;
     The base enhanced OpMode for autonomous programs.
  */
 public abstract class AutoOpMode extends OpMode {
+    private final FtcDashboard dash = FtcDashboard.getInstance();
     private final Map<Enum<?>, Runnable> stateHandlers = new HashMap<>();
+    private List<Action> runningActions = new ArrayList<>();
 
     private Enum<?> currentState = null;
 
@@ -57,7 +64,57 @@ public abstract class AutoOpMode extends OpMode {
             }
         }
 
+        runAsyncActions();
+
         telemetry.update();
+    }
+
+    /**
+     * Run all queued actions.
+     */
+    private void runAsyncActions() {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        // Update running actions
+        List<Action> newActions = new ArrayList<>();
+
+        for (Action action : runningActions) {
+            action.preview(packet.fieldOverlay());
+            if (action.run(packet)) {
+                newActions.add(action);
+            }
+        }
+
+        runningActions = newActions;
+
+        dash.sendTelemetryPacket(packet);
+    }
+
+    /**
+     * Run an action in a blocking loop.
+     */
+    protected void runBlocking(Action action) {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        while (action.run(packet)) {
+            runAsyncActions();
+        }
+    }
+
+    /**
+     * Run an action in a non-blocking loop.
+     */
+    protected void runAsync(Action action) {
+        runningActions.add(action);
+    }
+
+    /**
+     * Run a function in a non-blocking loop. <br>
+     * <b>Example:</b> runAsync(() -> { function(); });
+     * @param func The function to run asynchronously
+     */
+    protected void runAsync(Runnable func) {
+        func.run();
     }
 
     private void setState(Enum<?> newState) {

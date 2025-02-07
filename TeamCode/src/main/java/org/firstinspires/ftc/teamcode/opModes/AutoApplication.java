@@ -147,7 +147,7 @@ public class AutoApplication extends AutoOpMode {
     // -------------- States --------------
 
     private void hangSpecimen() {
-        Actions.runBlocking(
+        runBlocking(
                 drive.actionBuilder(drive.pose)
                         .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
                         .build()
@@ -167,7 +167,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Grab first sample
-        Actions.runBlocking(
+        runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
@@ -179,7 +179,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Put first sample
-        Actions.runBlocking(
+        runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
@@ -189,7 +189,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
 //        // Grab second sample
-//        Actions.runBlocking(
+//        runBlocking(
 //                new SequentialAction(
 //                        new ParallelAction(
 //                                drive.actionBuilder(drive.pose)
@@ -202,7 +202,7 @@ public class AutoApplication extends AutoOpMode {
 //        );
 //
 //        // Put second sample
-//        Actions.runBlocking(
+//        runBlocking(
 //                new SequentialAction(
 //                        drive.actionBuilder(drive.pose)
 //                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(-65)), 0)
@@ -212,7 +212,7 @@ public class AutoApplication extends AutoOpMode {
 //        );
 //
 //        // Collect third sample
-//        Actions.runBlocking(
+//        runBlocking(
 //                new SequentialAction(
 //                        intake.wristMiddle(),
 //                        drive.actionBuilder(drive.pose)
@@ -222,7 +222,7 @@ public class AutoApplication extends AutoOpMode {
 //                )
 //        );
 //
-//        Actions.runBlocking(
+//        runBlocking(
 //                drive.actionBuilder(drive.pose)
 //                        .splineToLinearHeading(new Pose2d(45, -28, Math.toRadians(-60)), 0)
 //                        .build()
@@ -245,7 +245,7 @@ public class AutoApplication extends AutoOpMode {
         switch (collectedSamples) {
             case 1:
                 // Collect first sample
-                Actions.runBlocking(
+                runBlocking(
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
@@ -259,7 +259,7 @@ public class AutoApplication extends AutoOpMode {
                 break;
             case 2:
                 // Collect second sample
-                Actions.runBlocking(
+                runBlocking(
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
@@ -273,7 +273,7 @@ public class AutoApplication extends AutoOpMode {
                 break;
             case 3:
                 // Collect third sample
-                Actions.runBlocking(
+                runBlocking(
                         new ParallelAction(
                                 outtake.retract(),
                                 new SequentialAction(
@@ -314,7 +314,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (collectedSamples == 0) {
-            Actions.runBlocking(
+            runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
@@ -325,9 +325,9 @@ public class AutoApplication extends AutoOpMode {
             );
         }
         else if (collectedSamples == 4) {
-            Actions.runBlocking(grab);
+            runBlocking(grab);
 
-            Actions.runBlocking(
+            runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI)
@@ -342,10 +342,10 @@ public class AutoApplication extends AutoOpMode {
         }
         else {
             // Grab sample
-            Actions.runBlocking(grab);
+            runBlocking(grab);
 
             // Retract and go to basket
-            Actions.runBlocking(
+            runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
@@ -356,7 +356,7 @@ public class AutoApplication extends AutoOpMode {
         }
 
         // Put the sample in the basket
-        Actions.runBlocking(
+        runBlocking(
                 new ParallelAction(
                         dunkSample,
                         intake.extend()
@@ -380,7 +380,7 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.5)
         );
 
-        Actions.runBlocking(
+        runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
                                 .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
@@ -389,7 +389,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
         camCV.resetSampleList();
-        Actions.runBlocking(
+        runBlocking(
                 new Action() {
                     @Override
                     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -401,7 +401,7 @@ public class AutoApplication extends AutoOpMode {
         Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2));
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
-        Actions.runBlocking(
+        runBlocking(
                 new SequentialAction(
                     new Action() {
                         @Override
@@ -416,7 +416,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 telemetryPacket.addLine(samplePos.toString());
 
-                                Actions.runBlocking(
+                                runBlocking(
                                         drive.actionBuilder(drive.pose)
                                                 .splineToConstantHeading(sampleAlignment, 0)
                                                 .build()
@@ -447,7 +447,7 @@ public class AutoApplication extends AutoOpMode {
         switch (strategy) {
             case SPECIMENS:
                 // Park in observation zone
-                Actions.runBlocking(
+                runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
                                         .setTangent(0)
@@ -465,7 +465,7 @@ public class AutoApplication extends AutoOpMode {
                 specimenArm.setPower(-1);
 
                 // Park at bars
-                Actions.runBlocking(
+                runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
                                     .splineTo(new Vector2d(-27, -10), Math.toRadians(0))
@@ -478,7 +478,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
 //    private void collectColorSamples() {
-//        Actions.runBlocking(
+//        runBlocking(
 //                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
 //                        .splineToSplineHeading(new Pose2d(17.07, -49.05, Math.toRadians(90)), Math.toRadians(-14.83))
 //                        .splineToLinearHeading(new Pose2d(48, -43, Math.toRadians(90)), Math.toRadians(67.62))
@@ -489,7 +489,7 @@ public class AutoApplication extends AutoOpMode {
 //    }
 //
 //    private void pickupSpecimen() {
-//        Actions.runBlocking(
+//        runBlocking(
 //                drive.actionBuilder(drive.pose, alliance == Alliance.BLUE)
 //                        .splineToLinearHeading(new Pose2d(35, -55, Math.toRadians(-90)), Math.toRadians(180))
 //                        .build()
