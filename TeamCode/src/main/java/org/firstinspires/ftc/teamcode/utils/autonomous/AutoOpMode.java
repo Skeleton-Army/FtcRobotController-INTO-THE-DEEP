@@ -22,6 +22,7 @@ public abstract class AutoOpMode extends OpMode {
     private final FtcDashboard dash = FtcDashboard.getInstance();
     private final Map<Enum<?>, Runnable> stateHandlers = new HashMap<>();
     private List<Action> runningActions = new ArrayList<>();
+    private List<Runnable> runningFunctions = new ArrayList<>();
 
     private Enum<?> currentState = null;
 
@@ -65,6 +66,7 @@ public abstract class AutoOpMode extends OpMode {
         }
 
         runAsyncActions();
+        runAsyncFunctions();
 
         telemetry.update();
     }
@@ -91,6 +93,15 @@ public abstract class AutoOpMode extends OpMode {
     }
 
     /**
+     * Run all queued functions.
+     */
+    private void runAsyncFunctions() {
+        for (Runnable func : runningFunctions) {
+            func.run();
+        }
+    }
+
+    /**
      * Run an action in a blocking loop.
      */
     protected void runBlocking(Action action) {
@@ -98,6 +109,7 @@ public abstract class AutoOpMode extends OpMode {
 
         while (action.run(packet)) {
             runAsyncActions();
+            runAsyncFunctions();
         }
     }
 
@@ -114,7 +126,7 @@ public abstract class AutoOpMode extends OpMode {
      * @param func The function to run asynchronously
      */
     protected void runAsync(Runnable func) {
-        func.run();
+        runningFunctions.add(func);
     }
 
     private void setState(Enum<?> newState) {
