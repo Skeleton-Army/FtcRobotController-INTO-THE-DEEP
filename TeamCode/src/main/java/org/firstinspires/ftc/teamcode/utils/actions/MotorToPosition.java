@@ -49,9 +49,9 @@ public class MotorToPosition implements Action {
         boolean lowVelocity = Math.abs(currentVelocity) < velocityThreshold;
         boolean timeReached = timer.seconds() > startThreshold;
 
-        telemetryPacket.put("Motor Position", motor.getCurrentPosition());
-        telemetryPacket.put("Motor Velocity", currentVelocity);
-        telemetryPacket.put("Timer", timer.seconds());
+//        telemetryPacket.put("Motor Position", motor.getCurrentPosition());
+//        telemetryPacket.put("Motor Velocity", currentVelocity);
+//        telemetryPacket.put("Timer", timer.seconds());
 
         boolean shouldStop = timeReached && lowVelocity;
 

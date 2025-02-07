@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -80,10 +79,10 @@ public class SpecimenArm {
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
-        double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
-        double power = pid + ff;
+        int diffFromTop = SpecimenArmConfig.topPos - pos;
+        double ff = diffFromTop * f;
 
-        return power;
+        return pid + ff;
     }
 }
