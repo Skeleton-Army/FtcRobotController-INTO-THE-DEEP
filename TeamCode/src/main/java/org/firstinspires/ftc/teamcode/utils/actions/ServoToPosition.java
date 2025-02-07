@@ -18,7 +18,6 @@ public class ServoToPosition implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         servo.setPosition(targetPos);
-        telemetryPacket.put("Servo pos: " + servo.toString(), servo.getPosition());
 
         return false; // Finish immediately
     }

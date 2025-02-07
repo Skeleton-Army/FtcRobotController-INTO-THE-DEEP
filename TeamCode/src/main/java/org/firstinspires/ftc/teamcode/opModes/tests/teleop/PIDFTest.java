@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.motorName;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -37,15 +36,13 @@ public class PIDFTest extends OpMode {
 
     @Override
     public void loop() {
-        target = SpecimenArmConfig.intakePosition;
         controller.setPID(p, i, d);
 
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
 
-        double ff = Math.cos(Math.toRadians(pos / ticks_in_degree)) * f;
-//        int diffFromTop = SpecimenArmConfig.topPos - pos;
-//        double ff = diffFromTop * f;
+        int diffFromTop = SpecimenArmConfig.topPos - pos;
+        double ff = diffFromTop * f;
 
         double power = pid + ff;
 

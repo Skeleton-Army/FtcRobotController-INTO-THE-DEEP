@@ -45,11 +45,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean manuallyMoved = false;
 
-    boolean armMoving = false;
-
     boolean highBasket = true;
-
-    private final ElapsedTime armTimer = new ElapsedTime();
 
     @Override
     public void init() {
@@ -131,7 +127,6 @@ public class TeleopApplication extends TeleopOpMode {
                                             new SleepAction(0.8)
                                     ),
                                     intake.openClaw(),
-                                    //new SleepAction(0.2),
                                     intake.wristMiddle(),
                                     new SleepAction(0.2)
                             )
@@ -210,27 +205,13 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runSpecimenArm() {
         if (Utilities.isPressed(gamepad2.dpad_up)) {
-            //runAction(specimenArm.grabToIntake());
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
+            runAction(specimenArm.gripToOuttake());
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
-            armTimer.reset();
-            armMoving = true;
-            //runAction(specimenArm.grabToOuttake());
-            specimenArm.setTarget(SpecimenArmConfig.middlePosition);
+            specimenArm.setTarget(SpecimenArmConfig.intakePosition);
             runAction(specimenArm.gripToIntake());
         } else if (Utilities.isPressed(gamepad2.dpad_right)) {
-            specimenArm.setTarget(SpecimenArmConfig.disabledPosition);
-        }
-
-        if (armTimer.seconds() > 1 && armMoving) {
-            armMoving = false;
-
-            specimenArm.setTarget(SpecimenArmConfig.intakePosition);
-        }
-
-        if (specimenArm.motor.getCurrentPosition() < -250 && !armMoving) {
-            runAction(specimenArm.gripToOuttake());
-            //runAction(specimenArm.grabToOuttake());
+            specimenArm.setTarget(0);
         }
 
         if (Utilities.isPressed(gamepad2.dpad_left)) {
@@ -243,7 +224,6 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        telemetry.addData("specimen power: ", specimenArm.calculateArmPower());
         specimenArm.update();
     }
 
