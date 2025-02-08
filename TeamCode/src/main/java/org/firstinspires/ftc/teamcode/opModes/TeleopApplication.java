@@ -209,7 +209,7 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             specimenArm.setTarget(SpecimenArmConfig.intakePosition);
             runAction(specimenArm.gripToIntake());
-            specimenArm.grabOpen();
+            runAction(specimenArm.grabOpen());
         } else if (Utilities.isPressed(gamepad2.dpad_right)) {
             specimenArm.setTarget(0);
         }
