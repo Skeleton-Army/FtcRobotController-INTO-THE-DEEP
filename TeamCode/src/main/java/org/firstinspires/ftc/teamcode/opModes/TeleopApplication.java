@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -11,7 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
@@ -108,14 +106,16 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runIntakeWithDeposit() {
         if (Utilities.isPressed(gamepad2.a)) {
-            runToggleAction(
-                    "extend_intake",
+            runSequentialActions(
+                    "intake",
+
+                    // Extend intake
                     new SequentialAction(
                             intake.extend(),
                             intake.openClaw()
                     ),
 
-                    "retract_intake",
+                    // Retract intake
                     new ParallelAction(
                             intake.retractWrist(),
                             outtake.hold(),
@@ -135,11 +135,13 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runIntake() {
         if (Utilities.isPressed(gamepad2.x)) {
-            runToggleAction(
-                    "extend_intake",
+            runSequentialActions(
+                    "intake",
+
+                    // Extend intake
                     intake.extend(0.5),
 
-                    "retract_intake",
+                    // Retract intake
                     new ParallelAction(
                             intake.retract(),
                             intake.wristMiddle()
@@ -149,15 +151,15 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runOuttake() {
-        if (Utilities.isPressed(gamepad2.y) && !isActionRunning("retract_intake")) {
-            runToggleAction(
-                    "extend_outtake",
+        if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
+            runSequentialActions(
+                    // Extend outtake
                     new SequentialAction(
                             outtake.extend(highBasket),
                             outtake.dunk()
                     ),
 
-                    "retract_outtake",
+                    // Retract outtake
                     new ParallelAction(
                             outtake.retract(),
                             outtake.hold()
@@ -172,7 +174,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runManualIntakeControl() {
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("extend_intake")) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 0)) {
             manuallyMoved = true;
             intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
@@ -208,11 +210,11 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         if (Utilities.isPressed(gamepad2.dpad_left)) {
-            runToggleAction(
-                    "open_grip",
+            runSequentialActions(
+                    // Open grabber
                     specimenArm.grabOpen(),
 
-                    "close_grip",
+                    // Close grabber
                     specimenArm.grabClose()
             );
         }
@@ -222,14 +224,14 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runHang() {
         if (Utilities.isPressed(gamepad1.guide)) {
-            runToggleAction(
-                    "extend_hang",
+            runSequentialActions(
+                    // Extend hang
                     new ParallelAction(
                             hang.extendHang(),
                             hang.extendOuttake()
                     ),
 
-                    "retract_hang",
+                    // Retract hang
                     new ParallelAction(
                             hang.retractHang(),
                             hang.retractOuttake()
