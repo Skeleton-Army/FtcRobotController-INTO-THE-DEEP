@@ -102,9 +102,6 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 
         telemetry.update();
-
-        // Tune PID
-        specimenArm.setPID(SpecimenArmConfig.p, SpecimenArmConfig.i, SpecimenArmConfig.d);
     }
 
     public void runIntakeWithDeposit() {
@@ -201,11 +198,20 @@ public class TeleopApplication extends TeleopOpMode {
     public void runSpecimenArm() {
         if (Utilities.isPressed(gamepad2.dpad_up)) {
             specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
-            runAction(specimenArm.gripToOuttake());
+            runAction(
+                    new SequentialAction(
+                            new SleepAction(0.2),
+                            specimenArm.gripToOuttake()
+                    )
+            );
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             specimenArm.setTarget(SpecimenArmConfig.intakePosition);
-            runAction(specimenArm.gripToIntake());
-            runAction(specimenArm.grabOpen());
+            runAction(
+                    new ParallelAction(
+                            specimenArm.grabOpen(),
+                            specimenArm.gripToIntake()
+                    )
+            );
         }
 
         if (Utilities.isPressed(gamepad2.dpad_left)) {
