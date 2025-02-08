@@ -113,7 +113,6 @@ public class TeleopApplication extends TeleopOpMode {
                     "extend_intake",
                     new SequentialAction(
                             intake.extend(),
-                            intake.extendWrist(),
                             intake.openClaw()
                     ),
 
