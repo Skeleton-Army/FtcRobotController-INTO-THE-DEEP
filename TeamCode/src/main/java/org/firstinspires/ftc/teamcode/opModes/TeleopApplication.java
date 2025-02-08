@@ -138,7 +138,7 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.x)) {
             runToggleAction(
                     "extend_intake",
-                    intake.extend(),
+                    intake.extend(0.5),
 
                     "retract_intake",
                     new ParallelAction(
