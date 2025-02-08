@@ -154,10 +154,10 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
             runSequentialActions(
                     // Extend outtake
-                    new SequentialAction(
-                            outtake.extend(highBasket),
-                            outtake.dunk()
-                    ),
+                    outtake.extend(highBasket),
+
+                    // Dunk bucket
+                    outtake.dunk(),
 
                     // Retract outtake
                     new ParallelAction(
