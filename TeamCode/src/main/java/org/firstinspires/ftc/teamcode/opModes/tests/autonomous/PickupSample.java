@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,14 +9,10 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
-import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous
 public class PickupSample extends TeleopOpMode {
@@ -43,7 +38,7 @@ public class PickupSample extends TeleopOpMode {
         /*apriltag = new Apriltag(hardwareMap, drive);
         apriltag.enableApriltag();*/
 
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, false);
         camCV.configureWebcam(SampleColor.YELLOW);
 
 

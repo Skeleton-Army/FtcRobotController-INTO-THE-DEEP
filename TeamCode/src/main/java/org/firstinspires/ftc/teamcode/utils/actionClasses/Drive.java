@@ -8,18 +8,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
 import org.firstinspires.ftc.teamcode.utils.actions.alignToSample;
-import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 
 //TODO: do stuff here sometime!!
 public class Drive {
 
     MecanumDrive drive;
 
-    Apriltag apriltag;
+    AprilTagSamplesPipeline aprilTagSamplesPipeline;
     HardwareMap hardwareMap;
-    public Drive(MecanumDrive drive, Apriltag apriltag) {
+    public Drive(MecanumDrive drive, AprilTagSamplesPipeline aprilTagSamplesPipeline) {
         this.drive = drive;
-        this.apriltag = apriltag;
+        this.aprilTagSamplesPipeline = aprilTagSamplesPipeline;
     }
 
     public Drive(MecanumDrive drive) {
@@ -27,7 +27,7 @@ public class Drive {
     }
 
     public Action moveApriltag(Pose2d targetPose) {
-        return new MoveApriltag(targetPose, drive, apriltag);
+        return new MoveApriltag(targetPose, drive, aprilTagSamplesPipeline);
 
     }
 

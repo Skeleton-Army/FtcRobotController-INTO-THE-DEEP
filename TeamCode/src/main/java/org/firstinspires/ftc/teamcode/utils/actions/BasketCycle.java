@@ -25,13 +25,9 @@ public class BasketCycle implements Action {
 
     Pose2d dunkPose;
 
-    public BasketCycle(Drive Actionsdrive, Apriltag apriltag, Outtake outtake, String alliance) {
+    public BasketCycle(Drive Actionsdrive, Outtake outtake, String alliance) {
         this.Actionsdrive = Actionsdrive;
-        this.apriltag = apriltag;
         this.outtake = outtake;
-
-
-        apriltag.enableApriltag();
 
         if (Objects.equals(alliance, "blue")) {
             dunkPose = new Pose2d(54,52,Math.toRadians(45));

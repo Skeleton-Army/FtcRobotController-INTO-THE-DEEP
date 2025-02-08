@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ public class WebcamCV {
     public OpenCvWebcam webcam;
     DetectSamples detectSamples;
     AprilTagSamplesPipeline aprilTagSamplesPipeline;
+
+    OpenCvPipeline pipeline;
+
     List<Sample> samples;
     Sample closeSample;
     Vector2d closeSamplePos;
@@ -101,12 +105,25 @@ public class WebcamCV {
             }
         });
         if (!withAprilTag) {
-            webcam.setPipeline(new DetectSamples(telemetry, webcam, drive, sampleColor)); // settign only the samples detection pipeline
+            pipeline = new DetectSamples(telemetry, webcam, drive, sampleColor);
+            detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
+            // setting the pipeline to be only samples detector
         }
         else {
-            webcam.setPipeline(new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor)); // setting both samples and AprilTags pipelines
+            pipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
+            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
+             // setting the pipeline to be both apriltag and samples
         }
+        webcam.setPipeline(pipeline);
     }
+
+    public OpenCvPipeline getPipeline() {
+        return this.pipeline;
+    }
+    public AprilTagSamplesPipeline getAprilTagSamplesPipeline() {
+        return this.aprilTagSamplesPipeline;
+    }
+
     public void resetSampleList() {
         samples = new ArrayList<>();
     }

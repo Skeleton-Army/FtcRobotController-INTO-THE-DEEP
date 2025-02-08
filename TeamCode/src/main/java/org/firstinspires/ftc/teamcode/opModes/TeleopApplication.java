@@ -12,16 +12,21 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
+import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Debounce;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
@@ -38,12 +43,17 @@ public class TeleopApplication extends TeleopOpMode {
     SpecimenArm specimenArm;
     Hang hang;
 
+    Drive actionsDrive;
+    Webcam actionCam;
     MovementUtils movementUtils;
 
     DcMotorEx outtakeMotor;
     DcMotorEx intakeMotor;
     DcMotorEx specimenArmMotor;
 
+    WebcamCV camCV;
+
+    AprilTagSamplesPipeline aprilTagSamplesPipeline;
     boolean manuallyMoved = false;
 
     boolean armMoving = false;
@@ -60,10 +70,16 @@ public class TeleopApplication extends TeleopOpMode {
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
+        camCV.configureWebcam(SampleColor.YELLOW);
+        aprilTagSamplesPipeline = camCV.getAprilTagSamplesPipeline();
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
+        actionsDrive = new Drive(drive, aprilTagSamplesPipeline);
+        actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: check this alliance parameter!!
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -94,9 +110,13 @@ public class TeleopApplication extends TeleopOpMode {
         runHang();
         runEmergencyStop();
         runResetMotors();
+        runDriverActions();
 
         // Run all queued actions
         runAllActions();
+
+        // apriltag positioning
+
 
         // Debugging
         telemetry.addData("Intake Position", intakeMotor.getCurrentPosition());
@@ -111,6 +131,27 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Tune PID
         specimenArm.setPID(SpecimenArmConfig.p, SpecimenArmConfig.i, SpecimenArmConfig.d);
+    }
+
+    public void runDriverActions() {
+        aprilTagSamplesPipeline.getRobotPosByAprilTag();
+
+        if (Debounce.isButtonPressed("a", gamepad1.a)) { // running the alignToSample sequence
+            runAction("sequence",actionsDrive.alignToSample(camCV.getBestSamplePos(drive.pose.position)));
+        }
+        if (Debounce.isButtonPressed("b", gamepad1.b)) { // running the pickupSample sequence
+            runAction("sequence",actionCam.pickupSample(camCV.getBestSamplePos(drive.pose.position)));
+        }
+        if (Debounce.isButtonPressed("y", gamepad1.y)) { // running basketCycle sequence
+            runAction("sequence",actionCam.basketCycle());
+        }
+        if (Debounce.isButtonPressed("x", gamepad1.x)) { // running specimenCycle sequence
+            runAction("sequence",actionCam.specimenCycle());
+        }
+
+        if(Debounce.isButtonPressed("right_bumper", gamepad1.right_bumper)) { // stops the current driver action
+            stopAction("sequence");
+        }
     }
 
     public void runIntakeWithDeposit() {

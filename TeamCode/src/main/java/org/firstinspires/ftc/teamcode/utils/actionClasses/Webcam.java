@@ -24,7 +24,7 @@ public class Webcam {
     }
 
     public Action basketCycle() {
-        return new BasketCycle(Actionsdrive, Actionsdrive.apriltag, outtake, alliance);
+        return new BasketCycle(Actionsdrive, outtake, alliance);
     }
 
     public Action specimenCycle() {
