@@ -183,7 +183,7 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
         } else if (Utilities.isPressed(gamepad2.left_trigger > 0.1)) {
-            runAction(intake.wristMiddle());
+            runAction(intake.wristReady());
         }
     }
 
