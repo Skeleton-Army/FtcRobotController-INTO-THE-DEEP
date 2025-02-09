@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -56,25 +57,42 @@ public class SpecimenArm {
         controller.setPID(kp, ki, kd);
     }
 
-    public void setTarget(int target) {
-        this.target = target;
+    public Action setTarget(int target) {
+        return new InstantAction(() -> this.target = target);
     }
 
-    public Action gripToPosition(double targetPos, Servo servo) {
-        return new ServoToPosition(servo, targetPos);
+    public Action gripToPosition(double targetPos) {
+        return new ServoToPosition(gripServo, targetPos);
+    }
+
+    public Action grabToPosition(double targetPos) {
+        return new ServoToPosition(grabServo, targetPos);
     }
 
     // Specific actions
+    public Action goToIntake() {
+        return setTarget(SpecimenArmConfig.intakePosition);
+    }
+
+    public Action goToOuttake() {
+        return setTarget(SpecimenArmConfig.outtakePosition);
+    }
+
     public Action gripToIntake() {
-        return gripToPosition(SpecimenArmConfig.gripIntake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripIntake);
     }
 
     public Action gripToOuttake() {
-        return gripToPosition(SpecimenArmConfig.gripOuttake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripOuttake);
     }
 
-    public Action grabOpen() {return gripToPosition(SpecimenArmConfig.grabClose, grabServo);}
-    public Action grabClose() {return gripToPosition(SpecimenArmConfig.grabOpen, grabServo);}
+    public Action grabOpen() {
+        return grabToPosition(SpecimenArmConfig.grabClose);
+    }
+
+    public Action grabClose() {
+        return grabToPosition(SpecimenArmConfig.grabOpen);
+    }
 
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();

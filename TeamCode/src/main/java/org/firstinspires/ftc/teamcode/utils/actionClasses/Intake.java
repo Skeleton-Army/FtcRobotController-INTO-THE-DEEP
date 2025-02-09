@@ -58,6 +58,14 @@ public class Intake {
         return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
     }
 
+    /**
+     * Partially extend the arm by a given factor.
+     * @param multiplier The factor by which to extend the arm
+     */
+    public Action extend(double multiplier) {
+        return motorToPosition((int)(IntakeConfig.extendPosition * multiplier), IntakeConfig.motorPower, true);
+    }
+
     public Action retract() {
         return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
     }
