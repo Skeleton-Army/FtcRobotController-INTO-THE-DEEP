@@ -170,7 +170,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.extend(),
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.5)
+                new SleepAction(0.2)
         );
 
         // Grab first sample
@@ -191,7 +191,8 @@ public class AutoApplication extends AutoOpMode {
                         drive.actionBuilder(drive.pose)
                                 .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
                                 .build(),
-                        intake.openClaw()
+                        intake.openClaw(),
+                        intake.wristReady()
                 )
         );
 
@@ -214,14 +215,15 @@ public class AutoApplication extends AutoOpMode {
 //                        drive.actionBuilder(drive.pose)
 //                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(-65)), 0)
 //                                .build(),
-//                        intake.openClaw()
+//                        intake.openClaw(),
+//                        intake.wristReady()
 //                )
 //        );
 //
 //        // Collect third sample
 //        runBlocking(
 //                new SequentialAction(
-//                        intake.wristMiddle(),
+//                        intake.wristReady(),
 //                        drive.actionBuilder(drive.pose)
 //                                .splineToLinearHeading(new Pose2d(47, -30, Math.toRadians(45)), 0)
 //                                .build(),
@@ -303,14 +305,15 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2)
         );
 
-        Action intakeRetract = new SequentialAction(
+        Action intakeRetract = new ParallelAction(
                 intake.retractWrist(),
                 outtake.hold(),
-                intake.retract(),
-                intake.openClaw(),
-                new SleepAction(0.2),
-                intake.wristMiddle(),
-                new SleepAction(0.2)
+                new SequentialAction(
+                        intake.retract(),
+                        intake.openClaw(),
+                        intake.wristReady(),
+                        new SleepAction(0.2)
+                )
         );
 
         Action dunkSample = new SequentialAction(
