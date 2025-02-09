@@ -60,21 +60,26 @@ public class SpecimenArm {
         this.target = target;
     }
 
-    public Action gripToPosition(double targetPos, Servo servo) {
-        return new ServoToPosition(servo, targetPos);
+    public Action gripToPosition(double targetPos) {
+        return new ServoToPosition(gripServo, targetPos);
+    }
+
+    public Action grabToPosition(double targetPos) {
+        return new ServoToPosition(grabServo, targetPos);
     }
 
     // Specific actions
     public Action gripToIntake() {
-        return gripToPosition(SpecimenArmConfig.gripIntake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripIntake);
     }
 
     public Action gripToOuttake() {
-        return gripToPosition(SpecimenArmConfig.gripOuttake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripOuttake);
     }
 
-    public Action grabOpen() {return gripToPosition(SpecimenArmConfig.grabClose, grabServo);}
-    public Action grabClose() {return gripToPosition(SpecimenArmConfig.grabOpen, grabServo);}
+    public Action grabOpen() {return grabToPosition(SpecimenArmConfig.grabClose);}
+
+    public Action grabClose() {return grabToPosition(SpecimenArmConfig.grabOpen);}
 
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();
