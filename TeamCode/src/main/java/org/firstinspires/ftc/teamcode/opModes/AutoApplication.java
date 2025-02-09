@@ -136,6 +136,7 @@ public class AutoApplication extends AutoOpMode {
         setInitialState();
 
         runAsync(this::outtakeLimitSwitch);
+        runAsync(specimenArm::update);
     }
 
     @Override
@@ -466,9 +467,7 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
             case BASKET:
-//                specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
-//                specimenArm.update();
-                specimenArm.setPower(-1);
+                specimenArm.goToOuttake();
 
                 // Park at bars
                 runBlocking(
@@ -483,7 +482,7 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    public void outtakeLimitSwitch() {
+    private void outtakeLimitSwitch() {
         if (Utilities.isPressed(!outtakeSwitch.getState())) {
             outtake.resetMotor();
         }

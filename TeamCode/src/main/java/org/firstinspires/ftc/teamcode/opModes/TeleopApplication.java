@@ -198,17 +198,19 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runSpecimenArm() {
         if (Utilities.isPressed(gamepad2.dpad_up)) {
-            specimenArm.setTarget(SpecimenArmConfig.outtakePosition);
             runAction(
                     new SequentialAction(
+                            specimenArm.grabClose(),
+                            new SleepAction(0.2),
+                            specimenArm.goToOuttake(),
                             new SleepAction(0.2),
                             specimenArm.gripToOuttake()
                     )
             );
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
-            specimenArm.setTarget(SpecimenArmConfig.intakePosition);
             runAction(
                     new ParallelAction(
+                            specimenArm.goToIntake(),
                             specimenArm.grabOpen(),
                             specimenArm.gripToIntake()
                     )
