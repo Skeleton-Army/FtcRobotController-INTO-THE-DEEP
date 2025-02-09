@@ -89,4 +89,8 @@ public class Intake {
     public Action wristMiddle() {
         return wristToPosition(IntakeConfig.wristMiddle);
     }
+
+    public Action wristReady() {
+        return wristToPosition(IntakeConfig.wristReady);
+    }
 }
