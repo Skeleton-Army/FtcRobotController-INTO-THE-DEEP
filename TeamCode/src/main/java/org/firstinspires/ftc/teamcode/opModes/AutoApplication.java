@@ -68,6 +68,13 @@ public class AutoApplication extends AutoOpMode {
     boolean gotOne = false;
 
     @Override
+    public void setPrompts() {
+//        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
+//        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
+    }
+
+    @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
@@ -79,20 +86,25 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
-    public void setPrompts() {
-//        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
-//        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
+    public void setInitialState() {
+        switch (strategy) {
+            case SPECIMENS:
+                addTransition(State.HANG_SPECIMEN);
+                break;
+            case BASKET:
+                addTransition(State.PUT_IN_BASKET);
+                break;
+        }
     }
 
     @Override
-    public void init() {
-        super.init();
-
+    public void onInit() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
         //camCV.stopStream(); Maybe?
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
@@ -101,10 +113,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
-    public void start() {
-        // Enable auto bulk reads
-        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-
+    public void onStart() {
         // Fetch choices
 //        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
         String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
@@ -133,22 +142,8 @@ public class AutoApplication extends AutoOpMode {
         // Set starting position
         drive.pose = startPose;
 
-        setInitialState();
-
         runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
-    }
-
-    @Override
-    public void setInitialState() {
-        switch (strategy) {
-            case SPECIMENS:
-                addTransition(State.HANG_SPECIMEN);
-                break;
-            case BASKET:
-                addTransition(State.PUT_IN_BASKET);
-                break;
-        }
     }
 
     // -------------- States --------------
