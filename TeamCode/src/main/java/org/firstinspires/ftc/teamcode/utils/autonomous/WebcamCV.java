@@ -54,6 +54,26 @@ public class WebcamCV {
         return closest.getSamplePosition();
     }
 
+    public Vector2d getBestOrientation() {
+        // searching for the min value of distance
+        if (samples.isEmpty())
+            return null;
+        Sample best = samples.get(0);
+
+        for (Sample currSample : samples) {
+            if (currSample.getSampleX() > 6 || currSample.getSampleX() < -6 || currSample.getSampleY() > 18 || currSample.getSampleY() < -15) {
+                continue;
+            }
+
+            //if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
+            if (currSample.getEpsilon() < best.getEpsilon()) {
+                best = currSample;
+            }
+        }
+
+        return best.getSamplePosition();
+    }
+
     public Sample getCloseSampleObject(Vector2d pos) {
         // searching for the min value of distance
         if (samples.isEmpty())
