@@ -57,6 +57,7 @@ public class AutoApplication extends AutoOpMode {
 
     Alliance alliance;
     Strategy strategy;
+    int extraSpecimens;
 
     Pose2d startPose;
     WebcamCV camCV;
@@ -64,14 +65,16 @@ public class AutoApplication extends AutoOpMode {
     DigitalChannel outtakeSwitch;
 
     int collectedSamples = 0;
+    int hangedSpecimens = 0;
 
     boolean gotOne = false;
+    boolean didCollectSamples = false;
 
     @Override
     public void setPrompts() {
 //        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
         choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
-//        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "0", "1"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "1", "0"));
     }
 
     @Override
@@ -81,7 +84,7 @@ public class AutoApplication extends AutoOpMode {
         addState(State.PUT_IN_BASKET, this::putInBasket);
         addState(State.COLLECT_ADDITIONAL_SAMPLE, this::sampleFromSubmersible);
         addState(State.PARK, this::park);
-        addState(State.COLLECT_SPECIMEN, this::pickupSpecimen);
+        addState(State.COLLECT_SPECIMEN, this::collectSpecimen);
         addState(State.COLLECT_COLOR_SAMPLES, this::collectColorSamples);
     }
 
@@ -117,10 +120,9 @@ public class AutoApplication extends AutoOpMode {
         // Fetch choices
 //        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
         String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
-//        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
+        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
 
         String selectedAlliance = "Red";
-        String selectedSpecimens = "0";
 
         telemetry.addData("Selected Alliance", selectedAlliance);
         telemetry.addData("Selected Strategy", selectedStrategy);
@@ -129,6 +131,7 @@ public class AutoApplication extends AutoOpMode {
         // Initialize values
         alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
         strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
+        extraSpecimens = Integer.parseInt(selectedSpecimens);
 
         switch (strategy) {
             case SPECIMENS:
@@ -149,17 +152,52 @@ public class AutoApplication extends AutoOpMode {
     // -------------- States --------------
 
     private void hangSpecimen() {
+        hangedSpecimens++;
+
+        runBlocking(
+                new SequentialAction(
+                        specimenArm.grabClose(),
+                        specimenArm.goToOuttake(),
+                        new SleepAction(0.2),
+                        specimenArm.gripToOuttake(),
+
+                        drive.actionBuilder(drive.pose)
+                                .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
+                                .build()
+                )
+        );
+
+        runBlocking(
+                new ParallelAction(
+                        specimenArm.grabOpen(),
+                        specimenArm.goToIntake(),
+                        specimenArm.gripToIntake()
+                )
+        );
+
+        if (!didCollectSamples) {
+            addTransition(State.COLLECT_COLOR_SAMPLES);
+        } else if (hangedSpecimens < (4 + extraSpecimens)) {
+            addTransition(State.COLLECT_SPECIMEN);
+        } else {
+            addTransition(State.PARK);
+        }
+    }
+
+    private void collectSpecimen() {
+        runBlocking(specimenArm.grabOpen());
+
         runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
+                        .splineTo(new Vector2d(32, startPose.position.y), Math.PI / 2)
                         .build()
         );
 
-        addTransition(State.COLLECT_COLOR_SAMPLES);
+        addTransition(State.HANG_SPECIMEN);
     }
 
     private void collectColorSamples() {
-        collectedSamples++;
+        didCollectSamples = true;
 
         Action grabSequence = new SequentialAction(
                 intake.extend(),
@@ -229,10 +267,8 @@ public class AutoApplication extends AutoOpMode {
 //                        .splineToLinearHeading(new Pose2d(45, -28, Math.toRadians(-60)), 0)
 //                        .build()
 //        );
-    }
 
-    private void pickupSpecimen() {
-
+//        addTransition(State.COLLECT_SPECIMEN);
     }
 
     private void collectYellowSample() {
@@ -473,6 +509,8 @@ public class AutoApplication extends AutoOpMode {
                                 intakeRetract
                         )
                 );
+
+                requestOpModeStop();
                 break;
         }
     }
