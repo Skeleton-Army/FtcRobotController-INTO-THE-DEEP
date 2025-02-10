@@ -110,7 +110,8 @@ public class TeleopApplication extends TeleopOpMode {
                     "extend_intake",
                     new SequentialAction(
                             intake.extend(),
-                            intake.openClaw()
+                            intake.openClaw(),
+                            intake.wristReady()
                     ),
 
                     "retract_intake",
