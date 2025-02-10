@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 import java.util.HashMap;
@@ -119,7 +120,11 @@ public abstract class TeleopOpMode extends OpMode {
      * Get the current state of the toggle.
      */
     protected boolean isInState(String sequenceName, int index) {
-        if (!sequenceStates.containsKey(sequenceName)) return false;
-        return sequenceStates.get(sequenceName) == index;
+        return getCurrentState(sequenceName) == index;
+    }
+
+    protected int getCurrentState(String sequenceName) {
+        if (!sequenceStates.containsKey(sequenceName)) return -1;
+        return sequenceStates.get(sequenceName);
     }
 }

@@ -137,7 +137,10 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    intake.extend(0.5),
+                    new SequentialAction(
+                            intake.extend(),
+                            intake.wristReady()
+                    ),
 
                     // Retract intake
                     new ParallelAction(
@@ -172,7 +175,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runManualIntakeControl() {
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 0)) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 1)) {
             manuallyMoved = true;
             intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
@@ -185,7 +188,12 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.right_trigger > 0.1)) {
             runAction(intake.extendWrist());
         } else if (Utilities.isPressed(gamepad2.left_trigger > 0.1)) {
-            runAction(intake.wristReady());
+            runAction(
+                    new ParallelAction(
+                            intake.wristReady(),
+                            intake.openClaw()
+                    )
+            );
         }
     }
 
@@ -201,18 +209,15 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.dpad_up)) {
             runAction(
                     new SequentialAction(
-                            specimenArm.grabClose(),
-                            new SleepAction(0.2),
                             specimenArm.goToOuttake(),
-                            new SleepAction(0.2),
                             specimenArm.gripToOuttake()
                     )
             );
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             runAction(
-                    new ParallelAction(
-                            specimenArm.goToIntake(),
+                    new SequentialAction(
                             specimenArm.grabOpen(),
+                            specimenArm.goToIntake(),
                             specimenArm.gripToIntake()
                     )
             );
