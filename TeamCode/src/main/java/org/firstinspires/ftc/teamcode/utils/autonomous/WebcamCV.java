@@ -36,10 +36,10 @@ public class WebcamCV {
         this.drive = drive;
     }
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
-        Vector2d samplePos = currSample.getSamplePosition();
+        Vector2d samplePos = currSample.getSamplePosition().position;
         return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
-    public Vector2d getBestSamplePos(Vector2d pos) {
+    public Pose2d getBestSamplePos(Vector2d pos) {
         // searching for the min value of distance
         if (samples.isEmpty())
             return null;
@@ -54,7 +54,7 @@ public class WebcamCV {
         return closest.getSamplePosition();
     }
 
-    public Vector2d getBestOrientation() {
+    public Pose2d getBestOrientation() {
         // searching for the min value of distance
         if (samples.isEmpty())
             return null;
@@ -66,7 +66,7 @@ public class WebcamCV {
             }
 
             //if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
-            if (Math.abs(1 - currSample.getQuality()) < Math.abs(1 - best.getQuality())) {
+            if (Math.abs(currSample.getQuality()) < Math.abs(best.getQuality())) {
                 best = currSample;
             }
         }
@@ -90,7 +90,7 @@ public class WebcamCV {
     }
     private void printSampleData(Sample inputSample) {
         telemetry.addLine();
-        Vector2d samplePos = inputSample.getSamplePosition();
+        Vector2d samplePos = inputSample.getSamplePosition().position;
         telemetry.addData("x: ", samplePos.x);
         telemetry.addData("y: ", samplePos.y);
         telemetry.addLine();

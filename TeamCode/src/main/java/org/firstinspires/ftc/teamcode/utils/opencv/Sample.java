@@ -9,8 +9,8 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 public class Sample {
     private final Pose2d detectionPose;
-    private double sampleX, sampleY, horizontalAngle, quality;
-    private Vector2d fieldPos;
+    private double sampleX, sampleY, horizontalAngle, quality, orientation;
+    private Pose2d fieldPos;
     public Point lowest;
     public Sample(Point lowest, Pose2d detectionPose) {
         this.lowest = lowest;
@@ -28,8 +28,13 @@ public class Sample {
     public double getQuality() {
         return quality;
     }
-    public Vector2d getSamplePosition() {
+    public Pose2d getSamplePosition() {
         return fieldPos;
+    }
+    public void calculateField() {
+        double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
+        double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
+        fieldPos = new Pose2d(x, y, orientation);
     }
     private void calculatePosition() {
         horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOVERwidth + CameraConfig.offsetHorizontal);
@@ -37,14 +42,16 @@ public class Sample {
         double sampleX = Math.tan(horizontalAngle) * sampleY;
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
-        double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
-        double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
-        fieldPos = new Vector2d(x, y);
     }
 
     public void findQuality(MatOfPoint contour) {
         int width = contour.width();
         double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
         quality = bestCase / width;
+    }
+    public void calculateOrientation(MatOfPoint contour) {
+        int width = contour.width();
+        double len = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
+        orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * len)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
     }
 }

@@ -48,7 +48,7 @@ public class AutoTest extends OpMode {
                         .splineTo(new Vector2d(-48.16, 48.34), Math.toRadians(270.00))
                         .build()
         );
-        Vector2d samplePos = camCV.getBestSamplePos(beginPose.position);
+        Vector2d samplePos = camCV.getBestSamplePos(beginPose.position).position;
         //TODO: pickup the sample
     }
 

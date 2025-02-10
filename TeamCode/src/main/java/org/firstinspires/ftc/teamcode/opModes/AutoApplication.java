@@ -408,7 +408,7 @@ public class AutoApplication extends AutoOpMode {
                 }
         );
 
-        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2));
+        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2)).position;
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
         runBlocking(

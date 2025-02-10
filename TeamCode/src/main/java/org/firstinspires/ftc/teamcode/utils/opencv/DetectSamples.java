@@ -73,13 +73,14 @@ public class DetectSamples extends OpenCvPipeline {
         Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         //Core.bitwise_and(input, masked, input);
         masked.release();
-
         for (MatOfPoint contour : contours) {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
             Sample tempName = new Sample(lowestPoint, drive.pose);
             tempName.findQuality(contour);
+            tempName.calculateOrientation(contour);
+            tempName.calculateField();
             samplesFrame.add(tempName);
 
             //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
