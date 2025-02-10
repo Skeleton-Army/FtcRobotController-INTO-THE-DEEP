@@ -9,7 +9,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 public class Sample {
     private final Pose2d detectionPose;
-    private double sampleX, sampleY, horizontalAngle, epsilon;
+    private double sampleX, sampleY, horizontalAngle, quality;
     private Vector2d fieldPos;
     public Point lowest;
     public Sample(Point lowest, Pose2d detectionPose) {
@@ -25,8 +25,8 @@ public class Sample {
     public double getSampleY() {
         return sampleY;
     }
-    public double getEpsilon() {
-        return epsilon;
+    public double getQuality() {
+        return quality;
     }
     public Vector2d getSamplePosition() {
         return fieldPos;
@@ -42,9 +42,9 @@ public class Sample {
         fieldPos = new Vector2d(x, y);
     }
 
-    public void findEpsilon(MatOfPoint contour) {
+    public void findQuality(MatOfPoint contour) {
         int width = contour.width();
-        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.sin(horizontalAngle)) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
-        epsilon = Math.abs(bestCase - width);
+        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
+        quality = bestCase / width;
     }
 }

@@ -79,7 +79,7 @@ public class DetectSamples extends OpenCvPipeline {
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
             Sample tempName = new Sample(lowestPoint, drive.pose);
-            tempName.findEpsilon(contour);
+            tempName.findQuality(contour);
             samplesFrame.add(tempName);
 
             //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));

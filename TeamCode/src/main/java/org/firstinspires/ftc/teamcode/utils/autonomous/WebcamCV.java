@@ -66,7 +66,7 @@ public class WebcamCV {
             }
 
             //if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
-            if (currSample.getEpsilon() < best.getEpsilon()) {
+            if (Math.abs(1 - currSample.getQuality()) < Math.abs(1 - best.getQuality())) {
                 best = currSample;
             }
         }
