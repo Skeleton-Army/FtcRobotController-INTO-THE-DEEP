@@ -8,7 +8,7 @@ public class SpecimenArmConfig {
     public static String servoName = "specimenGrip";
     public static String grabServoName = "specimenGrab";
 
-    public static int intakePosition = -10;
+    public static int intakePosition = -15;
     public static int outtakePosition = -625;
 
     public static double gripIntake = 0.75;
