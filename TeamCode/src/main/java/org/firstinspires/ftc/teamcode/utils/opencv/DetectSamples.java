@@ -78,7 +78,6 @@ public class DetectSamples extends OpenCvPipeline {
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
             Sample tempName = new Sample(lowestPoint, drive.pose);
-            tempName.findQuality(contour);
             tempName.calculateOrientation(contour);
             tempName.calculateField();
             samplesFrame.add(tempName);
