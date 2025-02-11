@@ -273,6 +273,51 @@ public class AutoApplication extends AutoOpMode {
 //        addTransition(State.COLLECT_SPECIMEN);
     }
 
+//    private void collectColorSamples() {
+//        didCollectSamples = true;
+//
+//        // First sample
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(48, -13), 0)
+//                        .build()
+//        );
+//
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(48, -55), 0)
+//                        .build()
+//        );
+//
+//        // Second sample
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(60, -13), 0)
+//                        .build()
+//        );
+//
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(60, -55), 0)
+//                        .build()
+//        );
+//
+//        // Third sample
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(64, -13), 0)
+//                        .build()
+//        );
+//
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineTo(new Vector2d(64, -55), 0)
+//                        .build()
+//        );
+//
+//        addTransition(State.COLLECT_SPECIMEN);
+//    }
+
     private void collectYellowSample() {
         collectedSamples++;
 
