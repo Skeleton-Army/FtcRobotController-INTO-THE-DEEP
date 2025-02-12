@@ -24,15 +24,23 @@ public class MeepMeepTesting {
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
         myBot.runAction(customDriveShim.actionBuilder(new Pose2d(0, -62.5, Math.toRadians(90)), false)
-                .waitSeconds(3)
                 .splineTo(new Vector2d(0, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
-                .setTangent(Math.toRadians(270))
-                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(50)), 0)
-                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
-                .splineToLinearHeading(new Pose2d(45, -48, Math.toRadians(65)), 0)
-                .splineToLinearHeading(new Pose2d(45, -48, Math.toRadians(-65)), 0)
-                .splineToLinearHeading(new Pose2d(54, -40, Math.toRadians(45)), 0)
-                //.splineToLinearHeading(new Pose2d(54, -40, Math.toRadians(-60)), 0)
+                .setTangent(Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
+
+                .setTangent(Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
+
+                .splineToConstantHeading(new Vector2d(53, -13), 0)
+
+                .setTangent(Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
+
+                .splineToConstantHeading(new Vector2d(60, -13), 0)
+
+                .setTangent(Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
                 .build()
         );
 

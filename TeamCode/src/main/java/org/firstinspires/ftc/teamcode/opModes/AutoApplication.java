@@ -279,39 +279,44 @@ public class AutoApplication extends AutoOpMode {
 //        // First sample
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(48, -13), 0)
+//                        .setTangent(Math.toRadians(0))
+//                        .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
+//                        .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
 //                        .build()
 //        );
 //
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(48, -55), 0)
+//                        .setTangent(Math.toRadians(90))
+//                        .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
 //                        .build()
 //        );
 //
 //        // Second sample
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(60, -13), 0)
+//                        .splineToConstantHeading(new Vector2d(53, -13), 0)
 //                        .build()
 //        );
 //
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(60, -55), 0)
+//                        .setTangent(Math.toRadians(90))
+//                        .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
 //                        .build()
 //        );
 //
 //        // Third sample
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(64, -13), 0)
+//                        .splineToConstantHeading(new Vector2d(60, -13), 0)
 //                        .build()
 //        );
 //
 //        runBlocking(
 //                drive.actionBuilder(drive.pose)
-//                        .splineTo(new Vector2d(64, -55), 0)
+//                        .setTangent(Math.toRadians(90))
+//                        .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
 //                        .build()
 //        );
 //
