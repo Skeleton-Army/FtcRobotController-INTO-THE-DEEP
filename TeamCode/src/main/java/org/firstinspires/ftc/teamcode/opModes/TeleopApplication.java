@@ -216,7 +216,6 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             runAction(
                     new SequentialAction(
-                            specimenArm.grabOpen(),
                             specimenArm.goToIntake(),
                             specimenArm.gripToIntake()
                     )
