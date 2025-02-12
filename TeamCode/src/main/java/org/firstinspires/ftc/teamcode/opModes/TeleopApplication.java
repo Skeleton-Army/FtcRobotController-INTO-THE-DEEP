@@ -107,7 +107,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    new SequentialAction(
+                    new ParallelAction(
                             intake.extend(),
                             intake.openClaw(),
                             intake.wristReady()
@@ -137,7 +137,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    new SequentialAction(
+                    new ParallelAction(
                             intake.extend(),
                             intake.wristReady()
                     ),
