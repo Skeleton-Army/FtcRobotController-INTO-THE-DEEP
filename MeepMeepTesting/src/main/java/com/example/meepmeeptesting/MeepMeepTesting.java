@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.Constraints;
@@ -24,23 +25,30 @@ public class MeepMeepTesting {
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
         myBot.runAction(customDriveShim.actionBuilder(new Pose2d(0, -62.5, Math.toRadians(90)), false)
-                .splineTo(new Vector2d(0, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
-                .setTangent(Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
-                .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(0, -37), Math.PI / 2)
+                .splineToConstantHeading(new Vector2d(0, -34), Math.PI / 2)
+                        .setTangent(Math.toRadians(270))
+                        .splineToConstantHeading(new Vector2d(32, -61), Math.toRadians(270))
+                        .setTangent(Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(0, -37), Math.PI / 2)
+                        .splineToConstantHeading(new Vector2d(0, -34), Math.PI / 2)
 
-                .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
-
-                .splineToConstantHeading(new Vector2d(53, -13), 0)
-
-                .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
-
-                .splineToConstantHeading(new Vector2d(60, -13), 0)
-
-                .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
+//                .setTangent(Math.toRadians(0))
+//                .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
+//                .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
+//
+//                .setTangent(Math.toRadians(90))
+//                .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
+//
+//                .splineToConstantHeading(new Vector2d(53, -13), 0)
+//
+//                .setTangent(Math.toRadians(90))
+//                .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
+//
+//                .splineToConstantHeading(new Vector2d(60, -13), 0)
+//
+//                .setTangent(Math.toRadians(90))
+//                .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
                 .build()
         );
 

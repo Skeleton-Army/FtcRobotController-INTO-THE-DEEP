@@ -92,6 +92,14 @@ public class AutoApplication extends AutoOpMode {
     public void setInitialState() {
         switch (strategy) {
             case SPECIMENS:
+                runBlocking(
+                        new ParallelAction(
+                                specimenArm.goToOuttake(),
+                                drive.actionBuilder(drive.pose)
+                                        .splineToConstantHeading(new Vector2d(startPose.position.x, -60), Math.PI / 2)
+                                        .build()
+                        )
+                );
                 addTransition(State.HANG_SPECIMEN);
                 break;
             case BASKET:
@@ -113,6 +121,8 @@ public class AutoApplication extends AutoOpMode {
         specimenArm = new SpecimenArm(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
+
+        runBlocking(specimenArm.grabClose());
     }
 
     @Override
@@ -155,23 +165,16 @@ public class AutoApplication extends AutoOpMode {
         hangedSpecimens++;
 
         runBlocking(
-                new SequentialAction(
+                new ParallelAction(
                         specimenArm.grabClose(),
                         specimenArm.goToOuttake(),
-                        new SleepAction(0.2),
                         specimenArm.gripToOuttake(),
 
                         drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(startPose.position.x, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
+                                .setTangent(Math.toRadians(90))
+                                .splineToConstantHeading(new Vector2d(startPose.position.x, -37), Math.PI / 2)
+                                .splineToConstantHeading(new Vector2d(startPose.position.x, -34), Math.PI / 2)
                                 .build()
-                )
-        );
-
-        runBlocking(
-                new ParallelAction(
-                        specimenArm.grabOpen(),
-                        specimenArm.goToIntake(),
-                        specimenArm.gripToIntake()
                 )
         );
 
@@ -188,9 +191,25 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(specimenArm.grabOpen());
 
         runBlocking(
-                drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(32, startPose.position.y), Math.PI / 2)
-                        .build()
+                new ParallelAction(
+                        drive.actionBuilder(drive.pose)
+                                .setTangent(Math.toRadians(270))
+                                .splineToConstantHeading(new Vector2d(26, -60), Math.toRadians(270))
+                                .build(),
+                        new SequentialAction(
+                                specimenArm.grabOpen(),
+                                new SleepAction(0.5),
+                                specimenArm.goToIntake(),
+                                specimenArm.gripToIntake()
+                        )
+                )
+        );
+
+        runBlocking(
+                new SequentialAction(
+                        specimenArm.grabClose(),
+                        new SleepAction(0.2)
+                )
         );
 
         addTransition(State.HANG_SPECIMEN);
@@ -207,27 +226,27 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Grab first sample
-        runBlocking(
-                new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(50)), 0)
-                                .build(),
-                        grabSequence,
-                        intake.closeClaw()
-                )
-        );
-
-        // Put first sample
-        runBlocking(
-                new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
-                                .build(),
-                        intake.openClaw(),
-                        intake.wristReady()
-                )
-        );
+//        runBlocking(
+//                new SequentialAction(
+//                        drive.actionBuilder(drive.pose)
+//                                .setTangent(Math.toRadians(270))
+//                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(50)), 0)
+//                                .build(),
+//                        grabSequence,
+//                        intake.closeClaw()
+//                )
+//        );
+//
+//        // Put first sample
+//        runBlocking(
+//                new SequentialAction(
+//                        drive.actionBuilder(drive.pose)
+//                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
+//                                .build(),
+//                        intake.openClaw(),
+//                        intake.wristReady()
+//                )
+//        );
 
 //        // Grab second sample
 //        runBlocking(
@@ -270,58 +289,8 @@ public class AutoApplication extends AutoOpMode {
 //                        .build()
 //        );
 
-//        addTransition(State.COLLECT_SPECIMEN);
+        addTransition(State.COLLECT_SPECIMEN);
     }
-
-//    private void collectColorSamples() {
-//        didCollectSamples = true;
-//
-//        // First sample
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .setTangent(Math.toRadians(0))
-//                        .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
-//                        .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
-//                        .build()
-//        );
-//
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .setTangent(Math.toRadians(90))
-//                        .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
-//                        .build()
-//        );
-//
-//        // Second sample
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .splineToConstantHeading(new Vector2d(53, -13), 0)
-//                        .build()
-//        );
-//
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .setTangent(Math.toRadians(90))
-//                        .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
-//                        .build()
-//        );
-//
-//        // Third sample
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .splineToConstantHeading(new Vector2d(60, -13), 0)
-//                        .build()
-//        );
-//
-//        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .setTangent(Math.toRadians(90))
-//                        .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
-//                        .build()
-//        );
-//
-//        addTransition(State.COLLECT_SPECIMEN);
-//    }
 
     private void collectYellowSample() {
         collectedSamples++;
@@ -540,8 +509,13 @@ public class AutoApplication extends AutoOpMode {
                 // Park in observation zone
                 runBlocking(
                         new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(0.5),
+                                        specimenArm.goToIntake(),
+                                        specimenArm.gripToIntake()
+                                ),
                                 drive.actionBuilder(drive.pose)
-                                        .setTangent(0)
+                                        .setTangent(Math.toRadians(270))
                                         .splineToConstantHeading(new Vector2d(50, startPose.position.y), 0)
                                         .build(),
                                 intakeRetract

@@ -87,11 +87,11 @@ public class SpecimenArm {
     }
 
     public Action grabOpen() {
-        return grabToPosition(SpecimenArmConfig.grabClose);
+        return grabToPosition(SpecimenArmConfig.grabOpen);
     }
 
     public Action grabClose() {
-        return grabToPosition(SpecimenArmConfig.grabOpen);
+        return grabToPosition(SpecimenArmConfig.grabClose);
     }
 
     public double calculateArmPower() {
