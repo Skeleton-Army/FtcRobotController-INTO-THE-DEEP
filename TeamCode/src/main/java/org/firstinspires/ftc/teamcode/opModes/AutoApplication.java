@@ -92,14 +92,6 @@ public class AutoApplication extends AutoOpMode {
     public void setInitialState() {
         switch (strategy) {
             case SPECIMENS:
-                runBlocking(
-                        new ParallelAction(
-                                specimenArm.goToOuttake(),
-                                drive.actionBuilder(drive.pose)
-                                        .splineToConstantHeading(new Vector2d(startPose.position.x, -60), Math.PI / 2)
-                                        .build()
-                        )
-                );
                 addTransition(State.HANG_SPECIMEN);
                 break;
             case BASKET:
@@ -194,7 +186,7 @@ public class AutoApplication extends AutoOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToConstantHeading(new Vector2d(26, -60), Math.toRadians(270))
+                                .splineToConstantHeading(new Vector2d(26.5, -60), Math.toRadians(270))
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
