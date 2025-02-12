@@ -31,15 +31,10 @@ public class Sample {
     public Pose2d getSamplePosition() {
         return fieldPos;
     }
-    public void calculateField() {
-        double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
-        double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
-        fieldPos = new Pose2d(new Vector2d(x, y), orientation);
-    }
     private void calculatePosition() {
         horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOVERwidth + CameraConfig.offsetHorizontal);
-        double sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight + CameraConfig.offsetVertical));
-        double sampleX = Math.tan(horizontalAngle) * sampleY;
+        sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight + CameraConfig.offsetVertical));
+        sampleX = Math.tan(horizontalAngle) * sampleY;
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
     }
@@ -56,5 +51,11 @@ public class Sample {
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
         orientation = Math.asin(lenInches * constLen / Math.cos(horizontalAngle)) - Math.atan(1.5 / 2.5) - Math.abs(horizontalAngle);
+    }
+
+    public void calculateField() {
+        double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
+        double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
+        fieldPos = new Pose2d(new Vector2d(x, y), orientation);
     }
 }

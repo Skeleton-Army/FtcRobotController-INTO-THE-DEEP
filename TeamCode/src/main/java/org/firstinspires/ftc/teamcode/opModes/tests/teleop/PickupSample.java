@@ -71,7 +71,7 @@ public class PickupSample extends TeleopOpMode {
     public void start() {
         //Vector2d sample = camCV.getBestSamplePos(drive.pose.position);
         Pose2d sample = camCV.getBestOrientation();
-        telemetry.addData("X: ", "" + sample.position.x);
+        telemetry.addData("X: ", "" + sample.position.y);
         telemetry.addData("Y: ", "" + sample.position.y);
         telemetry.addData("Orientation: ", "" + sample.heading);
         //runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
