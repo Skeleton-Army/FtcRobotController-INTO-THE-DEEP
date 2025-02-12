@@ -50,9 +50,8 @@ public class Sample {
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
-        orientation = Math.asin(lenInches * constLen / Math.cos(horizontalAngle)) - Math.atan(1.5 / 2.5) - Math.abs(horizontalAngle);
+        orientation = Math.asin(lenInches * constLen / Math.cos(horizontalAngle)) - Math.atan(1.5 / 2.5) - horizontalAngle;
     }
-
     public void calculateField() {
         double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
         double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
