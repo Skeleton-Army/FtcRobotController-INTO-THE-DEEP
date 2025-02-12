@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -36,6 +38,8 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
@@ -55,11 +59,11 @@ public class PickupSample extends TeleopOpMode {
     public void init_loop() {
         if (camCV.lookForSamples()) {
             //Vector2d sample = camCV.getBestSamplePos(new Vector2d(0,0));
-            Vector2d sample = camCV.getBestOrientation().position;
+            Pose2d sample = camCV.getBestOrientation();
             telemetry.addLine("Detected samples");
-            telemetry.addData("X: ", "" + sample.x);
-            telemetry.addData("Y: ", "" + sample.y);
-            telemetry.addData("sample frame pos: ", Math.toDegrees(camCV.getBestOrientation().heading.toDouble()));
+            telemetry.addData("X: ", "" + sample.position.x);
+            telemetry.addData("Y: ", "" + sample.position.y);
+            telemetry.addData("sample heading: ", Math.toDegrees(sample.heading.toDouble()));
             //camCV.getCloseSampleObject(new Vector2d(0,0)).lowest
         }
         else {
@@ -71,9 +75,9 @@ public class PickupSample extends TeleopOpMode {
     public void start() {
         //Vector2d sample = camCV.getBestSamplePos(drive.pose.position);
         Pose2d sample = camCV.getBestOrientation();
-        telemetry.addData("X: ", "" + sample.position.x);
-        telemetry.addData("Y: ", "" + sample.position.y);
-        telemetry.addData("Orientation: ", "" + sample.heading);
+//        telemetry.addData("X: ", "" + sample.position.y);
+//        telemetry.addData("Y: ", "" + sample.position.y);
+        //telemetry.addData("Orientation: ", "" + sample.heading);
         //runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
 
         Actions.runBlocking(

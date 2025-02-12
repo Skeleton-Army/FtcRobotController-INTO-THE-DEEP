@@ -61,7 +61,8 @@ public class WebcamCV {
         Sample best = samples.get(0);
 
         for (Sample currSample : samples) {
-            if (currSample.getSampleX() > 6 || currSample.getSampleX() < -6 || currSample.getSampleY() > 18 || currSample.getSampleY() < -15) {
+            Vector2d pos = currSample.getSamplePosition().position;
+            if (pos.x > 6 || pos.x < -6 || pos.y > 18 || pos.y < -15) {
                 continue;
             }
 
