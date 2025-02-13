@@ -186,7 +186,7 @@ public class AutoApplication extends AutoOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToConstantHeading(new Vector2d(26.5, -60), Math.toRadians(270))
+                                .splineToConstantHeading(new Vector2d(26.5, -60.25), Math.toRadians(270))
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
@@ -214,20 +214,28 @@ public class AutoApplication extends AutoOpMode {
                 intake.extend(),
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.2)
+                new SleepAction(0.3)
         );
 
         // Grab first sample
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .setTangent(Math.toRadians(270))
-//                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(50)), 0)
-//                                .build(),
-//                        grabSequence,
-//                        intake.closeClaw()
-//                )
-//        );
+        runBlocking(
+                new ParallelAction(
+                        new SequentialAction(
+                                specimenArm.grabOpen(),
+                                new SleepAction(0.5),
+                                specimenArm.goToIntake(),
+                                specimenArm.gripToIntake()
+                        ),
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .setTangent(Math.toRadians(270))
+                                        .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(50)), 0)
+                                        .build(),
+                                grabSequence,
+                                intake.closeClaw()
+                        )
+                )
+        );
 //
 //        // Put first sample
 //        runBlocking(
@@ -281,7 +289,7 @@ public class AutoApplication extends AutoOpMode {
 //                        .build()
 //        );
 
-        addTransition(State.COLLECT_SPECIMEN);
+        //addTransition(State.COLLECT_SPECIMEN);
     }
 
     private void collectYellowSample() {
@@ -502,6 +510,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new ParallelAction(
                                 new SequentialAction(
+                                        specimenArm.grabOpen(),
                                         new SleepAction(0.5),
                                         specimenArm.goToIntake(),
                                         specimenArm.gripToIntake()
