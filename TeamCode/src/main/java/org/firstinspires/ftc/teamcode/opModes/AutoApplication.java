@@ -214,29 +214,37 @@ public class AutoApplication extends AutoOpMode {
                 intake.extend(),
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.3)
+                new SleepAction(0.4)
+        );
+
+        runAsync(
+                new SequentialAction(
+                        specimenArm.grabOpen(),
+                        new SleepAction(0.5),
+                        specimenArm.goToIntake(),
+                        specimenArm.gripToIntake()
+                )
         );
 
         // Grab first sample
-        runBlocking(
-                new ParallelAction(
-                        new SequentialAction(
-                                specimenArm.grabOpen(),
-                                new SleepAction(0.5),
-                                specimenArm.goToIntake(),
-                                specimenArm.gripToIntake()
-                        ),
-                        new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .setTangent(Math.toRadians(270))
-                                        .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(50)), 0)
-                                        .build(),
-                                grabSequence,
-                                intake.closeClaw()
-                        )
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.4),
+                        intake.extend()
                 )
         );
-//
+
+        runBlocking(
+                new SequentialAction(
+                        drive.actionBuilder(drive.pose)
+                                .setTangent(Math.toRadians(270))
+                                .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(50)), 0)
+                                .build(),
+                        grabSequence,
+                        intake.closeClaw()
+                )
+        );
+
 //        // Put first sample
 //        runBlocking(
 //                new SequentialAction(
