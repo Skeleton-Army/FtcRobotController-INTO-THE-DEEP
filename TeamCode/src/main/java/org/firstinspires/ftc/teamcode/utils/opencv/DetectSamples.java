@@ -79,6 +79,7 @@ public class DetectSamples extends OpenCvPipeline {
             Point lowestPoint = getLowestPoint(contour);
             Sample tempName = new Sample(lowestPoint, drive.pose);
             tempName.calculateOrientation(Imgproc.boundingRect(contour));
+            tempName.calculateClawTo(Imgproc.boundingRect(contour));
             tempName.calculateField();
             samplesFrame.add(tempName);
 

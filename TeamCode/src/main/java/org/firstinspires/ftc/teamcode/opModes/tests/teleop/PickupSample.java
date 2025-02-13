@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 import org.openftc.easyopencv.OpenCvWebcam;
@@ -57,7 +58,7 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void init_loop() {
-        if (camCV.lookForSamples()) {
+/*        if (camCV.lookForSamples()) {
             //Vector2d sample = camCV.getBestSamplePos(new Vector2d(0,0));
             Pose2d sample = camCV.getBestOrientation();
             telemetry.addLine("Detected samples");
@@ -68,6 +69,16 @@ public class PickupSample extends TeleopOpMode {
         }
         else {
             telemetry.addLine("No samples detected");
+        }*/
+        if (camCV.lookForSamples()) {
+            telemetry.addLine("Detected samples");
+            for (Sample curr : camCV.getSamples()) {
+                Pose2d position = curr.getSamplePosition();
+                telemetry.addData("X: ", "" + position.position.x);
+                telemetry.addData("Y: ", "" + position.position.y);
+                telemetry.addData("sample heading: ", Math.toDegrees(position.heading.toDouble()));
+                telemetry.addData("Width " , curr.getClawTo());
+            }
         }
     }
 

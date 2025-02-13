@@ -27,6 +27,10 @@ public class Sample {
     public double getSampleY() {
         return sampleY;
     }
+
+    public double getClawTo() {
+        return clawTo;
+    }
     public double getQuality() {
         return quality;
     }
@@ -43,26 +47,28 @@ public class Sample {
 
     public void findQuality(MatOfPoint contour) {
         int width = contour.width();
-        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
+        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(3.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
         quality = bestCase / width;
     }
     public void calculateOrientation(Rect boundingRect) {
         int width = boundingRect.width;
-        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
+        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(3.5, 2));
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
-        //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
+        //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double angle = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen));
-        orientation = angle - Math.atan(1.5 / 2.5) - Math.abs(horizontalAngle);
-        orientation = (orientation >= 0 ? orientation : orientation + 90);
+        orientation = angle - Math.atan(1.5 / 3.5) - Math.abs(horizontalAngle);
+//        if (orientation > 0) {
+//            orientation += Math.atan(3.5 / 1.5);
+//        }
     }
 
     public void calculateClawTo(Rect boundingRect) {
         int width = boundingRect.width;
-        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
+        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(3.5, 2));
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
-        clawTo = lenInches * Math.pow(Math.cos(horizontalAngle), 2) + Math.sin(horizontalAngle) *
+        clawTo = lenInches * Math.pow(Math.cos(horizontalAngle), 2) + Math.sin(Math.abs(horizontalAngle)) *
                 Math.sqrt(Math.pow(constLen, 2) - Math.pow(lenInches * Math.cos(horizontalAngle), 2));
     }
     public void calculateField() {

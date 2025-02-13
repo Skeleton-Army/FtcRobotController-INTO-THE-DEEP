@@ -126,6 +126,9 @@ public class WebcamCV {
     public void resetSampleList() {
         samples = new ArrayList<>();
     }
+    public List<Sample> getSamples() {
+        return samples;
+    }
     public void stopStream() {
         webcam.stopStreaming();
     }
