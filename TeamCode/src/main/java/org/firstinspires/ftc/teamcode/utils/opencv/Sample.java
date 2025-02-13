@@ -65,6 +65,17 @@ public class Sample {
         clawTo = lenInches * Math.pow(Math.cos(horizontalAngle), 2) + Math.sin(horizontalAngle) *
                 Math.sqrt(Math.pow(constLen, 2) - lenInches * Math.pow(Math.cos(horizontalAngle), 2));
     }
+    public void maybeClawTo(Rect boundingRect) {
+        int width = boundingRect.width;
+        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
+        double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
+        double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
+        //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
+        double angle = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen));
+        angle = (angle >= Math.abs(horizontalAngle) ? angle - Math.abs(horizontalAngle) :
+                180 - angle - Math.abs(horizontalAngle));
+        clawTo = Math.sin(angle) * lenInches;
+    }
     public void calculateField() {
         double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
         double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
