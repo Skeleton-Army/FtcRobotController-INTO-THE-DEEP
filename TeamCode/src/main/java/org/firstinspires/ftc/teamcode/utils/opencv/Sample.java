@@ -7,9 +7,11 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
+
 public class Sample {
     private final Pose2d detectionPose;
-    private double sampleX, sampleY, horizontalAngle, quality, orientation;
+    private double sampleX, sampleY, horizontalAngle, quality, orientation, clawTo;
     private Pose2d fieldPos;
     public Point lowest;
     public Sample(Point lowest, Pose2d detectionPose) {
@@ -44,13 +46,24 @@ public class Sample {
         double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
         quality = bestCase / width;
     }
-    public void calculateOrientation(MatOfPoint contour) {
-        int width = contour.width();
+    public void calculateOrientation(Rect boundingRect) {
+        int width = boundingRect.width;
         double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
-        orientation = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen)) - Math.atan(1.5 / 2.5) - Math.abs(horizontalAngle);
+        double angle = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen));
+        orientation = angle - Math.atan(1.5 / 2.5) - Math.abs(horizontalAngle);
+        orientation = (orientation >= 0 ? orientation : orientation + 90);
+    }
+
+    public void calculateClawTo(Rect boundingRect) {
+        int width = boundingRect.width;
+        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2));
+        double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
+        double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
+        clawTo = lenInches * Math.pow(Math.cos(horizontalAngle), 2) + Math.sin(horizontalAngle) *
+                Math.sqrt(Math.pow(constLen, 2) - lenInches * Math.pow(Math.cos(horizontalAngle), 2));
     }
     public void calculateField() {
         double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
