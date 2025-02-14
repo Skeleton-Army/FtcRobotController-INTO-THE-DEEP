@@ -211,10 +211,14 @@ public class AutoApplication extends AutoOpMode {
         didCollectSamples = true;
 
         Action grabSequence = new SequentialAction(
+                intake.wristReady(),
+                intake.openClaw(),
                 intake.extend(),
                 intake.extendWrist(),
-                intake.openClaw(),
-                new SleepAction(0.4)
+                new SleepAction(0.4),
+                intake.closeClaw(),
+                new SleepAction(0.3),
+                intake.wristReady()
         );
 
         runAsync(
@@ -227,74 +231,64 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Grab first sample
-        runAsync(
-                new SequentialAction(
-                        new SleepAction(0.4),
-                        intake.extend()
-                )
-        );
-
         runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
                                 .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(50)), 0)
                                 .build(),
-                        grabSequence,
-                        intake.closeClaw()
+                        grabSequence
                 )
         );
 
-//        // Put first sample
+        // Put first sample
 //        runBlocking(
 //                new SequentialAction(
 //                        drive.actionBuilder(drive.pose)
-//                                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
+//                                .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(-50)), 0)
 //                                .build(),
-//                        intake.openClaw(),
-//                        intake.wristReady()
+//                        intake.openClaw()
 //                )
 //        );
 
-//        // Grab second sample
+        // Grab second sample
 //        runBlocking(
 //                new SequentialAction(
-//                        new ParallelAction(
-//                                drive.actionBuilder(drive.pose)
-//                                        .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(65)), 0)
-//                                        .build(),
-//                                grabSequence
-//                        ),
-//                        intake.closeClaw()
+//                        drive.actionBuilder(drive.pose)
+//                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(65)), 0)
+//                                .build(),
+//                        grabSequence
 //                )
 //        );
-//
-//        // Put second sample
+
+        // Put second sample
 //        runBlocking(
 //                new SequentialAction(
 //                        drive.actionBuilder(drive.pose)
 //                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(-65)), 0)
 //                                .build(),
-//                        intake.openClaw(),
-//                        intake.wristReady()
+//                        intake.openClaw()
 //                )
 //        );
-//
-//        // Collect third sample
+
+        // Grab third sample
 //        runBlocking(
 //                new SequentialAction(
-//                        intake.wristReady(),
 //                        drive.actionBuilder(drive.pose)
 //                                .splineToLinearHeading(new Pose2d(47, -30, Math.toRadians(45)), 0)
 //                                .build(),
-//                        intake.extendWrist()
+//                        grabSequence
 //                )
 //        );
-//
+
+        // Put third sample
 //        runBlocking(
-//                drive.actionBuilder(drive.pose)
-//                        .splineToLinearHeading(new Pose2d(45, -28, Math.toRadians(-60)), 0)
-//                        .build()
+//                new SequentialAction(
+//                        drive.actionBuilder(drive.pose)
+//                                .splineToLinearHeading(new Pose2d(47, -30, Math.toRadians(-45)), 0)
+//                                .build(),
+//                        intake.openClaw()
+//                )
 //        );
 
         //addTransition(State.COLLECT_SPECIMEN);
