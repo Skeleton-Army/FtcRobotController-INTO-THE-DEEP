@@ -20,6 +20,7 @@ public class Outtake {
     public Outtake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setTargetPosition(0);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
 

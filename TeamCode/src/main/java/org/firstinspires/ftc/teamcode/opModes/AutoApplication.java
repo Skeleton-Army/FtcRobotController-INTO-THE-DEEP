@@ -235,21 +235,21 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(50)), 0)
+                                .splineToLinearHeading(new Pose2d(30, -47, Math.toRadians(50)), 0)
                                 .build(),
                         grabSequence
                 )
         );
 
         // Put first sample
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .splineToLinearHeading(new Pose2d(31, -47, Math.toRadians(-50)), 0)
-//                                .build(),
-//                        intake.openClaw()
-//                )
-//        );
+        runBlocking(
+                new SequentialAction(
+                        drive.actionBuilder(drive.pose)
+                                .splineToLinearHeading(new Pose2d(30, -47, Math.toRadians(-50)), 0)
+                                .build(),
+                        intake.openClaw()
+                )
+        );
 
         // Grab second sample
 //        runBlocking(
