@@ -58,9 +58,9 @@ public class Sample {
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double angle = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen));
         orientation = angle - Math.atan(1.5 / 3.5) - Math.abs(horizontalAngle);
-//        if (orientation > 0) {
-//            orientation += Math.atan(3.5 / 1.5);
-//        }
+        if (orientation >= Math.atan(1.5 / 3.5)) {
+            orientation = Math.PI - angle + Math.atan(1.5 / 3.5) - Math.abs(horizontalAngle);
+        }
     }
 
     public void calculateClawTo(Rect boundingRect) {
