@@ -377,7 +377,7 @@ public class AutoApplication extends AutoOpMode {
         Action dunkSample = new SequentialAction(
                 outtake.extend(),
                 outtake.dunk(),
-                new SleepAction(1.2),
+                new SleepAction(0.6),
                 outtake.hold()
         );
 
