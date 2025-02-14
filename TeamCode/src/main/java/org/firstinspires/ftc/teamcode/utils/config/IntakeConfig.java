@@ -9,7 +9,7 @@ public class IntakeConfig {
     public static String wristName = "wrist";
 
     public static double motorPower = 1;
-    public static int extendPosition = 1700;
+    public static int extendPosition = 560;
     public static int retractPosition = 0;
 
     public static int velocityThreshold = 1200;
@@ -23,5 +23,5 @@ public class IntakeConfig {
     public static double wristMiddle = 0.65;
     public static double wristReady = 0.82;
 
-    public static double manualSpeed = -0.65;
+    public static double manualSpeed = -0.35;
 }
