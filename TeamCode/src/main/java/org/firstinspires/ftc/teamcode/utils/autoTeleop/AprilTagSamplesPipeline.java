@@ -29,6 +29,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.TimestampedOpenCvPipeline;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     private AprilTagProcessor processor;
     private CameraCalibrationIdentity ident;
 
+    boolean viewportPaused;
+    public OpenCvCamera webcam;
     private final Telemetry telemetry;
     private Scalar lowerBound = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
     private Scalar upperBound = new Scalar(32.6, 255, 255); // Upper bound for yellow
@@ -88,10 +91,10 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     {
         CameraCalibration calibration = CameraCalibrationHelper.getInstance().getCalibration(ident, firstFrame.width(), firstFrame.height());
 
-        calibration.focalLengthX = (float)CameraConfig.fx;
+        /*calibration.focalLengthX = (float)CameraConfig.fx;
         calibration.focalLengthY = (float)CameraConfig.fy;
         calibration.principalPointX = (float)CameraConfig.cx;
-        calibration.principalPointY = (float)CameraConfig.cy;
+        calibration.principalPointY = (float)CameraConfig.cy;*/
 
         processor.init(firstFrame.width(), firstFrame.height(), calibration);
     }
@@ -143,11 +146,13 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             Sample tempName = new Sample(lowestPoint, drive.pose);
             samplesFrame.add(tempName);
 
-            //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
+            Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
         }
+
+
         samples = samplesFrame;
         telemetry.update();
-        //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
+        Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
 
         // AprilTag part
         Object drawCtx = processor.processFrame(input, captureTimeNanos);
@@ -176,5 +181,20 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext)
     {
         processor.onDrawFrame(canvas, onscreenWidth, onscreenHeight, scaleBmpPxToCanvasPx, scaleCanvasDensity, userContext);
+    }
+
+    @Override
+    public void onViewportTapped()
+    {
+        viewportPaused = !viewportPaused;
+
+        if (viewportPaused)
+        {
+            webcam.pauseViewport();
+        }
+        else
+        {
+            webcam.resumeViewport();
+        }
     }
 }

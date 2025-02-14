@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
@@ -13,6 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -30,6 +35,7 @@ public class WebcamCV {
 
     OpenCvPipeline pipeline;
 
+    AprilTagProcessor aprilTag;
     List<Sample> samples;
     Sample closeSample;
     Vector2d closeSamplePos;
@@ -42,6 +48,36 @@ public class WebcamCV {
         this.telemetry = telemetry;
         this.drive = drive;
         this.withAprilTag = withAprilTag;
+        if (withAprilTag) {
+            Position cameraPosition = new Position(DistanceUnit.INCH,
+                    CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
+            YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
+                    CameraConfig.yaw, CameraConfig.pitch, CameraConfig.roll, 0); //TODO: figure out these!!!
+            aprilTag = new AprilTagProcessor.Builder()
+
+                    // The following default settings are available to un-comment and edit as needed.
+                    .setDrawAxes(true)
+                    .setDrawCubeProjection(true)
+                    //.setDrawTagOutline(true)
+                    //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                    //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                    //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                    .setCameraPose(cameraPosition, cameraOrientation)
+                    .setLensIntrinsics(
+                            CameraConfig.fx,
+                            CameraConfig.fy,
+                            CameraConfig.cx,
+                            CameraConfig.cy
+                    )
+
+                    // == CAMERA CALIBRATION ==
+                    // If you do not manually specify calibration parameters, the SDK will attempt
+                    // to load a predefined calibration for your camera.
+                    //.setLensIntrinsics(1413.91, 1413.91, 965.446, 529.378)
+                    // ... these parameters are fx, fy, cx, cy.
+
+                    .build();
+        }
     }
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
         Vector2d samplePos = currSample.getSamplePosition();
@@ -89,7 +125,19 @@ public class WebcamCV {
     public void configureWebcam(SampleColor sampleColor) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        FtcDashboard.getInstance().startCameraStream(webcam, 5);
+//        FtcDashboard.getInstance().startCameraStream(webcam, 5);
+        if (!withAprilTag) {
+            detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
+            webcam.setPipeline(detectSamples);
+            // setting the pipeline to be only samples detector
+        }
+        else {
+            //aprilTagSamplesPipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
+            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, sampleColor);
+            webcam.setPipeline(aprilTagSamplesPipeline);
+            // setting the pipeline to be both apriltag and samples
+        }
+
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -104,22 +152,8 @@ public class WebcamCV {
                 telemetry.addData("Webcam", "Error: " + errorCode);
             }
         });
-        if (!withAprilTag) {
-            pipeline = new DetectSamples(telemetry, webcam, drive, sampleColor);
-            detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
-            // setting the pipeline to be only samples detector
-        }
-        else {
-            pipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
-            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
-             // setting the pipeline to be both apriltag and samples
-        }
-        webcam.setPipeline(pipeline);
     }
 
-    public OpenCvPipeline getPipeline() {
-        return this.pipeline;
-    }
     public AprilTagSamplesPipeline getAprilTagSamplesPipeline() {
         return this.aprilTagSamplesPipeline;
     }
