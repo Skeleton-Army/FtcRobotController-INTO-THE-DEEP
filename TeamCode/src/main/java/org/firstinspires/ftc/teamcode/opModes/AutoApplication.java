@@ -121,8 +121,8 @@ public class AutoApplication extends AutoOpMode {
     public void onStart() {
         // Fetch choices
 //        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy").toString();
-        String selectedSpecimens = choiceMenu.getValueOf("specimens").toString();
+        String selectedStrategy = choiceMenu.getValueOf("strategy", "Specimens").toString();
+        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
 
         String selectedAlliance = "Red";
 
@@ -165,7 +165,7 @@ public class AutoApplication extends AutoOpMode {
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
                                 .splineToConstantHeading(new Vector2d(startPose.position.x, -37), Math.PI / 2)
-                                .splineToConstantHeading(new Vector2d(startPose.position.x, -34), Math.PI / 2)
+                                .splineToConstantHeading(new Vector2d(startPose.position.x, -31), Math.PI / 2)
                                 .build()
                 )
         );
@@ -213,11 +213,11 @@ public class AutoApplication extends AutoOpMode {
         Action grabSequence = new SequentialAction(
                 intake.wristReady(),
                 intake.openClaw(),
-                intake.extend(),
+                intake.extend(0.5),
                 intake.extendWrist(),
-                new SleepAction(0.4),
-                intake.closeClaw(),
                 new SleepAction(0.3),
+                intake.closeClaw(),
+                new SleepAction(0.2),
                 intake.wristReady()
         );
 
@@ -235,7 +235,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(30, -47, Math.toRadians(50)), 0)
+                                .splineToLinearHeading(new Pose2d(49, -43, Math.toRadians(95)), 0)
                                 .build(),
                         grabSequence
                 )
@@ -245,31 +245,31 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(new Pose2d(30, -47, Math.toRadians(-50)), 0)
+                                .splineToLinearHeading(new Pose2d(49, -43, Math.toRadians(-95)), 0)
                                 .build(),
                         intake.openClaw()
                 )
         );
 
         // Grab second sample
-        runBlocking(
-                new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(new Pose2d(37, -42, Math.toRadians(65)), 0)
-                                .build(),
-                        grabSequence
-                )
-        );
+//        runBlocking(
+//                new SequentialAction(
+//                        drive.actionBuilder(drive.pose)
+//                                .splineToLinearHeading(new Pose2d(59, -43, Math.toRadians(100)), 0)
+//                                .build(),
+//                        grabSequence
+//                )
+//        );
 
         // Put second sample
-        runBlocking(
-                new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(new Pose2d(37, -42, Math.toRadians(-65)), 0)
-                                .build(),
-                        intake.openClaw()
-                )
-        );
+//        runBlocking(
+//                new SequentialAction(
+//                        drive.actionBuilder(drive.pose)
+//                                .splineToLinearHeading(new Pose2d(37, -42, Math.toRadians(-65)), 0)
+//                                .build(),
+//                        intake.openClaw()
+//                )
+//        );
 
         // Grab third sample
 //        runBlocking(

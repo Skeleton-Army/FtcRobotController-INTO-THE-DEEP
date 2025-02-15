@@ -36,6 +36,18 @@ public class ChoiceMenu {
      * Gets the chosen value of a prompt from its key. Call this in the start function.
      *
      * @param key The prompt's key
+     * @param defaultValue A default value if the value is null
+     * @return The Object value of the prompt result
+     */
+    public Object getValueOf(String key, Object defaultValue) {
+        if (results.get(key) == null) return defaultValue;
+        return results.get(key);
+    }
+
+    /**
+     * Gets the chosen value of a prompt from its key. Call this in the start function.
+     *
+     * @param key The prompt's key
      * @return The Object value of the prompt result
      */
     public Object getValueOf(String key) {
