@@ -232,6 +232,8 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
+        runAction(specimenArm.runManualControl(gamepad2.right_stick_y));
+
         specimenArm.update();
     }
 

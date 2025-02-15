@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.NullAction;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -59,6 +60,12 @@ public class SpecimenArm {
 
     public Action setTarget(int target) {
         return new InstantAction(() -> this.target = target);
+    }
+
+    public Action runManualControl(float value) {
+        if (value == 0) return new NullAction();
+        int mirror = motor.getCurrentPosition() < SpecimenArmConfig.topPos ? -1 : 1;
+        return setTarget(target + (int)(value * SpecimenArmConfig.manualSpeed * mirror));
     }
 
     public Action gripToPosition(double targetPos) {
