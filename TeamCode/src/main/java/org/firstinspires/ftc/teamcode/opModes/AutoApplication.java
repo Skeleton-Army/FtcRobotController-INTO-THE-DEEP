@@ -187,11 +187,11 @@ public class AutoApplication extends AutoOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToConstantHeading(new Vector2d(26.5, -60.25), Math.toRadians(270))
+                                .splineToLinearHeading(new Pose2d(27.5, -60.5, Math.toRadians(95)), Math.toRadians(270))
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
-                                new SleepAction(0.5),
+                                new SleepAction(0.7),
                                 specimenArm.goToIntake(),
                                 specimenArm.gripToIntake()
                         )
@@ -370,9 +370,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        requestOpModeStop();
-
-        //addTransition(State.COLLECT_SPECIMEN);
+        addTransition(State.COLLECT_SPECIMEN);
     }
 
     private void collectYellowSample() {
