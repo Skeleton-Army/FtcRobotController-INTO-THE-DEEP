@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.config;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+
 @Config
 public class CameraConfig {
     public static float z = 12.5f;
@@ -22,6 +25,15 @@ public class CameraConfig {
     public static double fy = (halfImageHeight * 2) / (2 * Math.tan(Math.toRadians(verticalFOV)));
     public static double cx = CameraConfig.halfImageWidth;
     public static double cy = CameraConfig.halfImageHeight;
+
+    // =========================================================================
+    // TODO: Calibrate the following variables with chessboard ASAP
+    // https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+    public static Mat cameraMatrix;        // 3x3 camera intrinsic matrix
+    public static MatOfDouble distCoeffs;  // Distortion coefficients
+    public static Mat rvec;      // Camera rotation vector
+    public static Mat tvec;
+    // =========================================================================
 
     public static double yaw = 0;
     public static double pitch = -90;

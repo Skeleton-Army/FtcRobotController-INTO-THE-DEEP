@@ -14,8 +14,10 @@ import org.firstinspires.ftc.teamcode.utils.config.SampleConfig;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -78,7 +80,8 @@ public class DetectSamples extends OpenCvPipeline {
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
             Sample tempName = new Sample(lowestPoint, drive.pose);
-            tempName.calculateOrientation(Imgproc.boundingRect(contour));
+            RotatedRect rotated = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
+            tempName.calculateOrientation(Imgproc.boundingRect(contour), rotated.angle);
             tempName.calculateClawTo(Imgproc.boundingRect(contour));
             tempName.calculateField();
             samplesFrame.add(tempName);
