@@ -210,15 +210,26 @@ public class AutoApplication extends AutoOpMode {
     private void collectColorSamples() {
         didCollectSamples = true;
 
-        Action grabSequence = new SequentialAction(
-                intake.wristReady(),
-                intake.openClaw(),
-                intake.extend(0.5),
-                intake.extendWrist(),
-                new SleepAction(0.3),
-                intake.closeClaw(),
-                new SleepAction(0.2),
-                intake.wristReady()
+        Action putInBucket = new ParallelAction(
+                intake.retractWrist(),
+                outtake.hold(),
+                new SequentialAction(
+                        new ParallelAction(
+                                intake.retract(),
+                                new SleepAction(0.8)
+                        ),
+                        intake.openClaw(),
+                        intake.wristReady(),
+                        new SleepAction(0.2)
+                )
+        );
+
+        Action dropSequence = new SequentialAction(
+                outtake.extend(0.3),
+                outtake.dunk(),
+                new SleepAction(0.8),
+                outtake.hold(),
+                outtake.retract()
         );
 
         runAsync(
@@ -231,35 +242,57 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Grab first sample
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.5),
+                        intake.wristReady(),
+                        intake.extend(0.6)
+                )
+        );
+
         runBlocking(
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
                                 .splineToLinearHeading(new Pose2d(49, -43, Math.toRadians(95)), 0)
                                 .build(),
-                        grabSequence
-                )
-        );
-
-        // Put first sample
-        runBlocking(
-                new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(new Pose2d(49, -43, Math.toRadians(-95)), 0)
-                                .build(),
-                        intake.openClaw()
+                        new SequentialAction(
+                                intake.openClaw(),
+                                intake.extendWrist(),
+                                new SleepAction(0.3),
+                                intake.closeClaw(),
+                                new SleepAction(0.2),
+                                intake.wristReady()
+                        )
                 )
         );
 
         // Grab second sample
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .splineToLinearHeading(new Pose2d(59, -43, Math.toRadians(100)), 0)
-//                                .build(),
-//                        grabSequence
-//                )
-//        );
+        runBlocking(
+                new SequentialAction(
+                        new ParallelAction(
+                                putInBucket,
+                                drive.actionBuilder(drive.pose)
+                                        .setTangent(0)
+                                        .splineToConstantHeading(new Vector2d(58, -43), 0)
+                                        .build()
+                        ),
+                        new ParallelAction(
+                                dropSequence,
+                                new SequentialAction(
+                                        intake.wristReady(),
+                                        intake.openClaw(),
+                                        intake.extend(0.6),
+                                        new SleepAction(0.3), // Wait for sample to fall out
+                                        intake.extendWrist(),
+                                        new SleepAction(0.3),
+                                        intake.closeClaw(),
+                                        new SleepAction(0.2),
+                                        intake.wristReady()
+                                )
+                        )
+                )
+        );
 
         // Put second sample
 //        runBlocking(
