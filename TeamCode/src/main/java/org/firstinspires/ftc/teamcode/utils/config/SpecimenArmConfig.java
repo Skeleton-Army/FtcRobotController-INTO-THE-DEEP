@@ -20,4 +20,6 @@ public class SpecimenArmConfig {
     public static double p = 0.005, i = 0.08, d = 0.0003;
     public static double f = 0.0004;
     public static int topPos = -440;
+
+    public static double manualSpeed = 1;
 }
