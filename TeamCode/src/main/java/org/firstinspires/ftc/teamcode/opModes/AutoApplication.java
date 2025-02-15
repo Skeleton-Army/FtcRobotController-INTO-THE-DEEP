@@ -252,24 +252,24 @@ public class AutoApplication extends AutoOpMode {
         );
 
         // Grab second sample
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(65)), 0)
-//                                .build(),
-//                        grabSequence
-//                )
-//        );
+        runBlocking(
+                new SequentialAction(
+                        drive.actionBuilder(drive.pose)
+                                .splineToLinearHeading(new Pose2d(37, -42, Math.toRadians(65)), 0)
+                                .build(),
+                        grabSequence
+                )
+        );
 
         // Put second sample
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .splineToLinearHeading(new Pose2d(40, -45, Math.toRadians(-65)), 0)
-//                                .build(),
-//                        intake.openClaw()
-//                )
-//        );
+        runBlocking(
+                new SequentialAction(
+                        drive.actionBuilder(drive.pose)
+                                .splineToLinearHeading(new Pose2d(37, -42, Math.toRadians(-65)), 0)
+                                .build(),
+                        intake.openClaw()
+                )
+        );
 
         // Grab third sample
 //        runBlocking(
