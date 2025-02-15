@@ -22,6 +22,7 @@ public class Intake {
     public Intake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);

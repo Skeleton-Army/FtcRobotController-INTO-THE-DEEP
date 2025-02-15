@@ -107,7 +107,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    new SequentialAction(
+                    new ParallelAction(
                             intake.extend(),
                             intake.openClaw(),
                             intake.wristReady()
@@ -137,7 +137,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    new SequentialAction(
+                    new ParallelAction(
                             intake.extend(),
                             intake.wristReady()
                     ),
@@ -216,7 +216,6 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             runAction(
                     new SequentialAction(
-                            specimenArm.grabOpen(),
                             specimenArm.goToIntake(),
                             specimenArm.gripToIntake()
                     )
@@ -232,6 +231,8 @@ public class TeleopApplication extends TeleopOpMode {
                     specimenArm.grabClose()
             );
         }
+
+        runAction(specimenArm.runManualControl(gamepad2.right_stick_y));
 
         specimenArm.update();
     }
