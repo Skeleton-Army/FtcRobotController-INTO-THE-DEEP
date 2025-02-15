@@ -64,7 +64,8 @@ public class SpecimenArm {
 
     public Action runManualControl(float value) {
         if (value == 0) return new NullAction();
-        return setTarget(target + (int)(value * SpecimenArmConfig.manualSpeed));
+        int mirror = motor.getCurrentPosition() < SpecimenArmConfig.topPos ? -1 : 1;
+        return setTarget(target + (int)(value * SpecimenArmConfig.manualSpeed * mirror));
     }
 
     public Action gripToPosition(double targetPos) {
