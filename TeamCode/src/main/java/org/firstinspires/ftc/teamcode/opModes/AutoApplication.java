@@ -165,8 +165,8 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
-                                .splineToConstantHeading(new Vector2d(startPose.position.x, -37), Math.PI / 2)
-                                .splineToConstantHeading(new Vector2d(startPose.position.x, -31), Math.PI / 2)
+                                .splineToConstantHeading(new Vector2d(startPose.position.x, -37), Math.PI / 2, null, new ProfileAccelConstraint(-25, 50))
+                                .splineToConstantHeading(new Vector2d(startPose.position.x, -31), Math.PI / 2, null, new ProfileAccelConstraint(-25, 50))
                                 .build()
                 )
         );
@@ -440,10 +440,13 @@ public class AutoApplication extends AutoOpMode {
                 intake.retractWrist(),
                 outtake.hold(),
                 new SequentialAction(
-                        intake.retract(),
+                        new ParallelAction(
+                                intake.retract(collectedSamples == 4 ? 0.7 : 1),
+                                new SleepAction(0.8)
+                        ),
                         intake.openClaw(),
                         intake.wristReady(),
-                        new SleepAction(0.2)
+                        new SleepAction(0.3)
                 )
         );
 
@@ -456,13 +459,10 @@ public class AutoApplication extends AutoOpMode {
 
         if (collectedSamples == 0) {
             runBlocking(
-                    new ParallelAction(
-                            drive.actionBuilder(drive.pose)
-                                    .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
-                                    .build(),
-                            intake.extend()
-                    )
+                    drive.actionBuilder(drive.pose)
+                            .setTangent(Math.PI / 2)
+                            .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
+                            .build()
             );
         }
         else if (collectedSamples == 4) {
@@ -472,7 +472,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -489,7 +489,7 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI / 2)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
                                     .build(),
                             intakeRetract
                     )
@@ -497,22 +497,22 @@ public class AutoApplication extends AutoOpMode {
         }
 
         // Put the sample in the basket
+        if (collectedSamples != 4) {
+            runAsync(intake.extend(0.9));
+        }
+
         runBlocking(
-                new ParallelAction(
-                        dunkSample,
-                        intake.extend()
-                )
+                dunkSample
         );
 
-        addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
+        if (!gotOne) {
+            addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
+        } else {
+            addTransition(State.PARK);
+        }
     }
 
     private void sampleFromSubmersible() {
-        if (gotOne) {
-            requestOpModeStop();
-            return;
-        }
-
         gotOne = true;
 
         Action wristSequence = new SequentialAction(
@@ -607,8 +607,6 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
             case BASKET:
-                specimenArm.goToOuttake();
-
                 // Park at bars
                 runBlocking(
                         new ParallelAction(
@@ -616,6 +614,14 @@ public class AutoApplication extends AutoOpMode {
                                     .splineTo(new Vector2d(-27, -10), Math.toRadians(0))
                                     .build(),
                                 intakeRetract
+                        )
+                );
+
+                runBlocking(
+                        new SequentialAction(
+                                specimenArm.goToOuttake(),
+                                specimenArm.gripToIntake(),
+                                new SleepAction(1)
                         )
                 );
 

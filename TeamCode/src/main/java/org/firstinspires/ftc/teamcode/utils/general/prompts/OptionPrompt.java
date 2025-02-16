@@ -27,9 +27,9 @@ public class OptionPrompt extends Prompt {
             }
         }
 
-        if (Utilities.isPressed(gamepad1.dpad_right || gamepad2.dpad_right) || Utilities.isPressed(gamepad1.dpad_up || gamepad2.dpad_up)) {
+        if (Utilities.isPressed(gamepad1.dpad_up || gamepad2.dpad_up)) {
             selectedOptionIndex = (selectedOptionIndex - 1 + options.length) % options.length;
-        } else if (Utilities.isPressed(gamepad1.dpad_left || gamepad2.dpad_left) || Utilities.isPressed(gamepad1.dpad_down || gamepad2.dpad_down)) {
+        } else if (Utilities.isPressed(gamepad1.dpad_down || gamepad2.dpad_down)) {
             selectedOptionIndex = (selectedOptionIndex + 1) % options.length;
         }
 

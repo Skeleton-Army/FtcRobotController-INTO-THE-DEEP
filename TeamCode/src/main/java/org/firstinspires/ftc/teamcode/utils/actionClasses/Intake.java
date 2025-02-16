@@ -71,6 +71,10 @@ public class Intake {
         return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
     }
 
+    public Action retract(double power) {
+        return motorToPosition(IntakeConfig.retractPosition, power, false);
+    }
+
     public Action closeClaw() {
         return clawToPosition(IntakeConfig.clawClosed);
     }
