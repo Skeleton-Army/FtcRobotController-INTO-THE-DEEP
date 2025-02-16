@@ -157,6 +157,8 @@ public class AutoApplication extends AutoOpMode {
     private void hangSpecimen() {
         hangedSpecimens++;
 
+        int angleCompensation = (hangedSpecimens - 1) * -4;
+
         runBlocking(
                 new ParallelAction(
                         specimenArm.grabClose(),
@@ -165,10 +167,8 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
-                                .splineToConstantHeading(new Vector2d(startPose.position.x, -37), Math.PI / 2, null, new ProfileAccelConstraint(-60, 150))
-                                .splineToConstantHeading(new Vector2d(startPose.position.x, -33), Math.PI / 2, null, new ProfileAccelConstraint(-60, 150))
-//                                .setTangent(Math.toRadians(135))
-//                                .splineToConstantHeading(new Vector2d(startPose.position.x, -31), Math.toRadians(135), null, new ProfileAccelConstraint(-60, 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
                                 .build()
                 )
         );
@@ -192,8 +192,6 @@ public class AutoApplication extends AutoOpMode {
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 270))
                                 .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 150))
-//                                .setTangent(Math.toRadians(-45))
-//                                .splineToLinearHeading(new Pose2d(27.5, -62.5, Math.toRadians(-45)), Math.toRadians(270))
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
@@ -231,7 +229,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         new SleepAction(0.5),
                         intake.wristReady(),
-                        intake.extend(0.58)
+                        intake.extend(0.57)
                 )
         );
 
@@ -288,7 +286,7 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         intake.wristReady(),
                                         intake.openClaw(),
-                                        intake.extend(0.6),
+                                        intake.extend(0.57),
                                         new SleepAction(0.3), // Wait for sample to fall out
                                         intake.extendWrist(),
                                         new SleepAction(0.3),
@@ -336,7 +334,7 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         intake.wristReady(),
                                         intake.openClaw(),
-                                        intake.extend(0.78),
+                                        intake.extend(0.77),
                                         new SleepAction(0.3), // Wait for sample to fall out
                                         intake.extendWrist(),
                                         new SleepAction(0.3),
