@@ -24,31 +24,12 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(0, -62.5, Math.toRadians(90)), false)
-                .splineToConstantHeading(new Vector2d(0, -37), Math.PI / 2)
-                .splineToConstantHeading(new Vector2d(0, -34), Math.PI / 2)
-                        .setTangent(Math.toRadians(270))
-                        .splineToConstantHeading(new Vector2d(32, -61), Math.toRadians(270))
-                        .setTangent(Math.toRadians(90))
-                        .splineToConstantHeading(new Vector2d(0, -37), Math.PI / 2)
-                        .splineToConstantHeading(new Vector2d(0, -34), Math.PI / 2)
-
-//                .setTangent(Math.toRadians(0))
-//                .splineToConstantHeading(new Vector2d(24, -42), Math.toRadians(0))
-//                .splineToLinearHeading(new Pose2d(45, -13, Math.toRadians(90.00)), Math.toRadians(0))
-//
-//                .setTangent(Math.toRadians(90))
-//                .splineToConstantHeading(new Vector2d(45, -55), Math.toRadians(270))
-//
-//                .splineToConstantHeading(new Vector2d(53, -13), 0)
-//
-//                .setTangent(Math.toRadians(90))
-//                .splineToConstantHeading(new Vector2d(55, -55), Math.toRadians(270))
-//
-//                .splineToConstantHeading(new Vector2d(60, -13), 0)
-//
-//                .setTangent(Math.toRadians(90))
-//                .splineToConstantHeading(new Vector2d(60, -55), Math.toRadians(270))
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(27, -63.2, Math.toRadians(90)), false)
+                .waitSeconds(2)
+                .setTangent(Math.toRadians(135))
+                .splineToConstantHeading(new Vector2d(0, -33), Math.toRadians(135), null, new ProfileAccelConstraint(-60, 150))
+                .setTangent(Math.toRadians(-45))
+                .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(90)), Math.toRadians(-45), null, new ProfileAccelConstraint(-60, 150))
                 .build()
         );
 
