@@ -96,6 +96,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 
         telemetry.update();
@@ -241,16 +242,10 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad1.guide)) {
             runSequentialActions(
                     // Extend hang
-                    new ParallelAction(
-                            hang.extendHang(),
-                            hang.extendOuttake()
-                    ),
+                    hang.extendHang(),
 
                     // Retract hang
-                    new ParallelAction(
-                            hang.retractHang(),
-                            hang.retractOuttake()
-                    )
+                    hang.retractHang()
             );
         }
     }
