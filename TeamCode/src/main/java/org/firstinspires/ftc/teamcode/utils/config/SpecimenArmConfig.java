@@ -15,7 +15,7 @@ public class SpecimenArmConfig {
     public static double gripOuttake = 0.05;
 
     public static double grabClose = 0.8;
-    public static double grabOpen = 0.4;
+    public static double grabOpen = 0.55;
 
     public static double p = 0.005, i = 0.08, d = 0.0003;
     public static double f = 0.0004;
