@@ -10,8 +10,12 @@ import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYell
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SampleConfig;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
+import org.opencv.core.CvException;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -41,6 +45,17 @@ public class DetectSamples extends OpenCvPipeline {
     public List<Sample> samples = new ArrayList<>();
 
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
+        CameraConfig.cameraMatrix = new Mat(3, 3, CvType.CV_64FC1);
+        CameraConfig.cameraMatrix.put(0, 0,
+                CameraConfig.fx, 0, CameraConfig.cx,
+                0, CameraConfig.fy, 0 , CameraConfig.cy,
+                0, 0, 1);
+        Mat rotation = new Mat(3, 3, CvType.CV_64FC1);
+        rotation.put(0, 0,
+                0.9232102,  0.3842953,  0,
+                -0.3842953,  0.9232102,  0,
+                0,  0,  1);
+        Calib3d.Rodrigues(CameraConfig.tvec, rotation);
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.drive = drive;

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.config;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 
@@ -30,9 +31,9 @@ public class CameraConfig {
     // TODO: Calibrate the following variables with chessboard ASAP
     // https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
     public static Mat cameraMatrix;        // 3x3 camera intrinsic matrix
-    public static MatOfDouble distCoeffs;  // Distortion coefficients
+    public static MatOfDouble distCoeffs = null;  // Distortion coefficients :TODO: This.
     public static Mat rvec;      // Camera rotation vector
-    public static Mat tvec;
+    public static Mat tvec = new Mat(3, 1, CvType.CV_64FC1);
     // =========================================================================
 
     public static double yaw = 0;

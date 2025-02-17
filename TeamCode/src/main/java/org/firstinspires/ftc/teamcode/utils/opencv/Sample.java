@@ -76,8 +76,8 @@ public class Sample {
             return Math.abs(orientationFirst);
         }
 
-        double firstAngle = Math.atan(projectAndGetSlope(orientationFirst));
-        double secAngle = Math.atan(projectAndGetSlope(orientationSec));
+        double firstAngle = Math.atan(-projectAndGetSlope(orientationFirst));
+        double secAngle = Math.atan(-projectAndGetSlope(orientationSec));
 
         return Math.abs(angle2d - firstAngle) < Math.abs(angle2d - secAngle) ? orientationFirst : orientationSec;
     }
@@ -87,8 +87,8 @@ public class Sample {
         MatOfPoint2f imagePoints = new MatOfPoint2f();
 
         double sign = horizontalAngle / Math.abs(horizontalAngle);
-        objectPoints.put(0,0, sampleX, sampleY, CameraConfig.z - 1.5,
-                sampleX - sign * 3.5 * Math.sin(curOrientation), sampleY + 3.5 * Math.cos(curOrientation), CameraConfig.z - 1.5);
+        objectPoints.put(0,0, sampleX, 1.5 - CameraConfig.z, sampleY,
+                sampleX - sign * 3.5 * Math.sin(curOrientation), 1.5 - CameraConfig.z, sampleY + 3.5 * Math.cos(curOrientation));
         Calib3d.projectPoints(objectPoints, CameraConfig.rvec, CameraConfig.tvec, CameraConfig.cameraMatrix, CameraConfig.distCoeffs, imagePoints);
 
         double[] start = imagePoints.get(0,0);

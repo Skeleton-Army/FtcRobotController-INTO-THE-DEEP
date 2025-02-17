@@ -39,7 +39,7 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void init() {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
         intake = new Intake(hardwareMap);
