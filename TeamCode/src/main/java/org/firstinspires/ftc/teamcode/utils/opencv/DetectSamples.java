@@ -52,9 +52,9 @@ public class DetectSamples extends OpenCvPipeline {
                 0, 0, 1);
         Mat rotation = new Mat(3, 3, CvType.CV_64FC1);
         rotation.put(0, 0,
-                0.9232102,  0.3842953,  0,
-                -0.3842953,  0.9232102,  0,
-                0,  0,  1);
+                1, 0, 0,
+                0,  0.9232102, -0.3842953,
+                0,  0.3842953,  0.9232102);
         Calib3d.Rodrigues(CameraConfig.tvec, rotation);
         this.telemetry = telemetry;
         this.webcam = webcam;
