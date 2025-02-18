@@ -38,11 +38,14 @@ public class DetectSamples extends OpenCvPipeline {
     private MecanumDrive drive;
     public List<Sample> samples = new ArrayList<>();
 
+    public ConfirmHold a;
+
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.drive = drive;
         thresholds = new Threshold[] {new Threshold(color)};
+        a = new ConfirmHold(telemetry);
     }
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
@@ -93,6 +96,7 @@ public class DetectSamples extends OpenCvPipeline {
 
     private Mat mask(Mat frame) {
         Mat masked = new Mat();
+        a.checkSampleHolding(masked, SampleColor.YELLOW);
         // Convert the frame to HSV color space
         Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
         Mat binary = Mat.zeros(frame.size(), Imgproc.THRESH_BINARY);

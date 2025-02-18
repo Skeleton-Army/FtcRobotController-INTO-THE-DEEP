@@ -54,6 +54,8 @@ public class PickupSample extends TeleopOpMode {
 
         driveActions = new Drive(drive);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
+
+        intake.motorToPosition(430, 1 ,true);
     }
 
     @Override
