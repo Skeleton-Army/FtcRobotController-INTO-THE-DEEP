@@ -22,6 +22,7 @@ public class Intake {
     public Intake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
@@ -68,6 +69,10 @@ public class Intake {
 
     public Action retract() {
         return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
+    }
+
+    public Action retract(double power) {
+        return motorToPosition(IntakeConfig.retractPosition, power, false);
     }
 
     public Action closeClaw() {

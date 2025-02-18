@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
@@ -20,6 +21,7 @@ public class Outtake {
     public Outtake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setTargetPosition(0);
 
         bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
 
@@ -43,6 +45,14 @@ public class Outtake {
     // Specific actions
     public Action extend() {
         return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower, true);
+    }
+
+    /**
+     * Partially extend the arm by a given factor.
+     * @param multiplier The factor by which to extend the arm
+     */
+    public Action extend(double multiplier) {
+        return motorToPosition((int)(OuttakeConfig.extendPosition * multiplier), OuttakeConfig.motorPower, true);
     }
 
     public Action extend(boolean highBasket) {

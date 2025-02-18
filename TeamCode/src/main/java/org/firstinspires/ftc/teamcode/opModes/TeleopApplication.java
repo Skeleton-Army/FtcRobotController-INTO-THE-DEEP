@@ -96,6 +96,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 
         telemetry.update();
@@ -107,10 +108,10 @@ public class TeleopApplication extends TeleopOpMode {
                     "intake",
 
                     // Extend intake
-                    new ParallelAction(
+                    new SequentialAction(
+                            intake.wristReady(),
                             intake.extend(),
-                            intake.openClaw(),
-                            intake.wristReady()
+                            intake.openClaw()
                     ),
 
                     // Retract intake
@@ -216,7 +217,6 @@ public class TeleopApplication extends TeleopOpMode {
         } else if (Utilities.isPressed(gamepad2.dpad_down)) {
             runAction(
                     new SequentialAction(
-                            specimenArm.grabOpen(),
                             specimenArm.goToIntake(),
                             specimenArm.gripToIntake()
                     )
@@ -233,6 +233,8 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
+        runAction(specimenArm.runManualControl(gamepad2.right_stick_y));
+
         specimenArm.update();
     }
 
@@ -240,16 +242,10 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad1.guide)) {
             runSequentialActions(
                     // Extend hang
-                    new ParallelAction(
-                            hang.extendHang(),
-                            hang.extendOuttake()
-                    ),
+                    hang.extendHang(),
 
                     // Retract hang
-                    new ParallelAction(
-                            hang.retractHang(),
-                            hang.retractOuttake()
-                    )
+                    hang.retractHang()
             );
         }
     }

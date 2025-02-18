@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.Constraints;
@@ -23,16 +24,9 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(0, -62.5, Math.toRadians(90)), false)
-                .waitSeconds(3)
-                .splineTo(new Vector2d(0, -40), Math.PI / 2, null, new ProfileAccelConstraint(-50, 75))
-                .setTangent(Math.toRadians(270))
-                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(50)), 0)
-                .splineToLinearHeading(new Pose2d(32, -38, Math.toRadians(-50)), 0)
-                .splineToLinearHeading(new Pose2d(45, -48, Math.toRadians(65)), 0)
-                .splineToLinearHeading(new Pose2d(45, -48, Math.toRadians(-65)), 0)
-                .splineToLinearHeading(new Pose2d(54, -40, Math.toRadians(45)), 0)
-                //.splineToLinearHeading(new Pose2d(54, -40, Math.toRadians(-60)), 0)
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(27, -63.2, Math.toRadians(90)), false)
+                .splineToLinearHeading(new Pose2d(0, -37, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, 150))
+                .splineToLinearHeading(new Pose2d(0, -33, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-60, 150))
                 .build()
         );
 
