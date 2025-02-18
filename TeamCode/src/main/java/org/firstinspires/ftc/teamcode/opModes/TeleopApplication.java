@@ -68,7 +68,7 @@ public class TeleopApplication extends TeleopOpMode {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        runAction(hang.middleHang());
+//        runAction(hang.middleHang());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class TeleopApplication extends TeleopOpMode {
         runOuttake();
         runClaw();
         runSpecimenArm();
-        runHang();
+//        runHang();
         runEmergencyStop();
         runResetMotors();
         outtakeLimitSwitch();

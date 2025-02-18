@@ -154,7 +154,7 @@ public class AutoApplication extends AutoOpMode {
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
 
-        runAsync(hang.middleHang());
+//        runAsync(hang.middleHang());
     }
 
     // -------------- States --------------
