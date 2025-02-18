@@ -127,6 +127,7 @@ public class TeleopApplication extends TeleopOpMode {
                                     ),
                                     intake.openClaw(),
                                     intake.wristMiddle(),
+                                    outtake.bucketToPosition(OuttakeConfig.bucketMiddle),
                                     new SleepAction(0.2)
                             )
                     )
