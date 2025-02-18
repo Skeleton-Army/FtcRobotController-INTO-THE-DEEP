@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
@@ -55,6 +56,7 @@ public class AutoApplication extends AutoOpMode {
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
+    Hang hang;
 
     Alliance alliance;
     Strategy strategy;
@@ -112,6 +114,7 @@ public class AutoApplication extends AutoOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
+        hang = new Hang(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
@@ -150,6 +153,8 @@ public class AutoApplication extends AutoOpMode {
 
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
+
+        runAsync(hang.middleHang());
     }
 
     // -------------- States --------------
@@ -178,7 +183,8 @@ public class AutoApplication extends AutoOpMode {
         } else if (hangedSpecimens < (4 + extraSpecimens)) {
             addTransition(State.COLLECT_SPECIMEN);
         } else {
-            addTransition(State.PARK);
+//            addTransition(State.PARK);
+            requestOpModeStop();
         }
     }
 
@@ -367,10 +373,16 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 outtake.extend(0.3),
                                 outtake.dunk(),
-                                new SleepAction(0.8),
-                                outtake.hold(),
-                                outtake.retract()
+                                new SleepAction(0.4)
                         )
+                )
+        );
+
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.4),
+                        outtake.hold(),
+                        outtake.retract()
                 )
         );
 
@@ -457,7 +469,7 @@ public class AutoApplication extends AutoOpMode {
         Action dunkSample = new SequentialAction(
                 outtake.extend(),
                 outtake.dunk(),
-                new SleepAction(0.6),
+                new SleepAction(0.7),
                 outtake.hold()
         );
 

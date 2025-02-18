@@ -30,10 +30,14 @@ public class Hang {
 
     // Specific actions
     public Action extendHang() {
-        return hangToPosition(HangConfig.extendPosition, HangConfig.hangPower, true);
+        return hangToPosition(HangConfig.extendPosition, HangConfig.hangPower, false);
     }
 
     public Action retractHang() {
-        return hangToPosition(HangConfig.retractPosition, HangConfig.hangPower, true);
+        return hangToPosition(HangConfig.retractPosition, HangConfig.hangPower, false);
+    }
+
+    public Action middleHang() {
+        return hangToPosition(HangConfig.middlePosition, HangConfig.hangPower, false);
     }
 }

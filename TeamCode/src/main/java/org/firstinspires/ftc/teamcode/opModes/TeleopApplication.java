@@ -67,6 +67,8 @@ public class TeleopApplication extends TeleopOpMode {
     public void start() {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
+        runAction(hang.middleHang());
     }
 
     @Override
@@ -176,7 +178,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runManualIntakeControl() {
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 1)) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.left_stick_y > 0 || intake.motor.getCurrentPosition() < IntakeConfig.extendPosition)) {
             manuallyMoved = true;
             intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
@@ -239,7 +241,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Utilities.isPressed(gamepad1.guide)) {
+        if (Utilities.isPressed(gamepad1.a) || Utilities.isPressed(gamepad2.start)) {
             runSequentialActions(
                     // Extend hang
                     hang.extendHang(),
