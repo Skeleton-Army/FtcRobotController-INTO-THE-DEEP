@@ -29,7 +29,6 @@ public class WebcamCV {
     HardwareMap hardwareMap;
     Telemetry telemetry;
     MecanumDrive drive;
-
     public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;

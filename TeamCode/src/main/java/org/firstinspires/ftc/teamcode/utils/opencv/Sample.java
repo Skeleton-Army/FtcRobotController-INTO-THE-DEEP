@@ -6,11 +6,14 @@ import com.acmerobotics.roadrunner.Vector2d;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.calib3d.Calib3d;
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 public class Sample {
     private final Pose2d detectionPose;
@@ -53,7 +56,7 @@ public class Sample {
         double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(3.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
         quality = bestCase / width;
     }
-    public void calculateOrientation(Rect boundingRect, double angle2d) {
+    public void calculateOrientation(Rect boundingRect, double angle2d, Mat frame) {
         int width = boundingRect.width;
         double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(3.5, 2));
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
@@ -61,10 +64,10 @@ public class Sample {
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double angle = Math.asin(lenInches / (Math.cos(horizontalAngle) * constLen));
 
-        orientation = projectAndCompare(angle, angle2d);
+        orientation = projectAndCompare(angle, angle2d, frame);
     }
 
-    public double projectAndCompare(double angle, double angle2d) {
+    public double projectAndCompare(double angle, double angle2d, Mat frame) {
         double orientationFirst = angle - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double orientationSec = 180 - angle - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double sign = horizontalAngle / Math.abs(horizontalAngle);
@@ -76,13 +79,13 @@ public class Sample {
             return Math.abs(orientationFirst);
         }
 
-        double firstAngle = Math.atan(-projectAndGetSlope(orientationFirst));
-        double secAngle = Math.atan(-projectAndGetSlope(orientationSec));
+        double firstAngle = Math.atan(-projectAndGetSlope(orientationFirst, frame));
+        double secAngle = Math.atan(-projectAndGetSlope(orientationSec, frame));
 
         return Math.abs(angle2d - firstAngle) < Math.abs(angle2d - secAngle) ? orientationFirst : orientationSec;
     }
 
-    private double projectAndGetSlope(double curOrientation) {
+    private double projectAndGetSlope(double curOrientation, Mat frame) {
         MatOfPoint3f objectPoints = new MatOfPoint3f();
         MatOfPoint2f imagePoints = new MatOfPoint2f();
 
@@ -93,6 +96,7 @@ public class Sample {
 
         double[] start = imagePoints.get(0,0);
         double[] end = imagePoints.get(0, 1);
+        Imgproc.line(frame, new Point(start[0], start[1]), new Point(end[0], end[1]), new Scalar(238, 130, 238), 2);
 
         return (end[1] - start[1]) / (end[0] - start[0]);
     }
