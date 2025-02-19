@@ -33,7 +33,6 @@ public class PickupSample implements Action {
                     // the robot's detecting the sample, and moving to intake position
                     actionsDrive.alignToSample(targetSamplePos),
                     new SleepAction(0.1),
-                    actionsDrive.alignToSample(targetSamplePos),
                     // doing the intake part which collects the sample
                     intake.motorToPosition(IntakeConfig.beforeExtendPosition, IntakeConfig.motorPower, true),
                     new ParallelAction(
