@@ -167,8 +167,8 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x + hangedSpecimens / 2.0 , -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 75 : 150))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x + hangedSpecimens/ 2.0,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
                                 .build()
                 )
         );
@@ -237,7 +237,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(48.5, -44, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
+                                .splineToLinearHeading(new Pose2d(48.5, -43, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
                                 .build(),
                         new SequentialAction(
                                 intake.openClaw(),
@@ -333,9 +333,8 @@ public class AutoApplication extends AutoOpMode {
                                 // Grab sample
                                 new SequentialAction(
                                         intake.wristReady(),
-                                        intake.openClawMulti(0.75),
-                                        //intake.openClaw(),
-                                        intake.extend(0.7),
+                                        intake.openClaw(),
+                                        intake.extend(0.77),
                                         new SleepAction(0.3), // Wait for sample to fall out
                                         intake.extendWrist(),
                                         new SleepAction(0.3),

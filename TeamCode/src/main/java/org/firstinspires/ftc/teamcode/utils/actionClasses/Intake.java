@@ -82,9 +82,6 @@ public class Intake {
     public Action openClaw() {
         return clawToPosition(IntakeConfig.clawOpen);
     }
-    public Action openClawMulti(double multiplier) {
-        return clawToPosition(multiplier* IntakeConfig.clawOpen);
-    }
 
     public Action extendWrist() {
         return wristToPosition(IntakeConfig.wristExtend);
