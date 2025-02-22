@@ -84,7 +84,7 @@ public class TeleopApplication extends TeleopOpMode {
         runOuttake();
         runClaw();
         runSpecimenArm();
-//        runHang();
+        runHang();
         runEmergencyStop();
         runResetMotors();
         outtakeLimitSwitch();
