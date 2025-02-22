@@ -18,4 +18,5 @@ public class OuttakeConfig {
 
     public static double bucketDunk = 0.35;
     public static double bucketHold = 0;
+    public static double bucketMiddle = 0.05; // position for middle to use while depositing a sample
 }

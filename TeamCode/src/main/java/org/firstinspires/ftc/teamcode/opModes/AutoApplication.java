@@ -172,7 +172,7 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 75 : 150))
                                 .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
                                 .build()
                 )
@@ -191,12 +191,17 @@ public class AutoApplication extends AutoOpMode {
     private void collectSpecimen() {
         int angleCompensation = (hangedSpecimens - 1) * -4;
 
-        runBlocking(specimenArm.grabOpen());
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.2),
+                        specimenArm.grabOpen()
+                )
+        );
 
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 270))
+                                .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 280))
                                 .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 150))
                                 .build(),
                         new SequentialAction(
@@ -243,7 +248,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(48.5, -43, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
+                                .splineToLinearHeading(new Pose2d(48.5, -44, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
                                 .build(),
                         new SequentialAction(
                                 intake.openClaw(),
@@ -339,8 +344,9 @@ public class AutoApplication extends AutoOpMode {
                                 // Grab sample
                                 new SequentialAction(
                                         intake.wristReady(),
-                                        intake.openClaw(),
-                                        intake.extend(0.77),
+                                        intake.openClawMulti(0.75),
+                                        //intake.openClaw(),
+                                        intake.extend(0.7),
                                         new SleepAction(0.3), // Wait for sample to fall out
                                         intake.extendWrist(),
                                         new SleepAction(0.3),
@@ -434,7 +440,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.retract(),
                                 new SequentialAction(
                                         drive.actionBuilder(drive.pose)
-                                                .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
+                                                .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(116)), Math.PI)
                                                 .build(),
                                         wristSequence
                                 )
@@ -514,7 +520,7 @@ public class AutoApplication extends AutoOpMode {
 
         // Put the sample in the basket
         if (collectedSamples != 4) {
-            runAsync(intake.extend(0.9));
+            runAsync(intake.extend(collectedSamples != 3 ? 0.9 : 0.95));
         }
 
         runBlocking(
