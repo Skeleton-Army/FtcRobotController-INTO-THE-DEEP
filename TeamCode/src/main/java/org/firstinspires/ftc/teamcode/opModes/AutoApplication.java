@@ -575,7 +575,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 runBlocking(
                                         drive.actionBuilder(drive.pose)
-                                                .splineToConstantHeading(sampleAlignment, 0)
+                                                .splineToConstantHeading(sampleAlignment, 0) // TODO: shouldn't tangent be the heading, like in alignToSample?
                                                 .build()
                                 );
                             }
