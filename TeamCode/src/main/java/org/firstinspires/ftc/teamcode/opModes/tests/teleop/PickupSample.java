@@ -61,7 +61,7 @@ public class PickupSample extends TeleopOpMode {
     public void init_loop() {
         if (camCV.lookForSamples()) {
             //Vector2d sample = camCV.getBestSamplePos(new Vector2d(0,0));
-            sample = camCV.getBestSamplePos(new Vector2d(-2,-2));
+            sample = camCV.getBestOrientation();
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + sample.position.x);
             telemetry.addData("Y: ", "" + sample.position.y);
