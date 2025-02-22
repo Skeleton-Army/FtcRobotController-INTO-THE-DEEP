@@ -123,7 +123,7 @@ public class TeleopApplication extends TeleopOpMode {
                             new SequentialAction(
                                     new ParallelAction(
                                             intake.retract(),
-                                            new SleepAction(0.8)
+                                            new SleepAction(0.4)
                                     ),
                                     intake.openClaw(),
                                     intake.wristMiddle(),

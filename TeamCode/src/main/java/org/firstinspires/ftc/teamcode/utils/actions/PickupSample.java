@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 public class PickupSample implements Action {
@@ -33,16 +34,14 @@ public class PickupSample implements Action {
                     // the robot's detecting the sample, and moving to intake position
                     actionsDrive.alignToSample(targetSamplePos),
                     new SleepAction(0.1),
-                    actionsDrive.alignToSample(targetSamplePos),
                     // doing the intake part which collects the sample
-                    intake.motorToPosition(IntakeConfig.beforeExtendPosition, IntakeConfig.motorPower, true),
+                    intake.openClaw(),
+                    new SleepAction(0.1),
+                    intake.extend(),
                     new ParallelAction(
                             intake.extendWrist(),
                             new SleepAction(0.2)
                     ),
-                    intake.extend(),
-                    new SleepAction(0.1),
-                    intake.openClaw(),
                     new SleepAction(1),
                     intake.closeClaw(),
                     new SleepAction(0.6),

@@ -260,11 +260,11 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         new ParallelAction(
                                                 intake.retract(),
-                                                new SleepAction(0.8)
+                                                new SleepAction(0.4)
                                         ),
                                         intake.openClaw(),
                                         intake.wristReady(),
-                                        new SleepAction(0.4)
+                                        new SleepAction(0.2)
                                 ),
 
                                 drive.actionBuilder(drive.pose)
@@ -307,11 +307,11 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 new ParallelAction(
                                         intake.retract(),
-                                        new SleepAction(0.8)
+                                        new SleepAction(0.4)
                                 ),
                                 intake.openClaw(),
                                 intake.wristReady(),
-                                new SleepAction(0.4)
+                                new SleepAction(0.2)
                         ),
 
                         // Drop sample
@@ -355,11 +355,11 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         new ParallelAction(
                                                 intake.retract(),
-                                                new SleepAction(0.8)
+                                                new SleepAction(0.4)
                                         ),
                                         intake.openClaw(),
                                         intake.wristMiddle(),
-                                        new SleepAction(0.3)
+                                        new SleepAction(0.2)
                                 )
                         ),
 
@@ -383,7 +383,7 @@ public class AutoApplication extends AutoOpMode {
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.5)
+                new SleepAction(0.15)
         );
 
         switch (collectedSamples) {
@@ -437,7 +437,7 @@ public class AutoApplication extends AutoOpMode {
     private void putInBasket() {
         Action grab = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.2)
+                new SleepAction(0.1)
         );
 
         Action intakeRetract = new ParallelAction(
@@ -446,11 +446,11 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         new ParallelAction(
                                 intake.retract(collectedSamples == 4 ? 0.7 : 1),
-                                new SleepAction(0.8)
+                                new SleepAction(0.4)
                         ),
                         intake.openClaw(),
                         intake.wristReady(),
-                        new SleepAction(0.3)
+                        new SleepAction(0.2)
                 )
         );
 
@@ -502,7 +502,12 @@ public class AutoApplication extends AutoOpMode {
 
         // Put the sample in the basket
         if (collectedSamples != 4) {
-            runAsync(intake.extend(0.9));
+            runAsync(
+                    new ParallelAction(
+                            intake.extend(0.9),
+                            intake.wristReady()
+                    )
+            );
         }
 
         runBlocking(
@@ -543,7 +548,7 @@ public class AutoApplication extends AutoOpMode {
                 }
         );
 
-        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2)).position;
+        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-5, 0)).position;
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
         runBlocking(
