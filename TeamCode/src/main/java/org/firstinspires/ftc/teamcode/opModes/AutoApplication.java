@@ -551,6 +551,7 @@ public class AutoApplication extends AutoOpMode {
         Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-5, 0)).position;
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
+        int m = samplePos.y > 0 ? -1 : 1;
         runBlocking(
                 new SequentialAction(
                     new Action() {
@@ -559,9 +560,9 @@ public class AutoApplication extends AutoOpMode {
                             try {
                                 double heading = drive.pose.heading.toDouble();
                                 Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
-                                        CameraConfig.pickupSampleOffsetX * Math.sin(heading),
+                                        CameraConfig.pickupSampleOffsetX * m * Math.sin(heading),
                                         CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
-                                                CameraConfig.pickupSampleOffsetX * Math.cos(heading));
+                                                CameraConfig.pickupSampleOffsetX * m * Math.cos(heading));
                                 Vector2d sampleAlignment = samplePos.minus(offset);
 
                                 telemetryPacket.addLine(samplePos.toString());
