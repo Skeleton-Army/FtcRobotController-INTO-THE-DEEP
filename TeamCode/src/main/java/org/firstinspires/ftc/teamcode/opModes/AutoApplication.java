@@ -162,8 +162,8 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new ParallelAction(
                         specimenArm.grabClose(),
-                        specimenArm.goToOuttake(),
                         specimenArm.gripToOuttake(),
+                        specimenArm.goToOuttake(),
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
@@ -196,8 +196,8 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 specimenArm.grabOpen(),
                                 new SleepAction(0.7),
-                                specimenArm.goToIntake(),
-                                specimenArm.gripToIntake()
+                                specimenArm.gripToIntake(),
+                                specimenArm.goToIntake()
                         )
                 )
         );
@@ -219,8 +219,8 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         specimenArm.grabOpen(),
                         new SleepAction(0.5),
-                        specimenArm.goToIntake(),
-                        specimenArm.gripToIntake()
+                        specimenArm.gripToIntake(),
+                        specimenArm.goToIntake()
                 )
         );
 
@@ -603,8 +603,8 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         specimenArm.grabOpen(),
                                         new SleepAction(0.7),
-                                        specimenArm.goToIntake(),
-                                        specimenArm.gripToIntake()
+                                        specimenArm.gripToIntake(),
+                                        specimenArm.goToIntake()
                                 ),
                                 drive.actionBuilder(drive.pose)
                                         .setTangent(Math.toRadians(-45))
@@ -629,9 +629,8 @@ public class AutoApplication extends AutoOpMode {
 
                 runBlocking(
                         new SequentialAction(
-                                specimenArm.goToOuttake(),
                                 specimenArm.gripToIntake(),
-                                new SleepAction(1)
+                                specimenArm.goToOuttake()
                         )
                 );
 

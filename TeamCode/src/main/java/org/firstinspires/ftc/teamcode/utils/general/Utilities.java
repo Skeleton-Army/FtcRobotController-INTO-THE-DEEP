@@ -110,4 +110,23 @@ public class Utilities {
         // Return true if the last state was false and the current state is true (just pressed)
         return !lastState && input;
     }
+
+    /**
+     * Checks if an input was released (i.e., transitioned from true to false).
+     *
+     * @param input The current state of the input (true if pressed, false otherwise).
+     * @return True if the input transitioned from true to false (was just released), false otherwise.
+     */
+    public static boolean isReleased(boolean input) {
+        String uniqueKey = generateCallSiteID();
+
+        // Get the previous state (default to false if not tracked yet)
+        boolean lastState = Boolean.TRUE.equals(lastButtonStates.getOrDefault(uniqueKey, false));
+
+        // Update the stored state
+        lastButtonStates.put(uniqueKey, input);
+
+        // Return true if the last state was true and the current state is false (just released)
+        return lastState && !input;
+    }
 }

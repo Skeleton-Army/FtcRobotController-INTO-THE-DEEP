@@ -10,6 +10,7 @@ public class SpecimenArmConfig {
 
     public static int intakePosition = 0;
     public static int outtakePosition = -620;
+    public static int hangedPosition = -660;
 
     public static double gripIntake = 0.75;
     public static double gripOuttake = 0.05;

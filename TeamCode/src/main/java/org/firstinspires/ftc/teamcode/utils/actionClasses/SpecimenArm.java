@@ -8,13 +8,16 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
@@ -59,7 +62,10 @@ public class SpecimenArm {
     }
 
     public Action setTarget(int target) {
-        return new InstantAction(() -> this.target = target);
+        return new SequentialAction(
+                new InstantAction(() -> this.target = target),
+                new SleepUntilAction(() -> Math.abs(motor.getCurrentPosition() - target) < 10)
+        );
     }
 
     public Action runManualControl(float value) {
@@ -83,6 +89,10 @@ public class SpecimenArm {
 
     public Action goToOuttake() {
         return setTarget(SpecimenArmConfig.outtakePosition);
+    }
+
+    public Action goToHanged() {
+        return setTarget(SpecimenArmConfig.hangedPosition);
     }
 
     public Action gripToIntake() {

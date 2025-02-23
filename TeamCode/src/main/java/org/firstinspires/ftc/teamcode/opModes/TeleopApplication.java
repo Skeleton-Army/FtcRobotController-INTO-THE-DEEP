@@ -118,6 +118,7 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract intake
                     new ParallelAction(
+                            intake.closeClaw(),
                             intake.retractWrist(),
                             outtake.hold(),
                             new SequentialAction(
@@ -127,7 +128,7 @@ public class TeleopApplication extends TeleopOpMode {
                                     ),
                                     intake.openClaw(),
                                     intake.wristMiddle(),
-                                    outtake.bucketToPosition(OuttakeConfig.bucketMiddle),
+                                    outtake.bucketMiddle(),
                                     new SleepAction(0.2)
                             )
                     )
@@ -148,6 +149,7 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract intake
                     new ParallelAction(
+                            intake.closeClaw(),
                             intake.retract(),
                             intake.wristMiddle()
                     )
@@ -210,33 +212,71 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runSpecimenArm() {
+        Runnable stopOtherActions = () -> {
+            stopAction("specimen_outtake");
+            stopAction("specimen_hanged");
+            stopAction("specimen_intake");
+            stopAction("specimen_grab");
+        };
+
         if (Utilities.isPressed(gamepad2.dpad_up)) {
+            stopOtherActions.run();
+
             runAction(
-                    new SequentialAction(
-                            specimenArm.goToOuttake(),
-                            specimenArm.gripToOuttake()
+                    "specimen_outtake",
+                    new ParallelAction(
+                            specimenArm.gripToOuttake(),
+                            specimenArm.goToOuttake()
                     )
             );
-        } else if (Utilities.isPressed(gamepad2.dpad_down)) {
+        } else if (Utilities.isReleased(gamepad2.dpad_up)) {
+            stopOtherActions.run();
+
             runAction(
-                    new SequentialAction(
-                            specimenArm.goToIntake(),
-                            specimenArm.gripToIntake()
+                    "specimen_hanged",
+                    new ParallelAction(
+                            specimenArm.goToHanged(),
+                            new SequentialAction(
+                                    new SleepAction(0.2),
+                                    specimenArm.grabOpen()
+                            )
                     )
             );
         }
 
-        if (Utilities.isPressed(gamepad2.dpad_left)) {
-            runSequentialActions(
-                    // Open grabber
-                    specimenArm.grabOpen(),
+        if (Utilities.isPressed(gamepad2.dpad_down)) {
+            stopOtherActions.run();
 
-                    // Close grabber
+            runAction(
+                    "specimen_intake",
+                    new SequentialAction(
+                            specimenArm.gripToIntake(),
+                            specimenArm.goToIntake(),
+                            specimenArm.grabOpen()
+                    )
+            );
+        } else if (Utilities.isReleased(gamepad2.dpad_down)) {
+            stopOtherActions.run();
+
+            runAction(
+                    "specimen_grab",
                     specimenArm.grabClose()
             );
         }
 
-        runAction(specimenArm.runManualControl(gamepad2.right_stick_y));
+//        if (Utilities.isPressed(gamepad2.dpad_left)) {
+//            runSequentialActions(
+//                    // Open grabber
+//                    specimenArm.grabOpen(),
+//
+//                    // Close grabber
+//                    specimenArm.grabClose()
+//            );
+//        }
+
+        runAction(
+                specimenArm.runManualControl(gamepad2.right_stick_y)
+        );
 
         specimenArm.update();
     }
