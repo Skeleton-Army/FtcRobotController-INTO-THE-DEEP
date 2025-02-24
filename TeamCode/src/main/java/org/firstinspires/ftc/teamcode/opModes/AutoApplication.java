@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.lynx.commands.standard.LynxSetModuleLEDPatternCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -68,7 +69,6 @@ public class AutoApplication extends AutoOpMode {
     int collectedSamples = 0;
     int hangedSpecimens = 0;
 
-    boolean gotOne = false;
     boolean didCollectSamples = false;
 
     @Override
@@ -390,42 +390,33 @@ public class AutoApplication extends AutoOpMode {
             case 1:
                 // Collect first sample
                 runBlocking(
-                        new ParallelAction(
-                                outtake.retract(),
-                                new SequentialAction(
-                                        drive.actionBuilder(drive.pose)
-                                                .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
-                                                .build(),
-                                        wristSequence
-                                )
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .splineToLinearHeading(new Pose2d(-53, -50.5, Math.toRadians(75)), Math.PI)
+                                        .build(),
+                                wristSequence
                         )
                 );
                 break;
             case 2:
                 // Collect second sample
                 runBlocking(
-                        new ParallelAction(
-                                outtake.retract(),
-                                new SequentialAction(
-                                        drive.actionBuilder(drive.pose)
-                                                .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
-                                                .build(),
-                                        wristSequence
-                                )
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
+                                        .build(),
+                                wristSequence
                         )
                 );
                 break;
             case 3:
                 // Collect third sample
                 runBlocking(
-                        new ParallelAction(
-                                outtake.retract(),
-                                new SequentialAction(
-                                        drive.actionBuilder(drive.pose)
-                                                .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
-                                                .build(),
-                                        wristSequence
-                                )
+                        new SequentialAction(
+                                drive.actionBuilder(drive.pose)
+                                        .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
+                                        .build(),
+                                wristSequence
                         )
                 );
                 break;
@@ -445,7 +436,7 @@ public class AutoApplication extends AutoOpMode {
                 outtake.hold(),
                 new SequentialAction(
                         new ParallelAction(
-                                intake.retract(collectedSamples == 4 ? 0.7 : 1),
+                                intake.retract(collectedSamples >= 4 ? 0.7 : 1),
                                 new SleepAction(0.4)
                         ),
                         intake.openClaw(),
@@ -457,26 +448,28 @@ public class AutoApplication extends AutoOpMode {
         Action dunkSample = new SequentialAction(
                 outtake.extend(),
                 outtake.dunk(),
-                new SleepAction(0.6),
-                outtake.hold()
+                new SleepAction(0.4)
         );
 
         if (collectedSamples == 0) {
             runBlocking(
-                    drive.actionBuilder(drive.pose)
-                            .setTangent(Math.PI / 2)
-                            .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
-                            .build()
+                    new ParallelAction(
+                            drive.actionBuilder(drive.pose)
+                                    .setTangent(Math.PI / 2)
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                                    .build(),
+                            dunkSample
+                    )
             );
         }
-        else if (collectedSamples == 4) {
+        else if (collectedSamples >= 4) {
             runBlocking(grab);
 
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -495,13 +488,16 @@ public class AutoApplication extends AutoOpMode {
                             drive.actionBuilder(drive.pose)
                                     .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
                                     .build(),
-                            intakeRetract
+                            new SequentialAction(
+                                    intakeRetract,
+                                    dunkSample
+                            )
                     )
             );
         }
 
         // Put the sample in the basket
-        if (collectedSamples != 4) {
+        if (collectedSamples < 6) {
             runAsync(
                     new ParallelAction(
                             intake.extend(0.9),
@@ -510,11 +506,15 @@ public class AutoApplication extends AutoOpMode {
             );
         }
 
-        runBlocking(
-                dunkSample
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.3),
+                        outtake.hold(),
+                        outtake.retract()
+                )
         );
 
-        if (!gotOne) {
+        if (collectedSamples < 6) {
             addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
         } else {
             addTransition(State.PARK);
@@ -522,7 +522,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void sampleFromSubmersible() {
-        gotOne = true;
+        collectedSamples++;
 
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
@@ -533,9 +533,8 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0))
-                                .build(),
-                        outtake.retract()
+                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                                .build()
                 )
         );
         camCV.resetSampleList();
@@ -591,8 +590,7 @@ public class AutoApplication extends AutoOpMode {
     private void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
-                intake.wristMiddle(),
-                outtake.retract()
+                intake.wristMiddle()
         );
 
         switch (strategy) {
