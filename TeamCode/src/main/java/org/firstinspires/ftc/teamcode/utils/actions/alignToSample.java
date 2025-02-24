@@ -14,11 +14,9 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 public class alignToSample implements Action {
     MecanumDrive drive;
     Vector2d targetSamplePos;
-    int m;
     public alignToSample(MecanumDrive drive, Vector2d targetSamplePos) {
         this.drive = drive;
         this.targetSamplePos = targetSamplePos;
-        m = targetSamplePos.x > 0 ? -1 : 1;
     }
 
     @Override
@@ -26,9 +24,9 @@ public class alignToSample implements Action {
         try {
             double heading = drive.pose.heading.toDouble();
             Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
-                    CameraConfig.pickupSampleOffsetX * m * Math.sin(heading),
+                    CameraConfig.pickupSampleOffsetX * Math.sin(heading),
                  CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
-                    CameraConfig.pickupSampleOffsetX * m * Math.cos(heading));
+                    CameraConfig.pickupSampleOffsetX * Math.cos(heading));
             targetSamplePos = targetSamplePos.minus(offset);
 
             telemetryPacket.addLine(targetSamplePos.toString());
