@@ -393,7 +393,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-53, -51.5, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-53, -51.5, Math.toRadians(75)), Math.PI, null, new ProfileAccelConstraint(-200, 300))
                                         .build(),
                                 wristSequence
                         )
@@ -404,7 +404,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI, null, new ProfileAccelConstraint(-200, 300))
                                         .build(),
                                 wristSequence
                         )
@@ -415,7 +415,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI, null, new ProfileAccelConstraint(-200, 300))
                                         .build(),
                                 wristSequence
                         )
@@ -467,7 +467,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             dunkSequence
                     )
@@ -484,9 +484,9 @@ public class AutoApplication extends AutoOpMode {
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
-                                    extendOuttake,
-                                    dunk
-                            )
+                                    extendOuttake
+                            ),
+                            dunk
                     )
             );
         }
@@ -498,7 +498,7 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -550,7 +550,7 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-200, 300))
                                 .build()
                 )
         );
