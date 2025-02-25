@@ -479,17 +479,16 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .setTangent(Math.PI)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                                    .setTangent(Math.toRadians(200))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
-                                    extendOuttake
+                                    extendOuttake,
+                                    dunk
                             )
                     )
             );
-
-            runBlocking(dunk);
         }
         else {
             // Grab sample
