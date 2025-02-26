@@ -14,9 +14,11 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
@@ -36,6 +38,7 @@ public class TeleopApplication extends TeleopOpMode {
     Outtake outtake;
     SpecimenArm specimenArm;
     Hang hang;
+    IntakeSensor intakeSensor;
 
     MovementUtils movementUtils;
 
@@ -57,6 +60,7 @@ public class TeleopApplication extends TeleopOpMode {
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
+        intakeSensor = new IntakeSensor(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -67,8 +71,6 @@ public class TeleopApplication extends TeleopOpMode {
     public void start() {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-
-//        runAction(hang.middleHang());
     }
 
     @Override
@@ -100,6 +102,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+        telemetry.addData("Intake Color Sensor RGB", intakeSensor.red() + "," + intakeSensor.green() + "," + intakeSensor.blue());
 
         telemetry.update();
     }

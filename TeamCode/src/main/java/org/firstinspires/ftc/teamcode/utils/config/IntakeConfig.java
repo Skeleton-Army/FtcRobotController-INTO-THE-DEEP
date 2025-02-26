@@ -10,7 +10,6 @@ public class IntakeConfig {
 
     public static double motorPower = 1;
     public static int extendPosition = 500;
-    public static int beforeExtendPosition = 400;
     public static int retractPosition = -100;
 
     public static int velocityThreshold = 500;
