@@ -282,7 +282,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Utilities.isPressed(gamepad1.a) || Utilities.isPressed(gamepad2.start)) {
+        if (Utilities.isPressed(gamepad2.start)) {
             runSequentialActions(
                     // Extend hang
                     hang.extendHang(),
