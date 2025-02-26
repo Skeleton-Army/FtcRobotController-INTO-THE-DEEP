@@ -21,7 +21,7 @@ public class IntakeConfig {
 
     public static double wristExtend = 0.853;
     public static double wristRetract = 0.35;
-    public static double wristMiddle = 0.55;
+    public static double wristMiddle = 0.6;
     public static double wristReady = 0.75;
 
     public static double manualSpeed = -0.35;
