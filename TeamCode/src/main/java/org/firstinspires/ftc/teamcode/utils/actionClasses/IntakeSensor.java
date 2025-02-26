@@ -1,26 +1,24 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 
 public class IntakeSensor {
-    private final ColorSensor sensor;
+    private final NormalizedColorSensor sensor;
 
     public IntakeSensor(HardwareMap hardwareMap) {
-        sensor = hardwareMap.get(ColorSensor.class, IntakeSensorConfig.name);
+        sensor = hardwareMap.get(NormalizedColorSensor.class, IntakeSensorConfig.name);
     }
 
-    public int red() {
-        return sensor.red();
-    }
+    public NormalizedRGBA rgb() {
+        NormalizedRGBA rgb = sensor.getNormalizedColors();
+        rgb.red = (int) (rgb.red * 255);
+        rgb.green = (int) (rgb.green * 255);
+        rgb.blue = (int) (rgb.blue * 255);
 
-    public int green() {
-        return sensor.green();
-    }
-
-    public int blue() {
-        return sensor.blue();
+        return rgb;
     }
 }

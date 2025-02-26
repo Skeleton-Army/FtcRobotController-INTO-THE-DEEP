@@ -102,7 +102,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Intake Color Sensor RGB", intakeSensor.red() + "," + intakeSensor.green() + "," + intakeSensor.blue());
+        telemetry.addData("Intake Color Sensor RGB", intakeSensor.rgb().red + "," + intakeSensor.rgb().green + "," + intakeSensor.rgb().blue);
 
         telemetry.update();
     }
