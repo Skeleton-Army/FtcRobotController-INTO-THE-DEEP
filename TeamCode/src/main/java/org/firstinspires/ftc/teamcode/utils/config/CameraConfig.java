@@ -31,10 +31,7 @@ public class CameraConfig {
     // =========================================================================
     // TODO: Calibrate the following variables with chessboard ASAP
     // https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
-    public static Mat cameraMatrix;        // 3x3 camera intrinsic matrix
-    public static MatOfDouble distCoeffs = null;  // Distortion coefficients :TODO: This.
-    public static Mat rvec = new Mat(3, 1, CvType.CV_64FC1);      // Camera rotation vector
-    public static Mat tvec =  Mat.zeros(3, 1, CvType.CV_64FC1);
+    //public static MatOfDouble distCoeffs = null;  // Distortion coefficients :TODO: This.
     // =========================================================================
 
     public static double yaw = 0;

@@ -6,7 +6,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.calib3d.Calib3d;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
@@ -20,9 +22,33 @@ public class Sample {
     private double sampleX, sampleY, horizontalAngle, quality, orientation, clawTo;
     private Pose2d fieldPos;
     public Point lowest;
+    private MatOfDouble distCoeffs = new MatOfDouble();
+    /**
+     * Transformation vector
+     */
+    public Mat tvec =  Mat.zeros(3, 1, CvType.CV_64FC1);
+
+    /// Rotation vector
+    public Mat rvec = new Mat(3, 1, CvType.CV_64FC1);      // Camera rotation vector
+    /// Rotation matrix
+    Mat rotation = new Mat(3, 3, CvType.CV_64FC1);
+    Mat cameraMatrix = new Mat(3, 3, CvType.CV_64FC1);
+
     public Sample(Point lowest, Pose2d detectionPose) {
         this.lowest = lowest;
         this.detectionPose = detectionPose;
+
+        cameraMatrix.put(0, 0,
+                CameraConfig.fx, 0, CameraConfig.cx,
+                0, CameraConfig.fy, 0 , CameraConfig.cy,
+                0, 0, 1);
+        Mat rotation = new Mat(3, 3, CvType.CV_64FC1);
+        rotation.put(0, 0,
+                1, 0, 0,
+                0,  0.9232102, -0.3842953,
+                0,  0.3842953,  0.9232102);
+
+        Calib3d.Rodrigues(rvec, rotation);
         calculatePosition();
     }
 
@@ -70,8 +96,6 @@ public class Sample {
     public double projectAndCompare(double angle, double angle2d, Mat frame) {
         double orientationFirst = angle - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
         double orientationSec = 180 - angle - Math.abs(horizontalAngle) - Math.atan(1.5 / 3.5);
-        double sign = horizontalAngle / Math.abs(horizontalAngle);
-
         if (orientationFirst < -10) {
             return Math.abs(orientationSec);
         }
@@ -90,9 +114,9 @@ public class Sample {
         MatOfPoint2f imagePoints = new MatOfPoint2f();
 
         double sign = horizontalAngle / Math.abs(horizontalAngle);
-        objectPoints.put(0,0, sampleX, 1.5 - CameraConfig.z, sampleY,
-                sampleX - sign * 3.5 * Math.sin(curOrientation), 1.5 - CameraConfig.z, sampleY + 3.5 * Math.cos(curOrientation));
-        Calib3d.projectPoints(objectPoints, CameraConfig.rvec, CameraConfig.tvec, CameraConfig.cameraMatrix, CameraConfig.distCoeffs, imagePoints);
+        objectPoints.put(0,0, sampleX, - CameraConfig.z, sampleY,
+                sampleX - sign * 3.5 * Math.sin(curOrientation), - CameraConfig.z, sampleY + 3.5 * Math.cos(curOrientation));
+        Calib3d.projectPoints(objectPoints, rvec, tvec, cameraMatrix, distCoeffs, imagePoints);
 
         double[] start = imagePoints.get(0,0);
         double[] end = imagePoints.get(0, 1);

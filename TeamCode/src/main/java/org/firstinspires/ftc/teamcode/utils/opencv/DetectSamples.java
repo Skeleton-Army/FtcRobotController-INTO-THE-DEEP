@@ -45,17 +45,6 @@ public class DetectSamples extends OpenCvPipeline {
     public List<Sample> samples = new ArrayList<>();
 
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
-        CameraConfig.cameraMatrix = new Mat(3, 3, CvType.CV_64FC1);
-        CameraConfig.cameraMatrix.put(0, 0,
-                CameraConfig.fx, 0, CameraConfig.cx,
-                0, CameraConfig.fy, 0 , CameraConfig.cy,
-                0, 0, 1);
-        Mat rotation = new Mat(3, 3, CvType.CV_64FC1);
-        rotation.put(0, 0,
-                1, 0, 0,
-                0,  0.9232102, -0.3842953,
-                0,  0.3842953,  0.9232102);
-        Calib3d.Rodrigues(CameraConfig.tvec, rotation);
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.drive = drive;
@@ -97,7 +86,7 @@ public class DetectSamples extends OpenCvPipeline {
             Sample tempName = new Sample(lowestPoint, drive.pose);
             RotatedRect rotated = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
             tempName.calculateOrientation(Imgproc.boundingRect(contour), rotated.angle, input);
-            tempName.calculateClawTo(Imgproc.boundingRect(contour));
+            //tempName.calculateClawTo(Imgproc.boundingRect(contour));
             tempName.calculateField();
             samplesFrame.add(tempName);
 
