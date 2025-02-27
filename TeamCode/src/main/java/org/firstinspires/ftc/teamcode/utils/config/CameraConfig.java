@@ -5,16 +5,16 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class CameraConfig {
     public static float z = 12.5f;
-    public static float horizontalFOV = 63.62f; // needs tuning
-    public static float verticalFOV = 35.78f; // needs tuning
+    public static final float horizontalFOV = 126f; //63.62f
+    public static final float verticalFOV = 72f; // 35.78f
     public static int halfImageWidth = 320;
     public static int halfImageHeight = 180;
     public static double offsetX = 6.1; //   6.25     x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 7.87; // 7.06
-    public static double offsetHorizontal = 2.5;
-    public static double offsetVertical = 19.5;
+    public static double offsetHorizontal = 3.1;
+    public static double offsetVertical = 27.5;
     public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
-    public static float vOVERheight = verticalFOV / (halfImageHeight * 2); //0.195
+    public static float vOVERheight = 0.21f; //verticalFOV / (halfImageHeight * 2);
 
     // apriltag settings
 

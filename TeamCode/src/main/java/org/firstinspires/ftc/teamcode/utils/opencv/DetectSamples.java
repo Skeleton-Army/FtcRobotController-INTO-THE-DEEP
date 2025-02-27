@@ -77,7 +77,12 @@ public class DetectSamples extends OpenCvPipeline {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
-            Sample tempName = new Sample(lowestPoint, drive.pose);
+
+            Rect boundingBox = Imgproc.boundingRect(contour);
+            int center = boundingBox.x + boundingBox.width / 2;
+
+            Sample tempName = new Sample(new Point(center, lowestPoint.y), drive.pose);
+            Imgproc.drawMarker(input, new Point(center, lowestPoint.y), new Scalar(255,255,0));
             tempName.calculateOrientation(contour);
             tempName.calculateField();
             samplesFrame.add(tempName);
@@ -85,7 +90,9 @@ public class DetectSamples extends OpenCvPipeline {
             //Imgproc.drawMarker(input, tempName.lowest, new Scalar(255,255,255));
         }
         samples = samplesFrame;
-        telemetry.update();
+        telemetry.addData("x image: ", samplesFrame.get(0).lowest.x);
+        telemetry.addData("y image: ", samplesFrame.get(0).lowest.y);
+
         Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
         return input;
     }
