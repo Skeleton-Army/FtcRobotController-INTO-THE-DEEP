@@ -9,7 +9,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -468,7 +467,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200, 300))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             dunkSequence
                     )
@@ -481,7 +480,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200, 300))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -499,7 +498,7 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200, 300))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -551,7 +550,7 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200, 300))
+                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-200, 300))
                                 .build()
                 )
         );
@@ -636,7 +635,7 @@ public class AutoApplication extends AutoOpMode {
             case BASKET:
                 runAsync(
                         new SequentialAction(
-                                new SleepAction(1.6),
+                                new SleepAction(1.5),
                                 specimenArm.gripToIntake(),
                                 specimenArm.goToOuttake()
                         )
@@ -646,7 +645,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200, 300))
+                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
                                     .build(),
                                 intakeRetract
                         )
