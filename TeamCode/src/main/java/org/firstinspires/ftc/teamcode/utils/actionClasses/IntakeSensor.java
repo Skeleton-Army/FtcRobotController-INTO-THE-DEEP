@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import static org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig.colorThresholdHigh;
 import static org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig.colorThresholdLow;
+import static org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig.gain;
+import static org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig.multiplier;
+import static org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig.sampleCount;
 
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,30 +17,50 @@ public class IntakeSensor {
 
     public IntakeSensor(HardwareMap hardwareMap) {
         sensor = hardwareMap.get(NormalizedColorSensor.class, IntakeSensorConfig.name);
+
+        sensor.setGain(gain);
     }
 
-    public NormalizedRGBA rgb() {
+    private int[] getRGBValues() {
         NormalizedRGBA rgb = sensor.getNormalizedColors();
-        rgb.red = (int) (rgb.red * 255);
-        rgb.green = (int) (rgb.green * 255);
-        rgb.blue = (int) (rgb.blue * 255);
 
-        return rgb;
+        return new int[]{
+                (int) (rgb.red * multiplier),
+                (int) (rgb.green * multiplier),
+                (int) (rgb.blue * multiplier)
+        };
+    }
+
+    public int[] getAverageRGBValues() {
+        int rSum = 0, gSum = 0, bSum = 0;
+
+        for (int i = 0; i < sampleCount; i++) {
+            int[] rgb = getRGBValues();
+            rSum += rgb[0];
+            gSum += rgb[1];
+            bSum += rgb[2];
+        }
+
+        return new int[]{
+                rSum / sampleCount,
+                gSum / sampleCount,
+                bSum / sampleCount
+        };
     }
 
     public boolean gotYellowSample() {
-        NormalizedRGBA rgb = rgb();
-        return rgb.red > colorThresholdHigh && rgb.green > colorThresholdHigh && rgb.blue < colorThresholdLow;
+        int[] rgb = getAverageRGBValues();
+        return rgb[0] > colorThresholdHigh && rgb[1] > colorThresholdHigh && rgb[2] < colorThresholdLow;
     }
 
     public boolean gotRedSample() {
-        NormalizedRGBA rgb = rgb();
-        return rgb.red > colorThresholdHigh && rgb.green < colorThresholdLow && rgb.blue < colorThresholdLow;
+        int[] rgb = getAverageRGBValues();
+        return rgb[0] > colorThresholdHigh && rgb[1] < colorThresholdLow && rgb[2] < colorThresholdLow;
     }
 
     public boolean gotBlueSample() {
-        NormalizedRGBA rgb = rgb();
-        return rgb.red < colorThresholdLow && rgb.green < colorThresholdLow && rgb.blue > colorThresholdHigh;
+        int[] rgb = getAverageRGBValues();
+        return rgb[0] < colorThresholdLow && rgb[1] < colorThresholdLow && rgb[2] > colorThresholdHigh;
     }
 
     public boolean gotSample() {

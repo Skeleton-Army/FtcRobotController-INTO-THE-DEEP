@@ -8,4 +8,8 @@ public class IntakeSensorConfig {
 
     public static int colorThresholdHigh = 200;
     public static int colorThresholdLow = 100;
+
+    public static int multiplier = 255;
+    public static float gain = 0.5f; // Less reduces noise but makes colors dimmer | Makes colors brighter but increases noise
+    public static int sampleCount = 5; // Average over X samples
 }
