@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
@@ -167,7 +168,10 @@ public class TeleopApplication extends TeleopOpMode {
                     // Extend outtake
                     new ParallelAction(
                             outtake.extend(highBasket),
-                            outtake.bucketReady()
+                            new SequentialAction(
+                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                                    outtake.bucketReady()
+                            )
                     ),
 
                     // Dunk bucket
