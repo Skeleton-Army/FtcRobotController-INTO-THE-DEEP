@@ -165,7 +165,10 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
             runSequentialActions(
                     // Extend outtake
-                    outtake.extend(highBasket),
+                    new ParallelAction(
+                            outtake.extend(highBasket),
+                            outtake.bucketReady()
+                    ),
 
                     // Dunk bucket
                     outtake.dunk(),
@@ -288,6 +291,9 @@ public class TeleopApplication extends TeleopOpMode {
     public void runHang() {
         if (Utilities.isPressed(gamepad2.start)) {
             runSequentialActions(
+                    // Ready hang
+                    hang.middleHang(),
+
                     // Extend hang
                     hang.extendHang(),
 

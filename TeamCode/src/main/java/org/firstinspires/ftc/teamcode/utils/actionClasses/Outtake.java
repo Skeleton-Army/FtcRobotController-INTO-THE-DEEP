@@ -75,4 +75,8 @@ public class Outtake {
     public Action bucketMiddle() {
         return bucketToPosition(OuttakeConfig.bucketMiddle);
     }
+
+    public Action bucketReady() {
+        return bucketToPosition(OuttakeConfig.bucketReady);
+    }
 }
