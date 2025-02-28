@@ -10,9 +10,6 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.commands.standard.LynxSetModuleLEDPatternCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -25,7 +22,6 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
@@ -539,7 +535,7 @@ public class AutoApplication extends AutoOpMode {
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.15)
+                new SleepAction(0.2)
         );
 
         Action intakeExtend = new ParallelAction(
@@ -587,7 +583,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 runBlocking(
                                         drive.actionBuilder(drive.pose)
-                                                .splineToConstantHeading(sampleAlignment, 0) // TODO: shouldn't tangent be the heading, like in alignToSample?
+                                                .splineToConstantHeading(sampleAlignment, 0)
                                                 .build()
                                 );
                             }
@@ -605,6 +601,7 @@ public class AutoApplication extends AutoOpMode {
 
         addTransition(State.PUT_IN_BASKET);
     }
+
     private void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
@@ -633,21 +630,19 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
             case BASKET:
-                runAsync(
-                        new SequentialAction(
-                                new SleepAction(1.5),
-                                specimenArm.gripToIntake(),
-                                specimenArm.goToOuttake()
-                        )
-                );
+                runAsync(intakeRetract);
 
-                // Park at bars
+                // Move to bars and activate specimen arm after reaching a certain position
                 runBlocking(
-                        new ParallelAction(
+                        new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
-                                    .build(),
-                                intakeRetract
+                                        .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
+                                        .build(),
+                                new SleepUntilAction(() -> drive.pose.position.x > -30), // Wait until near target
+                                new ParallelAction(
+                                        specimenArm.gripToOuttake(),
+                                        specimenArm.goToOuttake()
+                                )
                         )
                 );
 
@@ -656,9 +651,9 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    private void outtakeLimitSwitch() {
-        if (Utilities.isPressed(!outtakeSwitch.getState())) {
-            outtake.resetMotor();
-        }
-    }
+//    private void outtakeLimitSwitch() {
+//        if (Utilities.isPressed(!outtakeSwitch.getState())) {
+//            outtake.resetMotor();
+//        }
+//    }
 }
