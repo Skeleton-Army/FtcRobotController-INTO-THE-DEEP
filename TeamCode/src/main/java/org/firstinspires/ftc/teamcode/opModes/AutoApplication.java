@@ -380,7 +380,7 @@ public class AutoApplication extends AutoOpMode {
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.15)
+                new SleepAction(0.2)
         );
 
         switch (collectedSamples) {
