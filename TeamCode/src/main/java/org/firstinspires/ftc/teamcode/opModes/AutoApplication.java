@@ -442,13 +442,15 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        Action extendOuttake = new ParallelAction(
+        Action extendOuttake = new SequentialAction(
+                outtake.bucketMiddle(),
                 outtake.extend(),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
                 outtake.bucketReady()
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -1000),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -900),
                 outtake.dunk(),
                 new SleepAction(0.25)
         );
