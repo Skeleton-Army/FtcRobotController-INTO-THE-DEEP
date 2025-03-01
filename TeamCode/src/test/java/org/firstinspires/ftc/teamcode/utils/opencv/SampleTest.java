@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 
 class SampleTest {
-    class Test {
+    static class Test {
         public Point input;
         public double x;
         public double y;
@@ -21,19 +21,19 @@ class SampleTest {
     }
 
     final Test[] values = new Test[] {
-            new Test(new Point(320,319), 0, 47.5),
-            new Test(new Point(354,348), -2.5, 39.5),
-            new Test(new Point(412,292), -11.5, 59.5),
-            new Test(new Point(237,309), 9, 52),
-            new Test(new Point(258,359), 5, 37.5),
+            new Test(new Point(320, 319), 0, 47.5),
+            new Test(new Point(354, 348), -2.5, 39.5),
+            new Test(new Point(412, 292), -11.5, 59.5),
+            new Test(new Point(237, 309), 9, 52),
+            new Test(new Point(258, 359), 5, 37.5),
     };
 
-    double epsilon = 1.6;
+    final double epsilon = 1;
 
     @org.junit.jupiter.api.Test
     void testSampleDetection() {
-        CameraConfig.offsetHorizontal = 0;
-        CameraConfig.offsetVertical = 0;
+        CameraConfig.offsetX = 0;
+        CameraConfig.offsetY = 0;
 
         int index = 1;
 
