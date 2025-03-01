@@ -6,7 +6,9 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.opModes.AutoApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
@@ -31,6 +33,8 @@ public abstract class AutoOpMode extends LinearOpMode {
 
     protected ChoiceMenu choiceMenu;
     protected MecanumDrive drive;
+
+    protected ElapsedTime runtime = new ElapsedTime();
 
     // Abstract method to set the prompts
     public abstract void setPrompts();
@@ -97,6 +101,8 @@ public abstract class AutoOpMode extends LinearOpMode {
     }
 
     private void internalStart() {
+        runtime.reset();
+
         setInitialState();
     }
 
@@ -220,5 +226,21 @@ public abstract class AutoOpMode extends LinearOpMode {
      */
     protected void addConditionalTransition(boolean condition, Enum<?> trueState, Enum<?> falseState) {
         setState(condition ? trueState : falseState);
+    }
+
+    /**
+     * Gets the remaining time for the autonomous in seconds.
+     */
+    protected double getRemainingTime() {
+        return 30 - runtime.seconds();
+    }
+
+    /**
+     * Checks if the remaining time is enough to complete the state.
+     * @param state The state to check
+     * @return True if the remaining time is enough to complete the state, false otherwise
+     */
+    protected boolean isEnoughTime(AutoApplication.State state) {
+        return getRemainingTime() >= state.getRequiredTime();
     }
 }

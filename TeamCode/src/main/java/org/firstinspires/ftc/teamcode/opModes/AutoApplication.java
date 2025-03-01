@@ -37,17 +37,32 @@ enum Strategy {
 
 @Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "Teleop App")
 public class AutoApplication extends AutoOpMode {
-    protected enum State {
-        HANG_SPECIMEN,
-        COLLECT_ADDITIONAL_SAMPLE,
+    public enum State {
+        HANG_SPECIMEN(2),
+        COLLECT_ADDITIONAL_SAMPLE(3),
 
-        COLLECT_COLOR_SAMPLES,
-        COLLECT_SPECIMEN,
+        COLLECT_COLOR_SAMPLES(),
+        COLLECT_SPECIMEN(2),
 
-        COLLECT_YELLOW_SAMPLE,
-        PUT_IN_BASKET,
+        COLLECT_YELLOW_SAMPLE(),
+        PUT_IN_BASKET(3),
 
-        PARK
+        PARK(2);
+
+        // ------------ Attributes ------------
+        private final double requiredTime; // in seconds
+
+        State() {
+            this.requiredTime = 0;
+        }
+
+        State(double requiredTime) {
+            this.requiredTime = requiredTime;
+        }
+
+        public double getRequiredTime() {
+            return requiredTime;
+        }
     }
 
     Intake intake;
@@ -154,6 +169,11 @@ public class AutoApplication extends AutoOpMode {
     // -------------- States --------------
 
     private void hangSpecimen() {
+        if (!isEnoughTime(State.HANG_SPECIMEN)) {
+            addTransition(State.PARK);
+            return;
+        }
+
         hangedSpecimens++;
 
         int angleCompensation = (hangedSpecimens - 1) * -4;
@@ -182,6 +202,11 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void collectSpecimen() {
+        if (!isEnoughTime(State.COLLECT_SPECIMEN)) {
+            addTransition(State.PARK);
+            return;
+        }
+
         int angleCompensation = (hangedSpecimens - 1) * -4;
 
         if (hangedSpecimens > 1) {
@@ -460,6 +485,11 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void putInBasket() {
+        if (!isEnoughTime(State.PUT_IN_BASKET)) {
+            addTransition(State.PARK);
+            return;
+        }
+
         Action grab = new SequentialAction(
                 intake.closeClaw(),
                 new SleepAction(0.1)
@@ -511,8 +541,6 @@ public class AutoApplication extends AutoOpMode {
             );
         }
         else if (collectedSamples >= 4) {
-            runBlocking(grab);
-
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
@@ -571,12 +599,19 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void sampleFromSubmersible() {
+        if (!isEnoughTime(State.COLLECT_ADDITIONAL_SAMPLE)) {
+            addTransition(State.PARK);
+            return;
+        }
+
         collectedSamples++;
 
-        Action wristSequence = new SequentialAction(
+        Action grabSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.2)
+                new SleepAction(0.2),
+                intake.closeClaw(),
+                new SleepAction(0.1)
         );
 
         Action intakeExtend = new ParallelAction(
@@ -636,7 +671,7 @@ public class AutoApplication extends AutoOpMode {
                             return false;
                         }
                     },
-                    wristSequence
+                    grabSequence
                 )
         );
 
