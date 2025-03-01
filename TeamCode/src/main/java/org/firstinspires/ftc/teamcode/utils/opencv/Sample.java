@@ -39,8 +39,8 @@ public class Sample {
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition() {
-        horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOVERwidth + CameraConfig.offsetHorizontal);
-        sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight + CameraConfig.offsetVertical));
+        horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
+        sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
         sampleX = Math.tan(horizontalAngle) * sampleY;
 
         // Adjust positions based on camera offsets
@@ -51,7 +51,7 @@ public class Sample {
     /// Determines the quality of the sample based on contour width
     public void findQuality(MatOfPoint contour) {
         int width = contour.width();
-        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOVERwidth);
+        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOverWidth());
         quality = bestCase / width;
     }
 
@@ -59,7 +59,7 @@ public class Sample {
     public void calculateOrientation(MatOfPoint contour) {
         int width = contour.width();
         double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2)); // Predefined length ratio
-        double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth); // Convert width to an angular measurement
+        double widthToAngle = Math.toRadians(width * CameraConfig.hOverWidth()); // Convert width to an angular measurement
         double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY); // Estimate physical length in inches
 
         //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);

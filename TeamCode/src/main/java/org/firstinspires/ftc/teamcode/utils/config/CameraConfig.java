@@ -13,11 +13,11 @@ public class CameraConfig {
     public static double offsetY = 7.87; // 7.06
     public static double offsetHorizontal = 2.5;
     public static double offsetVertical = 19.5;
-    public static float hOVERwidth = horizontalFOV / (halfImageWidth * 2);
-    public static float vOVERheight = verticalFOV / (halfImageHeight * 2); //0.195
 
-    // apriltag settings
+    public static double pickupSampleOffsetX = 1.77; // 1.5
+    public static double pickupSampleOffsetY = 27.55; // 23
 
+    // Apriltag settings
     public static double fx = (halfImageWidth * 2) / (2 * Math.tan(Math.toRadians(horizontalFOV)));
     public static double fy = (halfImageHeight * 2) / (2 * Math.tan(Math.toRadians(verticalFOV)));
     public static double cx = CameraConfig.halfImageWidth;
@@ -30,7 +30,11 @@ public class CameraConfig {
     public static double offsetYApriltag = 8.2;
     public static double offsetZApriltag = 9.4;
 
-    public static double pickupSampleOffsetX = 1.77; // 1.5
-    public static double pickupSampleOffsetY = 27.55; // 23
+    public static float hOverWidth() {
+        return horizontalFOV / (halfImageWidth * 2);
+    }
 
+    public static float vOverHeight() {
+        return verticalFOV / (halfImageHeight * 2);
+    }
 }
