@@ -76,6 +76,34 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
+    public void onPromptsSelected() {
+        // Fetch choices
+//        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
+        String selectedStrategy = choiceMenu.getValueOf("strategy", "Specimens").toString();
+        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
+
+        String selectedAlliance = "Red";
+
+        telemetry.addData("Selected Alliance", selectedAlliance);
+        telemetry.addData("Selected Strategy", selectedStrategy);
+        telemetry.addData("Selected Specimen", selectedSpecimens);
+
+        // Initialize values
+        alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
+        strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
+        extraSpecimens = Integer.parseInt(selectedSpecimens);
+
+        switch (strategy) {
+            case SPECIMENS:
+                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
+                break;
+            case BASKET:
+                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
+                break;
+        }
+    }
+
+    @Override
     protected void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
@@ -117,31 +145,6 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void onStart() {
-        // Fetch choices
-//        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy", "Specimens").toString();
-        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
-
-        String selectedAlliance = "Red";
-
-        telemetry.addData("Selected Alliance", selectedAlliance);
-        telemetry.addData("Selected Strategy", selectedStrategy);
-        telemetry.addData("Selected Specimen", selectedSpecimens);
-
-        // Initialize values
-        alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
-        strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
-        extraSpecimens = Integer.parseInt(selectedSpecimens);
-
-        switch (strategy) {
-            case SPECIMENS:
-                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
-                break;
-            case BASKET:
-                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
-                break;
-        }
-
         // Set starting position
         drive.pose = startPose;
 
