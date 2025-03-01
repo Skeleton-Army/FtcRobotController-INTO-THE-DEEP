@@ -14,9 +14,12 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
@@ -36,6 +39,7 @@ public class TeleopApplication extends TeleopOpMode {
     Outtake outtake;
     SpecimenArm specimenArm;
     Hang hang;
+    IntakeSensor intakeSensor;
 
     MovementUtils movementUtils;
 
@@ -57,6 +61,7 @@ public class TeleopApplication extends TeleopOpMode {
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
+        intakeSensor = new IntakeSensor(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -67,8 +72,6 @@ public class TeleopApplication extends TeleopOpMode {
     public void start() {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-
-//        runAction(hang.middleHang());
     }
 
     @Override
@@ -100,6 +103,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getAverageRGBValues()[0] + "," + intakeSensor.getAverageRGBValues()[1] + "," + intakeSensor.getAverageRGBValues()[2]);
+        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
 
         telemetry.update();
     }
@@ -161,7 +166,13 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
             runSequentialActions(
                     // Extend outtake
-                    outtake.extend(highBasket),
+                    new ParallelAction(
+                            outtake.extend(highBasket),
+                            new SequentialAction(
+                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                                    outtake.bucketReady()
+                            )
+                    ),
 
                     // Dunk bucket
                     outtake.dunk(),
@@ -282,8 +293,11 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Utilities.isPressed(gamepad1.a) || Utilities.isPressed(gamepad2.start)) {
+        if (Utilities.isPressed(gamepad2.start)) {
             runSequentialActions(
+                    // Ready hang
+                    hang.middleHang(),
+
                     // Extend hang
                     hang.extendHang(),
 
