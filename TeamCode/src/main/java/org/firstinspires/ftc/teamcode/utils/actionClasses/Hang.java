@@ -24,16 +24,20 @@ public class Hang {
     }
 
     // General actions
-    public Action hangToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(motor, targetPos, power, HangConfig.velocityThreshold, HangConfig.startThreshold, holdPosition);
+    public Action hangToPosition(int targetPos, double power) {
+        return new MotorToPosition(motor, targetPos, power, HangConfig.velocityThreshold, HangConfig.startThreshold, false);
     }
 
     // Specific actions
     public Action extendHang() {
-        return hangToPosition(HangConfig.extendPosition, HangConfig.hangPower, true);
+        return hangToPosition(HangConfig.extendPosition, HangConfig.hangPower);
     }
 
     public Action retractHang() {
-        return hangToPosition(HangConfig.retractPosition, HangConfig.hangPower, true);
+        return hangToPosition(HangConfig.retractPosition, HangConfig.hangPower);
+    }
+
+    public Action middleHang() {
+        return hangToPosition(HangConfig.middlePosition, HangConfig.hangPower);
     }
 }
