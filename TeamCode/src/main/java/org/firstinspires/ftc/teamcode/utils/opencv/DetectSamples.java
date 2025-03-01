@@ -134,7 +134,7 @@ public class DetectSamples extends OpenCvPipeline {
 
         Mat binary = Mat.zeros(frame.size(), Imgproc.THRESH_BINARY);
 
-        // Apply color filtering to isolate yellow objects
+        // Apply color filtering to isolate the desired objects
         for (Threshold t : thresholds) {
             Core.inRange(masked, t.lowerBound, t.upperBound, binary);
         }
