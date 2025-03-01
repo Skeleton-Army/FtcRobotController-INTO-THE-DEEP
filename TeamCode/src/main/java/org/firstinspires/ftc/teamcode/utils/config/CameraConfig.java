@@ -5,8 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class CameraConfig {
     public static float z = 12.5f;
-    public static float horizontalFOV = 63.62f; // needs tuning
-    public static float verticalFOV = 35.78f; // needs tuning
+    public static float horizontalFOV = 63.62f; // needs tuning - TODO: check for 65.76
+    public static float verticalFOV = 35.78f; // needs tuning - TODO: check for 39.88
     public static int halfImageWidth = 320;
     public static int halfImageHeight = 180;
     public static double offsetX = 6.1; //   6.25     x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
