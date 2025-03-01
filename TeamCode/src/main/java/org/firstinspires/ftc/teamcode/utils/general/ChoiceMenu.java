@@ -56,8 +56,9 @@ public class ChoiceMenu {
 
     /**
      * Handles the prompts and inputs. Call this in the init_loop function.
+     * @return True if there are no more prompts to process
      */
-    public void processPrompts() {
+    public boolean processPrompts() {
         // Handle back navigation
         if (Utilities.isPressed(gamepad1.b || gamepad2.b) && currentIndex > 0) {
             currentIndex--;
@@ -68,7 +69,7 @@ public class ChoiceMenu {
             for (Map.Entry<String, Object> entry : results.entrySet()) {
                 telemetry.addData(entry.getKey(), entry.getValue());
             }
-            return;
+            return true;
         }
 
         // Get the current prompt
@@ -81,5 +82,7 @@ public class ChoiceMenu {
             results.put(currentPrompt.getKey(), result);
             currentIndex++;
         }
+
+        return false;
     }
 }

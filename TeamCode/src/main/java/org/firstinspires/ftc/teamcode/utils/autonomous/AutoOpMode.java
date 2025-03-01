@@ -35,6 +35,9 @@ public abstract class AutoOpMode extends LinearOpMode {
     // Abstract method to set the prompts
     public abstract void setPrompts();
 
+    // Abstract method to set the prompts
+    public abstract void onPromptsSelected();
+
     // Abstract method for subclasses to register their states
     protected abstract void registerStates();
 
@@ -86,7 +89,10 @@ public abstract class AutoOpMode extends LinearOpMode {
     }
 
     private void internalInitLoop(){
-        choiceMenu.processPrompts();
+        boolean isSelectedPrompts = choiceMenu.processPrompts();
+
+        if (isSelectedPrompts) onPromptsSelected();
+
         telemetry.update();
     }
 

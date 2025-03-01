@@ -10,9 +10,6 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.commands.standard.LynxSetModuleLEDPatternCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -25,7 +22,6 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
@@ -74,9 +70,37 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void setPrompts() {
-//        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
         choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
         choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "1", "0"));
+    }
+
+    @Override
+    public void onPromptsSelected() {
+        // Fetch choices
+        String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
+        String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
+        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
+
+        telemetry.addData("Selected Alliance", selectedAlliance);
+        telemetry.addData("Selected Strategy", selectedStrategy);
+        telemetry.addData("Selected Specimen", selectedSpecimens);
+
+        // Initialize values
+        alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
+        strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
+        extraSpecimens = Integer.parseInt(selectedSpecimens);
+
+        switch (strategy) {
+            case SPECIMENS:
+                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
+                break;
+            case BASKET:
+                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
+                break;
+        }
+
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
     }
 
     @Override
@@ -107,7 +131,6 @@ public class AutoApplication extends AutoOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
         //camCV.stopStream(); Maybe?
 
         intake = new Intake(hardwareMap);
@@ -121,31 +144,6 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void onStart() {
-        // Fetch choices
-//        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy", "Specimens").toString();
-        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
-
-        String selectedAlliance = "Red";
-
-        telemetry.addData("Selected Alliance", selectedAlliance);
-        telemetry.addData("Selected Strategy", selectedStrategy);
-        telemetry.addData("Selected Specimen", selectedSpecimens);
-
-        // Initialize values
-        alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
-        strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
-        extraSpecimens = Integer.parseInt(selectedSpecimens);
-
-        switch (strategy) {
-            case SPECIMENS:
-                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
-                break;
-            case BASKET:
-                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
-                break;
-        }
-
         // Set starting position
         drive.pose = startPose;
 
@@ -186,7 +184,14 @@ public class AutoApplication extends AutoOpMode {
     private void collectSpecimen() {
         int angleCompensation = (hangedSpecimens - 1) * -4;
 
-        runBlocking(specimenArm.grabOpen());
+        if (hangedSpecimens > 1) {
+            runBlocking(
+                    new ParallelAction(
+                            specimenArm.goToHanged(),
+                            specimenArm.grabOpen()
+                    )
+            );
+        }
 
         runBlocking(
                 new ParallelAction(
@@ -196,7 +201,7 @@ public class AutoApplication extends AutoOpMode {
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
-                                new SleepAction(0.7),
+                                new SleepUntilAction(() -> drive.pose.position.x < -42),
                                 specimenArm.gripToIntake(),
                                 specimenArm.goToIntake()
                         )
@@ -206,7 +211,7 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         specimenArm.grabClose(),
-                        new SleepAction(0.2)
+                        new SleepAction(0.25)
                 )
         );
 
@@ -219,7 +224,7 @@ public class AutoApplication extends AutoOpMode {
         runAsync(
                 new SequentialAction(
                         specimenArm.grabOpen(),
-                        new SleepAction(0.5),
+                        new SleepUntilAction(() -> drive.pose.position.x < -42),
                         specimenArm.gripToIntake(),
                         specimenArm.goToIntake()
                 )
@@ -228,7 +233,7 @@ public class AutoApplication extends AutoOpMode {
         // Grab first sample
         runAsync(
                 new SequentialAction(
-                        new SleepAction(0.5),
+                        new SleepUntilAction(() -> drive.pose.position.x < -42),
                         intake.wristReady(),
                         intake.extend(0.57)
                 )
@@ -243,58 +248,66 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 intake.openClaw(),
                                 intake.extendWrist(),
-                                new SleepAction(0.3),
-                                intake.closeClaw(),
                                 new SleepAction(0.2),
-                                intake.wristReady()
+                                intake.closeClaw(),
+                                new SleepAction(0.1)
                         )
                 )
         );
 
         // Grab second sample
         runBlocking(
-                new SequentialAction(
-                        new ParallelAction(
-                                // Put in basket
-                                intake.retractWrist(),
-                                outtake.hold(),
-                                new SequentialAction(
-                                        new ParallelAction(
-                                                intake.retract(),
-                                                new SleepAction(0.4)
-                                        ),
-                                        intake.openClaw(),
-                                        intake.wristReady(),
-                                        new SleepAction(0.2)
+                new ParallelAction(
+                        // Put in basket
+                        intake.retractWrist(),
+                        outtake.hold(),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        intake.retract(),
+                                        new SleepAction(0.4)
                                 ),
-
-                                drive.actionBuilder(drive.pose)
-                                        .setTangent(0)
-                                        .splineToConstantHeading(new Vector2d(58, -43), 0)
-                                        .build()
+                                intake.openClaw(),
+                                intake.wristReady(),
+                                new SleepAction(0.2)
                         ),
-                        new ParallelAction(
-                                // Drop sample
-                                new SequentialAction(
-                                        outtake.extend(0.3),
-                                        outtake.dunk(),
-                                        new SleepAction(0.8),
-                                        outtake.hold(),
-                                        outtake.retract()
-                                ),
 
-                                // Grab sample
-                                new SequentialAction(
-                                        intake.wristReady(),
-                                        intake.openClaw(),
-                                        intake.extend(0.57),
-                                        new SleepAction(0.3), // Wait for sample to fall out
-                                        intake.extendWrist(),
-                                        new SleepAction(0.3),
-                                        intake.closeClaw(),
-                                        new SleepAction(0.3),
-                                        intake.wristReady()
-                                )
+                        drive.actionBuilder(drive.pose)
+                                .setTangent(0)
+                                .splineToConstantHeading(new Vector2d(58, -43), 0)
+                                .build()
+                )
+        );
+
+        runBlocking(
+                new ParallelAction(
+                        // Drop sample
+                        new SequentialAction(
+                                outtake.bucketMiddle(),
+                                new ParallelAction(
+                                        outtake.extend(0.3),
+                                        new SequentialAction(
+                                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -250),
+                                                outtake.bucketReady()
+                                        )
+                                ),
+                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -300),
+                                outtake.dunk(),
+                                new SleepAction(0.25),
+                                outtake.hold(),
+                                outtake.retract()
+                        ),
+
+                        // Grab sample
+                        new SequentialAction(
+                                intake.wristReady(),
+                                intake.openClaw(),
+                                intake.extend(0.57),
+                                new SleepAction(0.3), // Wait for sample to fall out
+                                intake.extendWrist(),
+                                new SleepAction(0.2),
+                                intake.closeClaw(),
+                                new SleepAction(0.1),
+                                intake.wristReady()
                         )
                 )
         );
@@ -317,9 +330,17 @@ public class AutoApplication extends AutoOpMode {
 
                         // Drop sample
                         new SequentialAction(
-                                outtake.extend(0.3),
+                                outtake.bucketMiddle(),
+                                new ParallelAction(
+                                        outtake.extend(0.3),
+                                        new SequentialAction(
+                                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -250),
+                                                outtake.bucketReady()
+                                        )
+                                ),
+                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -300),
                                 outtake.dunk(),
-                                new SleepAction(0.8)
+                                new SleepAction(0.25)
                         ),
 
                         new ParallelAction(
@@ -328,26 +349,25 @@ public class AutoApplication extends AutoOpMode {
 
                                 drive.actionBuilder(drive.pose)
                                         .setTangent(0)
-                                        .splineToLinearHeading(new Pose2d(58, -43, Math.toRadians(58)), 0)
+                                        .splineToLinearHeading(new Pose2d(58, -41, Math.toRadians(55)), 0)
                                         .build(),
 
                                 // Grab sample
                                 new SequentialAction(
                                         intake.wristReady(),
                                         intake.openClaw(),
-                                        intake.extend(0.77),
-                                        new SleepAction(0.3), // Wait for sample to fall out
+                                        intake.extend(0.73),
                                         intake.extendWrist(),
-                                        new SleepAction(0.3),
-                                        intake.closeClaw(),
                                         new SleepAction(0.2),
+                                        intake.closeClaw(),
+                                        new SleepAction(0.1),
                                         intake.wristReady()
                                 )
                         ),
 
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(58, -43, Math.toRadians(95)), 0)
+                                        .splineToLinearHeading(new Pose2d(58, -41, Math.toRadians(95)), 0)
                                         .build(),
 
                                 // Put in basket
@@ -366,12 +386,25 @@ public class AutoApplication extends AutoOpMode {
 
                         // Drop sample
                         new SequentialAction(
-                                outtake.extend(0.3),
-                                outtake.dunk(),
-                                new SleepAction(0.8),
-                                outtake.hold(),
-                                outtake.retract()
+                                outtake.bucketMiddle(),
+                                new ParallelAction(
+                                        outtake.extend(0.3),
+                                        new SequentialAction(
+                                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -250),
+                                                outtake.bucketReady()
+                                        )
+                                ),
+                                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -300),
+                                outtake.dunk()
                         )
+                )
+        );
+
+        runAsync(
+                new SequentialAction(
+                        new SleepAction(0.3),
+                        outtake.hold(),
+                        outtake.retract()
                 )
         );
 
@@ -384,7 +417,7 @@ public class AutoApplication extends AutoOpMode {
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.15)
+                new SleepAction(0.2)
         );
 
         switch (collectedSamples) {
@@ -447,12 +480,16 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action extendOuttake = new ParallelAction(
+                outtake.bucketMiddle(),
                 outtake.extend(),
-                outtake.bucketReady()
+                new SequentialAction(
+                        new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                        outtake.bucketReady()
+                )
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -1000),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -900),
                 outtake.dunk(),
                 new SleepAction(0.25)
         );
@@ -539,7 +576,7 @@ public class AutoApplication extends AutoOpMode {
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
                 intake.openClaw(),
-                new SleepAction(0.15)
+                new SleepAction(0.2)
         );
 
         Action intakeExtend = new ParallelAction(
@@ -587,7 +624,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 runBlocking(
                                         drive.actionBuilder(drive.pose)
-                                                .splineToConstantHeading(sampleAlignment, 0) // TODO: shouldn't tangent be the heading, like in alignToSample?
+                                                .splineToConstantHeading(sampleAlignment, 0)
                                                 .build()
                                 );
                             }
@@ -605,6 +642,7 @@ public class AutoApplication extends AutoOpMode {
 
         addTransition(State.PUT_IN_BASKET);
     }
+
     private void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
@@ -618,7 +656,7 @@ public class AutoApplication extends AutoOpMode {
                         new ParallelAction(
                                 new SequentialAction(
                                         specimenArm.grabOpen(),
-                                        new SleepAction(0.7),
+                                        new SleepUntilAction(() -> drive.pose.position.x < -42),
                                         specimenArm.gripToIntake(),
                                         specimenArm.goToIntake()
                                 ),
@@ -633,21 +671,19 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
             case BASKET:
-                runAsync(
-                        new SequentialAction(
-                                new SleepAction(1.5),
-                                specimenArm.gripToIntake(),
-                                specimenArm.goToOuttake()
-                        )
-                );
+                runAsync(intakeRetract);
 
-                // Park at bars
+                // Move to bars and activate specimen arm after reaching a certain position
                 runBlocking(
-                        new ParallelAction(
+                        new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
-                                    .build(),
-                                intakeRetract
+                                        .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
+                                        .build(),
+                                new SleepUntilAction(() -> drive.pose.position.x > -30), // Wait until near target
+                                new ParallelAction(
+                                        specimenArm.gripToOuttake(),
+                                        specimenArm.goToOuttake()
+                                )
                         )
                 );
 
@@ -656,9 +692,9 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    private void outtakeLimitSwitch() {
-        if (Utilities.isPressed(!outtakeSwitch.getState())) {
-            outtake.resetMotor();
-        }
-    }
+//    private void outtakeLimitSwitch() {
+//        if (Utilities.isPressed(!outtakeSwitch.getState())) {
+//            outtake.resetMotor();
+//        }
+//    }
 }
