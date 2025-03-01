@@ -70,7 +70,7 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void setPrompts() {
-//        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
+        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
         choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
         choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "1", "0"));
     }
@@ -78,11 +78,9 @@ public class AutoApplication extends AutoOpMode {
     @Override
     public void onPromptsSelected() {
         // Fetch choices
-//        String selectedAlliance = choiceMenu.getValueOf("alliance").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy", "Specimens").toString();
+        String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
+        String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
         String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
-
-        String selectedAlliance = "Red";
 
         telemetry.addData("Selected Alliance", selectedAlliance);
         telemetry.addData("Selected Strategy", selectedStrategy);
@@ -101,6 +99,8 @@ public class AutoApplication extends AutoOpMode {
                 startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
                 break;
         }
+
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
     }
 
     @Override
@@ -131,7 +131,6 @@ public class AutoApplication extends AutoOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
         //camCV.stopStream(); Maybe?
 
         intake = new Intake(hardwareMap);
