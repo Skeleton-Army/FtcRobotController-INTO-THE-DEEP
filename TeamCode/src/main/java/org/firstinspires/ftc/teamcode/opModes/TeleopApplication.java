@@ -154,7 +154,6 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract intake
                     new ParallelAction(
-                            intake.closeClaw(),
                             intake.retract(),
                             intake.wristMiddle()
                     )
@@ -169,7 +168,7 @@ public class TeleopApplication extends TeleopOpMode {
                     new ParallelAction(
                             outtake.extend(highBasket),
                             new SequentialAction(
-                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
                                     outtake.bucketReady()
                             )
                     ),
@@ -274,16 +273,6 @@ public class TeleopApplication extends TeleopOpMode {
                     specimenArm.grabClose()
             );
         }
-
-//        if (Utilities.isPressed(gamepad2.dpad_left)) {
-//            runSequentialActions(
-//                    // Open grabber
-//                    specimenArm.grabOpen(),
-//
-//                    // Close grabber
-//                    specimenArm.grabClose()
-//            );
-//        }
 
         runAction(
                 specimenArm.runManualControl(gamepad2.right_stick_y)
