@@ -95,7 +95,7 @@ public abstract class AutoOpMode extends LinearOpMode {
     private void internalInitLoop(){
         boolean isSelectedPrompts = choiceMenu.processPrompts();
 
-        if (isSelectedPrompts) onPromptsSelected();
+        if (Utilities.isPressed(isSelectedPrompts)) onPromptsSelected(); // The isPressed ensures that the function is called once
 
         telemetry.update();
     }

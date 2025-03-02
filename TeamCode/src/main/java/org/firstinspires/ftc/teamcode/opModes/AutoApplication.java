@@ -92,6 +92,10 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void onPromptsSelected() {
+        // Configure webcam CV
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
+
         // Fetch choices
         String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
         String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
@@ -114,7 +118,6 @@ public class AutoApplication extends AutoOpMode {
                 startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
                 break;
         }
-
     }
 
     @Override
@@ -143,10 +146,6 @@ public class AutoApplication extends AutoOpMode {
     @Override
     public void onInit() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
-        //camCV.stopStream(); Maybe?
 
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
@@ -615,7 +614,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action intakeExtend = new ParallelAction(
-                intake.extend(1),
+                intake.extend(),
                 intake.wristReady()
         );
 
