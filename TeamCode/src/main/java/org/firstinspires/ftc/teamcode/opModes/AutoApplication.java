@@ -115,7 +115,6 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
     }
 
     @Override
@@ -146,6 +145,7 @@ public class AutoApplication extends AutoOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
         //camCV.stopStream(); Maybe?
 
         intake = new Intake(hardwareMap);
@@ -492,7 +492,7 @@ public class AutoApplication extends AutoOpMode {
 
         Action grab = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.1)
+                new SleepAction(0.2)
         );
 
         Action intakeRetract = new ParallelAction(
@@ -611,11 +611,11 @@ public class AutoApplication extends AutoOpMode {
                 intake.openClaw(),
                 new SleepAction(0.2),
                 intake.closeClaw(),
-                new SleepAction(0.1)
+                new SleepAction(0.2)
         );
 
         Action intakeExtend = new ParallelAction(
-                intake.extend(0.9),
+                intake.extend(1),
                 intake.wristReady()
         );
 
@@ -638,7 +638,8 @@ public class AutoApplication extends AutoOpMode {
                 }
         );
 
-        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-5, 0)).position;
+        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2)).position;
+
         // TODO: Add some sort of validation For example if (bad == yes): don't.
 
         runAsync(intakeExtend);

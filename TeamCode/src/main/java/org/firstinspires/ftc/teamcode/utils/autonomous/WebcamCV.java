@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -22,7 +24,7 @@ import java.util.List;
 
 public class WebcamCV {
     public OpenCvWebcam webcam;
-    DetectSamples detectSamples;
+    static DetectSamples detectSamples;
     List<Sample> samples;
     Sample closeSample;
     Vector2d closeSamplePos;
@@ -140,5 +142,9 @@ public class WebcamCV {
             samples = newSamples;
         }
         return (samples != null) && (!samples.isEmpty());
+    }
+
+    public static void drawSample(Sample sample) {
+        DetectSamples.drawSample(sample.getContour());
     }
 }

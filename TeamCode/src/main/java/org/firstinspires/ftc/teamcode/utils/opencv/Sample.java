@@ -12,9 +12,16 @@ public class Sample {
     private double sampleX, sampleY, horizontalAngle, quality, orientation;
     private Pose2d fieldPos;
     public Point lowest;
+    MatOfPoint contour;
     public Sample(Point lowest, Pose2d detectionPose) {
         this.lowest = lowest;
         this.detectionPose = detectionPose;
+        calculatePosition();
+    }
+    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
+        this.lowest = lowest;
+        this.detectionPose = detectionPose;
+        this.contour = contour;
         calculatePosition();
     }
 
@@ -31,6 +38,7 @@ public class Sample {
     public Pose2d getSamplePosition() {
         return fieldPos;
     }
+    public MatOfPoint getContour() { return this.contour; }
     private void calculatePosition() {
         horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOVERwidth + CameraConfig.offsetHorizontal);
         sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOVERheight + CameraConfig.offsetVertical));

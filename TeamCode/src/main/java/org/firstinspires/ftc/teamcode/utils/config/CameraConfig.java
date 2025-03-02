@@ -30,7 +30,7 @@ public class CameraConfig {
     public static double offsetYApriltag = 8.2;
     public static double offsetZApriltag = 9.4;
 
-    public static double pickupSampleOffsetX = 1.77; // 1.5
-    public static double pickupSampleOffsetY = 27.55; // 23
+    public static double pickupSampleOffsetX = 1.25; // 1.5
+    public static double pickupSampleOffsetY = 26.5; // 23
 
 }

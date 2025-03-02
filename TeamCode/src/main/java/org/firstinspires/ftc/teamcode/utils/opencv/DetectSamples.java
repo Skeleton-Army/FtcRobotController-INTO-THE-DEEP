@@ -37,7 +37,7 @@ public class DetectSamples extends OpenCvPipeline {
     private static final Size kernelSize = new Size(5, 5); //We try new one!
     private MecanumDrive drive;
     public List<Sample> samples = new ArrayList<>();
-
+    static Mat input;
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
@@ -67,6 +67,8 @@ public class DetectSamples extends OpenCvPipeline {
         List<Sample> samplesFrame = new ArrayList<>();
         List<MatOfPoint> contours = new ArrayList<>();
 
+
+        DetectSamples.input = input;
         //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
         //rowsToBlack.setTo(new Scalar(0, 0, 0));
         Mat masked = mask(input);
@@ -77,7 +79,7 @@ public class DetectSamples extends OpenCvPipeline {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
             Point lowestPoint = getLowestPoint(contour);
-            Sample tempName = new Sample(lowestPoint, drive.pose);
+            Sample tempName = new Sample(lowestPoint, drive.pose, contour);
             tempName.calculateOrientation(contour);
             tempName.calculateField();
             samplesFrame.add(tempName);
@@ -106,6 +108,11 @@ public class DetectSamples extends OpenCvPipeline {
         return binary;
     }
 
+    public static void drawSample(MatOfPoint contour) {
+        List<MatOfPoint> contours = new ArrayList<>();
+        contours.add(0, contour);
+        Imgproc.drawContours(input, contours , -1,new Scalar(255,0,255));
+    }
 
     //please explain this function
     @Override
