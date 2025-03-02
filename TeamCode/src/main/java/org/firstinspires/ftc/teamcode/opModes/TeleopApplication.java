@@ -246,10 +246,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "specimen_hanged",
                     new ParallelAction(
                             specimenArm.goToHanged(),
-                            new SequentialAction(
-                                    new SleepAction(0.2),
-                                    specimenArm.grabOpen()
-                            )
+                            specimenArm.grabOpen()
                     )
             );
         }

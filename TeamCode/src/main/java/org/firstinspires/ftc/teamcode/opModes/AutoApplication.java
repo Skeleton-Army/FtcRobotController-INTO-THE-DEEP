@@ -630,7 +630,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 specimenArm.gripToIntake(),
-                                specimenArm.goToOuttake()
+                                specimenArm.goToPark()
                         )
                 );
 
