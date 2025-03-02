@@ -22,12 +22,14 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class handles webcam-based computer vision for detecting samples on the field.
+ */
 public class WebcamCV {
     public OpenCvWebcam webcam;
+
     static DetectSamples detectSamples;
-    List<Sample> samples;
-    Sample closeSample;
-    Vector2d closeSamplePos;
+    List<Sample> samples = new ArrayList<>();
     HardwareMap hardwareMap;
     Telemetry telemetry;
     MecanumDrive drive;
@@ -37,14 +39,24 @@ public class WebcamCV {
         this.telemetry = telemetry;
         this.drive = drive;
     }
+
+    /**
+     * Computes the distance between a sample and a given position.
+     */
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
         Vector2d samplePos = currSample.getSamplePosition().position;
         return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
+
+    /**
+     * Finds the closest sample to the given position.
+     * @param pos The reference position.
+     * @return Pose2d of the closest sample.
+     */
     public Pose2d getBestSamplePos(Vector2d pos) {
         // searching for the min value of distance
-        if (samples.isEmpty())
-            return null;
+        if (samples.isEmpty()) return null;
+
         Sample closest = samples.get(0);
 
         for (Sample currSample : samples) {
@@ -56,10 +68,14 @@ public class WebcamCV {
         return closest.getSamplePosition();
     }
 
+    /**
+     * Finds the best sample based on quality, filtering out samples outside a predefined range.
+     * @return Pose2d of the best sample.
+     */
     public Pose2d getBestOrientation() {
         // searching for the min value of distance
-        if (samples.isEmpty())
-            return null;
+        if (samples.isEmpty()) return null;
+
         Sample best = samples.get(0);
 
         for (Sample currSample : samples) {
@@ -77,10 +93,15 @@ public class WebcamCV {
         return best.getSamplePosition();
     }
 
+    /**
+     * Finds the closest sample object to the given position.
+     * @param pos The reference position.
+     * @return The closest Sample object.
+     */
     public Sample getCloseSampleObject(Vector2d pos) {
         // searching for the min value of distance
-        if (samples.isEmpty())
-            return null;
+        if (samples.isEmpty()) return null;
+
         Sample closest = samples.get(0);
 
         for (Sample currSample : samples) {
@@ -91,25 +112,38 @@ public class WebcamCV {
 
         return closest;
     }
-    private void printSampleData(Sample inputSample) {
-        telemetry.addLine();
-        Vector2d samplePos = inputSample.getSamplePosition().position;
-        telemetry.addData("x: ", samplePos.x);
-        telemetry.addData("y: ", samplePos.y);
-        telemetry.addLine();
 
-        telemetry.addData("Point reference: ", closeSample.lowest);
-        telemetry.update();
+    /**
+     * Updates the sample list by checking for new samples.
+     * @return true if samples are found, false otherwise.
+     */
+    public boolean lookForSamples() {
+        List<Sample> newSamples = detectSamples.samples;
+
+        if (!(newSamples.isEmpty())) {
+            samples = newSamples;
+        }
+
+        return (samples != null) && (!samples.isEmpty());
     }
+
+    /**
+     * Configures the webcam for detecting samples with given colors.
+     * @param colors The colors to detect.
+     */
     public void configureWebcam(SampleColor[] colors) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
+
         if (colors.length == 2)
             detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
         else
             detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0]);
+
         webcam.setPipeline(detectSamples);
+
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
@@ -125,26 +159,23 @@ public class WebcamCV {
             }
         });
     }
+
+    public static void drawSample(Sample sample) {
+        DetectSamples.drawSample(sample.getContour());
+    }
+
+    /**
+     * Resets the list of detected samples.
+     */
     public void resetSampleList() {
         samples = new ArrayList<>();
     }
+
     public void stopStream() {
         webcam.stopStreaming();
     }
 
     public void startStream() {
         webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
-    }
-    public boolean lookForSamples() {
-        List<Sample> newSamples = detectSamples.samples;
-
-        if (!(newSamples.isEmpty())) {
-            samples = newSamples;
-        }
-        return (samples != null) && (!samples.isEmpty());
-    }
-
-    public static void drawSample(Sample sample) {
-        DetectSamples.drawSample(sample.getContour());
     }
 }
