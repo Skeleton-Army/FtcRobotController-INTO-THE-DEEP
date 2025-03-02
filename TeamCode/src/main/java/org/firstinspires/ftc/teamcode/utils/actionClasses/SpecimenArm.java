@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
@@ -93,6 +92,10 @@ public class SpecimenArm {
 
     public Action goToHanged() {
         return setTarget(SpecimenArmConfig.hangedPosition);
+    }
+
+    public Action goToPark() {
+        return setTarget(SpecimenArmConfig.parkPosition);
     }
 
     public Action gripToIntake() {

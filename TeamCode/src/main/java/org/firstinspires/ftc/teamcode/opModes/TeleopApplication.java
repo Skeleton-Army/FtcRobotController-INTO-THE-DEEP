@@ -103,7 +103,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getAverageRGBValues()[0] + "," + intakeSensor.getAverageRGBValues()[1] + "," + intakeSensor.getAverageRGBValues()[2]);
+        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
         telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
 
         telemetry.update();
@@ -154,7 +154,6 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract intake
                     new ParallelAction(
-                            intake.closeClaw(),
                             intake.retract(),
                             intake.wristMiddle()
                     )
@@ -169,7 +168,7 @@ public class TeleopApplication extends TeleopOpMode {
                     new ParallelAction(
                             outtake.extend(highBasket),
                             new SequentialAction(
-                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
                                     outtake.bucketReady()
                             )
                     ),
@@ -247,10 +246,7 @@ public class TeleopApplication extends TeleopOpMode {
                     "specimen_hanged",
                     new ParallelAction(
                             specimenArm.goToHanged(),
-                            new SequentialAction(
-                                    new SleepAction(0.2),
-                                    specimenArm.grabOpen()
-                            )
+                            specimenArm.grabOpen()
                     )
             );
         }
@@ -274,16 +270,6 @@ public class TeleopApplication extends TeleopOpMode {
                     specimenArm.grabClose()
             );
         }
-
-//        if (Utilities.isPressed(gamepad2.dpad_left)) {
-//            runSequentialActions(
-//                    // Open grabber
-//                    specimenArm.grabOpen(),
-//
-//                    // Close grabber
-//                    specimenArm.grabClose()
-//            );
-//        }
 
         runAction(
                 specimenArm.runManualControl(gamepad2.right_stick_y)

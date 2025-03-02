@@ -645,33 +645,33 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 new SequentialAction(
-                    new Action() {
-                        @Override
-                        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                            try {
-                                double heading = drive.pose.heading.toDouble();
-                                Vector2d offset = new Vector2d(
-                                        CameraConfig.pickupSampleOffsetY * Math.cos(heading) - CameraConfig.pickupSampleOffsetX * Math.sin(heading),
-                                        CameraConfig.pickupSampleOffsetY * Math.sin(heading) + CameraConfig.pickupSampleOffsetX * Math.cos(heading));
-                                Vector2d sampleAlignment = samplePos.minus(offset);
+                        new Action() {
+                            @Override
+                            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                                try {
+                                    double heading = drive.pose.heading.toDouble();
+                                    Vector2d offset = new Vector2d(
+                                            CameraConfig.pickupSampleOffsetY * Math.cos(heading) - CameraConfig.pickupSampleOffsetX * Math.sin(heading),
+                                            CameraConfig.pickupSampleOffsetY * Math.sin(heading) + CameraConfig.pickupSampleOffsetX * Math.cos(heading));
+                                    Vector2d sampleAlignment = samplePos.minus(offset);
 
-                                telemetryPacket.addLine(samplePos.toString());
+                                    telemetryPacket.addLine(samplePos.toString());
 
-                                runBlocking(
-                                        drive.actionBuilder(drive.pose)
-                                                .splineToConstantHeading(sampleAlignment, 0)
-                                                .build()
-                                );
+                                    runBlocking(
+                                            drive.actionBuilder(drive.pose)
+                                                    .splineToConstantHeading(sampleAlignment, 0)
+                                                    .build()
+                                    );
+                                }
+
+                                catch (Exception e) {
+                                    telemetryPacket.addLine(e.toString());
+                                }
+
+                                return false;
                             }
-
-                            catch (Exception e) {
-                                telemetryPacket.addLine(e.toString());
-                            }
-
-                            return false;
-                        }
-                    },
-                    grabSequence
+                        },
+                        grabSequence
                 )
         );
 
@@ -717,7 +717,7 @@ public class AutoApplication extends AutoOpMode {
                                 new SleepUntilAction(() -> drive.pose.position.x > -30), // Wait until near target
                                 new ParallelAction(
                                         specimenArm.gripToOuttake(),
-                                        specimenArm.goToOuttake()
+                                        specimenArm.goToPark()
                                 )
                         )
                 );
