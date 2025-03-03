@@ -156,7 +156,7 @@ public class DetectSamples extends OpenCvPipeline {
     public static void drawSample(MatOfPoint contour) {
         List<MatOfPoint> contours = new ArrayList<>();
         contours.add(0, contour);
-        Imgproc.drawContours(input, contours , -1,new Scalar(255,0,255));
+        Imgproc.drawContours(input, contours, -1, new Scalar(0,255,0));
     }
 
     /**
