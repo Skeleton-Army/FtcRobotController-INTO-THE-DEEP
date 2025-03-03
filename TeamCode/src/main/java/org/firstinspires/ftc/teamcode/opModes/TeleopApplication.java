@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
@@ -67,7 +69,7 @@ public class TeleopApplication extends TeleopOpMode {
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
-        camCV.configureWebcam(SampleColor.YELLOW);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW});
         aprilTagSamplesPipeline = camCV.getAprilTagSamplesPipeline();
 
         intake = new Intake(hardwareMap);
@@ -126,20 +128,20 @@ public class TeleopApplication extends TeleopOpMode {
     public void runDriverActions() {
         aprilTagSamplesPipeline.getRobotPosByAprilTag();
 
-        if (Debounce.isButtonPressed("a", gamepad1.a)) { // running the alignToSample sequence
-            runAction("sequence",actionsDrive.alignToSample(camCV.getBestSamplePos(drive.pose.position)));
+        if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence
+            runAction("sequence",actionsDrive.alignToSample(new Vector2d(camCV.getBestSamplePos(drive.pose.position).position.x, camCV.getBestSamplePos(drive.pose.position).position.y)));
         }
-        if (Debounce.isButtonPressed("b", gamepad1.b)) { // running the pickupSample sequence
-            runAction("sequence",actionCam.pickupSample(camCV.getBestSamplePos(drive.pose.position)));
+        if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
+            runAction("sequence",actionCam.pickupSample(new Vector2d(camCV.getBestSamplePos(drive.pose.position).position.x, camCV.getBestSamplePos(drive.pose.position).position.y)));
         }
-        if (Debounce.isButtonPressed("y", gamepad1.y)) { // running basketCycle sequence
+        if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence
             runAction("sequence",actionCam.basketCycle());
         }
-        if (Debounce.isButtonPressed("x", gamepad1.x)) { // running specimenCycle sequence
+        if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence
             runAction("sequence",actionCam.specimenCycle());
         }
 
-        if(Debounce.isButtonPressed("right_bumper", gamepad1.right_bumper)) { // stops the current driver action
+        if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action
             stopAction("sequence");
         }
     }

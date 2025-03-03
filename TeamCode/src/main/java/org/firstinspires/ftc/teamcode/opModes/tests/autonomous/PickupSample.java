@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -49,7 +49,7 @@ public class PickupSample extends TeleopOpMode {
         /*apriltag = new Apriltag(hardwareMap, drive);
         apriltag.enableApriltag();*/
 
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
 
 

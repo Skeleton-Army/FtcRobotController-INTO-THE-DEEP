@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.opencv.Threshold;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Core;
@@ -42,6 +43,7 @@ import java.util.List;
  */
 public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
 {
+    private Threshold[] thresholds;
     private AprilTagProcessor processor;
     private CameraCalibrationIdentity ident;
 
@@ -51,31 +53,24 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     private Scalar lowerBound = new Scalar(18.4, 66.6, 111.9); // Lower bound for yellow
     private Scalar upperBound = new Scalar(32.6, 255, 255); // Upper bound for yellow
 
-    private final SampleColor color;
 
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
     private MecanumDrive drive;
     public static List<Sample> samples = new ArrayList<>();
+    public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, MecanumDrive drive, SampleColor color){
+        this.telemetry = telemetry;
+        this.webcam = webcam;
+        this.drive = drive;
+        thresholds = new Threshold[] {new Threshold(color)};
+        this.processor = processor;
+    }
 
-    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, MecanumDrive drive, SampleColor color)
+    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, MecanumDrive drive, SampleColor color1, SampleColor color2)
     {
         this.telemetry = telemetry;
         this.drive = drive;
-        this.color = color;
-        switch (color) {
-            case RED:
-                this.lowerBound = lowerRed;
-                this.upperBound = upperRed;
-
-            case BLUE:
-                this.lowerBound = lowerBlue;
-                this.upperBound = upperBlue;
-
-            case YELLOW:
-                this.lowerBound = lowerYellow;
-                this.upperBound = upperYellow;
-        }
+        thresholds = new Threshold[] {new Threshold(color1), new Threshold(color2)};
 
         this.processor = processor;
         processor.setDecimation(3); // set low decimation to save memory, and there is no need to for any higher :)
