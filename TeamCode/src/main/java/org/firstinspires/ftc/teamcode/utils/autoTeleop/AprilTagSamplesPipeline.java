@@ -164,7 +164,7 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     // gets robot position based on the first apriltag detection,
     // if didn't one, returns the current robot's pos and hope for the best :)
     public Pose2d getRobotPosByAprilTag() {
-        if (processor.getDetections() != null)  {
+        if (!processor.getDetections().isEmpty())  {
             AprilTagDetection detection = processor.getDetections().get(0);
             Position detectionPos = detection.robotPose.getPosition();
 
