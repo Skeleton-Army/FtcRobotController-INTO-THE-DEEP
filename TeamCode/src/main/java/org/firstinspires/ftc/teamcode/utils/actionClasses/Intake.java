@@ -15,13 +15,14 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class Intake {
-    private final CachingDcMotorEx motor;
+    public final CachingDcMotorEx motor;
     private final Servo clawServo;
     private final Servo wristServo;
 
     public Intake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
@@ -31,7 +32,7 @@ public class Intake {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // Manual control
@@ -58,8 +59,20 @@ public class Intake {
         return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
     }
 
+    /**
+     * Partially extend the arm by a given factor.
+     * @param multiplier The factor by which to extend the arm
+     */
+    public Action extend(double multiplier) {
+        return motorToPosition((int)(IntakeConfig.extendPosition * multiplier), IntakeConfig.motorPower, true);
+    }
+
     public Action retract() {
         return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
+    }
+
+    public Action retract(double power) {
+        return motorToPosition(IntakeConfig.retractPosition, power, false);
     }
 
     public Action closeClaw() {
@@ -80,5 +93,9 @@ public class Intake {
 
     public Action wristMiddle() {
         return wristToPosition(IntakeConfig.wristMiddle);
+    }
+
+    public Action wristReady() {
+        return wristToPosition(IntakeConfig.wristReady);
     }
 }

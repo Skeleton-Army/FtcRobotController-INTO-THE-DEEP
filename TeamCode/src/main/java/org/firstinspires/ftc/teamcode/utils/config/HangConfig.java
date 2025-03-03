@@ -4,16 +4,13 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class HangConfig {
-    public static String hangMotorName = "hang";
+    public static String motorName = "hang";
 
     public static double hangPower = 1;
-    public static int hangExtendPosition = 4000;
-    public static int hangRetractPosition = 0;
+    public static int extendPosition = -5700;
+    public static int middlePosition = -4000;
+    public static int retractPosition = 1000;
 
-    public static double outtakePower = 0.5;
-    public static int outtakeExtendPosition = -2000;
-    public static int outtakeRetractPosition = 0;
-
-    public static int velocityThreshold = 200;
-    public static double startThreshold = 3;
+    public static int velocityThreshold = 100;
+    public static double startThreshold = 0.5;
 }

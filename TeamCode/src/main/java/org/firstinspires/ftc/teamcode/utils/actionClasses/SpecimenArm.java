@@ -4,9 +4,11 @@ import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
 import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.ticks_in_degree;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.NullAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -14,14 +16,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
-    private final CachingDcMotorEx motor;
-    public final Servo gripServo;
-    public final Servo grabServo;
+    public final CachingDcMotorEx motor;
+    private final Servo gripServo;
+    private final Servo grabServo;
     private final PIDController controller;
 
     private int target;
@@ -38,7 +41,7 @@ public class SpecimenArm {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // General actions
@@ -57,40 +60,67 @@ public class SpecimenArm {
         controller.setPID(kp, ki, kd);
     }
 
-    public void setTarget(int target) {
-        this.target = target;
+    public Action setTarget(int target) {
+        return new SequentialAction(
+                new InstantAction(() -> this.target = target),
+                new SleepUntilAction(() -> Math.abs(motor.getCurrentPosition() - target) < 10)
+        );
     }
 
-    public Action gripToPosition(double targetPos, Servo servo) {
-        return new ServoToPosition(servo, targetPos);
+    public Action runManualControl(float value) {
+        if (value == 0) return new NullAction();
+        int mirror = motor.getCurrentPosition() < SpecimenArmConfig.topPos ? -1 : 1;
+        return setTarget(target + (int)(value * SpecimenArmConfig.manualSpeed * mirror));
+    }
+
+    public Action gripToPosition(double targetPos) {
+        return new ServoToPosition(gripServo, targetPos);
+    }
+
+    public Action grabToPosition(double targetPos) {
+        return new ServoToPosition(grabServo, targetPos);
     }
 
     // Specific actions
+    public Action goToIntake() {
+        return setTarget(SpecimenArmConfig.intakePosition);
+    }
+
+    public Action goToOuttake() {
+        return setTarget(SpecimenArmConfig.outtakePosition);
+    }
+
+    public Action goToHanged() {
+        return setTarget(SpecimenArmConfig.hangedPosition);
+    }
+
+    public Action goToPark() {
+        return setTarget(SpecimenArmConfig.parkPosition);
+    }
+
     public Action gripToIntake() {
-        return gripToPosition(SpecimenArmConfig.gripIntake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripIntake);
     }
 
     public Action gripToOuttake() {
-        return gripToPosition(SpecimenArmConfig.gripOuttake, gripServo);
+        return gripToPosition(SpecimenArmConfig.gripOuttake);
     }
 
-    public Action grabOpen() {return gripToPosition(SpecimenArmConfig.grabClose, grabServo);}
-    public Action grabClose() {return gripToPosition(SpecimenArmConfig.grabOpen, grabServo);}
+    public Action grabOpen() {
+        return grabToPosition(SpecimenArmConfig.grabOpen);
+    }
+
+    public Action grabClose() {
+        return grabToPosition(SpecimenArmConfig.grabClose);
+    }
 
     public double calculateArmPower() {
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
-        double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
-        double power = pid + ff;
-//        double limitPower = (Math.abs((Math.cos(Math.toRadians((pos + 50) / 2.0)) )) * 2 * SpecimenArmConfig.power) + 0.15;
-//        double actualPower = clamp(power, -limitPower, limitPower);
+        int diffFromTop = SpecimenArmConfig.topPos - pos;
+        double ff = diffFromTop * f;
 
-//        return actualPower;
-        return power;
-    }
-
-    public static double clamp(double val, double min, double max) {
-        return Math.max(min, Math.min(max, val));
+        return pid + ff;
     }
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -80,10 +81,10 @@ public class WebcamCV {
         }
     }
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
-        Vector2d samplePos = currSample.getSamplePosition();
+        Vector2d samplePos = currSample.getSamplePosition().position;
         return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
     }
-    public Vector2d getBestSamplePos(Vector2d pos) {
+    public Pose2d getBestSamplePos(Vector2d pos) {
         // searching for the min value of distance
         if (samples.isEmpty())
             return null;
@@ -96,6 +97,27 @@ public class WebcamCV {
         }
 
         return closest.getSamplePosition();
+    }
+
+    public Pose2d getBestOrientation() {
+        // searching for the min value of distance
+        if (samples.isEmpty())
+            return null;
+        Sample best = samples.get(0);
+
+        for (Sample currSample : samples) {
+            Vector2d pos = currSample.getSamplePosition().position;
+            if (pos.x > 6 || pos.x < -6 || pos.y > 18 || pos.y < -15) {
+                continue;
+            }
+
+            //if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
+            if (Math.abs(currSample.getQuality()) < Math.abs(best.getQuality())) {
+                best = currSample;
+            }
+        }
+
+        return best.getSamplePosition();
     }
 
     public Sample getCloseSampleObject(Vector2d pos) {
@@ -114,7 +136,7 @@ public class WebcamCV {
     }
     private void printSampleData(Sample inputSample) {
         telemetry.addLine();
-        Vector2d samplePos = inputSample.getSamplePosition();
+        Vector2d samplePos = inputSample.getSamplePosition().position;
         telemetry.addData("x: ", samplePos.x);
         telemetry.addData("y: ", samplePos.y);
         telemetry.addLine();
@@ -122,20 +144,24 @@ public class WebcamCV {
         telemetry.addData("Point reference: ", closeSample.lowest);
         telemetry.update();
     }
-    public void configureWebcam(SampleColor sampleColor) {
+    public void configureWebcam(SampleColor[] colors) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 5);
-        if (!withAprilTag) {
-            detectSamples = new DetectSamples(telemetry, webcam, drive, sampleColor);
-            webcam.setPipeline(detectSamples);
+        if (colors.length == 2)
+            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
+        if (colors.length == 1)
+            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0]);
+        webcam.setPipeline(detectSamples);
+        if (withAprilTag && colors.length == 2) {
+            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0], colors[1]);
+            webcam.setPipeline(aprilTagSamplesPipeline);
             // setting the pipeline to be only samples detector
         }
-        else {
-            //aprilTagSamplesPipeline = new AprilTagSamplesPipeline(new Apriltag(hardwareMap, drive).getAprilTagAprocessor(), telemetry, drive, sampleColor);
-            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, sampleColor);
+        if (withAprilTag && colors.length == 1) {
+            aprilTagSamplesPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0]);
             webcam.setPipeline(aprilTagSamplesPipeline);
-            // setting the pipeline to be both apriltag and samples
+            // setting the pipeline to be only samples detector
         }
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()

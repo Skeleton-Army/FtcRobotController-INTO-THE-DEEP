@@ -5,6 +5,9 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +18,7 @@ import java.util.Map;
 public abstract class TeleopOpMode extends OpMode {
     private final FtcDashboard dash = FtcDashboard.getInstance();
     private HashMap<String, Action> runningActions = new HashMap<>();
-    private final Map<String, Boolean> actionStates = new HashMap<>();
+    private final Map<String, Integer> sequenceStates = new HashMap<>();
 
     /**
      * Run all queued actions. Call this at the end of the loop function.
@@ -45,7 +48,7 @@ public abstract class TeleopOpMode extends OpMode {
      * Run an action without blocking the main loop.
      */
     protected void runAction(Action action) {
-        runningActions.put("", action);
+        runAction(Utilities.generateCallSiteID(), action);
     }
 
     /**
@@ -57,32 +60,32 @@ public abstract class TeleopOpMode extends OpMode {
     }
 
     /**
-     * Run two actions by toggling between them without blocking the main loop.
-     * The name is used for managing the toggle state and stopping the action.
+     * Runs multiple actions sequentially, toggling between them in order.
+     * The name is used for checking the current state with "isInState".
      */
-    protected void runToggleAction(String name1, Action action1, String name2, Action action2) {
-        // Check if the toggle state exists; if not, initialize it.
-        if (!actionStates.containsKey(name1)) {
-            actionStates.put(name1, false);
-            actionStates.put(name2, true);
-        }
+    protected void runSequentialActions(String name, Action... actions) {
+        // Initialize sequence state if not present
+        sequenceStates.putIfAbsent(name, 0);
 
-        // Get the current state of the toggle.
-        boolean toggle = actionStates.get(name1);
-        Action action = !toggle ? action1 : action2;
-        String name = !toggle ? name1 : name2;
+        int index = sequenceStates.get(name);
 
-        // Stop the previous action.
-        String previousActionName = !toggle ? name2 : name1;
+        // Stop the previous action
+        int prevIndex = (index == 0) ? actions.length - 1 : index - 1;
+        stopAction(name + "_" + prevIndex);
 
-        stopAction(previousActionName);
+        // Run the next action
+        String currentActionName = name + "_" + index;
+        runAction(currentActionName, actions[index]);
 
-        // Run the appropriate action based on the toggle state.
-        runAction(name, action);
+        // Update the state to cycle to the next action
+        sequenceStates.put(name, (index + 1) % actions.length);
+    }
 
-        // Toggle the state for the next call.
-        actionStates.put(name1, !actionStates.get(name1));
-        actionStates.put(name2, !actionStates.get(name2));
+    /**
+     * Runs multiple actions sequentially, toggling between them in order.
+     */
+    protected void runSequentialActions(Action... actions) {
+       runSequentialActions(Utilities.generateCallSiteID(), actions);
     }
 
     /**
@@ -107,9 +110,21 @@ public abstract class TeleopOpMode extends OpMode {
     }
 
     /**
+     * Check if an action is running.
+     */
+    protected boolean isActionRunning(String sequenceName, int index) {
+        return runningActions.containsKey(sequenceName + "_" + index);
+    }
+
+    /**
      * Get the current state of the toggle.
      */
-    protected boolean isInState(String name) {
-        return Boolean.TRUE.equals(actionStates.get(name));
+    protected boolean isInState(String sequenceName, int index) {
+        return getCurrentState(sequenceName) == index;
+    }
+
+    protected int getCurrentState(String sequenceName) {
+        if (!sequenceStates.containsKey(sequenceName)) return -1;
+        return sequenceStates.get(sequenceName);
     }
 }

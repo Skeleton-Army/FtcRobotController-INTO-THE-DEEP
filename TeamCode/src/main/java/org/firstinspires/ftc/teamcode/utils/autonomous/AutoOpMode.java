@@ -1,20 +1,31 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
     An OpMode that implements the choice menu and FSM (Finite State Machine).
     The base enhanced OpMode for autonomous programs.
  */
-public abstract class AutoOpMode extends OpMode {
+public abstract class AutoOpMode extends LinearOpMode {
+    private final FtcDashboard dash = FtcDashboard.getInstance();
     private final Map<Enum<?>, Runnable> stateHandlers = new HashMap<>();
+    private List<Action> runningActions = new ArrayList<>();
+    private List<Runnable> runningFunctions = new ArrayList<>();
 
     private Enum<?> currentState = null;
 
@@ -30,22 +41,60 @@ public abstract class AutoOpMode extends OpMode {
     // Abstract method to set the initial state
     public abstract void setInitialState();
 
+    public abstract void onInit();
+
+    public void onInitLoop() {};
+
+    public void onStart() {};
+
+    public void onLoop() {};
+
+    public void onStop() {};
+
     @Override
-    public void init() {
+    public void runOpMode() {
+        internalInit();
+        onInit();
+
+        while (!isStarted() && !isStopRequested()) {
+            onInitLoop();
+            internalInitLoop();
+        }
+
+        waitForStart();
+
+        onStart();
+        internalStart();
+
+        while (opModeIsActive() && !isStopRequested()) {
+            onLoop();
+            internalLoop();
+        }
+
+        internalStop();
+        onStop();
+    }
+
+    private void internalInit() {
+        // Enable auto bulk reads
+        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
         choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
         setPrompts();
 
         registerStates();
     }
 
-    @Override
-    public void init_loop(){
+    private void internalInitLoop(){
         choiceMenu.processPrompts();
         telemetry.update();
     }
 
-    @Override
-    public void loop() {
+    private void internalStart() {
+        setInitialState();
+    }
+
+    private void internalLoop() {
         if (currentState != null) {
             Runnable handler = stateHandlers.get(currentState);
 
@@ -57,7 +106,72 @@ public abstract class AutoOpMode extends OpMode {
             }
         }
 
+        runAsyncActions();
+        runAsyncFunctions();
+
         telemetry.update();
+    }
+
+    private void internalStop() {
+        PoseStorage.currentPose = drive.pose;
+    }
+
+    /**
+     * Run all queued actions.
+     */
+    private void runAsyncActions() {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        // Update running actions
+        List<Action> newActions = new ArrayList<>();
+
+        for (Action action : runningActions) {
+            action.preview(packet.fieldOverlay());
+            if (action.run(packet)) {
+                newActions.add(action);
+            }
+        }
+
+        runningActions = newActions;
+
+        dash.sendTelemetryPacket(packet);
+    }
+
+    /**
+     * Run all queued functions.
+     */
+    private void runAsyncFunctions() {
+        for (Runnable func : runningFunctions) {
+            func.run();
+        }
+    }
+
+    /**
+     * Run an action in a blocking loop.
+     */
+    protected void runBlocking(Action action) {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        while (action.run(packet) && opModeIsActive()) {
+            runAsyncActions();
+            runAsyncFunctions();
+        }
+    }
+
+    /**
+     * Run an action in a non-blocking loop.
+     */
+    protected void runAsync(Action action) {
+        runningActions.add(action);
+    }
+
+    /**
+     * Run a function in a non-blocking loop. <br>
+     * <b>Example:</b> runAsync(() -> { function(); });
+     * @param func The function to run asynchronously
+     */
+    protected void runAsync(Runnable func) {
+        runningFunctions.add(func);
     }
 
     private void setState(Enum<?> newState) {
@@ -100,10 +214,5 @@ public abstract class AutoOpMode extends OpMode {
      */
     protected void addConditionalTransition(boolean condition, Enum<?> trueState, Enum<?> falseState) {
         setState(condition ? trueState : falseState);
-    }
-
-    @Override
-    public void stop() {
-        PoseStorage.currentPose = drive.pose;
     }
 }

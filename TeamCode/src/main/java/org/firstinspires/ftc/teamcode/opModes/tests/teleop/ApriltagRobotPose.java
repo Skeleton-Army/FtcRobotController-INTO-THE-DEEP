@@ -109,6 +109,15 @@ public class ApriltagRobotPose extends OpMode {
                         detection.robotPose.getPosition().y,
                         detection.robotPose.getPosition().z));
 
+                telemetry.addLine("distance from apriltag: ");
+                telemetry.addData("x: ",detection.rawPose.x);
+                telemetry.addData("y: ",detection.rawPose.y);
+                telemetry.addData("z: ",detection.rawPose.z);
+                telemetry.addLine("distance from apriltag2: ");
+                telemetry.addData("x: ",detection.ftcPose.x);
+                telemetry.addData("y: ",detection.ftcPose.y);
+                telemetry.addData("z: ",detection.ftcPose.z);
+
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
                         detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),

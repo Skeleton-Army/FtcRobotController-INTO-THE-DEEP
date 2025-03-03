@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.Constraints;
@@ -23,24 +24,9 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-39, -61.5, Math.toRadians(0)), false)
-                .waitSeconds(3)
-                .setTangent(Math.PI / 2)
-                .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.PI)
-                .waitSeconds(2)
-                .splineToLinearHeading(new Pose2d(-55, -48, Math.toRadians(75)), Math.PI)
-                .waitSeconds(1)
-                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
-                .waitSeconds(2)
-                .splineToLinearHeading(new Pose2d(-59, -51, Math.toRadians(90)), Math.PI)
-                .waitSeconds(1)
-                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
-                .waitSeconds(2)
-                .splineToLinearHeading(new Pose2d(-53, -45, Math.toRadians(125)), Math.PI)
-                .waitSeconds(1)
-                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.PI / 2)
-                .waitSeconds(2)
-                .splineTo(new Vector2d(-25, -10), Math.toRadians(0))
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(27, -63.2, Math.toRadians(90)), false)
+                .splineToLinearHeading(new Pose2d(0, -37, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, 150))
+                .splineToLinearHeading(new Pose2d(0, -33, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-60, 150))
                 .build()
         );
 
