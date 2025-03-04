@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -131,12 +137,25 @@ public class DetectSamples extends OpenCvPipeline {
      * - Applies morphological operations to clean up noise.
      */
     private Mat mask(Mat frame) {
+        // Undistort frame
+        Mat matrix = new Mat(3, 3, CvType.CV_64F);
+        matrix.put(0, 0,
+                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
+                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
+                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+
+        MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
+
+        Mat undistorted = new Mat();
+        Calib3d.undistort(frame, undistorted, matrix, dist);
+
+        // Create mask
         Mat masked = new Mat();
 
         // Convert the frame to HSV color space
-        Imgproc.cvtColor(frame, masked, Imgproc.COLOR_RGB2YCrCb);
+        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_RGB2YCrCb);
 
-        Mat binary = Mat.zeros(frame.size(), Imgproc.THRESH_BINARY);
+        Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
 
         // Apply color filtering to isolate the desired objects
         for (Threshold t : thresholds) {
