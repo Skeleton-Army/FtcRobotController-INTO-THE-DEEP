@@ -5,21 +5,26 @@ class CameraConfig:
 
     # Initial parameters to optimize from for local optimization
     offsetHorizontal = 0
-    offsetVertical = 18
-    horizontalFOV = 60
-    verticalFOV = 35
+    offsetVertical = 20
+    horizontalFOV = 65.76
+    verticalFOV = 39.88
 
 # Define parameter bounds for global optimization
-bounds = [(-20, 20), # offsetHorizontal
-          (0, 200), # offsetVertical
-          (0, 200), # horizontalFOV
-          (0, 200)] # verticalFOV
+bounds = [
+        (-20, 20), # offsetHorizontal
+        (0, 200), # offsetVertical
+        # (0, 200), # horizontalFOV
+        # (0, 200) # verticalFOV
+]
 
 # Sample test data (Replace with actual data)
 sample_data = [
-    {"lowest": (150, 120), "actual_x": 5.2, "actual_y": 7.3},
-    {"lowest": (200, 90), "actual_x": 3.1, "actual_y": 9.0},
-    {"lowest": (100, 140), "actual_x": 6.7, "actual_y": 5.5}
+    {"lowest": (334, 235), "actual_x": 0, "actual_y": 24},
+    {"lowest": (90, 200), "actual_x": 14.5, "actual_y": 28.5},
+    {"lowest": (205, 333), "actual_x": 5, "actual_y": 14.5},
+    {"lowest": (66, 313), "actual_x": 11, "actual_y": 16.6},
+    {"lowest": (81, 184), "actual_x": 16.7, "actual_y": 31},
+    {"lowest": (190, 220), "actual_x": 7.5, "actual_y": 26},
 ]
 
 # Local optimization searches for the best solution in a nearby region and stops when it finds a local minimum.

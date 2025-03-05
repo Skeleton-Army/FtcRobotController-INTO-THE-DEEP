@@ -161,7 +161,8 @@ public class WebcamCV {
     }
 
     public static void drawSample(Sample sample) {
-        DetectSamples.drawSample(sample.getContour());
+        if (sample.getContour() != null)
+            DetectSamples.drawSample(sample.getContour());
     }
 
     /**

@@ -101,19 +101,15 @@ public class DetectSamples extends OpenCvPipeline {
             // Get the lowest point in the detected contour
             Point lowestPoint = getLowestPoint(contour);
 
-            // Get the bounding box for the contour to determine its center X
-            Rect boundingBox = Imgproc.boundingRect(contour);
-            int center = boundingBox.x + boundingBox.width / 2;
-
             // Create and add the new sample
-            Sample sample = new Sample(new Point(center, lowestPoint.y), drive.pose, contour);
+            Sample sample = new Sample(new Point(lowestPoint.x, lowestPoint.y), drive.pose);
             sample.calculateOrientation(contour);
             sample.calculateField();
 
             samplesFrame.add(sample);
 
             // Draw a marker on the detected point
-            Imgproc.drawMarker(input, new Point(center, lowestPoint.y), new Scalar(255,255,0));
+            Imgproc.drawMarker(input, new Point(lowestPoint.x, lowestPoint.y), new Scalar(255,255,0));
         }
 
         samples = samplesFrame;
@@ -163,6 +159,7 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         masked.release(); // Free memory after use
+        undistorted.release(); // Free memory after use
 
         // Apply morphological operations to remove noise
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
