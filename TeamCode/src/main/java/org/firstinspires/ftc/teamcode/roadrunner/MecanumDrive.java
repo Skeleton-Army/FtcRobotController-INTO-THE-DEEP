@@ -45,6 +45,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.utils.autonomous.SmartActionBuilder;
 
 import java.lang.Math;
 import java.util.Arrays;
@@ -566,5 +567,13 @@ public final class MecanumDrive {
                 defaultVelConstraint, defaultAccelConstraint,
                 poseMap
         );
+    }
+
+    public SmartActionBuilder smartActionBuilder(MecanumDrive drive) {
+        return new SmartActionBuilder(actionBuilder(drive.pose), drive);
+    }
+
+    public SmartActionBuilder smartActionBuilder(MecanumDrive drive, boolean mirrored) {
+        return new SmartActionBuilder(actionBuilder(drive.pose, mirrored), drive);
     }
 }
