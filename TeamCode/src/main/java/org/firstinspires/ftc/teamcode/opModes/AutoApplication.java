@@ -45,7 +45,7 @@ public class AutoApplication extends AutoOpMode {
         COLLECT_SPECIMEN(2),
 
         COLLECT_YELLOW_SAMPLE(),
-        PUT_IN_BASKET(3),
+        PUT_IN_BASKET(2),
 
         PARK(2);
 
@@ -450,7 +450,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-53, -51.5, Math.toRadians(75)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(80)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -461,7 +461,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-56, -50.5, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57, -50.5, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -472,7 +472,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-56, -48, Math.toRadians(115)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-56.5, -48, Math.toRadians(112)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -544,7 +544,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
+                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -573,7 +573,7 @@ public class AutoApplication extends AutoOpMode {
         }
 
         // Put the sample in the basket
-        if (collectedSamples <= 3) {
+        if (collectedSamples < 3) {
             runAsync(
                     new ParallelAction(
                             intake.extend(0.9),
