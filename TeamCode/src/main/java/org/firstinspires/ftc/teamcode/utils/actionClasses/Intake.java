@@ -28,6 +28,7 @@ public class Intake {
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
 
         Actions.runBlocking(wristMiddle());
+        Actions.runBlocking(closeClaw());
     }
 
     public void resetMotor() {

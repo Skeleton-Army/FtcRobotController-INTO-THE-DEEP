@@ -16,8 +16,8 @@ public class CameraConfig {
     public static double offsetHorizontal = 4.3;
     public static double offsetVertical = 22.05;
 
-    public static double pickupSampleOffsetX = -0.25;
-    public static double pickupSampleOffsetY = 25;
+    public static double pickupSampleOffsetX = 1.25;
+    public static double pickupSampleOffsetY = 24;
 
     // Distortion coefficients
 

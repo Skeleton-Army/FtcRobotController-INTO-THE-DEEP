@@ -100,7 +100,7 @@ public class PickupSample extends TeleopOpMode {
 
         Actions.runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(180))
                         .build()
         );
     }

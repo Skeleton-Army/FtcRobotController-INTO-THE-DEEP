@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.actions.AlignToSample;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
@@ -469,7 +470,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57.5, -48, Math.toRadians(110)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.75, -48.5, Math.toRadians(112)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -494,7 +495,6 @@ public class AutoApplication extends AutoOpMode {
         Action intakeRetract = new SequentialAction(
                 outtake.hold(),
                 intake.retractWrist(),
-                new SleepAction(collectedSamples >= 4 ? 0.2 : 0),
                 new ParallelAction(
                         intake.retract(collectedSamples >= 4 ? 0.7 : 1),
                         new SleepAction(0.4)
@@ -540,7 +540,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 300))
+                                    .splineToLinearHeading(new Pose2d(-54, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -572,6 +572,7 @@ public class AutoApplication extends AutoOpMode {
         if (collectedSamples < 3) {
             runAsync(
                     new ParallelAction(
+                            intake.openClaw(),
                             intake.extend(0.9),
                             intake.wristReady()
                     )
@@ -621,7 +622,7 @@ public class AutoApplication extends AutoOpMode {
 
         // Find first sample position
         findNewSamples();
-        Vector2d firstSamplePos = camCV.getBestSamplePos(new Vector2d(-9, 0)).position;
+        Vector2d firstSamplePos = camCV.getBestSamplePos(new Vector2d(-5, -7)).position;
 
         // First trajectory
         runBlocking(new AlignToSample(drive, firstSamplePos));
@@ -631,8 +632,12 @@ public class AutoApplication extends AutoOpMode {
         Vector2d secondSamplePos = camCV.getBestSamplePos(firstSamplePos).position;
 
         // Grab sample
-        runAsync(grabSequence);
-        runBlocking(new AlignToSample(drive, secondSamplePos));
+        runBlocking(
+                new ParallelAction(
+                        grabSequence,
+                        new AlignToSample(drive, secondSamplePos)
+                )
+        );
 
         addTransition(State.PUT_IN_BASKET);
     }
@@ -646,40 +651,45 @@ public class AutoApplication extends AutoOpMode {
         switch (strategy) {
             case SPECIMENS:
                 // Park in observation zone
-                runBlocking(
-                        new ParallelAction(
-                                new SequentialAction(
-                                        specimenArm.grabOpen(),
-                                        new SleepUntilAction(() -> drive.pose.position.x < -42),
-                                        specimenArm.gripToIntake(),
-                                        specimenArm.goToIntake()
-                                ),
-                                drive.actionBuilder(drive.pose)
-                                        .setTangent(Math.toRadians(-45))
-                                        .splineTo(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-60, 150))
-                                        .build(),
-                                intakeRetract
+                runAsync(intakeRetract);
+
+                runAsync(
+                        new SequentialAction(
+                                specimenArm.grabOpen(),
+                                new SleepUntilAction(() -> drive.pose.position.x < -42),
+                                specimenArm.gripToIntake(),
+                                specimenArm.goToIntake()
                         )
+                );
+
+                runBlocking(
+                        drive.actionBuilder(drive.pose)
+                                .setTangent(Math.toRadians(-45))
+                                .splineTo(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-60, 150))
+                                .build()
                 );
 
                 requestOpModeStop();
                 break;
             case BASKET:
+                // Park at the bars
                 runAsync(intakeRetract);
 
-                // Move to bars and activate specimen arm after reaching a certain position
-                runBlocking(
+                runAsync(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
-                                        .build(),
-                                new SleepUntilAction(() -> drive.pose.position.x > -30), // Wait until near target
-                                new ParallelAction(
-                                        specimenArm.gripToOuttake(),
-                                        specimenArm.goToPark()
-                                )
+                                new SleepUntilAction(() -> drive.pose.position.x > -35),
+                                specimenArm.gripToOuttake(),
+                                specimenArm.goToPark()
                         )
                 );
+
+                if (drive.pose.position.x < -35) {
+                    runBlocking(
+                            drive.actionBuilder(drive.pose)
+                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
+                                    .build()
+                    );
+                }
 
                 requestOpModeStop();
                 break;

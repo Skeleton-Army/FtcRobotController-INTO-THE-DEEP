@@ -32,7 +32,7 @@ public class AlignToSample implements Action {
             telemetryPacket.addLine(targetSamplePos.toString());
 
             Actions.runBlocking(
-                    drive.actionBuilder(new Pose2d(drive.pose.position.x - 1.5, drive.pose.position.y, drive.pose.heading.toDouble()))
+                    drive.actionBuilder(new Pose2d(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble()))
                             .splineToConstantHeading(targetSamplePos, heading)
                             .build()
             );
