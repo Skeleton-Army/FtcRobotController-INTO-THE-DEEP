@@ -11,13 +11,13 @@ public class CameraConfig {
     public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
     public static int halfImageWidth = 320;
     public static int halfImageHeight = 180;
-    public static double offsetX = 6.1; //   6.25     x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
-    public static double offsetY = 7.87; // 7.06
+    public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
+    public static double offsetY = 7.87;
     public static double offsetHorizontal = 4.3;
     public static double offsetVertical = 22.05;
 
-    public static double pickupSampleOffsetX = 1.25; // 1.5
-    public static double pickupSampleOffsetY = 23.5; // 23
+    public static double pickupSampleOffsetX = -0.25;
+    public static double pickupSampleOffsetY = 25;
 
     // Distortion coefficients
 

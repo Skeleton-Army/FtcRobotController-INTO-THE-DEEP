@@ -11,10 +11,10 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 
-public class alignToSample implements Action {
+public class AlignToSample implements Action {
     MecanumDrive drive;
     Vector2d targetSamplePos;
-    public alignToSample(MecanumDrive drive, Vector2d targetSamplePos) {
+    public AlignToSample(MecanumDrive drive, Vector2d targetSamplePos) {
         this.drive = drive;
         this.targetSamplePos = targetSamplePos;
     }

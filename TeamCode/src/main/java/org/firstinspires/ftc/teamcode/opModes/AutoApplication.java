@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -18,9 +15,9 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
+import org.firstinspires.ftc.teamcode.utils.actions.AlignToSample;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -494,18 +491,17 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2)
         );
 
-        Action intakeRetract = new ParallelAction(
-                intake.retractWrist(),
+        Action intakeRetract = new SequentialAction(
                 outtake.hold(),
-                new SequentialAction(
-                        new ParallelAction(
-                                intake.retract(collectedSamples >= 4 ? 0.7 : 1),
-                                new SleepAction(0.4)
-                        ),
-                        intake.openClaw(),
-                        intake.wristReady(),
-                        new SleepAction(0.2)
-                )
+                intake.retractWrist(),
+                new SleepAction(collectedSamples >= 4 ? 0.2 : 0),
+                new ParallelAction(
+                        intake.retract(collectedSamples >= 4 ? 0.7 : 1),
+                        new SleepAction(0.4)
+                ),
+                intake.openClaw(),
+                intake.wristReady(),
+                new SleepAction(0.2)
         );
 
         Action extendOuttake = new ParallelAction(
@@ -606,6 +602,8 @@ public class AutoApplication extends AutoOpMode {
         collectedSamples++;
 
         Action grabSequence = new SequentialAction(
+                intake.wristReady(),
+                intake.extend(),
                 intake.extendWrist(),
                 intake.openClaw(),
                 new SleepAction(0.2),
@@ -613,67 +611,28 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2)
         );
 
-        Action intakeExtend = new ParallelAction(
-                intake.extend(),
-                intake.wristReady()
-        );
-
         runBlocking(
-                new ParallelAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
-                                .build()
-                )
+                drive.actionBuilder(drive.pose)
+                        .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                        .build()
         );
 
-        camCV.resetSampleList();
+        // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
-        runBlocking(
-                new Action() {
-                    @Override
-                    public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                        return !camCV.lookForSamples();
-                    }
-                }
-        );
+        // Find first sample position
+        findNewSamples();
+        Vector2d firstSamplePos = camCV.getBestSamplePos(new Vector2d(-9, 0)).position;
 
-        Vector2d samplePos = camCV.getBestSamplePos(new Vector2d(-2, -2)).position;
+        // First trajectory
+        runBlocking(new AlignToSample(drive, firstSamplePos));
 
-        // TODO: Add some sort of validation For example if (bad == yes): don't.
+        // Find second sample position
+        findNewSamples();
+        Vector2d secondSamplePos = camCV.getBestSamplePos(firstSamplePos).position;
 
-        runAsync(intakeExtend);
-
-        runBlocking(
-                new SequentialAction(
-                        new Action() {
-                            @Override
-                            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                                try {
-                                    double heading = drive.pose.heading.toDouble();
-                                    Vector2d offset = new Vector2d(
-                                            CameraConfig.pickupSampleOffsetY * Math.cos(heading) - CameraConfig.pickupSampleOffsetX * Math.sin(heading),
-                                            CameraConfig.pickupSampleOffsetY * Math.sin(heading) + CameraConfig.pickupSampleOffsetX * Math.cos(heading));
-                                    Vector2d sampleAlignment = samplePos.minus(offset);
-
-                                    telemetryPacket.addLine(samplePos.toString());
-
-                                    runBlocking(
-                                            drive.actionBuilder(drive.pose)
-                                                    .splineToConstantHeading(sampleAlignment, 0)
-                                                    .build()
-                                    );
-                                }
-
-                                catch (Exception e) {
-                                    telemetryPacket.addLine(e.toString());
-                                }
-
-                                return false;
-                            }
-                        },
-                        grabSequence
-                )
-        );
+        // Grab sample
+        runAsync(grabSequence);
+        runBlocking(new AlignToSample(drive, secondSamplePos));
 
         addTransition(State.PUT_IN_BASKET);
     }
@@ -725,6 +684,14 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
         }
+    }
+
+    private void findNewSamples() {
+        camCV.resetSampleList();
+
+        runBlocking(
+                new SleepUntilAction(() -> camCV.lookForSamples())
+        );
     }
 
 //    private void outtakeLimitSwitch() {

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
-import org.firstinspires.ftc.teamcode.utils.actions.alignToSample;
+import org.firstinspires.ftc.teamcode.utils.actions.AlignToSample;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 
 //TODO: do stuff here sometime!!
@@ -32,7 +32,7 @@ public class Drive {
     }
 
     public Action alignToSample(Vector2d targetSamplePos) {
-        return new alignToSample(drive, targetSamplePos);
+        return new AlignToSample(drive, targetSamplePos);
     }
 
 }

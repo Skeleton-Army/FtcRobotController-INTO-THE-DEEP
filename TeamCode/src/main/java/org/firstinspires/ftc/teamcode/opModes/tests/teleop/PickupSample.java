@@ -1,8 +1,16 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -12,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
@@ -52,7 +61,6 @@ public class PickupSample extends TeleopOpMode {
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
 
-
         driveActions = new Drive(drive);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
@@ -60,13 +68,13 @@ public class PickupSample extends TeleopOpMode {
     @Override
     public void init_loop() {
         if (camCV.lookForSamples()) {
-            //Vector2d sample = camCV.getBestSamplePos(new Vector2d(0,0));
-            sample = camCV.getBestSamplePos(new Vector2d(0,0));
+            sample = camCV.getBestSamplePos(new Vector2d(30,0));
+
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + sample.position.x);
             telemetry.addData("Y: ", "" + sample.position.y);
             telemetry.addData("sample heading: ", Math.toDegrees(sample.heading.toDouble()));
-            //camCV.getCloseSampleObject(new Vector2d(0,0)).lowest
+
             WebcamCV.drawSample(camCV.getCloseSampleObject(new Vector2d(0,0)));
         }
         else {
@@ -76,24 +84,41 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void start() {
-        //Vector2d sample = camCV.getBestSamplePos(drive.pose.position);
-        //Pose2d sample = camCV.getBestOrientation();
-//        telemetry.addData("X: ", "" + sample.position.y);
-//        telemetry.addData("Y: ", "" + sample.position.y);
-        //telemetry.addData("Orientation: ", "" + sample.heading);
-        //runAction(webcamSequences.pickupSample(camCV.getBestSamplePos(drive.pose.position, drive.pose)));
+        Actions.runBlocking(
+                driveActions.alignToSample(sample.position)
+        );
 
+        camCV.resetSampleList();
+
+        Actions.runBlocking(
+                new SleepUntilAction(() -> camCV.lookForSamples())
+        );
+
+        Actions.runBlocking(
+                webcamSequences.pickupSample(camCV.getBestSamplePos(sample.position).position)
+        );
+
+        Actions.runBlocking(
+                drive.actionBuilder(drive.pose)
+                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(0))
+                        .build()
+        );
     }
 
     @Override
     public void loop() {
-        if (!collected) {
+/*        if (!collected) {
             Actions.runBlocking(
-                    webcamSequences.pickupSample(sample.position)
+                    new SequentialAction(
+                            driveActions.alignToSample(sample.position),
+                            new InstantAction(() -> camCV.resetSampleList()),
+                            new SleepUntilAction(() -> camCV.lookForSamples()),
+                            new SleepAction(0.5),
+                            webcamSequences.pickupSample(camCV.getBestSamplePos(sample.position).position)
+                    )
 
             );
             collected = true;
-        }
-        runAllActions();
+        }*/
     }
 }
