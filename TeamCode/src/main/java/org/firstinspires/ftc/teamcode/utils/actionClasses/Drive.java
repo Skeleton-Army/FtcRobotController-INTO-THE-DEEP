@@ -50,14 +50,11 @@ public class Drive {
 
     public Action alignToSampleContinuous(Vector2d targetSamplePos) {
         return new RaceAction(
-                new ConditionAction(
-                        new ParallelAction(
-                                new SleepUntilAction(() -> camCV.lookForSamples()),
-                                alignToSample(camCV.getBestSamplePos(targetSamplePos).position)
-                        ),
-                        () -> true // Repeatedly call the action (until the sleep has completed)
+                new ParallelAction(
+                        new SleepUntilAction(() -> camCV.lookForSamples()),
+                        alignToSample(camCV.getBestSamplePos(targetSamplePos).position)
                 ),
-                new SleepAction(1) // How much time to wait until it ends the continuous alignment
+                new SleepAction(1) // How much time to wait until the continuous alignment ends
         );
     }
 
