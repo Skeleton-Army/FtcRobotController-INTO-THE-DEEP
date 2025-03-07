@@ -180,7 +180,7 @@ public class AutoApplication extends AutoOpMode {
                         specimenArm.gripToOuttake(),
                         specimenArm.goToOuttake(),
 
-                        drive.smartActionBuilder(drive).getBuilder()
+                        drive.smartActionBuilder().getBuilder()
                                 .setTangent(Math.toRadians(90))
                                 .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
                                 .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
@@ -216,7 +216,7 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 new ParallelAction(
-                        drive.smartActionBuilder(drive).getBuilder()
+                        drive.smartActionBuilder().getBuilder()
                                 .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 270))
                                 .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 150))
                                 .build(),
@@ -262,7 +262,7 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 new SequentialAction(
-                        drive.smartActionBuilder(drive).getBuilder()
+                        drive.smartActionBuilder().getBuilder()
                                 .setTangent(Math.toRadians(270))
                                 .splineToLinearHeading(new Pose2d(48.5, -43, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
                                 .build(),
@@ -292,7 +292,7 @@ public class AutoApplication extends AutoOpMode {
                                 new SleepAction(0.2)
                         ),
 
-                        drive.smartActionBuilder(drive).getBuilder()
+                        drive.smartActionBuilder().getBuilder()
                                 .setTangent(0)
                                 .splineToConstantHeading(new Vector2d(58, -43), 0)
                                 .build()
@@ -368,7 +368,7 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.hold(),
                                 outtake.retract(),
 
-                                drive.smartActionBuilder(drive).getBuilder()
+                                drive.smartActionBuilder().getBuilder()
                                         .setTangent(0)
                                         .splineToLinearHeading(new Pose2d(58, -41, Math.toRadians(55)), 0)
                                         .build(),
@@ -387,7 +387,7 @@ public class AutoApplication extends AutoOpMode {
                         ),
 
                         new ParallelAction(
-                                drive.smartActionBuilder(drive).getBuilder()
+                                drive.smartActionBuilder().getBuilder()
                                         .splineToLinearHeading(new Pose2d(58, -41, Math.toRadians(95)), 0)
                                         .build(),
 
@@ -446,7 +446,7 @@ public class AutoApplication extends AutoOpMode {
                 // Collect first sample
                 runBlocking(
                         new SequentialAction(
-                                drive.smartActionBuilder(drive).getBuilder()
+                                drive.smartActionBuilder().getBuilder()
                                         .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(80)), Math.PI)
                                         .build(),
                                 wristSequence
@@ -457,7 +457,7 @@ public class AutoApplication extends AutoOpMode {
                 // Collect second sample
                 runBlocking(
                         new SequentialAction(
-                                drive.smartActionBuilder(drive).getBuilder()
+                                drive.smartActionBuilder().getBuilder()
                                         .splineToLinearHeading(new Pose2d(-57, -50.5, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
@@ -468,7 +468,7 @@ public class AutoApplication extends AutoOpMode {
                 // Collect third sample
                 runBlocking(
                         new SequentialAction(
-                                drive.smartActionBuilder(drive).getBuilder()
+                                drive.smartActionBuilder().getBuilder()
                                         .splineToLinearHeading(new Pose2d(-57.75, -48.5, Math.toRadians(112)), Math.PI)
                                         .build(),
                                 wristSequence
@@ -526,7 +526,7 @@ public class AutoApplication extends AutoOpMode {
         if (collectedSamples == 0) {
             runBlocking(
                     new ParallelAction(
-                            drive.smartActionBuilder(drive).getBuilder()
+                            drive.smartActionBuilder().getBuilder()
                                     .setTangent(Math.PI / 2)
                                     .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
                                     .build(),
@@ -537,7 +537,7 @@ public class AutoApplication extends AutoOpMode {
         else if (collectedSamples >= 4) {
             runBlocking(
                     new ParallelAction(
-                            drive.smartActionBuilder(drive).getBuilder()
+                            drive.smartActionBuilder().getBuilder()
                                     .setTangent(Math.toRadians(200))
                                     .splineToLinearHeading(new Pose2d(-54, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 300))
                                     .build(),
@@ -556,7 +556,7 @@ public class AutoApplication extends AutoOpMode {
             // Retract and go to basket
             runBlocking(
                     new ParallelAction(
-                            drive.smartActionBuilder(drive).getBuilder()
+                            drive.smartActionBuilder().getBuilder()
                                     .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225))
                                     .build(),
                             new SequentialAction(
@@ -612,7 +612,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runBlocking(
-                drive.smartActionBuilder(drive).getBuilder()
+                drive.smartActionBuilder().getBuilder()
                         .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                         .build()
         );
@@ -662,7 +662,7 @@ public class AutoApplication extends AutoOpMode {
                 );
 
                 runBlocking(
-                        drive.smartActionBuilder(drive).getBuilder()
+                        drive.smartActionBuilder().getBuilder()
                                 .setTangent(Math.toRadians(-45))
                                 .splineTo(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-60, 150))
                                 .build()
@@ -685,7 +685,7 @@ public class AutoApplication extends AutoOpMode {
 
                 if (drive.pose.position.x < -35) {
                     runBlocking(
-                            drive.smartActionBuilder(drive).getBuilder()
+                            drive.smartActionBuilder().getBuilder()
                                     .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
                                     .build()
                     );

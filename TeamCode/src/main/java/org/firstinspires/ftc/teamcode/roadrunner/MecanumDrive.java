@@ -569,11 +569,19 @@ public final class MecanumDrive {
         );
     }
 
-    public SmartActionBuilder smartActionBuilder(MecanumDrive drive) {
-        return new SmartActionBuilder(actionBuilder(drive.pose), drive);
+    public SmartActionBuilder smartActionBuilder() {
+        return new SmartActionBuilder(actionBuilder(pose), this);
     }
 
-    public SmartActionBuilder smartActionBuilder(MecanumDrive drive, boolean mirrored) {
-        return new SmartActionBuilder(actionBuilder(drive.pose, mirrored), drive);
+    public SmartActionBuilder smartActionBuilder(boolean mirrored) {
+        return new SmartActionBuilder(actionBuilder(pose, mirrored), this);
+    }
+
+    public SmartActionBuilder smartActionBuilder(Pose2d beginPose) {
+        return new SmartActionBuilder(actionBuilder(beginPose), this);
+    }
+
+    public SmartActionBuilder smartActionBuilder(Pose2d beginPose, boolean mirrored) {
+        return new SmartActionBuilder(actionBuilder(beginPose, mirrored), this);
     }
 }
