@@ -82,8 +82,8 @@ public class TeleopApplication extends TeleopOpMode {
         // Run systems
         runIntakeWithDeposit();
         runIntake();
+        runIntakeControls();
         runWrist();
-        runManualIntakeControl();
         runOuttake();
         runClaw();
         runSpecimenArm();
@@ -125,6 +125,7 @@ public class TeleopApplication extends TeleopOpMode {
                     new ParallelAction(
                             intake.closeClaw(),
                             intake.retractWrist(),
+                            intake.rotate(0),
                             outtake.hold(),
                             new SequentialAction(
                                     new ParallelAction(
@@ -155,9 +156,28 @@ public class TeleopApplication extends TeleopOpMode {
                     // Retract intake
                     new ParallelAction(
                             intake.retract(),
-                            intake.wristMiddle()
+                            intake.wristMiddle(),
+                            intake.rotate(0)
                     )
             );
+        }
+    }
+
+    public void runIntakeControls() {
+        // Intake claw rotation
+        if ((Math.abs(gamepad2.left_stick_y) > 0.1 || Math.abs(gamepad2.left_stick_x) > 0.1) && isInState("intake", 1)) {
+            runAction(
+                    intake.rotate(-gamepad2.left_stick_x)
+            );
+        }
+
+        // Intake manual movement
+        if (Math.abs(gamepad2.right_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.right_stick_y > 0 || intake.motor.getCurrentPosition() < IntakeConfig.extendPosition)) {
+            manuallyMoved = true;
+            intake.setPower(gamepad2.right_stick_y * IntakeConfig.manualSpeed);
+        } else if (manuallyMoved) {
+            manuallyMoved = false;
+            intake.setPower(0);
         }
     }
 
@@ -187,16 +207,6 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.back)) {
             highBasket = !highBasket;
             gamepad2.rumble(200);
-        }
-    }
-
-    public void runManualIntakeControl() {
-        if (Math.abs(gamepad2.left_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.left_stick_y > 0 || intake.motor.getCurrentPosition() < IntakeConfig.extendPosition)) {
-            manuallyMoved = true;
-            intake.setPower(gamepad2.left_stick_y * IntakeConfig.manualSpeed);
-        } else if (manuallyMoved) {
-            manuallyMoved = false;
-            intake.setPower(0);
         }
     }
 
@@ -271,9 +281,12 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        runAction(
-                specimenArm.runManualControl(gamepad2.right_stick_y)
-        );
+        // Run manual control if dpad is held down
+        if (gamepad2.dpad_down || gamepad2.dpad_up) {
+            runAction(
+                    specimenArm.runManualControl(gamepad2.right_stick_y)
+            );
+        }
 
         specimenArm.update();
     }

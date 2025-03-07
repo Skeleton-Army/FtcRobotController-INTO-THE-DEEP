@@ -7,6 +7,7 @@ public class IntakeConfig {
     public static String motorName = "intake";
     public static String clawName = "claw";
     public static String wristName = "wrist";
+    public static String rotationName = "rotation";
 
     public static double motorPower = 1;
     public static int extendPosition = 500;
@@ -22,6 +23,9 @@ public class IntakeConfig {
     public static double wristRetract = 0.35;
     public static double wristMiddle = 0.6;
     public static double wristReady = 0.75;
+
+    public static double rotationLeft = 0;
+    public static double rotationRight = 1;
 
     public static double manualSpeed = -0.35;
 }
