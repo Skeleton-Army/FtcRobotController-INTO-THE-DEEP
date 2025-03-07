@@ -11,7 +11,8 @@ public class RaceAction implements Action {
     private final List<Action> actions;
 
     /**
-     * Runs multiple actions in parallel and finishes when the first action finishes.
+     * Executes multiple actions in parallel and stops as soon as any one of them completes.
+     * Remaining actions will not be updated once one finishes.
      */
     public RaceAction(Action... actions) {
         this.actions = Arrays.asList(actions);
