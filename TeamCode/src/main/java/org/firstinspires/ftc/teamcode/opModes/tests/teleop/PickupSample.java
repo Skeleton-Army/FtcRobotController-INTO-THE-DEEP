@@ -7,14 +7,12 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -25,7 +23,6 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
@@ -78,7 +75,7 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addData("Y: ", "" + sample.position.y);
             telemetry.addData("sample heading: ", Math.toDegrees(sample.heading.toDouble()));
 
-            //WebcamCV.drawSample(camCV.getCloseSampleObject(new Vector2d(0,0)));
+            WebcamCV.drawSample(camCV.getCloseSampleObject(new Vector2d(0,0)));
         }
         else {
             telemetry.addLine("No samples detected");
@@ -97,58 +94,8 @@ public class PickupSample extends TeleopOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-
-        Vector2d target = camCV.getBestSamplePos(sample.position).position;
-        double heading = drive.pose.heading.toDouble();
-        Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
-                CameraConfig.pickupSampleOffsetX * Math.sin(heading),
-                CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
-                        CameraConfig.pickupSampleOffsetX * Math.cos(heading));
-
-        Vector2d driveTarget = target.minus(offset);
         Actions.runBlocking(
-                new ParallelAction(
-                    driveActions.alignToSample(target),
-                        new SequentialAction(
-                                // the robot's detecting the sample, and moving to intake position
-                                intake.openClaw(),
-                                intake.wristReady(),
-                                intake.extend(),
-                                intake.extendWrist(),
-                                new SleepAction(0.4),
-                                intake.closeClaw(),
-                                new SleepAction(0.4),
-                                intake.retractWrist(),
-                                new ParallelAction(
-                                        intake.retract(),
-                                        new SleepAction(0.4)
-                                ),
-                                intake.openClaw(),
-                                intake.wristMiddle()
-                        )
-                    /*new SequentialAction(
-                            telemetryPacket -> !(Math.abs(driveTarget.x - drive.pose.position.x) < 10 &&
-                                    Math.abs(driveTarget.y - drive.pose.position.y) < 10
-                            ),
-                            new SequentialAction(
-                                    // the robot's detecting the sample, and moving to intake position
-                                    intake.openClaw(),
-                                    intake.wristReady(),
-                                    intake.extend(),
-                                    intake.extendWrist(),
-                                    new SleepAction(0.4),
-                                    intake.closeClaw(),
-                                    new SleepAction(0.4),
-                                    intake.retractWrist(),
-                                    new ParallelAction(
-                                            intake.retract(),
-                                            new SleepAction(0.4)
-                                    ),
-                                    intake.openClaw(),
-                                    intake.wristMiddle()
-                            )
-                    )*/
-            )
+                webcamSequences.pickupSample(camCV.getBestSamplePos(sample.position).position)
         );
 
         Actions.runBlocking(
