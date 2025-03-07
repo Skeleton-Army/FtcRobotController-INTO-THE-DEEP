@@ -24,7 +24,7 @@ public class RaceAction implements Action {
 
         // Update each action and check if any one has completed
         for (Action action : actions) {
-            if (action.run(telemetryPacket)) {
+            if (!action.run(telemetryPacket)) {
                 anyCompleted = true;
             }
         }
