@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.function.Supplier;
 
 public class LoopAction implements Action {
-    private final Supplier<Action> action1;
-    private final Supplier<Action> action2;
-    private final Supplier<Action> action3;
+    private final Supplier<Action> loopAction;
+    private final Supplier<Action> intervalAction;
+    private final Supplier<Action> endAction;
     private final double interval;
     private final double time;
 
@@ -22,10 +22,20 @@ public class LoopAction implements Action {
 
     private boolean initialized = false;
 
-    public LoopAction(Supplier<Action> action1, Supplier<Action> action2, Supplier<Action> action3, double interval, double time) {
-        this.action1 = action1;
-        this.action2 = action2;
-        this.action3 = action3;
+    /**
+     * Creates a looping action that repeatedly executes a primary action while periodically running an interval action.
+     * When the total time is reached, an end action is executed.
+     *
+     * @param loopAction     The main action that runs continuously in a loop.
+     * @param intervalAction The action that runs periodically at the specified interval.
+     * @param endAction      The action that runs once when the total time is reached.
+     * @param interval       The interval (in seconds) at which the interval action runs.
+     * @param time           The total time (in seconds) before the loop ends and the end action executes.
+     */
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double time) {
+        this.loopAction = loopAction;
+        this.intervalAction = intervalAction;
+        this.endAction = endAction;
         this.interval = interval;
         this.time = time;
     }
@@ -38,14 +48,14 @@ public class LoopAction implements Action {
             totalTimer.reset();
             intervalTimer.reset();
 
-            currentAction = action1.get();
+            currentAction = loopAction.get();
         }
 
         if (intervalTimer.seconds() >= interval) {
             intervalTimer.reset();
 
-            action2.get().run(telemetryPacket);
-            currentAction = action1.get();
+            intervalAction.get().run(telemetryPacket);
+            currentAction = loopAction.get();
         }
 
         if (currentAction != null && !currentAction.run(telemetryPacket))
@@ -54,7 +64,7 @@ public class LoopAction implements Action {
         boolean ended = totalTimer.seconds() > time;
 
         if (ended)
-            action3.get().run(telemetryPacket);
+            endAction.get().run(telemetryPacket);
 
         return !ended;
     }
