@@ -64,6 +64,32 @@ public class Drive {
         );
     }
 
+    public Action alignToSampleVel(Vector2d targetSamplePos) {
+        Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetX, CameraConfig.pickupSampleOffsetY);
+        Vector2d target = targetSamplePos.minus(offset);
+        double firstDist = target.norm();
+        return new LoopAction(
+                () -> new InstantAction(() -> drive.setDrivePowers(getVelocityToSample(camCV.getBestSamplePos(targetSamplePos).position, firstDist))),
+                () -> new InstantAction(() -> {
+                    camCV.resetSampleList();
+                    camCV.lookForSamples();
+                }),
+                () -> new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0))),
+                0.2,
+                2
+                );
+    }
+    private PoseVelocity2d getVelocityToSample(Vector2d targetSamplePos, double firstDist) {
+        // Assuming the vector is (sampleX, sampleY) sample position relative to the robot
+
+        Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetX, CameraConfig.pickupSampleOffsetY);
+        Vector2d target = targetSamplePos.minus(offset);
+
+        Vector2d velocity = target.div(firstDist);
+
+        return new PoseVelocity2d(velocity, 0);
+    }
+
     private Action getTrajectoryToSample(Vector2d targetSamplePos) {
         double heading = drive.pose.heading.toDouble();
 
@@ -86,7 +112,7 @@ public class Drive {
 //        return new NullAction();
 
         return drive.actionBuilder(drive.pose)
-                    .strafeToConstantHeading(target)
-                    .build();
+                .strafeToConstantHeading(target)
+                .build();
     }
 }
