@@ -2,20 +2,21 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
+import org.firstinspires.ftc.teamcode.utils.actions.FailoverAction;
+import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
-import org.firstinspires.ftc.teamcode.utils.actions.AlignToSample;
-import org.firstinspires.ftc.teamcode.utils.actions.RaceAction;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
+import org.firstinspires.ftc.teamcode.utils.actions.DynamicAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
@@ -44,18 +45,43 @@ public class Drive {
     }
 
     public Action alignToSample(Vector2d targetSamplePos) {
-//        return new AlignToSample(drive, targetSamplePos);
         return getTrajectoryToSample(targetSamplePos);
     }
 
     public Action alignToSampleContinuous(Vector2d targetSamplePos) {
-        return new RaceAction(
-                new ParallelAction(
-                        new SleepUntilAction(() -> camCV.lookForSamples()),
-                        alignToSample(camCV.getBestSamplePos(targetSamplePos).position)
-                ),
-                new SleepAction(1) // How much time to wait until the continuous alignment ends
+        return new LoopAction(
+                () -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position),
+                () -> new InstantAction(() -> {
+                    camCV.resetSampleList();
+                    camCV.lookForSamples();
+                }),
+                () -> new InstantAction(() -> {
+                    drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
+                }),
+                0.5,
+                2 // How much time to wait until the continuous alignment ends
         );
+
+//        FailoverAction align = new FailoverAction(
+//                new DynamicAction(() -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position)),
+//
+//                new SequentialAction(
+//                        new InstantAction(() -> {
+//                            camCV.resetSampleList();
+//                            camCV.lookForSamples();
+//                        }),
+//                        new DynamicAction(() -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position))
+//                )
+//        );
+//
+//        return new ParallelAction(
+//                align,
+//
+//                new SequentialAction(
+//                        new SleepAction(1),
+//                        new InstantAction(align::failover)
+//                )
+//        );
     }
 
     private Action getTrajectoryToSample(Vector2d targetSamplePos) {
@@ -68,8 +94,11 @@ public class Drive {
 
         Vector2d target = targetSamplePos.minus(offset);
 
-        return drive.actionBuilder(drive.pose).fresh()
-                    .splineToConstantHeading(target, drive.pose.heading)
+//        Vector2d moveDirection = targetSamplePos.minus(drive.pose.position).div(4); // Smooth movement
+//        drive.setDrivePowers(new PoseVelocity2d(moveDirection, 0)); // Move toward sample
+
+        return drive.actionBuilder(drive.pose)
+                    .strafeToConstantHeading(target)
                     .build();
     }
 }
