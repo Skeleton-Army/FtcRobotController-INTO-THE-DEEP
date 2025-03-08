@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -59,29 +60,8 @@ public class Drive {
                     drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
                 }),
                 0.5,
-                2 // How much time to wait until the continuous alignment ends
+                6 // How much time to wait until the continuous alignment ends
         );
-
-//        FailoverAction align = new FailoverAction(
-//                new DynamicAction(() -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position)),
-//
-//                new SequentialAction(
-//                        new InstantAction(() -> {
-//                            camCV.resetSampleList();
-//                            camCV.lookForSamples();
-//                        }),
-//                        new DynamicAction(() -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position))
-//                )
-//        );
-//
-//        return new ParallelAction(
-//                align,
-//
-//                new SequentialAction(
-//                        new SleepAction(1),
-//                        new InstantAction(align::failover)
-//                )
-//        );
     }
 
     private Action getTrajectoryToSample(Vector2d targetSamplePos) {
@@ -94,8 +74,16 @@ public class Drive {
 
         Vector2d target = targetSamplePos.minus(offset);
 
-//        Vector2d moveDirection = targetSamplePos.minus(drive.pose.position).div(4); // Smooth movement
+//        // Calculate the distance between the current position and the target
+//        Vector2d currentPos = drive.pose.position;
+//        double distance = Math.sqrt(Math.pow(target.x - currentPos.x, 2) + Math.pow(target.y - currentPos.y, 2));
+//
+//        // Compute movement direction, scaled by the distance
+//        Vector2d moveDirection = target.minus(currentPos).div(distance * 2);
+//
 //        drive.setDrivePowers(new PoseVelocity2d(moveDirection, 0)); // Move toward sample
+//
+//        return new NullAction();
 
         return drive.actionBuilder(drive.pose)
                     .strafeToConstantHeading(target)
