@@ -60,7 +60,7 @@ public class Drive {
                     drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
                 }),
                 0.5,
-                6 // How much time to wait until the continuous alignment ends
+                2 // How much time to wait until the continuous alignment ends
         );
     }
 
