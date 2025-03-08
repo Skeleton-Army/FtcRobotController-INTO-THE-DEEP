@@ -68,6 +68,7 @@ public class Drive {
         Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetX, CameraConfig.pickupSampleOffsetY);
         Vector2d target = targetSamplePos.minus(offset);
         double firstDist = target.norm();
+
         return new LoopAction(
                 () -> new InstantAction(() -> drive.setDrivePowers(getVelocityToSample(camCV.getBestSamplePos(targetSamplePos).position, firstDist))),
                 () -> new InstantAction(() -> {
@@ -77,8 +78,9 @@ public class Drive {
                 () -> new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0))),
                 0.2,
                 2
-                );
+        );
     }
+
     private PoseVelocity2d getVelocityToSample(Vector2d targetSamplePos, double firstDist) {
         // Assuming the vector is (sampleX, sampleY) sample position relative to the robot
 
@@ -100,19 +102,8 @@ public class Drive {
 
         Vector2d target = targetSamplePos.minus(offset);
 
-//        // Calculate the distance between the current position and the target
-//        Vector2d currentPos = drive.pose.position;
-//        double distance = Math.sqrt(Math.pow(target.x - currentPos.x, 2) + Math.pow(target.y - currentPos.y, 2));
-//
-//        // Compute movement direction, scaled by the distance
-//        Vector2d moveDirection = target.minus(currentPos).div(distance * 2);
-//
-//        drive.setDrivePowers(new PoseVelocity2d(moveDirection, 0)); // Move toward sample
-//
-//        return new NullAction();
-
         return drive.actionBuilder(drive.pose)
-                .strafeToConstantHeading(target)
+                .strafeToConstantHeading(target, new TranslationalVelConstraint(100))
                 .build();
     }
 }
