@@ -19,6 +19,10 @@ public class CameraConfig {
     public static double pickupSampleOffsetX = 1.25;
     public static double pickupSampleOffsetY = 24;
 
+    public static double pickupInterval = 0.75;
+    public static double pickupIntervalDivision = 1.4;
+    public static double pickupTime = 1.5;
+
     // Distortion coefficients
 
     // Camera matrix

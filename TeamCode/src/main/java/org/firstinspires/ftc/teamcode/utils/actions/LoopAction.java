@@ -12,7 +12,8 @@ public class LoopAction implements Action {
     private final Supplier<Action> loopAction;
     private final Supplier<Action> intervalAction;
     private final Supplier<Action> endAction;
-    private final double interval;
+    private double interval;
+    private final double intervalDivision;
     private final double time;
 
     private Action currentAction;
@@ -26,17 +27,19 @@ public class LoopAction implements Action {
      * Creates a looping action that repeatedly executes a primary action while periodically running an interval action.
      * When the total time is reached, an end action is executed.
      *
-     * @param loopAction     The main action that runs continuously in a loop.
-     * @param intervalAction The action that runs periodically at the specified interval.
-     * @param endAction      The action that runs once when the total time is reached.
-     * @param interval       The interval (in seconds) at which the interval action runs.
-     * @param time           The total time (in seconds) before the loop ends and the end action executes.
+     * @param loopAction       The main action that runs continuously in a loop.
+     * @param intervalAction   The action that runs periodically at the specified interval.
+     * @param endAction        The action that runs once when the total time is reached.
+     * @param interval         The interval (in seconds) at which the interval action runs.
+     * @param intervalDivision The number of which to divide the interval every interval.
+     * @param time             The total time (in seconds) before the loop ends and the end action executes.
      */
-    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double time) {
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double time) {
         this.loopAction = loopAction;
         this.intervalAction = intervalAction;
         this.endAction = endAction;
         this.interval = interval;
+        this.intervalDivision = intervalDivision;
         this.time = time;
     }
 
@@ -53,6 +56,7 @@ public class LoopAction implements Action {
 
         if (intervalTimer.seconds() >= interval) {
             intervalTimer.reset();
+            interval /= intervalDivision;
 
             intervalAction.get().run(telemetryPacket);
             currentAction = loopAction.get();

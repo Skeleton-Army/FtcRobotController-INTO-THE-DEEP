@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTime;
+
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
@@ -59,8 +63,9 @@ public class Drive {
                 () -> new InstantAction(() -> {
                     drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
                 }),
-                0.5,
-                2 // How much time to wait until the continuous alignment ends
+                pickupInterval,
+                pickupIntervalDivision,
+                pickupTime
         );
     }
 
@@ -77,6 +82,7 @@ public class Drive {
                 }),
                 () -> new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0))),
                 0.2,
+                1,
                 2
         );
     }
@@ -103,7 +109,7 @@ public class Drive {
         Vector2d target = targetSamplePos.minus(offset);
 
         return drive.actionBuilder(drive.pose)
-                .strafeToConstantHeading(target, new TranslationalVelConstraint(100))
+                .strafeToConstantHeading(target)
                 .build();
     }
 }
