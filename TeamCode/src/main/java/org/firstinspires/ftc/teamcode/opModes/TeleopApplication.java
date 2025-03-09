@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
+import org.slf4j.helpers.Util;
 
 import java.util.List;
 
@@ -165,10 +166,12 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runIntakeControls() {
         // Intake claw rotation
-        if ((Math.abs(gamepad2.left_stick_y) > 0.1 || Math.abs(gamepad2.left_stick_x) > 0.1) && isInState("intake", 1)) {
-            runAction(
-                    intake.rotate(-gamepad2.left_stick_x)
-            );
+        if (isInState("intake", 1)) {
+            double x = Math.round(gamepad2.left_stick_x);
+            double y = Math.round(-gamepad2.left_stick_y);
+            double rotation = 0.5 * x + 0.5 * y;
+
+            runAction(intake.rotate(rotation));
         }
 
         // Intake manual movement
