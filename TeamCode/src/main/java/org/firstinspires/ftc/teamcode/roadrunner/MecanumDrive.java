@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.PoseMessage;
-import org.firstinspires.ftc.teamcode.utils.autonomous.SmartActionBuilder;
+//import org.firstinspires.ftc.teamcode.utils.autonomous.SmartActionBuilder;
 
 import java.lang.Math;
 import java.util.Arrays;
@@ -569,19 +569,19 @@ public final class MecanumDrive {
         );
     }
 
-    public SmartActionBuilder smartActionBuilder() {
-        return new SmartActionBuilder(actionBuilder(pose), this);
-    }
-
-    public SmartActionBuilder smartActionBuilder(boolean mirrored) {
-        return new SmartActionBuilder(actionBuilder(pose, mirrored), this);
-    }
-
-    public SmartActionBuilder smartActionBuilder(Pose2d beginPose) {
-        return new SmartActionBuilder(actionBuilder(beginPose), this);
-    }
-
-    public SmartActionBuilder smartActionBuilder(Pose2d beginPose, boolean mirrored) {
-        return new SmartActionBuilder(actionBuilder(beginPose, mirrored), this);
-    }
+//    public SmartActionBuilder smartActionBuilder() {
+//        return new SmartActionBuilder(actionBuilder(pose), this);
+//    }
+//
+//    public SmartActionBuilder smartActionBuilder(boolean mirrored) {
+//        return new SmartActionBuilder(actionBuilder(pose, mirrored), this);
+//    }
+//
+//    public SmartActionBuilder smartActionBuilder(Pose2d beginPose) {
+//        return new SmartActionBuilder(actionBuilder(beginPose), this);
+//    }
+//
+//    public SmartActionBuilder smartActionBuilder(Pose2d beginPose, boolean mirrored) {
+//        return new SmartActionBuilder(actionBuilder(beginPose, mirrored), this);
+//    }
 }
