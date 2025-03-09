@@ -169,9 +169,16 @@ public class TeleopApplication extends TeleopOpMode {
         if (isInState("intake", 1)) {
             double x = Math.round(gamepad2.left_stick_x);
             double y = Math.round(-gamepad2.left_stick_y);
-            double rotation = 0.5 * x + 0.5 * y;
 
-            runAction(intake.rotate(rotation));
+            String key = (int) x + "," + (int) y;
+
+            switch (key) {
+                case "-1,0": runAction(intake.rotate(-1)); break;
+                case "-1,1": runAction(intake.rotate(-0.5)); break;
+                case "0,1": runAction(intake.rotate(0)); break;
+                case "1,1": runAction(intake.rotate(0.5)); break;
+                case "1,0": runAction(intake.rotate(1)); break;
+            }
         }
 
         // Intake manual movement
