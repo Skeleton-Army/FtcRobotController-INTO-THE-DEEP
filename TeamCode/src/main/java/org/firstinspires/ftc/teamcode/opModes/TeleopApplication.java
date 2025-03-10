@@ -167,8 +167,8 @@ public class TeleopApplication extends TeleopOpMode {
     public void runIntakeControls() {
         // Intake claw rotation
         if (isInState("intake", 1)) {
-            double x = Math.round(gamepad2.left_stick_x);
-            double y = Math.round(-gamepad2.left_stick_y);
+            double x = Math.ceil(gamepad2.left_stick_x);
+            double y = Math.ceil(-gamepad2.left_stick_y);
 
             String key = (int) x + "," + (int) y;
 
