@@ -473,7 +473,7 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 runAsync(
-                        intake.rotate(-0.5)
+                        intake.rotate(0.5)
                 );
 
                 runBlocking(
