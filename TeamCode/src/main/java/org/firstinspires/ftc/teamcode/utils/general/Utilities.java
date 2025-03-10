@@ -129,4 +129,18 @@ public class Utilities {
         // Return true if the last state was true and the current state is false (just released)
         return lastState && !input;
     }
+
+    /**
+     * Remaps a value from one range to another using linear interpolation.
+     *
+     * @param value  The input value to remap.
+     * @param inMin  The lower bound of the input range.
+     * @param inMax  The upper bound of the input range.
+     * @param outMin The lower bound of the output range.
+     * @param outMax The upper bound of the output range.
+     * @return The remapped value in the output range.
+     */
+    public static double remap(double value, double inMin, double inMax, double outMin, double outMax) {
+        return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+    }
 }
