@@ -31,6 +31,7 @@ public class Intake {
         rotationServo = hardwareMap.get(Servo.class, IntakeConfig.rotationName);
 
         Actions.runBlocking(wristMiddle());
+        Actions.runBlocking(rotate(0));
     }
 
     public void resetMotor() {
