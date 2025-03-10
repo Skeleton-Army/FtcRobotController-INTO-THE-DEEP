@@ -13,7 +13,8 @@ public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
 
     private final Pose2d detectionPose; // The pose where the sample was detected
-    private double sampleX, sampleY, horizontalAngle, quality, orientation;
+    private double sampleX, sampleY, horizontalAngle, quality;
+    public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
     private MatOfPoint contour;
 
@@ -65,8 +66,8 @@ public class Sample {
         sampleX = lowestPos.x;
 
         double rectAngle = Math.toRadians(minRect.angle);
-        Vector2d second = pixelToWorld(lowest.x + Math.cos(rectAngle), lowestPos.y - Math.sin(rectAngle));
-        orientation = Math.toDegrees(Math.tan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
+        Vector2d second = pixelToWorld(lowest.x + 40 * Math.cos(rectAngle), lowest.y - 40 * Math.sin(rectAngle));
+        orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;

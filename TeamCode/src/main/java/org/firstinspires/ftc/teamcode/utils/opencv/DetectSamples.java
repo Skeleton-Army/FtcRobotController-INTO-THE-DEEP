@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
 
+import com.acmerobotics.roadrunner.Vector2d;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -14,6 +17,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -39,6 +43,7 @@ public class DetectSamples extends OpenCvPipeline {
 
     private static Mat input;
 
+    Point second;
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
@@ -68,6 +73,13 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         return lowestPoint;
+    }
+
+    private Vector2d pixelToWorld(double x, double y) {
+        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
+        double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        double worldX = Math.tan(horizontal) * worldY;
+        return new Vector2d(worldX, worldY);
     }
 
     /**
@@ -103,14 +115,27 @@ public class DetectSamples extends OpenCvPipeline {
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, drive.pose, Imgproc.minAreaRect(new MatOfPoint2f(contour)));
+            RotatedRect rotated = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
+            Sample sample = new Sample(lowestPoint, drive.pose, rotated);
+            Mat line = new Mat();
+            Imgproc.fitLine(contour, line, Imgproc.DIST_L2, 0, 0.01, 0.01);
             //sample.calculateOrientation(contour);
             sample.calculateField();
 
             samplesFrame.add(sample);
 
             // Draw a marker on the detected point
-            Imgproc.drawMarker(input, new Point(lowestPoint.x, lowestPoint.y), new Scalar(255,255,0));
+
+            Vector2d secondvec = pixelToWorld(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
+            second = new Point(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
+
+
+
+            Imgproc.line(input, lowestPoint, second, new Scalar(0,0,255));
+            Imgproc.rectangle(input, rotated.boundingRect(), new Scalar(255,0,0));
+            Imgproc.putText(input, "" + rotated.angle, lowestPoint, 0, 1, new Scalar(255, 0, 255));
+            Imgproc.putText(input, "" + sample.orientation, new Point(200, 100), 0, 1, new Scalar(255, 0, 255));
+            Imgproc.drawMarker(input, lowestPoint, new Scalar(255,255,0));
         }
 
         samples = samplesFrame;
