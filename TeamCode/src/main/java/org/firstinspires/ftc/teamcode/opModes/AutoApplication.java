@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 
 enum Alliance {
@@ -65,6 +67,8 @@ public class AutoApplication extends AutoOpMode {
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
+
+    Drive driveActions;
 
     Alliance alliance;
     Strategy strategy;
@@ -147,6 +151,8 @@ public class AutoApplication extends AutoOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
+
+        driveActions = new Drive(drive, camCV);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
@@ -606,11 +612,14 @@ public class AutoApplication extends AutoOpMode {
 
         collectedSamples++;
 
-        Action grabSequence = new SequentialAction(
+        Action prepareIntake = new SequentialAction(
                 intake.wristReady(),
-                intake.extend(),
-                intake.extendWrist(),
                 intake.openClaw(),
+                intake.extend()
+        );
+
+        Action grabSequence = new SequentialAction(
+                intake.extendWrist(),
                 new SleepAction(0.2),
                 intake.closeClaw(),
                 new SleepAction(0.2)
@@ -624,22 +633,23 @@ public class AutoApplication extends AutoOpMode {
 
         // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
-        // Find first sample position
-        findNewSamples();
-        Vector2d firstSamplePos = camCV.getBestSamplePos(new Vector2d(-5, -7)).position;
-
-        // First trajectory
-        runBlocking(new AlignToSample(drive, firstSamplePos));
-
-        // Find second sample position
-        findNewSamples();
-        Vector2d secondSamplePos = camCV.getBestSamplePos(firstSamplePos).position;
-
         // Grab sample
+        camCV.resetSampleList();
+
         runBlocking(
-                new ParallelAction(
-                        grabSequence,
-                        new AlignToSample(drive, secondSamplePos)
+                new SleepUntilAction(() -> camCV.lookForSamples())
+        );
+
+        Sample targetSample = camCV.getBestSample(new Vector2d(-5, -7));
+
+        runAsync(
+                prepareIntake
+        );
+
+        runBlocking(
+                new SequentialAction(
+                        driveActions.alignToSampleContinuous(targetSample),
+                        grabSequence
                 )
         );
 
@@ -699,13 +709,5 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
         }
-    }
-
-    private void findNewSamples() {
-        camCV.resetSampleList();
-
-        runBlocking(
-                new SleepUntilAction(() -> camCV.lookForSamples())
-        );
     }
 }
