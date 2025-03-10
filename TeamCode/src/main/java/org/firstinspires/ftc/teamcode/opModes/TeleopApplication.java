@@ -19,14 +19,11 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
-import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
-import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
-import org.slf4j.helpers.Util;
 
 import java.util.List;
 
@@ -104,8 +101,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
-        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
+//        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
+//        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
 
         telemetry.update();
     }
