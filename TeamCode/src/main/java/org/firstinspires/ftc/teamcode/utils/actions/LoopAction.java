@@ -15,6 +15,7 @@ public class LoopAction implements Action {
     private double interval;
     private final double intervalDivision;
     private final double time;
+    private final Supplier<Boolean> endCondition;
 
     private Action currentAction;
 
@@ -41,6 +42,28 @@ public class LoopAction implements Action {
         this.interval = interval;
         this.intervalDivision = intervalDivision;
         this.time = time;
+        this.endCondition = null;
+    }
+
+    /**
+     * Creates a looping action that repeatedly executes a primary action while periodically running an interval action.
+     * When the total time is reached, an end action is executed.
+     *
+     * @param loopAction       The main action that runs continuously in a loop.
+     * @param intervalAction   The action that runs periodically at the specified interval.
+     * @param endAction        The action that runs once when the total time is reached.
+     * @param interval         The interval (in seconds) at which the interval action runs.
+     * @param intervalDivision The number of which to divide the interval every interval.
+     * @param endCondition     If this condition is true, the action ends.
+     */
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, Supplier<Boolean> endCondition) {
+        this.loopAction = loopAction;
+        this.intervalAction = intervalAction;
+        this.endAction = endAction;
+        this.interval = interval;
+        this.intervalDivision = intervalDivision;
+        this.time = -1;
+        this.endCondition = endCondition;
     }
 
     @Override
@@ -65,7 +88,7 @@ public class LoopAction implements Action {
         if (currentAction != null && !currentAction.run(telemetryPacket))
             currentAction = null;
 
-        boolean ended = totalTimer.seconds() > time;
+        boolean ended = endCondition == null ? totalTimer.seconds() > time : endCondition.get();
 
         if (ended)
             endAction.get().run(telemetryPacket);

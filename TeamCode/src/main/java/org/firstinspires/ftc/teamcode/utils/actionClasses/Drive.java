@@ -3,7 +3,14 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTime;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
@@ -25,6 +32,8 @@ import org.firstinspires.ftc.teamcode.utils.actions.DynamicAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.opencv.core.Point;
 
 public class Drive {
     MecanumDrive drive;
@@ -53,7 +62,9 @@ public class Drive {
         return getTrajectoryToSample(targetSamplePos);
     }
 
-    public Action alignToSampleContinuous(Vector2d targetSamplePos) {
+    public Action alignToSampleContinuous(Sample targetSample) {
+        Vector2d targetSamplePos = targetSample.getSamplePosition().position;
+
         return new LoopAction(
                 () -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position),
                 () -> new InstantAction(() -> {
@@ -65,7 +76,10 @@ public class Drive {
                 }),
                 pickupInterval,
                 pickupIntervalDivision,
-                pickupTime
+                () -> {
+                    Point lowest = camCV.getBestSample(targetSamplePos).lowest;
+                    return lowest.x > pixelThreshMinX && lowest.x < pixelThreshMaxX && lowest.y > pixelThreshMinY && lowest.y < pixelThreshMaxY;
+                }
         );
     }
 

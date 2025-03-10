@@ -23,6 +23,12 @@ public class CameraConfig {
     public static double pickupIntervalDivision = 1.4;
     public static double pickupTime = 1.5;
 
+    public static int pixelThreshMinX = 103;
+    public static int pixelThreshMaxX = 140;
+    public static int pixelThreshMinY = 300;
+    public static int pixelThreshMaxY = 340;
+
+
     // Distortion coefficients
 
     // Camera matrix

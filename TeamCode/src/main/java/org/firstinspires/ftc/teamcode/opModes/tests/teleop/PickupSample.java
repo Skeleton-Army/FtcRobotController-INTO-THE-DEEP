@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
@@ -32,7 +33,7 @@ public class PickupSample extends TeleopOpMode {
     Webcam webcamSequences;
 
     WebcamCV camCV;
-    Pose2d sample;
+    Sample targetSample;
 
     @Override
     public void init() {
@@ -52,12 +53,13 @@ public class PickupSample extends TeleopOpMode {
     @Override
     public void init_loop() {
         if (camCV.lookForSamples()) {
-            sample = camCV.getBestSamplePos(new Vector2d(30,0));
+            targetSample = camCV.getBestSample(new Vector2d(30,0));
+            Pose2d targetSamplePos = targetSample.getSamplePosition();
 
             telemetry.addLine("Detected samples");
-            telemetry.addData("X: ", "" + sample.position.x);
-            telemetry.addData("Y: ", "" + sample.position.y);
-            telemetry.addData("sample heading: ", Math.toDegrees(sample.heading.toDouble()));
+            telemetry.addData("X: ", "" + targetSamplePos.position.x);
+            telemetry.addData("Y: ", "" + targetSamplePos.position.y);
+            telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
 
             WebcamCV.drawSample(camCV.getCloseSampleObject(new Vector2d(0,0)));
         }
@@ -69,7 +71,7 @@ public class PickupSample extends TeleopOpMode {
     @Override
     public void start() {
         Actions.runBlocking(
-                driveActions.alignToSampleContinuous(sample.position)
+                driveActions.alignToSampleContinuous(targetSample)
         );
 
         Actions.runBlocking(
@@ -96,6 +98,8 @@ public class PickupSample extends TeleopOpMode {
                         .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(180))
                         .build()
         );
+
+        requestOpModeStop();
     }
 
     @Override
