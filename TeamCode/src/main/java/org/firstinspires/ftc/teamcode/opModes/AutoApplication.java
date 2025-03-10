@@ -466,10 +466,14 @@ public class AutoApplication extends AutoOpMode {
                 break;
             case 3:
                 // Collect third sample
+                runAsync(
+                        intake.rotate(-0.5)
+                );
+
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57.75, -48.5, Math.toRadians(112)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-60, -50, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -494,6 +498,7 @@ public class AutoApplication extends AutoOpMode {
         Action intakeRetract = new SequentialAction(
                 outtake.hold(),
                 intake.retractWrist(),
+                intake.rotate(0),
                 new ParallelAction(
                         intake.retract(collectedSamples >= 4 ? 0.7 : 1),
                         new SleepAction(0.4)
