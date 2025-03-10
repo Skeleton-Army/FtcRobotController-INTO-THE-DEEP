@@ -473,7 +473,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-60, -50, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55, -50, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
