@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
 
 class SampleTest {
     static class Test {
@@ -43,7 +44,7 @@ class SampleTest {
         int index = 1;
 
         for (Test value : values ) {
-            Sample sample = new Sample(value.input, new Pose2d(0, 0, 0));
+            Sample sample = new Sample(value.input, new Pose2d(0, 0, 0), new RotatedRect());
 
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();

@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
+
 public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
 
@@ -15,18 +17,18 @@ public class Sample {
     private Pose2d fieldPos; // Field-relative position of the sample
     private MatOfPoint contour;
 
-    public Sample(Point lowest, Pose2d detectionPose) {
+    public Sample(Point lowest, Pose2d detectionPose, RotatedRect minRect) {
         this.lowest = lowest;
         this.detectionPose = detectionPose;
-        calculatePosition();
+        calculatePosition(minRect);
     }
 
-    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
-        this.lowest = lowest;
-        this.detectionPose = detectionPose;
-        this.contour = contour;
-        calculatePosition();
-    }
+//    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
+//        this.lowest = lowest;
+//        this.detectionPose = detectionPose;
+//        this.contour = contour;
+//        calculatePosition();
+//    }
 
     // Getters for sample properties
     public double getSampleX() {
@@ -49,22 +51,25 @@ public class Sample {
         return this.contour;
     }
 
-    /// Calculates the sample position in robot-relative coordinates
-    private void calculatePosition() {
-        horizontalAngle = Math.toRadians((CameraConfig.halfImageWidth - lowest.x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
-        sampleY = CameraConfig.z / Math.tan(Math.toRadians((lowest.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
-        sampleX = Math.tan(horizontalAngle) * sampleY;
+    private Vector2d pixelToWorld(double x, double y) {
+        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
+        double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        double worldX = Math.tan(horizontal) * worldY;
+        return new Vector2d(worldX, worldY);
+    }
 
+    /// Calculates the sample position in robot-relative coordinates
+    private void calculatePosition(RotatedRect minRect) {
+        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y);
+        sampleY = lowestPos.y;
+        sampleX = lowestPos.x;
+
+        double rectAngle = Math.toRadians(minRect.angle);
+        Vector2d second = pixelToWorld(lowest.x + Math.cos(rectAngle), lowestPos.y - Math.sin(rectAngle));
+        orientation = Math.toDegrees(Math.tan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
-    }
-
-    /// Determines the quality of the sample based on contour width
-    public void findQuality(MatOfPoint contour) {
-        int width = contour.width();
-        double bestCase = Math.toDegrees(Math.atan((1.5 + Math.abs(2.5 * Math.sin(horizontalAngle))) / sampleY - CameraConfig.offsetY) / CameraConfig.hOverWidth());
-        quality = bestCase / width;
     }
 
     // Estimates the orientation of the detected sample based on its contour

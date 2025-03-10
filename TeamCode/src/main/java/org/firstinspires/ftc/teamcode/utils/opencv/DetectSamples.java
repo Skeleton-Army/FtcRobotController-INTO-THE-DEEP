@@ -11,6 +11,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -102,8 +103,8 @@ public class DetectSamples extends OpenCvPipeline {
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            Sample sample = new Sample(new Point(lowestPoint.x, lowestPoint.y), drive.pose);
-            sample.calculateOrientation(contour);
+            Sample sample = new Sample(lowestPoint, drive.pose, Imgproc.minAreaRect(new MatOfPoint2f(contour)));
+            //sample.calculateOrientation(contour);
             sample.calculateField();
 
             samplesFrame.add(sample);
