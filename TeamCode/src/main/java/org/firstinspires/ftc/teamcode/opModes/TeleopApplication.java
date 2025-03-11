@@ -128,12 +128,13 @@ public class TeleopApplication extends TeleopOpMode {
                             new SequentialAction(
                                     new ParallelAction(
                                             intake.retract(),
-                                            new SleepAction(0.5)
+                                            new SleepAction(0.6)
                                     ),
                                     intake.openClaw(),
+                                    new SleepAction(0.1),
                                     intake.wristMiddle(),
-                                    outtake.bucketMiddle(),
-                                    new SleepAction(0.2)
+                                    new SleepAction(0.2),
+                                    outtake.bucketMiddle()
                             )
                     )
             );
