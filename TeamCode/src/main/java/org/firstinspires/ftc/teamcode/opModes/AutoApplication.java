@@ -97,6 +97,8 @@ public class AutoApplication extends AutoOpMode {
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
+        driveActions = new Drive(drive, camCV);
+
         // Fetch choices
         String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
         String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
@@ -151,8 +153,6 @@ public class AutoApplication extends AutoOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
-
-        driveActions = new Drive(drive, camCV);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
