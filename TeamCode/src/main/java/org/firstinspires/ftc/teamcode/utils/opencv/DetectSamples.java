@@ -21,6 +21,7 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -112,10 +113,18 @@ public class DetectSamples extends OpenCvPipeline {
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
 
             // Get the lowest point in the detected contour
+            Moments moments = Imgproc.moments(contour);
+            double m00 = moments.get_m00();
+            double cx = moments.get_m10() / m00;
+            double cy = moments.get_m01() / m00;
+
+            Point center = new Point(cx, cy);
+            Imgproc.circle(input, center, 5, new Scalar(0, 0, 255), -1); // Red circle at the center
+
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, drive.pose);
             //sample.calculateOrientation(contour);
             sample.calculateArea(Imgproc.boundingRect(contour));
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));

@@ -12,18 +12,21 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 
+import java.util.Vector;
+
 public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
-
+    public Point center; // The center of mass of the contour
     private final Pose2d detectionPose; // The pose where the sample was detected
     private double sampleX, sampleY, horizontalAngle, quality;
+    private double centerX, centerY;
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
     private MatOfPoint contour;
     public double widthInches;
     public double heightInches;
 
-    public Sample(Point lowest, Pose2d detectionPose) {
+    public Sample(Point lowest, Point center, Pose2d detectionPose) {
         this.lowest = lowest;
         this.detectionPose = detectionPose;
         calculatePosition();
@@ -57,22 +60,29 @@ public class Sample {
         return this.contour;
     }
 
-    private Vector2d pixelToWorld(double x, double y) {
+    private Vector2d pixelToWorld(double x, double y, double height) {
         double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
-        double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        double worldY = height / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
         double worldX = Math.tan(horizontal) * worldY;
         return new Vector2d(worldX, worldY);
     }
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition() {
-        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y);
+        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
+        Vector2d centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 0.75);
+        centerY = centerPos.y;
+        centerX = centerPos.x;
+
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
+        centerY += CameraConfig.offsetY;
+
         sampleX -= CameraConfig.offsetX;
+        centerX -= CameraConfig.offsetX;
     }
 
     /*
