@@ -116,8 +116,6 @@ public class DetectSamples extends OpenCvPipeline {
 
             // Create and add the new sample
             Sample sample = new Sample(lowestPoint, drive.pose);
-            Mat line = new Mat();
-            Imgproc.fitLine(contour, line, Imgproc.DIST_L2, 0, 0.01, 0.01);
             //sample.calculateOrientation(contour);
             sample.calculateArea(Imgproc.boundingRect(contour));
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
