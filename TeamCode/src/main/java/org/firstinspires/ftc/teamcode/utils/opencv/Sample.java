@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
+import android.graphics.Camera;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -7,6 +9,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 
 public class Sample {
@@ -17,6 +20,8 @@ public class Sample {
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
     private MatOfPoint contour;
+    public double widthInches;
+    public double heightInches;
 
     public Sample(Point lowest, Pose2d detectionPose, RotatedRect minRect) {
         this.lowest = lowest;
@@ -74,14 +79,15 @@ public class Sample {
     }
 
     // Estimates the orientation of the detected sample based on its contour
-    public void calculateOrientation(MatOfPoint contour) {
-        int width = contour.width();
-        double constLen = Math.sqrt(Math.pow(1.5, 2) + Math.pow(2.5, 2)); // Predefined length ratio
-        double widthToAngle = Math.toRadians(width * CameraConfig.hOverWidth()); // Convert width to an angular measurement
-        double lenInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY); // Estimate physical length in inches
 
-        //orientation = Math.asin((width * CameraConfig.hOVERwidth) / (Math.cos(horizontalAngle) * constLen)) - Math.abs(horizontalAngle) - Math.atan(1.5 / 2.5);
-        orientation = Math.asin(lenInches * constLen / Math.cos(horizontalAngle)) - Math.atan(1.5 / 2.5) - horizontalAngle;
+    public void calculateArea(Rect boundingRect) {
+        int width = boundingRect.width;
+        double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
+        widthInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
+
+        int height = boundingRect.height;
+        double heightToAngle = Math.toRadians(height * CameraConfig.vOVERheight);
+        heightInches = Math.tan(heightToAngle) * (sampleY - CameraConfig.offsetY);
     }
 
     // Calculates the sample position relative to the field
@@ -89,5 +95,9 @@ public class Sample {
         double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
         double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
         fieldPos = new Pose2d(new Vector2d(x, y), orientation);
+    }
+
+    public boolean isTooBig() {
+        return (widthInches * heightInches >= CameraConfig.MAX_AREA);
     }
 }

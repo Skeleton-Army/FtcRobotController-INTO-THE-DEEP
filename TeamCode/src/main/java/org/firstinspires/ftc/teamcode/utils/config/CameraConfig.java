@@ -6,6 +6,7 @@ import org.opencv.core.MatOfDouble;
 
 @Config
 public class CameraConfig {
+    public static final double MAX_AREA = 14;
     public static float z = 12.5f;
     public static float horizontalFOV = 65.76f; // needs tuning - TODO: check for 65.76
     public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
@@ -44,6 +45,8 @@ public class CameraConfig {
     public static double offsetXApriltag = 6.6;
     public static double offsetYApriltag = 8.2;
     public static double offsetZApriltag = 9.4;
+    public static double vOVERheight = CameraConfig.vOverHeight();
+    public static double hOVERwidth = CameraConfig.hOverWidth();
 
     public static float hOverWidth() {
         return horizontalFOV / (halfImageWidth * 2);

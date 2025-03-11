@@ -120,22 +120,29 @@ public class DetectSamples extends OpenCvPipeline {
             Mat line = new Mat();
             Imgproc.fitLine(contour, line, Imgproc.DIST_L2, 0, 0.01, 0.01);
             //sample.calculateOrientation(contour);
+            sample.calculateArea(Imgproc.boundingRect(contour));
+            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
+            if (sample.isTooBig()) {
+                continue;
+            }
+            Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
             sample.calculateField();
 
             samplesFrame.add(sample);
 
             // Draw a marker on the detected point
 
-            Vector2d secondvec = pixelToWorld(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
-            second = new Point(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
+//            Vector2d secondvec = pixelToWorld(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
+//            second = new Point(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
+//
+//
+//
+//            Imgproc.line(input, lowestPoint, second, new Scalar(0,0,255));
+//            Imgproc.rectangle(input, rotated.boundingRect(), new Scalar(255,0,0));
+//            Imgproc.putText(input, "" + rotated.angle, lowestPoint, 0, 1, new Scalar(255, 0, 255));
+//            Imgproc.putText(input, "" + sample.orientation, new Point(200, 100), 0, 1, new Scalar(255, 0, 255));
+//            Imgproc.drawMarker(input, lowestPoint, new Scalar(255,255,0));
 
-
-
-            Imgproc.line(input, lowestPoint, second, new Scalar(0,0,255));
-            Imgproc.rectangle(input, rotated.boundingRect(), new Scalar(255,0,0));
-            Imgproc.putText(input, "" + rotated.angle, lowestPoint, 0, 1, new Scalar(255, 0, 255));
-            Imgproc.putText(input, "" + sample.orientation, new Point(200, 100), 0, 1, new Scalar(255, 0, 255));
-            Imgproc.drawMarker(input, lowestPoint, new Scalar(255,255,0));
         }
 
         samples = samplesFrame;
@@ -147,7 +154,7 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         // Draw contours around detected samples
-        Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
+        //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
 
         return input;
     }
