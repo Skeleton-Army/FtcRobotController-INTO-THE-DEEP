@@ -23,10 +23,10 @@ public class Sample {
     public double widthInches;
     public double heightInches;
 
-    public Sample(Point lowest, Pose2d detectionPose, RotatedRect minRect) {
+    public Sample(Point lowest, Pose2d detectionPose) {
         this.lowest = lowest;
         this.detectionPose = detectionPose;
-        calculatePosition(minRect);
+        calculatePosition();
     }
 
 //    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
@@ -65,18 +65,31 @@ public class Sample {
     }
 
     /// Calculates the sample position in robot-relative coordinates
-    private void calculatePosition(RotatedRect minRect) {
+    private void calculatePosition() {
         Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y);
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
+        // Adjust positions based on camera offsets
+        sampleY += CameraConfig.offsetY;
+        sampleX -= CameraConfig.offsetX;
+    }
+
+    /*
+    ----- Currently unused orientation calculation.
+    private void calculatePosition(RotatedRect minRect) {
+        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
+        sampleY = lowestPos.y;
+        sampleX = lowestPos.x;
+
         double rectAngle = Math.toRadians(minRect.angle);
-        Vector2d second = pixelToWorld(lowest.x + 40 * Math.cos(rectAngle), lowest.y - 40 * Math.sin(rectAngle));
+        Vector2d second = pixelToWorld(lowest.x + 40 * Math.cos(rectAngle), lowest.y - 40 * Math.sin(rectAngle), CameraConfig.z);
         orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
     }
+     */
 
     // Estimates the orientation of the detected sample based on its contour
 
@@ -87,7 +100,8 @@ public class Sample {
 
         int height = boundingRect.height;
         double heightToAngle = Math.toRadians(height * CameraConfig.vOVERheight);
-        heightInches = Math.tan(heightToAngle) * (sampleY - CameraConfig.offsetY);
+        double topYWorld = (CameraConfig.z - 1.5) / Math.tan(Math.toRadians((boundingRect.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        heightInches = topYWorld - (sampleY - CameraConfig.offsetY);
     }
 
     // Calculates the sample position relative to the field

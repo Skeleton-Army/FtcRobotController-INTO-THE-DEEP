@@ -115,8 +115,7 @@ public class DetectSamples extends OpenCvPipeline {
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            RotatedRect rotated = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
-            Sample sample = new Sample(lowestPoint, drive.pose, rotated);
+            Sample sample = new Sample(lowestPoint, drive.pose);
             Mat line = new Mat();
             Imgproc.fitLine(contour, line, Imgproc.DIST_L2, 0, 0.01, 0.01);
             //sample.calculateOrientation(contour);

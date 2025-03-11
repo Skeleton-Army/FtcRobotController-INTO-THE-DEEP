@@ -6,7 +6,7 @@ import org.opencv.core.MatOfDouble;
 
 @Config
 public class CameraConfig {
-    public static final double MAX_AREA = 14;
+    public static final double MAX_AREA = 18;
     public static float z = 12.5f;
     public static float horizontalFOV = 65.76f; // needs tuning - TODO: check for 65.76
     public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
