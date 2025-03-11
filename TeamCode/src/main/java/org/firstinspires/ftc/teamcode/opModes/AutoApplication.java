@@ -443,9 +443,10 @@ public class AutoApplication extends AutoOpMode {
 
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
-                intake.openClaw(),
                 new SleepAction(0.2)
         );
+
+        runAsync(intake.openClaw());
 
         switch (collectedSamples) {
             case 1:
@@ -473,14 +474,15 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 runAsync(
-                        intake.rotate(0.5)
+                        intake.rotate(0.3)
                 );
 
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-55, -50, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55, -47, Math.toRadians(120)), Math.PI)
                                         .build(),
+                                intake.extraOpenClaw(),
                                 wristSequence
                         )
                 );

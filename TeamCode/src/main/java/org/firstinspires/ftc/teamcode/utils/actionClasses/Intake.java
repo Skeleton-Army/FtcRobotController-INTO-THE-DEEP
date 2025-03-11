@@ -91,6 +91,10 @@ public class Intake {
         return clawToPosition(IntakeConfig.clawOpen);
     }
 
+    public Action extraOpenClaw() {
+        return clawToPosition(IntakeConfig.extraOpenClaw);
+    }
+
     public Action extendWrist() {
         return wristToPosition(IntakeConfig.wristExtend);
     }
