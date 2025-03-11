@@ -2,33 +2,20 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTime;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.NullAction;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.actions.FailoverAction;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
-import org.firstinspires.ftc.teamcode.utils.actions.DynamicAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;

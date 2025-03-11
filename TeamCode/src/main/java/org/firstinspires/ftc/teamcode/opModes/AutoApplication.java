@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -621,6 +622,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action grabSequence = new SequentialAction(
+                intake.extraOpenClaw(),
                 intake.extendWrist(),
                 new SleepAction(0.2),
                 intake.closeClaw(),
