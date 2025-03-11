@@ -28,6 +28,7 @@ public class Sample {
 
     public Sample(Point lowest, Point center, Pose2d detectionPose) {
         this.lowest = lowest;
+        this.center = center;
         this.detectionPose = detectionPose;
         calculatePosition();
     }
