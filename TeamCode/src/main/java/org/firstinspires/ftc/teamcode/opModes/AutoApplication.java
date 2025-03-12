@@ -510,7 +510,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.rotate(0),
                 new ParallelAction(
                         intake.retract(collectedSamples >= 4 ? 0.7 : 1),
-                        new SleepAction(0.5)
+                        new SleepAction(0.6)
                 ),
                 intake.openClaw(),
                 intake.wristReady(),
