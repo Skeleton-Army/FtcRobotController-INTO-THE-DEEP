@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 
 class SampleTest {
-    class Test {
+    static class Test {
         public Point input;
         public double x;
         public double y;
@@ -21,19 +21,24 @@ class SampleTest {
     }
 
     final Test[] values = new Test[] {
-            new Test(new Point(320,319), 0, 47.5),
-            new Test(new Point(354,348), -2.5, 39.5),
-            new Test(new Point(412,292), -11.5, 59.5),
-            new Test(new Point(237,309), 9, 52),
-            new Test(new Point(258,359), 5, 37.5),
+            new Test(new Point(334, 235), 0, 24),
+            new Test(new Point(90, 200), 14.5, 28.5),
+            new Test(new Point(205, 333), 5, 14.5),
+            new Test(new Point(66, 313), 11, 16.6),
+            new Test(new Point(81, 184), 16.7, 31),
+            new Test(new Point(190, 220), 7.5, 26),
+            new Test(new Point(440, 225), -6.5, 26),
+            new Test(new Point(430, 283), -5, 19.75),
+            new Test(new Point(373, 334), -2, 15.75),
     };
 
-    double epsilon = 1.6;
+    final double epsilonX = 1.2;
+    final double epsilonY = 1;
 
     @org.junit.jupiter.api.Test
     void testSampleDetection() {
-        CameraConfig.offsetHorizontal = 0;
-        CameraConfig.offsetVertical = 0;
+        CameraConfig.offsetX = 0;
+        CameraConfig.offsetY = 0;
 
         int index = 1;
 
@@ -43,8 +48,8 @@ class SampleTest {
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();
 
-            assertTrue(Math.abs(sampleX - value.x) < epsilon, "Value: " + index + " Expected: " + value.x + " Got: " + sampleX);
-            assertTrue(Math.abs(sampleY - value.y) < epsilon, "Value: " + index + " Expected: " + value.y + " Got: " + sampleY);
+            assertTrue(Math.abs(sampleX - value.x) < epsilonX, "Value: " + index + " Expected: " + value.x + " Got: " + sampleX);
+            assertTrue(Math.abs(sampleY - value.y) < epsilonY, "Value: " + index + " Expected: " + value.y + " Got: " + sampleY);
 
             index++;
         }

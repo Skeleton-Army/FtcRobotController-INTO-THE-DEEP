@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
+import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
@@ -18,6 +19,7 @@ public class Intake {
     public final CachingDcMotorEx motor;
     private final Servo clawServo;
     private final Servo wristServo;
+    private final Servo rotationServo;
 
     public Intake(HardwareMap hardwareMap) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
@@ -26,8 +28,10 @@ public class Intake {
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
         wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
+        rotationServo = hardwareMap.get(Servo.class, IntakeConfig.rotationName);
 
         Actions.runBlocking(wristMiddle());
+        Actions.runBlocking(rotate(0));
     }
 
     public void resetMotor() {
@@ -52,6 +56,10 @@ public class Intake {
 
     public Action wristToPosition(double targetPos) {
         return new ServoToPosition(wristServo, targetPos);
+    }
+
+    public Action clawToRotation(double targetPos) {
+        return new ServoToPosition(rotationServo, targetPos);
     }
 
     // Specific actions
@@ -83,6 +91,10 @@ public class Intake {
         return clawToPosition(IntakeConfig.clawOpen);
     }
 
+    public Action extraOpenClaw() {
+        return clawToPosition(IntakeConfig.extraOpenClaw);
+    }
+
     public Action extendWrist() {
         return wristToPosition(IntakeConfig.wristExtend);
     }
@@ -97,5 +109,9 @@ public class Intake {
 
     public Action wristReady() {
         return wristToPosition(IntakeConfig.wristReady);
+    }
+
+    public Action rotate(double input) {
+        return clawToRotation(Utilities.remap(input, -1, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationRight));
     }
 }

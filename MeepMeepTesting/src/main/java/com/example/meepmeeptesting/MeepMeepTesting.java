@@ -24,9 +24,13 @@ public class MeepMeepTesting {
 
         CustomDriveShim customDriveShim = convertToCustomDriveShim(myBot.getDrive(), constraints);
 
-        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(27, -63.2, Math.toRadians(90)), false)
-                .splineToLinearHeading(new Pose2d(0, -37, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, 150))
-                .splineToLinearHeading(new Pose2d(0, -33, Math.toRadians(95)), Math.PI / 2, null, new ProfileAccelConstraint(-60, 150))
+        myBot.runAction(customDriveShim.actionBuilder(new Pose2d(-32, -10, Math.toRadians(0)), false)
+                .waitSeconds(0.5)
+                .setTangent(Math.toRadians(200))
+//                .setTangent(Math.PI)
+//                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-200, 300))
+//                .splineTo(new Vector2d(-55, -55), Math.toRadians(265), null, new ProfileAccelConstraint(-100, 200))
                 .build()
         );
 

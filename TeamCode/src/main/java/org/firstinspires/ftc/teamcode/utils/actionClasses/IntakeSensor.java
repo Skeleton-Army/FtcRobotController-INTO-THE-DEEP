@@ -14,15 +14,19 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeSensorConfig;
 public class IntakeSensor {
     private final NormalizedColorSensor sensor;
 
+    private NormalizedRGBA rgb;
+
     public IntakeSensor(HardwareMap hardwareMap) {
         sensor = hardwareMap.get(NormalizedColorSensor.class, IntakeSensorConfig.name);
 
         sensor.setGain(gain);
     }
 
-    public int[] getRGBValues() {
-        NormalizedRGBA rgb = sensor.getNormalizedColors();
+    public void updateRGBCache() {
+        rgb = sensor.getNormalizedColors();
+    }
 
+    public int[] getRGBValues() {
         return new int[]{
                 (int) (rgb.red * multiplier),
                 (int) (rgb.green * multiplier),

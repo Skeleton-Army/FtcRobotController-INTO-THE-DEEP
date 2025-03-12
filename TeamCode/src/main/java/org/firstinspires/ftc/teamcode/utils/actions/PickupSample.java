@@ -30,29 +30,26 @@ public class PickupSample implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         Actions.runBlocking(
-            new SequentialAction(
-                    // the robot's detecting the sample, and moving to intake position
-                    actionsDrive.alignToSample(targetSamplePos),
-                    new SleepAction(0.1),
-                    // doing the intake part which collects the sample
-                    intake.openClaw(),
-                    new SleepAction(0.1),
-                    intake.extend(),
-                    new ParallelAction(
-                            intake.extendWrist(),
-                            new SleepAction(0.2)
-                    ),
-                    new SleepAction(1),
-                    intake.closeClaw(),
-                    new SleepAction(0.6),
-                    intake.retractWrist(),
-                    new SleepAction(0.6),
-                    intake.retract(),
-                    new SleepAction(0.2),
-                    intake.openClaw(),
-                    new SleepAction(0.1),
-                    intake.wristMiddle()
-            )
+                new ParallelAction(
+                        actionsDrive.alignToSample(targetSamplePos),
+                        new SequentialAction(
+                                // the robot's detecting the sample, and moving to intake position
+                                intake.openClaw(),
+                                intake.wristReady(),
+                                intake.extend(),
+                                intake.extendWrist(),
+                                new SleepAction(0.4),
+                                intake.closeClaw(),
+                                new SleepAction(0.4),
+                                intake.retractWrist(),
+                                new ParallelAction(
+                                        intake.retract(),
+                                        new SleepAction(0.4)
+                                ),
+                                intake.openClaw(),
+                                intake.wristMiddle()
+                        )
+                )
         );
 
         return false;
