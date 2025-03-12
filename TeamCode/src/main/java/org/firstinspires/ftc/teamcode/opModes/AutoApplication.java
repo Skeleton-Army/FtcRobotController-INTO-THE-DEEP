@@ -292,7 +292,7 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 new ParallelAction(
                                         intake.retract(),
-                                        new SleepAction(0.4)
+                                        new SleepAction(0.5)
                                 ),
                                 intake.openClaw(),
                                 intake.wristReady(),
@@ -349,7 +349,7 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 new ParallelAction(
                                         intake.retract(),
-                                        new SleepAction(0.4)
+                                        new SleepAction(0.5)
                                 ),
                                 intake.openClaw(),
                                 intake.wristReady(),
@@ -404,7 +404,7 @@ public class AutoApplication extends AutoOpMode {
                                 new SequentialAction(
                                         new ParallelAction(
                                                 intake.retract(),
-                                                new SleepAction(0.4)
+                                                new SleepAction(0.5)
                                         ),
                                         intake.openClaw(),
                                         intake.wristMiddle(),
@@ -510,7 +510,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.rotate(0),
                 new ParallelAction(
                         intake.retract(collectedSamples >= 4 ? 0.7 : 1),
-                        new SleepAction(0.4)
+                        new SleepAction(0.5)
                 ),
                 intake.openClaw(),
                 intake.wristReady(),
@@ -644,7 +644,7 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Sample targetSample = camCV.getBestSample(new Vector2d(-5, -7));
+        Sample targetSample = camCV.getBestSample(new Vector2d(-2, -4));
 
         runAsync(
                 prepareIntake
