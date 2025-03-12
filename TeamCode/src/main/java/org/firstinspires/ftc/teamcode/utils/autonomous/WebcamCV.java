@@ -17,8 +17,6 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -38,13 +36,11 @@ public class WebcamCV {
 
     static DetectSamples detectSamples;
     List<Sample> samples = new ArrayList<>();
-    DetectSamples detectSamples;
     AprilTagSamplesPipeline aprilTagSamplesPipeline;
 
     OpenCvPipeline pipeline;
 
     AprilTagProcessor aprilTag;
-    List<Sample> samples;
     Sample closeSample;
     Vector2d closeSamplePos;
     HardwareMap hardwareMap;
@@ -200,6 +196,7 @@ public class WebcamCV {
                 selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0], colors[1]);
             if (colors.length == 1)
                 selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0]);
+            aprilTagSamplesPipeline = (AprilTagSamplesPipeline) selectedPipeline;
         }
         else if (colors.length == 2)
             selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
@@ -223,6 +220,9 @@ public class WebcamCV {
             }
         });
     }
+
+    public AprilTagSamplesPipeline getAprilTagSamplesPipeline() { return this.aprilTagSamplesPipeline;}
+
 
     public static void drawSample(Sample sample) {
         if (sample.getContour() != null)
