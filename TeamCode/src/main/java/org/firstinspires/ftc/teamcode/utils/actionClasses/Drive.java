@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTimeout;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
@@ -63,6 +64,7 @@ public class Drive {
                 }),
                 pickupInterval,
                 pickupIntervalDivision,
+                pickupTimeout,
                 () -> {
                     Point lowest = camCV.getBestSample(targetSamplePos).lowest;
                     return lowest.x > pixelThreshMinX && lowest.x < pixelThreshMaxX && lowest.y > pixelThreshMinY && lowest.y < pixelThreshMaxY;

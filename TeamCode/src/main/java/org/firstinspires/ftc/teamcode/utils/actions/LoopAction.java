@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class LoopAction implements Action {
@@ -14,7 +15,7 @@ public class LoopAction implements Action {
     private final Supplier<Action> endAction;
     private double interval;
     private final double intervalDivision;
-    private final double time;
+    private final double timeout;
     private final Supplier<Boolean> endCondition;
 
     private Action currentAction;
@@ -33,15 +34,15 @@ public class LoopAction implements Action {
      * @param endAction        The action that runs once when the total time is reached.
      * @param interval         The interval (in seconds) at which the interval action runs.
      * @param intervalDivision The number of which to divide the interval every interval.
-     * @param time             The total time (in seconds) before the loop ends and the end action executes.
+     * @param timeout          The total time (in seconds) before the loop ends and the end action executes.
      */
-    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double time) {
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double timeout) {
         this.loopAction = loopAction;
         this.intervalAction = intervalAction;
         this.endAction = endAction;
         this.interval = interval;
         this.intervalDivision = intervalDivision;
-        this.time = time;
+        this.timeout = timeout;
         this.endCondition = null;
     }
 
@@ -54,15 +55,16 @@ public class LoopAction implements Action {
      * @param endAction        The action that runs once when the total time is reached.
      * @param interval         The interval (in seconds) at which the interval action runs.
      * @param intervalDivision The number of which to divide the interval every interval.
+     * @param timeout          The total time (in seconds) before the loop ends and the end action executes.
      * @param endCondition     If this condition is true, the action ends.
      */
-    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, Supplier<Boolean> endCondition) {
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double timeout, Supplier<Boolean> endCondition) {
         this.loopAction = loopAction;
         this.intervalAction = intervalAction;
         this.endAction = endAction;
         this.interval = interval;
         this.intervalDivision = intervalDivision;
-        this.time = -1;
+        this.timeout = timeout;
         this.endCondition = endCondition;
     }
 
@@ -88,7 +90,7 @@ public class LoopAction implements Action {
         if (currentAction != null && !currentAction.run(telemetryPacket))
             currentAction = null;
 
-        boolean ended = endCondition == null ? totalTimer.seconds() > time : endCondition.get();
+        boolean ended = totalTimer.seconds() > timeout || Objects.requireNonNull(endCondition).get();
 
         if (ended)
             endAction.get().run(telemetryPacket);
