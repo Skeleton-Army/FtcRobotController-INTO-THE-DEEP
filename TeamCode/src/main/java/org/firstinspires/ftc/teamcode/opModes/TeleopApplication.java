@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
@@ -20,13 +19,12 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
-import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -106,6 +104,7 @@ public class TeleopApplication extends TeleopOpMode {
         runHang();
         runEmergencyStop();
         runResetMotors();
+        runDriverActions();
         outtakeLimitSwitch();
 
         // Run all queued actions
