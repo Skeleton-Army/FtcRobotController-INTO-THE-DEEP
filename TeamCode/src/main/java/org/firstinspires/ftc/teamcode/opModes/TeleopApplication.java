@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -131,15 +130,15 @@ public class TeleopApplication extends TeleopOpMode {
         aprilTagSamplesPipeline.getRobotPosByAprilTag();
 
         if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence
-            runAction("sequence",actionsDrive.alignToSample(new Vector2d(camCV.getBestSamplePos(drive.pose.position).position.x, camCV.getBestSamplePos(drive.pose.position).position.y)));
+            runAction("sequence",actionsDrive.alignToSampleContinuous(camCV.getBestSample(drive.pose.position)));
         }
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
-            runAction("sequence",actionCam.pickupSample(new Vector2d(camCV.getBestSamplePos(drive.pose.position).position.x, camCV.getBestSamplePos(drive.pose.position).position.y)));
+            runAction("sequence",actionCam.pickupSample(camCV.getBestSample(drive.pose.position)));
         }
-        if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence
+        if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence, only could run when an apriltag is in sight
             runAction("sequence",actionCam.basketCycle());
         }
-        if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence
+        if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
             runAction("sequence",actionCam.specimenCycle());
         }
 

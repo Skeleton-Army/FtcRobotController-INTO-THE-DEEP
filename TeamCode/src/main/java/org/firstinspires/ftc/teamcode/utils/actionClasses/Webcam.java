@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.teamcode.utils.actions.BasketCycle;
 import org.firstinspires.ftc.teamcode.utils.actions.PickupSample;
 import org.firstinspires.ftc.teamcode.utils.actions.SpecimenCycle;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
 public class Webcam {
 
@@ -31,7 +31,7 @@ public class Webcam {
         return new SpecimenCycle();
     }
 
-    public Action pickupSample(Vector2d targetSamplePos) {
-        return new PickupSample(intake, Actionsdrive, targetSamplePos);
+    public Action pickupSample(Sample targetSample) {
+        return new PickupSample(intake, Actionsdrive, targetSample);
     }
 }
