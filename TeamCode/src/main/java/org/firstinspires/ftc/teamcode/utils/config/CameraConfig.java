@@ -19,8 +19,9 @@ public class CameraConfig {
     public static double pickupSampleOffsetX = 1.25;
     public static double pickupSampleOffsetY = 24;
 
-    public static double pickupInterval = 0.5;
+    public static double pickupInterval = 0.7;
     public static double pickupIntervalDivision = 1.4;
+    public static double pickupMinInterval = 0.2;
     public static double pickupTimeout = 3;
 
     public static int pixelThreshMinX = 108;

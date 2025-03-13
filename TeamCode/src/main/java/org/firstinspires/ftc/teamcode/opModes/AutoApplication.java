@@ -271,7 +271,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(49, -43, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
+                                .splineToLinearHeading(new Pose2d(48.5, -42, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
                                 .build(),
                         new SequentialAction(
                                 intake.openClaw(),
@@ -301,7 +301,7 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(0)
-                                .splineToConstantHeading(new Vector2d(58.5, -41.5), 0)
+                                .splineToConstantHeading(new Vector2d(58, -40.5), 0)
                                 .build()
                 )
         );
@@ -369,7 +369,7 @@ public class AutoApplication extends AutoOpMode {
 
                                 drive.actionBuilder(drive.pose)
                                         .setTangent(0)
-                                        .splineToLinearHeading(new Pose2d(56.5, -42.5, Math.toRadians(60)), 0)
+                                        .splineToLinearHeading(new Pose2d(56, -41.5, Math.toRadians(60)), 0)
                                         .build(),
 
                                 // Grab sample
@@ -388,7 +388,7 @@ public class AutoApplication extends AutoOpMode {
 
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(58, -40, Math.toRadians(95)), 0)
+                                        .splineToLinearHeading(new Pose2d(57.5, -39, Math.toRadians(95)), 0)
                                         .build(),
 
                                 // Put in basket
@@ -444,7 +444,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-52, -51, Math.toRadians(80)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52.5, -50, Math.toRadians(80)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -455,7 +455,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57, -50.5, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.5, -49.5, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -470,7 +470,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-55, -47, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55.5, -46, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 intake.extraOpenClaw(),
                                 wristSequence
