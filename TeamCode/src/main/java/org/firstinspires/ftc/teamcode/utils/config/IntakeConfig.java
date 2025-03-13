@@ -25,8 +25,8 @@ public class IntakeConfig {
     public static double wristMiddle = 0.6;
     public static double wristReady = 0.65;
 
-    public static double rotationLeft = 0.75;
-    public static double rotationRight = 0;
+    public static double rotationLeft = 0.9;
+    public static double rotationRight = 0.22;
 
     public static double manualSpeed = -0.35;
 }
