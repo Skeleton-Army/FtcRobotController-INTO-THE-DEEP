@@ -93,6 +93,9 @@ public class TeleopApplication extends TeleopOpMode {
         // Run all queued actions
         runAllActions();
 
+        // Bulk reads from walmart
+        intakeSensor.updateRGBCache();
+
         // Debugging
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
         telemetry.addData("Intake Velocity", intake.motor.getVelocity());
@@ -101,8 +104,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-//        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
-//        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
+        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
+        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
 
         telemetry.update();
     }
@@ -128,12 +131,13 @@ public class TeleopApplication extends TeleopOpMode {
                             new SequentialAction(
                                     new ParallelAction(
                                             intake.retract(),
-                                            new SleepAction(0.5)
+                                            new SleepAction(0.6)
                                     ),
                                     intake.openClaw(),
+                                    new SleepAction(0.1),
                                     intake.wristMiddle(),
-                                    outtake.bucketMiddle(),
-                                    new SleepAction(0.2)
+                                    new SleepAction(0.2),
+                                    outtake.bucketMiddle()
                             )
                     )
             );
