@@ -375,7 +375,7 @@ public class AutoApplication extends AutoOpMode {
                                 // Grab sample
                                 new SequentialAction(
                                         intake.wristReady(),
-                                        intake.rotate(-0.3),
+                                        intake.rotate(-0.2),
                                         intake.extraOpenClaw(),
                                         intake.extend(0.73),
                                         intake.extendWrist(),
@@ -437,6 +437,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runAsync(intake.openClaw());
+        runAsync(intake.rotate(-0.2));
 
         switch (collectedSamples) {
             case 1:
@@ -444,7 +445,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-52.5, -50, Math.toRadians(80)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52.5, -51, Math.toRadians(80)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -455,7 +456,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57.5, -49.5, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.5, -50.5, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -464,13 +465,13 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 runAsync(
-                        intake.rotate(0.3)
+                        intake.rotate(0)
                 );
 
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-55.5, -46, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55.5, -47, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 intake.extraOpenClaw(),
                                 wristSequence
@@ -496,7 +497,7 @@ public class AutoApplication extends AutoOpMode {
         Action intakeRetract = new SequentialAction(
                 outtake.hold(),
                 intake.retractWrist(),
-                intake.rotate(0),
+                intake.rotate(-0.2),
                 new ParallelAction(
                         intake.retract(collectedSamples >= 4 ? 0.7 : 1),
                         new SleepAction(0.6)
@@ -611,7 +612,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action grabSequence = new SequentialAction(
-                intake.extraOpenClaw(),
+                intake.openClaw(),
                 intake.extendWrist(),
                 new SleepAction(0.2),
                 intake.closeClaw(),
@@ -701,7 +702,7 @@ public class AutoApplication extends AutoOpMode {
                 if (drive.pose.position.x < -35) {
                     runBlocking(
                             drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0))
+                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                                     .build()
                     );
                 }
