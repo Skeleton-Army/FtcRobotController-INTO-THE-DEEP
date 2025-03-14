@@ -1,16 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import android.graphics.Camera;
-
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.RotatedRect;
 
 public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
@@ -21,7 +16,6 @@ public class Sample {
     private double centerX, centerY;
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
-    private MatOfPoint contour;
     public double widthInches;
     public double heightInches;
 
@@ -43,9 +37,15 @@ public class Sample {
     public double getSampleX() {
         return sampleX;
     }
+    public double getCenterX() {
+        return centerX;
+    }
 
     public double getSampleY() {
         return sampleY;
+    }
+    public double getCenterY() {
+        return centerY;
     }
 
     public double getQuality() {
@@ -56,13 +56,9 @@ public class Sample {
         return fieldPos;
     }
 
-    public MatOfPoint getContour() {
-        return this.contour;
-    }
-
     private Vector2d pixelToWorld(double x, double y, double height) {
         double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
-        double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        double worldY = height / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
         double worldX = Math.tan(horizontal) * worldY;
         return new Vector2d(worldX, worldY);
     }
@@ -106,8 +102,6 @@ public class Sample {
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         widthInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
 
-        int height = boundingRect.height;
-        double heightToAngle = Math.toRadians(height * CameraConfig.vOVERheight);
         double topYWorld = (CameraConfig.z - 1.5) / Math.tan(Math.toRadians((boundingRect.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
         heightInches = topYWorld - (sampleY - CameraConfig.offsetY);
     }
