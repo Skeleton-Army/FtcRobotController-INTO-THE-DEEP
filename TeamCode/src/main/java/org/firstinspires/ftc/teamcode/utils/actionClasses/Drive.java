@@ -24,6 +24,8 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.opencv.core.Point;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class Drive {
     MecanumDrive drive;
     Apriltag apriltag;
@@ -52,10 +54,13 @@ public class Drive {
     }
 
     public Action alignToSampleContinuous(Sample targetSample) {
-        Vector2d targetSamplePos = targetSample.getSamplePosition().position;
-
+        AtomicReference<Vector2d> lastSampleRef = new AtomicReference<>(targetSample.getSamplePosition().position);
         return new LoopAction(
-                () -> alignToSample(camCV.getBestSamplePos(targetSamplePos).position),
+                () -> new InstantAction(() -> {
+                    Vector2d nextSample = camCV.getBestSamplePos(lastSampleRef.get()).position;
+                    lastSampleRef.set(nextSample);
+                    alignToSample(nextSample);
+                }),
                 () -> new InstantAction(() -> {
                     camCV.resetSampleList();
                     camCV.lookForSamples();
@@ -68,7 +73,7 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
-                    Point lowest = camCV.getBestSample(targetSamplePos).lowest;
+                    Point lowest = camCV.getBestSample(lastSampleRef.get()).lowest;
                     return lowest.x > pixelThreshMinX && lowest.x < pixelThreshMaxX && lowest.y > pixelThreshMinY && lowest.y < pixelThreshMaxY;
                 }
         );
