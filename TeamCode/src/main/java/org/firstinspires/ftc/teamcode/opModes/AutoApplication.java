@@ -39,7 +39,7 @@ enum Strategy {
 public class AutoApplication extends AutoOpMode {
     public enum State {
         HANG_SPECIMEN(2),
-        COLLECT_ADDITIONAL_SAMPLE(3),
+        COLLECT_ADDITIONAL_SAMPLE(3.5),
 
         COLLECT_COLOR_SAMPLES(),
         COLLECT_SPECIMEN(2),
