@@ -129,12 +129,12 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.rotate(0),
                             outtake.hold(),
                             new SequentialAction(
+                                    new SleepAction(0.2),
                                     new ParallelAction(
                                             intake.retract(),
-                                            new SleepAction(0.6)
+                                            new SleepAction(0.4)
                                     ),
                                     intake.openClaw(),
-                                    new SleepAction(0.1),
                                     intake.wristMiddle(),
                                     new SleepAction(0.2),
                                     outtake.bucketMiddle()
