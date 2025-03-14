@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 
 public class ConditionAction implements Action {
     private final Action action;
-    private final Supplier<Boolean> condition;
+    private Supplier<Boolean> condition;
+    private Action conditionAction;
 
     /**
      * Calls an action while the condition is true.
@@ -19,10 +20,18 @@ public class ConditionAction implements Action {
         this.condition = condition;
     }
 
+    /**
+     * Calls an action while the conditionAction is running.
+     */
+    public ConditionAction(Action action, Action conditionAction) {
+        this.action = action;
+        this.conditionAction = conditionAction;
+    }
+
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         action.run(telemetryPacket);
 
-        return condition.get(); // Re-evaluate the condition each time
+        return condition != null ? condition.get() : conditionAction.run(telemetryPacket); // Re-evaluate the condition each time
     }
 }

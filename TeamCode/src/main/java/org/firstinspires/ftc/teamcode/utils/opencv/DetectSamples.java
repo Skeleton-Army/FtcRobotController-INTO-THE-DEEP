@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
 import com.acmerobotics.roadrunner.Vector2d;
 

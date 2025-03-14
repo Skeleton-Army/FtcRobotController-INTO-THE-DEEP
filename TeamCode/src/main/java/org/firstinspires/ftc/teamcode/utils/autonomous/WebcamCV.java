@@ -54,6 +54,15 @@ public class WebcamCV {
      * @return Pose2d of the closest sample.
      */
     public Pose2d getBestSamplePos(Vector2d pos) {
+        return getBestSample(pos).getSamplePosition();
+    }
+
+    /**
+     * Finds the closest sample to the given position.
+     * @param pos The reference position.
+     * @return The closest sample.
+     */
+    public Sample getBestSample(Vector2d pos) {
         // searching for the min value of distance
         if (samples.isEmpty()) return null;
 
@@ -65,7 +74,7 @@ public class WebcamCV {
             }
         }
 
-        return closest.getSamplePosition();
+        return closest;
     }
 
     /**

@@ -176,7 +176,7 @@ public class TeleopApplication extends TeleopOpMode {
             switch (key) {
                 case "-1,0": runAction(intake.rotate(-1)); break;
                 case "-1,1": runAction(intake.rotate(-0.5)); break;
-                case "0,1": runAction(intake.rotate(0)); break;
+                case "0,1": runAction(intake.rotate(-0.2)); break;
                 case "1,1": runAction(intake.rotate(0.5)); break;
                 case "1,0": runAction(intake.rotate(1)); break;
             }

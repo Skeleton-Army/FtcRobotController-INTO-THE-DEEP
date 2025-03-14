@@ -15,6 +15,7 @@ public class LoopAction implements Action {
     private final Supplier<Action> endAction;
     private double interval;
     private final double intervalDivision;
+    private final double minInterval;
     private final double timeout;
     private final Supplier<Boolean> endCondition;
 
@@ -34,14 +35,16 @@ public class LoopAction implements Action {
      * @param endAction        The action that runs once when the total time is reached.
      * @param interval         The interval (in seconds) at which the interval action runs.
      * @param intervalDivision The number of which to divide the interval every interval.
+     * @param minInterval      The minimum an interval can be.
      * @param timeout          The total time (in seconds) before the loop ends and the end action executes.
      */
-    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double timeout) {
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double minInterval, double timeout) {
         this.loopAction = loopAction;
         this.intervalAction = intervalAction;
         this.endAction = endAction;
         this.interval = interval;
         this.intervalDivision = intervalDivision;
+        this.minInterval = minInterval;
         this.timeout = timeout;
         this.endCondition = null;
     }
@@ -55,15 +58,17 @@ public class LoopAction implements Action {
      * @param endAction        The action that runs once when the total time is reached.
      * @param interval         The interval (in seconds) at which the interval action runs.
      * @param intervalDivision The number of which to divide the interval every interval.
+     * @param minInterval      The minimum an interval can be.
      * @param timeout          The total time (in seconds) before the loop ends and the end action executes.
      * @param endCondition     If this condition is true, the action ends.
      */
-    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double timeout, Supplier<Boolean> endCondition) {
+    public LoopAction(Supplier<Action> loopAction, Supplier<Action> intervalAction, Supplier<Action> endAction, double interval, double intervalDivision, double minInterval, double timeout, Supplier<Boolean> endCondition) {
         this.loopAction = loopAction;
         this.intervalAction = intervalAction;
         this.endAction = endAction;
         this.interval = interval;
         this.intervalDivision = intervalDivision;
+        this.minInterval = minInterval;
         this.timeout = timeout;
         this.endCondition = endCondition;
     }
@@ -82,6 +87,7 @@ public class LoopAction implements Action {
         if (intervalTimer.seconds() >= interval) {
             intervalTimer.reset();
             interval /= intervalDivision;
+            if (interval < minInterval) interval = minInterval;
 
             intervalAction.get().run(telemetryPacket);
             currentAction = loopAction.get();
