@@ -15,16 +15,19 @@ import org.opencv.core.RotatedRect;
 public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
 
+    public Point center;
     private final Pose2d detectionPose; // The pose where the sample was detected
     private double sampleX, sampleY, horizontalAngle, quality;
+    private double centerX, centerY;
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
     private MatOfPoint contour;
     public double widthInches;
     public double heightInches;
 
-    public Sample(Point lowest, Pose2d detectionPose) {
+    public Sample(Point lowest, Point center, Pose2d detectionPose) {
         this.lowest = lowest;
+        this.center = center;
         this.detectionPose = detectionPose;
         calculatePosition();
     }
@@ -57,7 +60,7 @@ public class Sample {
         return this.contour;
     }
 
-    private Vector2d pixelToWorld(double x, double y) {
+    private Vector2d pixelToWorld(double x, double y, double height) {
         double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
         double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
         double worldX = Math.tan(horizontal) * worldY;
@@ -66,13 +69,18 @@ public class Sample {
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition() {
-        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y);
+        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
+        Vector2d centerPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z - 1.5);
+        centerY = centerPos.y;
+        centerX = centerPos.x;
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
+        centerY += CameraConfig.offsetY;
+        centerX -= CameraConfig.offsetX;
     }
 
     /*

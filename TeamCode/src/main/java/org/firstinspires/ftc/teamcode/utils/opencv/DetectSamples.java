@@ -13,6 +13,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -21,6 +22,7 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -111,11 +113,32 @@ public class DetectSamples extends OpenCvPipeline {
             //check if contour is a valid sample
             //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
 
+            MatOfInt hullIndices = new MatOfInt();
+            Imgproc.convexHull(contour, hullIndices);
+
+            MatOfPoint hullPoints = new MatOfPoint();
+            List<Point> hullPointList = new ArrayList<>();
+            Point[] contourArray = contour.toArray();
+            for (int index : hullIndices.toArray()) {
+                hullPointList.add(contourArray[index]);
+            }
+            hullPoints.fromList(hullPointList);
+
+            // Calculate moments of the convex hull
+            Moments moments = Imgproc.moments(hullPoints);
+
+            // Calculate the center of mass (centroid)
+            double m00 = moments.get_m00();
+            double cx = moments.get_m10() / m00;
+            double cy = moments.get_m01() / m00;
+
+            Point center = new Point(cx, cy);
+
             // Get the lowest point in the detected contour
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, drive.pose);
             //sample.calculateOrientation(contour);
             sample.calculateArea(Imgproc.boundingRect(contour));
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
