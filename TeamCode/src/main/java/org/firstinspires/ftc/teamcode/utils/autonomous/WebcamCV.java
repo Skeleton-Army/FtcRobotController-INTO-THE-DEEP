@@ -169,11 +169,6 @@ public class WebcamCV {
         });
     }
 
-    public static void drawSample(Sample sample) {
-        if (sample.getContour() != null)
-            DetectSamples.drawSample(sample.getContour());
-    }
-
     /**
      * Resets the list of detected samples.
      */

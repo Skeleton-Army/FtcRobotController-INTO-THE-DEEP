@@ -69,7 +69,7 @@ public class Sample {
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
-        Vector2d centerPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z - 1.5);
+        Vector2d centerPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z - 1);
         centerY = centerPos.y;
         centerX = centerPos.x;
         // Adjust positions based on camera offsets
@@ -108,8 +108,8 @@ public class Sample {
 
     // Calculates the sample position relative to the field
     public void calculateField() {
-        double x = detectionPose.position.x + sampleY * Math.cos(detectionPose.heading.toDouble()) - sampleX * Math.sin(detectionPose.heading.toDouble());
-        double y = detectionPose.position.y + sampleY * Math.sin(detectionPose.heading.toDouble()) + sampleX * Math.cos(detectionPose.heading.toDouble());
+        double x = detectionPose.position.x + centerY * Math.cos(detectionPose.heading.toDouble()) - centerX * Math.sin(detectionPose.heading.toDouble());
+        double y = detectionPose.position.y + centerY * Math.sin(detectionPose.heading.toDouble()) + centerX * Math.cos(detectionPose.heading.toDouble());
         fieldPos = new Pose2d(new Vector2d(x, y), orientation);
     }
 
