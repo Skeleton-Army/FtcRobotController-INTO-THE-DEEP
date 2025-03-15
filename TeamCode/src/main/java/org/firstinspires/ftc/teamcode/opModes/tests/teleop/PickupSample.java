@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -59,13 +60,8 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + targetSamplePos.position.x);
             telemetry.addData("Y: ", "" + targetSamplePos.position.y);
-            telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
             telemetry.addData("sample center x: ", targetSample.center.x);
             telemetry.addData("sample center y: ", targetSample.center.y);
-
-            double orientation = -targetSample.orientation;
-            double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
-            telemetry.addData("rotation target", rotationTarget);
         }
         else {
             telemetry.addLine("No samples detected");
