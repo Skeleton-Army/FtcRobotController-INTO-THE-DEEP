@@ -62,6 +62,10 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
             telemetry.addData("sample center x: ", targetSample.center.x);
             telemetry.addData("sample center y: ", targetSample.center.y);
+
+            double orientation = -targetSample.orientation;
+            double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
+            telemetry.addData("rotation target", rotationTarget);
         }
         else {
             telemetry.addLine("No samples detected");
@@ -74,6 +78,14 @@ public class PickupSample extends TeleopOpMode {
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
+        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
+        double orientation = -sample.orientation;
+        double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
+
+        Actions.runBlocking(
+                intake.rotate(rotationTarget)
+        );
+
         Actions.runBlocking(
                 new SequentialAction(
                         intake.openClaw(),
@@ -84,10 +96,11 @@ public class PickupSample extends TeleopOpMode {
                         intake.closeClaw(),
                         new SleepAction(0.3),
                         intake.retractWrist(),
+                        intake.rotate(0),
                         new SleepAction(0.2),
                         new ParallelAction(
                                 intake.retract(),
-                                new SleepAction(0.4)
+                                new SleepAction(0.6)
                         ),
                         intake.openClaw(),
                         intake.wristMiddle()

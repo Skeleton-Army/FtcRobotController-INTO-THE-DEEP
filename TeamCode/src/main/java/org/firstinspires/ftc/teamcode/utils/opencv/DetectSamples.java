@@ -136,9 +136,9 @@ public class DetectSamples extends OpenCvPipeline {
 
             // Get the lowest point in the detected contour
             Point lowestPoint = getLowestPoint(contour);
-
+            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contour.toArray()));
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
             //sample.calculateOrientation(contour);
             sample.calculateArea(Imgproc.boundingRect(contour));
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
@@ -148,7 +148,11 @@ public class DetectSamples extends OpenCvPipeline {
             }
             Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
             sample.calculateField();
-
+            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
+            Imgproc.ellipse(input, ellipse, new Scalar(0, 255, 0));
+            double angle = Math.toRadians(90 - ellipse.angle);
+            Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 30 * Math.cos(angle), lowestPoint.y - 30 * Math.sin(angle)), new Scalar(0, 0, 0));
+            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
             samplesFrame.add(sample);
 
             // Draw a marker on the detected point
