@@ -68,7 +68,7 @@ public class MotionProfiling {
 
         // Apply parabolic smoothing to each multiplier
         double smoothedAxialSpeed = applySmoothing(
-                -gamepad.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER,
+                gamepad.left_stick_y * MotionProfileConfig.AXIAL_MULTIPLIER,
                 previousAxialSpeed,
                 beta,
                 power

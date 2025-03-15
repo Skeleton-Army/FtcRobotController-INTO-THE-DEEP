@@ -26,7 +26,7 @@ public class MovementUtils {
     }
 
     void calculateMultipliers() {
-        boolean slowModeActive = gamepad1.right_bumper || gamepad2.start;
+        boolean slowModeActive = gamepad1.right_bumper;
 
         multiplier = slowModeActive ? MotionProfileConfig.SLOW_MODE_MULTIPLIER : 1;
     }

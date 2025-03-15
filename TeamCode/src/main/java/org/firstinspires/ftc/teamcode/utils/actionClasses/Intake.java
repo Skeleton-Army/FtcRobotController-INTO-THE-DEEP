@@ -112,6 +112,6 @@ public class Intake {
     }
 
     public Action rotate(double input) {
-        return clawToRotation(Utilities.remap(input, -1, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationRight));
+        return clawToRotation(Utilities.remap(input, -1, 0, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationForward, IntakeConfig.rotationRight));
     }
 }
