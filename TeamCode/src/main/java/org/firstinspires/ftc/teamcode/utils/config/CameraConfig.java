@@ -18,17 +18,16 @@ public class CameraConfig {
     public static double offsetVertical = 22.05;
 
     public static double pickupSampleOffsetX = 0;
-    public static double pickupSampleOffsetY = 22.5;
+    public static double pickupSampleOffsetY = 23.5;
 
     public static double pickupInterval = 0.7;
-    public static double pickupIntervalDivision = 1.3;
-    public static double pickupMinInterval = 0.4;
+    public static double pickupIntervalDivision = 1.2;
+    public static double pickupMinInterval = 0.3;
     public static double pickupTimeout = 3;
 
-    public static int pixelThreshMinX = 108;
-    public static int pixelThreshMaxX = 135;
-    public static int pixelThreshMinY = 305;
-    public static int pixelThreshMaxY = 335;
+    public static int pixelThreshRadius = 15;
+    public static int pixelOptimalCenterX = 147;
+    public static int pixelOptimalCenterY = 275;
 
 
     // Distortion coefficients

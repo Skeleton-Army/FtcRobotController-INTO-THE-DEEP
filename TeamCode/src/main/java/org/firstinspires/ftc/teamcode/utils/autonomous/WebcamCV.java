@@ -45,7 +45,7 @@ public class WebcamCV {
      */
     private double distanceFromPosition(Sample currSample, Vector2d pos) {
         Vector2d samplePos = currSample.getSamplePosition().position;
-        return Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2);
+        return Math.sqrt(Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2));
     }
 
     /**

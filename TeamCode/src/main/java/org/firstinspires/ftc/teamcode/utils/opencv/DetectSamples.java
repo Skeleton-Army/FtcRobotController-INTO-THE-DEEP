@@ -2,10 +2,6 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -171,12 +167,6 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         samples = samplesFrame;
-
-        // Log sample coordinates to telemetry for debugging
-        if (!samplesFrame.isEmpty()) {
-            telemetry.addData("Image X Coordinate:", samplesFrame.get(0).lowest.x);
-            telemetry.addData("Image Y Coordinate:", samplesFrame.get(0).lowest.y);
-        }
 
         // Draw contours around detected samples
         //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));

@@ -60,6 +60,8 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addData("X: ", "" + targetSamplePos.position.x);
             telemetry.addData("Y: ", "" + targetSamplePos.position.y);
             telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
+            telemetry.addData("sample center x: ", targetSample.center.x);
+            telemetry.addData("sample center y: ", targetSample.center.y);
         }
         else {
             telemetry.addLine("No samples detected");
