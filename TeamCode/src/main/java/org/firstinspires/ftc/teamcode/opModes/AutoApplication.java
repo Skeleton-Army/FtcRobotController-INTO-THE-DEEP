@@ -500,7 +500,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.rotate(-0.2),
                 new ParallelAction(
                         intake.retract(),
-                        new SleepAction(0.5)
+                        new SleepAction(0.6)
                 ),
                 intake.openClaw(),
                 intake.wristReady(),
@@ -643,8 +643,16 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runBlocking(
+                driveActions.alignToSampleContinuous(targetSample)
+        );
+
+        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
+        double orientation = -sample.orientation;
+        double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
+
+        runBlocking(
                 new SequentialAction(
-                        driveActions.alignToSampleContinuous(targetSample),
+                        intake.rotate(rotationTarget),
                         grabSequence
                 )
         );
