@@ -44,7 +44,7 @@ class SampleTest {
         int index = 1;
 
         for (Test value : values ) {
-            Sample sample = new Sample(value.input, value.input, new Pose2d(0, 0, 0));
+            Sample sample = new Sample(value.input, value.input, new RotatedRect(), new Pose2d(0, 0, 0));
 
             double sampleX = sample.getSampleX();
             double sampleY = sample.getSampleY();

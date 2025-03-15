@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
+import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -59,7 +60,8 @@ public class PickupSample extends TeleopOpMode {
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + targetSamplePos.position.x);
             telemetry.addData("Y: ", "" + targetSamplePos.position.y);
-            telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
+            telemetry.addData("sample center x: ", targetSample.center.x);
+            telemetry.addData("sample center y: ", targetSample.center.y);
         }
         else {
             telemetry.addLine("No samples detected");
@@ -72,6 +74,14 @@ public class PickupSample extends TeleopOpMode {
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
+        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
+        double orientation = -sample.orientation;
+        double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
+
+        Actions.runBlocking(
+                intake.rotate(rotationTarget)
+        );
+
         Actions.runBlocking(
                 new SequentialAction(
                         intake.openClaw(),
@@ -82,10 +92,11 @@ public class PickupSample extends TeleopOpMode {
                         intake.closeClaw(),
                         new SleepAction(0.3),
                         intake.retractWrist(),
+                        intake.rotate(0),
                         new SleepAction(0.2),
                         new ParallelAction(
                                 intake.retract(),
-                                new SleepAction(0.4)
+                                new SleepAction(0.6)
                         ),
                         intake.openClaw(),
                         intake.wristMiddle()

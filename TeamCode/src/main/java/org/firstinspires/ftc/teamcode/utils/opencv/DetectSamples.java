@@ -2,10 +2,6 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -21,7 +17,6 @@ import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -141,42 +136,34 @@ public class DetectSamples extends OpenCvPipeline {
             // Get the lowest point in the detected contour
             Point lowestPoint = getLowestPoint(contour);
 
+            if (contour.toArray().length < 5) {
+                continue; // Skip this contour
+            }
+
+            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contour.toArray()));
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, drive.pose);
-            //sample.calculateOrientation(contour);
+            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
             sample.calculateArea(Imgproc.boundingRect(contour));
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
             Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));
+
             if (sample.isTooBig()) {
                 continue;
             }
+
             Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
             sample.calculateField();
 
+            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
+            Imgproc.ellipse(input, ellipse, new Scalar(0, 255, 0));
+            double angle = Math.toRadians(90 - ellipse.angle);
+            Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 50 * Math.cos(angle), lowestPoint.y - 50 * Math.sin(angle)), new Scalar(0, 0, 0));
+            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
+
             samplesFrame.add(sample);
-
-            // Draw a marker on the detected point
-
-//            Vector2d secondvec = pixelToWorld(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
-//            second = new Point(lowestPoint.x + 40 * Math.cos(Math.toRadians(rotated.angle)), lowestPoint.y - 40 * Math.sin(Math.toRadians(rotated.angle)));
-//
-//
-//
-//            Imgproc.line(input, lowestPoint, second, new Scalar(0,0,255));
-//            Imgproc.rectangle(input, rotated.boundingRect(), new Scalar(255,0,0));
-//            Imgproc.putText(input, "" + rotated.angle, lowestPoint, 0, 1, new Scalar(255, 0, 255));
-//            Imgproc.putText(input, "" + sample.orientation, new Point(200, 100), 0, 1, new Scalar(255, 0, 255));
-//            Imgproc.drawMarker(input, lowestPoint, new Scalar(255,255,0));
-
         }
 
         samples = samplesFrame;
-
-        // Log sample coordinates to telemetry for debugging
-        if (!samplesFrame.isEmpty()) {
-            telemetry.addData("Image X Coordinate:", samplesFrame.get(0).lowest.x);
-            telemetry.addData("Image Y Coordinate:", samplesFrame.get(0).lowest.y);
-        }
 
         // Draw contours around detected samples
         //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));

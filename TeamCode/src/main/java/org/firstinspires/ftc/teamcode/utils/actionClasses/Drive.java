@@ -4,10 +4,6 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInt
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupMinInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTimeout;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -70,8 +66,9 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
-                    Point lowest = camCV.getBestSample(targetSamplePos.get()).lowest;
-                    return lowest.x > pixelThreshMinX && lowest.x < pixelThreshMaxX && lowest.y > pixelThreshMinY && lowest.y < pixelThreshMaxY;
+                    Point center = camCV.getBestSample(targetSamplePos.get()).center;
+                    double dist = Math.sqrt(Math.pow(center.x - CameraConfig.pixelOptimalCenterX, 2) + Math.pow(center.y - CameraConfig.pixelOptimalCenterY, 2));
+                    return dist <= CameraConfig.pixelThreshRadius;
                 }
         );
     }

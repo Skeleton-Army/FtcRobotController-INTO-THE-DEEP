@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 
 public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
@@ -19,11 +20,11 @@ public class Sample {
     public double widthInches;
     public double heightInches;
 
-    public Sample(Point lowest, Point center, Pose2d detectionPose) {
+    public Sample(Point lowest, Point center, RotatedRect rect, Pose2d detectionPose) {
         this.lowest = lowest;
         this.center = center;
         this.detectionPose = detectionPose;
-        calculatePosition();
+        calculatePosition(rect);
     }
 
 //    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
@@ -64,38 +65,25 @@ public class Sample {
     }
 
     /// Calculates the sample position in robot-relative coordinates
-    private void calculatePosition() {
+    private void calculatePosition(RotatedRect rect) {
         Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
+        double angle = Math.toRadians(90 - rect.angle);
+        Vector2d second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CameraConfig.z);
+        orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
+
         Vector2d centerPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z - 1);
         centerY = centerPos.y;
         centerX = centerPos.x;
+
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
         sampleX -= CameraConfig.offsetX;
         centerY += CameraConfig.offsetY;
         centerX -= CameraConfig.offsetX;
     }
-
-    /*
-    ----- Currently unused orientation calculation.
-    private void calculatePosition(RotatedRect minRect) {
-        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
-        sampleY = lowestPos.y;
-        sampleX = lowestPos.x;
-
-        double rectAngle = Math.toRadians(minRect.angle);
-        Vector2d second = pixelToWorld(lowest.x + 40 * Math.cos(rectAngle), lowest.y - 40 * Math.sin(rectAngle), CameraConfig.z);
-        orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
-        // Adjust positions based on camera offsets
-        sampleY += CameraConfig.offsetY;
-        sampleX -= CameraConfig.offsetX;
-    }
-     */
-
-    // Estimates the orientation of the detected sample based on its contour
 
     public void calculateArea(Rect boundingRect) {
         int width = boundingRect.width;
