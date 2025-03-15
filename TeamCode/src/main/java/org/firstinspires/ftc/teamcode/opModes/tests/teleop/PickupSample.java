@@ -80,10 +80,11 @@ public class PickupSample extends TeleopOpMode {
                         intake.wristReady(),
                         intake.extend(),
                         intake.extendWrist(),
-                        new SleepAction(0.4),
+                        new SleepAction(0.3),
                         intake.closeClaw(),
-                        new SleepAction(0.4),
+                        new SleepAction(0.3),
                         intake.retractWrist(),
+                        new SleepAction(0.2),
                         new ParallelAction(
                                 intake.retract(),
                                 new SleepAction(0.4)

@@ -39,7 +39,7 @@ enum Strategy {
 public class AutoApplication extends AutoOpMode {
     public enum State {
         HANG_SPECIMEN(2),
-        COLLECT_ADDITIONAL_SAMPLE(3),
+        COLLECT_ADDITIONAL_SAMPLE(3.5),
 
         COLLECT_COLOR_SAMPLES(),
         COLLECT_SPECIMEN(2),
@@ -456,7 +456,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57.5, -50.5, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.5, -50, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -471,7 +471,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-55.5, -47, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55.5, -46.5, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 intake.extraOpenClaw(),
                                 wristSequence
@@ -499,8 +499,8 @@ public class AutoApplication extends AutoOpMode {
                 intake.retractWrist(),
                 intake.rotate(-0.2),
                 new ParallelAction(
-                        intake.retract(collectedSamples >= 4 ? 0.7 : 1),
-                        new SleepAction(0.6)
+                        intake.retract(),
+                        new SleepAction(0.5)
                 ),
                 intake.openClaw(),
                 intake.wristReady(),
@@ -616,6 +616,8 @@ public class AutoApplication extends AutoOpMode {
                 intake.extendWrist(),
                 new SleepAction(0.2),
                 intake.closeClaw(),
+                new SleepAction(0.2),
+                intake.retractWrist(),
                 new SleepAction(0.2)
         );
 

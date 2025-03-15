@@ -18,12 +18,12 @@ public class IntakeConfig {
 
     public static double clawClosed = 0.42;
     public static double clawOpen = 0.25;
-    public static double extraOpenClaw = 0.1;
+    public static double extraOpenClaw = 0;
 
-    public static double wristExtend = 0.7875;
+    public static double wristExtend = 0.82;
     public static double wristRetract = 0.3;
     public static double wristMiddle = 0.6;
-    public static double wristReady = 0.65;
+    public static double wristReady = 0.7;
 
     public static double rotationLeft = 0.82;
     public static double rotationRight = 0;

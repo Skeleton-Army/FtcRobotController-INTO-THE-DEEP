@@ -54,16 +54,13 @@ public class Drive {
     }
 
     public Action alignToSampleContinuous(Sample targetSample) {
-        AtomicReference<Vector2d> lastSampleRef = new AtomicReference<>(targetSample.getSamplePosition().position);
+        AtomicReference<Vector2d> targetSamplePos = new AtomicReference<>(targetSample.getSamplePosition().position);
         return new LoopAction(
-                () -> new InstantAction(() -> {
-                    Vector2d nextSample = camCV.getBestSamplePos(lastSampleRef.get()).position;
-                    lastSampleRef.set(nextSample);
-                    alignToSample(nextSample);
-                }),
+                () -> alignToSample(targetSamplePos.get()),
                 () -> new InstantAction(() -> {
                     camCV.resetSampleList();
-                    camCV.lookForSamples();
+                    if (camCV.lookForSamples())
+                        targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
                 }),
                 () -> new InstantAction(() -> {
                     drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
@@ -73,7 +70,7 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
-                    Point lowest = camCV.getBestSample(lastSampleRef.get()).lowest;
+                    Point lowest = camCV.getBestSample(targetSamplePos.get()).lowest;
                     return lowest.x > pixelThreshMinX && lowest.x < pixelThreshMaxX && lowest.y > pixelThreshMinY && lowest.y < pixelThreshMaxY;
                 }
         );
