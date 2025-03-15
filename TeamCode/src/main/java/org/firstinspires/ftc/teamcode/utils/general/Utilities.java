@@ -140,7 +140,11 @@ public class Utilities {
      * @param outMax The upper bound of the output range.
      * @return The remapped value in the output range.
      */
-    public static double remap(double value, double inMin, double inMax, double outMin, double outMax) {
-        return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+    public static double remap(double value, double inMin, double inMid, double inMax, double outMin, double outMid, double outMax) {
+        if (value <= inMid) {
+            return outMin + (value - inMin) * (outMid - outMin) / (inMid - inMin);
+        } else {
+            return outMid + (value - inMid) * (outMax - outMid) / (inMax - inMid);
+        }
     }
 }
