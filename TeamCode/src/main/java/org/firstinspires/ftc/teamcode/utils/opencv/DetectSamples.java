@@ -138,9 +138,9 @@ public class DetectSamples extends OpenCvPipeline {
             Point lowestPoint = getLowestPoint(contour);
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, Imgproc.boundingRect(contour), drive.pose);
             //sample.calculateOrientation(contour);
-            sample.calculateArea(Imgproc.boundingRect(contour));
+            sample.calculateArea();
             Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
             Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));
             if (sample.isTooBig()) {

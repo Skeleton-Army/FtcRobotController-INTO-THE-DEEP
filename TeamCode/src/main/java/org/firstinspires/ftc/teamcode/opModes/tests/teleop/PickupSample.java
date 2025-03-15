@@ -57,11 +57,12 @@ public class PickupSample extends TeleopOpMode {
             Pose2d targetSamplePos = targetSample.getSamplePosition();
 
             telemetry.addLine("Detected samples");
-            telemetry.addData("X: ", "" + targetSamplePos.position.x);
-            telemetry.addData("Y: ", "" + targetSamplePos.position.y);
-            telemetry.addData("sample heading: ", Math.toDegrees(targetSamplePos.heading.toDouble()));
+            telemetry.addData("lowest X: ", "" + targetSamplePos.position.x);
+            telemetry.addData("lowest Y: ", "" + targetSamplePos.position.y);
+            telemetry.addData("sample orientation: ",targetSample.calculateOrientation());
             telemetry.addData("sample center x: ", targetSample.center.x);
             telemetry.addData("sample center y: ", targetSample.center.y);
+            telemetry.addData("boundingRect width: ", targetSample.boundingRect.width);
         }
         else {
             telemetry.addLine("No samples detected");
@@ -74,6 +75,14 @@ public class PickupSample extends TeleopOpMode {
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
+        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
+
+        if (sample.calculateOrientation() == 90) {
+            Actions.runBlocking(
+                intake.rotate(1)
+            );
+        }
+
         Actions.runBlocking(
                 new SequentialAction(
                         intake.openClaw(),
@@ -84,10 +93,11 @@ public class PickupSample extends TeleopOpMode {
                         intake.closeClaw(),
                         new SleepAction(0.3),
                         intake.retractWrist(),
+                        intake.rotate(0),
                         new SleepAction(0.2),
                         new ParallelAction(
                                 intake.retract(),
-                                new SleepAction(0.4)
+                                new SleepAction(0.6)
                         ),
                         intake.openClaw(),
                         intake.wristMiddle()
