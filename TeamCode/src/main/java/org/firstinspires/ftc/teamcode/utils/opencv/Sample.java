@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.sampleWidthThreshold;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -16,6 +18,7 @@ public class Sample {
     private double sampleX, sampleY, horizontalAngle, quality;
     private double centerX, centerY;
     public double orientation;
+    public Rect boundingRect;
     private Pose2d fieldPos; // Field-relative position of the sample
     public double widthInches;
     public double heightInches;
@@ -25,6 +28,14 @@ public class Sample {
         this.center = center;
         this.detectionPose = detectionPose;
         calculatePosition(rect);
+    }
+
+    public Sample(Point lowest, Point center, Rect boundingRect, Pose2d detectionPose) {
+        this.lowest = lowest;
+        this.center = center;
+        this.detectionPose = detectionPose;
+        this.boundingRect = boundingRect;
+        calculatePosition();
     }
 
 //    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
@@ -100,9 +111,12 @@ public class Sample {
     }
      */
 
-    // Estimates the orientation of the detected sample based on its contour
+    // Estimates the orientation based on its width
+    public int calculateOrientation() {
+        return boundingRect.width <= sampleWidthThreshold ? 0 : 90;
+    }
 
-    public void calculateArea(Rect boundingRect) {
+    public void calculateArea() {
         int width = boundingRect.width;
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
         widthInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
