@@ -106,8 +106,6 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
         telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
         telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
-        telemetry.addData("Gamepad1 X", gamepad1.left_stick_x);
-        telemetry.addData("Gamepad1 Y", -gamepad1.left_stick_y);
         telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
 
