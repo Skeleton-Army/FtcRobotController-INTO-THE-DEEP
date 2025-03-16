@@ -190,7 +190,7 @@ public class AutoApplication extends AutoOpMode {
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
                                 .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 80 : 150))
                                 .build()
                 )
         );
@@ -225,7 +225,7 @@ public class AutoApplication extends AutoOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 270))
-                                .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 150))
+                                .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 120))
                                 .build(),
                         new SequentialAction(
                                 specimenArm.grabOpen(),
@@ -271,7 +271,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(48.5, -42, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
+                                .splineToLinearHeading(new Pose2d(48.5, -45, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
                                 .build(),
                         new SequentialAction(
                                 intake.openClaw(),
@@ -287,13 +287,11 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new ParallelAction(
                         // Put in basket
-                        intake.retractWrist(),
-                        outtake.hold(),
                         new SequentialAction(
-                                new ParallelAction(
-                                        intake.retract(),
-                                        new SleepAction(0.6)
-                                ),
+                                outtake.hold(),
+                                intake.retractWrist(),
+                                new SleepAction(0.3),
+                                intake.retract(),
                                 intake.openClaw(),
                                 intake.wristReady(),
                                 new SleepAction(0.2)
@@ -301,7 +299,7 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(0)
-                                .splineToConstantHeading(new Vector2d(58, -40.5), 0)
+                                .splineToConstantHeading(new Vector2d(58, -43.25), 0)
                                 .build()
                 )
         );
@@ -324,7 +322,7 @@ public class AutoApplication extends AutoOpMode {
                         // Grab sample
                         new SequentialAction(
                                 intake.wristReady(),
-                                intake.openClaw(),
+                                intake.extraOpenClaw(),
                                 intake.extend(0.57),
                                 new SleepAction(0.3), // Wait for sample to fall out
                                 intake.extendWrist(),
@@ -340,16 +338,14 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         // Put in basket
-                        intake.retractWrist(),
-                        outtake.hold(),
                         new SequentialAction(
-                                new ParallelAction(
-                                        intake.retract(),
-                                        new SleepAction(0.6)
-                                ),
+                                outtake.hold(),
+                                intake.retractWrist(),
+                                new SleepAction(0.3),
+                                intake.retract(),
                                 intake.openClaw(),
                                 intake.wristReady(),
-                                new SleepAction(0.2)
+                                new SleepAction(0.3)
                         ),
 
                         // Drop sample
@@ -369,39 +365,38 @@ public class AutoApplication extends AutoOpMode {
 
                                 drive.actionBuilder(drive.pose)
                                         .setTangent(0)
-                                        .splineToLinearHeading(new Pose2d(56, -41.5, Math.toRadians(60)), 0)
+                                        .splineToLinearHeading(new Pose2d(56, -44.75, Math.toRadians(65)), 0)
                                         .build(),
 
                                 // Grab sample
                                 new SequentialAction(
                                         intake.wristReady(),
-                                        intake.rotate(-0.2),
+                                        intake.rotate(-0.3),
                                         intake.extraOpenClaw(),
                                         intake.extend(0.73),
                                         intake.extendWrist(),
                                         new SleepAction(0.2),
                                         intake.closeClaw(),
-                                        new SleepAction(0.1),
+                                        new SleepAction(0.2),
                                         intake.wristReady()
                                 )
                         ),
 
                         new ParallelAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(57.5, -39, Math.toRadians(95)), 0)
+                                        .splineToLinearHeading(new Pose2d(56, -44.75, Math.toRadians(95)), 0)
                                         .build(),
 
                                 // Put in basket
-                                intake.retractWrist(),
-                                outtake.hold(),
                                 new SequentialAction(
-                                        new ParallelAction(
-                                                intake.retract(),
-                                                new SleepAction(0.6)
-                                        ),
+                                        outtake.hold(),
+                                        intake.rotate(0),
+                                        intake.retractWrist(),
+                                        new SleepAction(0.3),
+                                        intake.retract(),
                                         intake.openClaw(),
                                         intake.wristMiddle(),
-                                        new SleepAction(0.2)
+                                        new SleepAction(0.3)
                                 )
                         ),
 
