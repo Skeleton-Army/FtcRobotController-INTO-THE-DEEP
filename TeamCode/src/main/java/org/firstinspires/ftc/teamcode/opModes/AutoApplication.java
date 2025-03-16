@@ -445,7 +445,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-52.5, -51, Math.toRadians(80)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-52.5, -52.25, Math.toRadians(80)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -456,7 +456,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-57.5, -50, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.25, -51.25, Math.toRadians(90)), Math.PI)
                                         .build(),
                                 wristSequence
                         )
@@ -471,7 +471,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(-55.5, -46.5, Math.toRadians(120)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-55.5, -48.25, Math.toRadians(120)), Math.PI)
                                         .build(),
                                 intake.extraOpenClaw(),
                                 wristSequence
@@ -498,11 +498,10 @@ public class AutoApplication extends AutoOpMode {
                 outtake.hold(),
                 intake.retractWrist(),
                 intake.rotate(0),
-                new ParallelAction(
-                        intake.retract(),
-                        new SleepAction(0.6)
-                ),
+                new SleepAction(0.3),
+                intake.retract(),
                 intake.openClaw(),
+                new SleepAction(0.05),
                 intake.wristReady(),
                 new SleepAction(0.2)
         );
@@ -637,10 +636,6 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
-
-//        runAsync(
-//                prepareIntake
-//        );
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
