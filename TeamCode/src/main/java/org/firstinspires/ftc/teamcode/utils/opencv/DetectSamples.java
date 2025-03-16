@@ -76,13 +76,6 @@ public class DetectSamples extends OpenCvPipeline {
         return lowestPoint;
     }
 
-    private Vector2d pixelToWorld(double x, double y) {
-        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
-        double worldY = CameraConfig.z / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
-        double worldX = Math.tan(horizontal) * worldY;
-        return new Vector2d(worldX, worldY);
-    }
-
     /**
      * Processes each frame to detect samples.
      * - Converts the frame to a binary mask based on color thresholds.
@@ -92,26 +85,27 @@ public class DetectSamples extends OpenCvPipeline {
      */
     public Mat processFrame(Mat input) {
         List<Sample> samplesFrame = new ArrayList<>();
-        List<MatOfPoint> contours = new ArrayList<>();
+        List<MatOfPoint> allContours = new ArrayList<>();
 
         DetectSamples.input = input;
 
-        //Mat rowsToBlack = input.rowRange(0, THRESHOLD);
-        //rowsToBlack.setTo(new Scalar(0, 0, 0));
+        for (Threshold t : thresholds) {
+            // Apply color filtering to isolate the desired objects
+            Mat masked = mask(input, t);
 
-        // Apply color filtering to isolate the desired objects
-        Mat masked = mask(input);
+            // Create a new list for the current threshold's contours
+            List<MatOfPoint> contours = new ArrayList<>();
 
-        // Find contours in the masked image
-        Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        //Core.bitwise_and(input, masked, input);
+            // Find contours in the masked image
+            Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        masked.release(); // Free memory after use
+            // Add the newly found contours to the master list
+            allContours.addAll(contours);
 
-        for (MatOfPoint contour : contours) {
-            //check if contour is a valid sample
-            //if (contour.size().area() < 500 || contour.size().area() > 5000) //TODO: figure out what these constants should be
+            masked.release(); // Free memory after use
+        }
 
+        for (MatOfPoint contour : allContours) {
             MatOfInt hullIndices = new MatOfInt();
             Imgproc.convexHull(contour, hullIndices);
 
@@ -140,7 +134,8 @@ public class DetectSamples extends OpenCvPipeline {
                 continue; // Skip this contour
             }
 
-            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(contour.toArray()));
+            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
+
             // Create and add the new sample
             Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
             sample.calculateArea(Imgproc.boundingRect(contour));
@@ -154,11 +149,11 @@ public class DetectSamples extends OpenCvPipeline {
             Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
             sample.calculateField();
 
-            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
+//            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
             Imgproc.ellipse(input, ellipse, new Scalar(0, 255, 0));
             double angle = Math.toRadians(90 - ellipse.angle);
             Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 50 * Math.cos(angle), lowestPoint.y - 50 * Math.sin(angle)), new Scalar(0, 0, 0));
-            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
+//            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
 
             samplesFrame.add(sample);
         }
@@ -177,7 +172,7 @@ public class DetectSamples extends OpenCvPipeline {
      * - Uses threshold values to create a binary mask.
      * - Applies morphological operations to clean up noise.
      */
-    private Mat mask(Mat frame) {
+    private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
         Mat matrix = new Mat(3, 3, CvType.CV_64F);
         matrix.put(0, 0,
@@ -199,9 +194,7 @@ public class DetectSamples extends OpenCvPipeline {
         Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
 
         // Apply color filtering to isolate the desired objects
-        for (Threshold t : thresholds) {
-            Core.inRange(masked, t.lowerBound, t.upperBound, binary);
-        }
+        Core.inRange(masked, threshold.lowerBound, threshold.upperBound, binary);
 
         masked.release(); // Free memory after use
         undistorted.release(); // Free memory after use

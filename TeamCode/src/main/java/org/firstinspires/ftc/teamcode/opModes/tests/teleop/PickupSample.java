@@ -40,12 +40,12 @@ public class PickupSample extends TeleopOpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW});
+        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, SampleColor.RED});
 
         driveActions = new Drive(drive, camCV);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");

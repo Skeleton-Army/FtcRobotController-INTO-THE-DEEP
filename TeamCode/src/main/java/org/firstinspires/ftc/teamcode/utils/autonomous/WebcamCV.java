@@ -77,44 +77,15 @@ public class WebcamCV {
         return closest;
     }
 
-    /**
-     * Finds the best sample based on quality, filtering out samples outside a predefined range.
-     * @return Pose2d of the best sample.
-     */
-    public Pose2d getBestOrientation() {
-        // searching for the min value of distance
-        if (samples.isEmpty()) return null;
-
-        Sample best = samples.get(0);
-
-        for (Sample currSample : samples) {
-            Vector2d pos = currSample.getSamplePosition().position;
-            if (pos.x > 6 || pos.x < -6 || pos.y > 18 || pos.y < -15) {
-                continue;
-            }
-
-            //if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
-            if (Math.abs(currSample.getQuality()) < Math.abs(best.getQuality())) {
-                best = currSample;
-            }
-        }
-
-        return best.getSamplePosition();
-    }
-
-    /**
-     * Finds the closest sample object to the given position.
-     * @param pos The reference position.
-     * @return The closest Sample object.
-     */
-    public Sample getCloseSampleObject(Vector2d pos) {
-        // searching for the min value of distance
+    public Sample getBestSampleInRange(Vector2d pos, Vector2d lower, Vector2d upper) {
         if (samples.isEmpty()) return null;
 
         Sample closest = samples.get(0);
 
         for (Sample currSample : samples) {
-            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos)) {
+            Vector2d samplePos = currSample.getSamplePosition().position;
+            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos) &&
+                samplePos.x > lower.x && samplePos.x < upper.x && samplePos.y > lower.y && samplePos.y < upper.y) {
                 closest = currSample;
             }
         }

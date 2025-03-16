@@ -14,17 +14,20 @@ public class Threshold {
     Scalar upperBound;
     public Threshold(SampleColor color) {
         switch (color) {
+            case YELLOW:
+                this.lowerBound = lowerYellow;
+                this.upperBound = upperYellow;
+                break;
+
             case RED:
                 this.lowerBound = lowerRed;
                 this.upperBound = upperRed;
+                break;
 
             case BLUE:
                 this.lowerBound = lowerBlue;
                 this.upperBound = upperBlue;
-
-            case YELLOW:
-                this.lowerBound = lowerYellow;
-                this.upperBound = upperYellow;
+                break;
         }
     }
 }

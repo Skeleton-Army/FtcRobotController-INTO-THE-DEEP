@@ -437,7 +437,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runAsync(intake.openClaw());
-        runAsync(intake.rotate(-0.2));
+        runAsync(intake.rotate(0));
 
         switch (collectedSamples) {
             case 1:
@@ -465,7 +465,7 @@ public class AutoApplication extends AutoOpMode {
             case 3:
                 // Collect third sample
                 runAsync(
-                        intake.rotate(0)
+                        intake.rotate(0.2)
                 );
 
                 runBlocking(
@@ -497,7 +497,7 @@ public class AutoApplication extends AutoOpMode {
         Action intakeRetract = new SequentialAction(
                 outtake.hold(),
                 intake.retractWrist(),
-                intake.rotate(-0.2),
+                intake.rotate(0),
                 new ParallelAction(
                         intake.retract(),
                         new SleepAction(0.6)
@@ -636,11 +636,11 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Sample targetSample = camCV.getBestSample(new Vector2d(-2, -4));
+        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
 
-        runAsync(
-                prepareIntake
-        );
+//        runAsync(
+//                prepareIntake
+//        );
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
@@ -653,6 +653,7 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         intake.rotate(rotationTarget),
+                        prepareIntake,
                         grabSequence
                 )
         );
