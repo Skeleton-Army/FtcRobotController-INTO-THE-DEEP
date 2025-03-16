@@ -18,7 +18,7 @@ public class CameraConfig {
     public static double offsetVertical = 22.05;
 
     public static double pickupSampleOffsetX = 1;
-    public static double pickupSampleOffsetY = 26.25;
+    public static double pickupSampleOffsetY = 25.5;
 
     public static double pickupInterval = 0.7;
     public static double pickupIntervalDivision = 1.2;
@@ -26,8 +26,8 @@ public class CameraConfig {
     public static double pickupTimeout = 2.5;
 
     public static int pixelThreshRadius = 15;
-    public static int pixelOptimalCenterX = 145;
-    public static int pixelOptimalCenterY = 285;
+    public static int pixelOptimalCenterX = 160;
+    public static int pixelOptimalCenterY = 280;
 
 
     // Distortion coefficients
