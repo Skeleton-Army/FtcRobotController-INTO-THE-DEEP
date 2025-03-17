@@ -23,7 +23,7 @@ public class CameraConfig {
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;
     public static double pickupMinInterval = 0.3;
-    public static double pickupTimeout = 2.5;
+    public static double pickupTimeout = 2;
 
     public static int pixelThreshRadius = 20;
     public static int pixelOptimalCenterX = 165;

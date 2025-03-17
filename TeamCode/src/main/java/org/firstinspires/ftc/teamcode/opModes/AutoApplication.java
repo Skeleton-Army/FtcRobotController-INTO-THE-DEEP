@@ -428,7 +428,7 @@ public class AutoApplication extends AutoOpMode {
 
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
-                new SleepAction(0.2)
+                new SleepAction(0.15)
         );
 
         runAsync(intake.openClaw());
@@ -486,14 +486,13 @@ public class AutoApplication extends AutoOpMode {
 
         Action grab = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.2)
+                new SleepAction(0.1)
         );
 
         Action intakeRetract = new SequentialAction(
                 outtake.hold(),
                 intake.retractWrist(),
                 intake.rotate(0),
-                new SleepAction(0.3),
                 intake.retract(),
                 intake.openClaw(),
                 new SleepAction(0.05),
@@ -608,11 +607,11 @@ public class AutoApplication extends AutoOpMode {
         Action grabSequence = new SequentialAction(
                 intake.openClaw(),
                 intake.extendWrist(),
-                new SleepAction(0.2),
+                new SleepAction(0.15),
                 intake.closeClaw(),
-                new SleepAction(0.2),
+                new SleepAction(0.1),
                 intake.retractWrist(),
-                new SleepAction(0.2)
+                new SleepAction(0.1)
         );
 
         runBlocking(
