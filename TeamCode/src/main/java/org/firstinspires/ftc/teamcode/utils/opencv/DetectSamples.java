@@ -43,6 +43,7 @@ public class DetectSamples extends OpenCvPipeline {
     private static final Size kernelSize = new Size(5, 5);
 
     private static Mat input;
+    Mat matrix = new Mat(3, 3, CvType.CV_64F);
 
     Point second;
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
@@ -50,6 +51,11 @@ public class DetectSamples extends OpenCvPipeline {
         this.webcam = webcam;
         this.drive = drive;
         thresholds = new Threshold[] { new Threshold(color) };
+
+        matrix.put(0, 0,
+                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
+                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
+                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
@@ -57,6 +63,11 @@ public class DetectSamples extends OpenCvPipeline {
         this.webcam = webcam;
         this.drive = drive;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
+
+        matrix.put(0, 0,
+                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
+                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
+                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
     /**
@@ -174,11 +185,6 @@ public class DetectSamples extends OpenCvPipeline {
      */
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
-        Mat matrix = new Mat(3, 3, CvType.CV_64F);
-        matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
 
         MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
 
