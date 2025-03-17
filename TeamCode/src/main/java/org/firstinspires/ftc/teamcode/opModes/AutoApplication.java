@@ -630,7 +630,8 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
+        //Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
+        Sample targetSample = camCV.getBestSample(new Vector2d(-4, -4));
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
