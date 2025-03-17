@@ -6,7 +6,7 @@ import org.opencv.core.MatOfDouble;
 
 @Config
 public class CameraConfig {
-    public static double MAX_AREA = 18;
+    public static double MAX_AREA = 12;
     public static float z = 12.5f;
     public static float horizontalFOV = 65.76f; // needs tuning - TODO: check for 65.76
     public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
@@ -18,7 +18,7 @@ public class CameraConfig {
     public static double offsetVertical = 22.05;
 
     public static double pickupSampleOffsetX = 1.5;
-    public static double pickupSampleOffsetY = 26.75;
+    public static double pickupSampleOffsetY = 26.5;
 
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;

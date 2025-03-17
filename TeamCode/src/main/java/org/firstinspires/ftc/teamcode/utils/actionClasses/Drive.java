@@ -24,7 +24,7 @@ import org.opencv.core.Point;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Drive {
-    public static Sample TargetSample;
+    public static Sample targetSampleStatic;
 
     MecanumDrive drive;
     Apriltag apriltag;
@@ -80,11 +80,14 @@ public class Drive {
                     if (camCV.lookForSamples())
                         targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
 
-                    TargetSample = camCV.getBestSample(targetSamplePos.get());
+                    targetSampleStatic = camCV.getBestSample(targetSamplePos.get());
 
-                    Point center = TargetSample.center;
+                    Point center = targetSampleStatic.center;
                     double dist = Math.sqrt(Math.pow(center.x - CameraConfig.pixelOptimalCenterX, 2) + Math.pow(center.y - CameraConfig.pixelOptimalCenterY, 2));
+
                     telemetry.addData("dist", dist);
+                    telemetry.update();
+
                     return dist <= CameraConfig.pixelThreshRadius;
                 }
         );

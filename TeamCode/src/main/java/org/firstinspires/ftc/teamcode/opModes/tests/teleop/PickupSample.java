@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -17,7 +16,6 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -74,7 +72,7 @@ public class PickupSample extends TeleopOpMode {
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
-        double orientation = -Drive.TargetSample.orientation;
+        double orientation = -Drive.targetSampleStatic.orientation;
         double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
 
         Actions.runBlocking(
@@ -93,6 +91,7 @@ public class PickupSample extends TeleopOpMode {
 
                         outtake.hold(),
                         intake.retractWrist(),
+                        new SleepAction(0.2),
                         intake.rotate(0),
                         intake.retract(),
                         intake.openClaw(),

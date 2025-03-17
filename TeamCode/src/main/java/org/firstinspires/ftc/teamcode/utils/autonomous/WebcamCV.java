@@ -115,7 +115,7 @@ public class WebcamCV {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        FtcDashboard.getInstance().startCameraStream(webcam, 5);
+        FtcDashboard.getInstance().startCameraStream(webcam, 10);
 
         if (colors.length == 2)
             detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);

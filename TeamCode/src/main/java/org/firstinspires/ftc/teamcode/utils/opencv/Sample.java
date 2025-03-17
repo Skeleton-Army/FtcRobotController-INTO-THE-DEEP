@@ -74,7 +74,7 @@ public class Sample {
         Vector2d second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CameraConfig.z);
         orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
 
-        Vector2d centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 1);
+        Vector2d centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 0.75);
         centerY = centerPos.y;
         centerX = centerPos.x;
 

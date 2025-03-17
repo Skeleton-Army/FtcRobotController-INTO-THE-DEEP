@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -17,13 +16,15 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
-import org.firstinspires.ftc.teamcode.utils.actions.AlignToSample;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 enum Alliance {
     RED,
@@ -39,7 +40,7 @@ enum Strategy {
 public class AutoApplication extends AutoOpMode {
     public enum State {
         HANG_SPECIMEN(2),
-        COLLECT_ADDITIONAL_SAMPLE(3.5),
+        COLLECT_ADDITIONAL_SAMPLE(4),
 
         COLLECT_COLOR_SAMPLES(),
         COLLECT_SPECIMEN(2),
@@ -621,27 +622,32 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(-32, -10), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                        .splineTo(new Vector2d(-32, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                         .build()
+        );
+
+        camCV.resetSampleList();
+
+        runBlocking(
+                new SleepAction(0.2)
         );
 
         // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
         // Grab sample
-        camCV.resetSampleList();
-
         runBlocking(
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
 //        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
-        Sample targetSample = camCV.getBestSample(new Vector2d(-2, drive.pose.position.y));
+//        Sample targetSample = camCV.getBestSample(new Vector2d(-5, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
+        Sample targetSample = camCV.getBestSample(new Vector2d(drive.pose.position.x + 30, drive.pose.position.y));
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
-        double orientation = -Drive.TargetSample.orientation;
+        double orientation = -Drive.targetSampleStatic.orientation;
         double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
 
         runBlocking(
