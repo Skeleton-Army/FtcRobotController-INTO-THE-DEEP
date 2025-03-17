@@ -6,7 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 public class IntakeConfig {
     public static String motorName = "intake";
     public static String clawName = "claw";
-    public static String wristName = "wrist";
+    public static String wrist1Name = "wrist1";
+    public static String wrist2Name = "wrist2";
     public static String rotationName = "rotation";
 
     public static double motorPower = 1;

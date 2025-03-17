@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
 
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,7 +19,8 @@ import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 public class Intake {
     public final CachingDcMotorEx motor;
     private final Servo clawServo;
-    private final Servo wristServo;
+    private final Servo wristServo1;
+    private final Servo wristServo2;
     private final Servo rotationServo;
 
     public Intake(HardwareMap hardwareMap) {
@@ -27,7 +29,8 @@ public class Intake {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
-        wristServo = hardwareMap.get(Servo.class, IntakeConfig.wristName);
+        wristServo1 = hardwareMap.get(Servo.class, IntakeConfig.wrist1Name);
+        wristServo2 = hardwareMap.get(Servo.class, IntakeConfig.wrist2Name);
         rotationServo = hardwareMap.get(Servo.class, IntakeConfig.rotationName);
 
         Actions.runBlocking(wristMiddle());
@@ -55,7 +58,10 @@ public class Intake {
     }
 
     public Action wristToPosition(double targetPos) {
-        return new ServoToPosition(wristServo, targetPos);
+        return new ParallelAction(
+                new ServoToPosition(wristServo1, targetPos),
+                new ServoToPosition(wristServo2, targetPos)
+        );
     }
 
     public Action clawToRotation(double targetPos) {
