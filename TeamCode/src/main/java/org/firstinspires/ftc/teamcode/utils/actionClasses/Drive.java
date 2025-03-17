@@ -66,6 +66,8 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
+                    camCV.lookForSamples();
+
                     Point center = camCV.getBestSample(targetSamplePos.get()).center;
                     double dist = Math.sqrt(Math.pow(center.x - CameraConfig.pixelOptimalCenterX, 2) + Math.pow(center.y - CameraConfig.pixelOptimalCenterY, 2));
                     return dist <= CameraConfig.pixelThreshRadius;
