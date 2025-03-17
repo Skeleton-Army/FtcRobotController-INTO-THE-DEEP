@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-import org.opencv.core.MatOfPoint;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -84,13 +82,18 @@ public class WebcamCV {
 
         for (Sample currSample : samples) {
             Vector2d samplePos = currSample.getSamplePosition().position;
-            if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos) &&
-                samplePos.x > lower.x && samplePos.x < upper.x && samplePos.y > lower.y && samplePos.y < upper.y) {
+            if (isLegal(samplePos, lower, upper))
+                if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos) || !isLegal(closest.getSamplePosition().position, lower, upper)) {
                 closest = currSample;
             }
         }
 
         return closest;
+    }
+
+    // checking if the sample is between the boundaries that we can collect
+    private boolean isLegal(Vector2d samplePos, Vector2d lower, Vector2d upper) {
+        return samplePos.x > lower.x && samplePos.x < upper.x && samplePos.y > lower.y && samplePos.y < upper.y;
     }
 
     /**
