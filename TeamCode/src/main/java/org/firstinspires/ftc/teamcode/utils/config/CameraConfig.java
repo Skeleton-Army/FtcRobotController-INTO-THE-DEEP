@@ -18,7 +18,7 @@ public class CameraConfig {
     public static double offsetVertical = 22.05;
 
     public static double pickupSampleOffsetX = 1.5;
-    public static double pickupSampleOffsetY = 27;
+    public static double pickupSampleOffsetY = 26.75;
 
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;

@@ -121,7 +121,7 @@ public class AutoApplication extends AutoOpMode {
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
-        driveActions = new Drive(drive, camCV);
+        driveActions = new Drive(drive, camCV, telemetry);
     }
 
     @Override
@@ -612,9 +612,9 @@ public class AutoApplication extends AutoOpMode {
         Action grabSequence = new SequentialAction(
                 intake.openClaw(),
                 intake.extendWrist(),
-                new SleepAction(0.15),
+                new SleepAction(0.2),
                 intake.closeClaw(),
-                new SleepAction(0.1),
+                new SleepAction(0.15),
                 intake.retractWrist(),
                 new SleepAction(0.1)
         );
@@ -634,14 +634,14 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
+//        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
+        Sample targetSample = camCV.getBestSample(new Vector2d(-2, drive.pose.position.y));
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
-        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
-        double orientation = -sample.orientation;
+        double orientation = -Drive.TargetSample.orientation;
         double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
 
         runBlocking(

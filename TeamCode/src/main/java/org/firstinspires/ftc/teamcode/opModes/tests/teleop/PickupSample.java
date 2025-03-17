@@ -47,7 +47,7 @@ public class PickupSample extends TeleopOpMode {
         camCV = new WebcamCV(hardwareMap, telemetry, drive);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, SampleColor.RED});
 
-        driveActions = new Drive(drive, camCV);
+        driveActions = new Drive(drive, camCV, telemetry);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
@@ -74,8 +74,7 @@ public class PickupSample extends TeleopOpMode {
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
-        Sample sample = camCV.getBestSample(targetSample.getSamplePosition().position);
-        double orientation = -sample.orientation;
+        double orientation = -Drive.TargetSample.orientation;
         double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
 
         Actions.runBlocking(
@@ -88,18 +87,14 @@ public class PickupSample extends TeleopOpMode {
                         intake.wristReady(),
                         intake.extend(),
                         intake.extendWrist(),
-                        new SleepAction(0.3),
+                        new SleepAction(0.2),
                         intake.closeClaw(),
-                        new SleepAction(0.3),
+                        new SleepAction(0.2),
 
                         outtake.hold(),
                         intake.retractWrist(),
                         intake.rotate(0),
-                        new SleepAction(0.3),
-                        new ParallelAction(
-                                intake.retract(),
-                                new SleepAction(0.3)
-                        ),
+                        intake.retract(),
                         intake.openClaw(),
                         new SleepAction(0.05),
                         intake.wristMiddle(),

@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
@@ -23,9 +24,12 @@ import org.opencv.core.Point;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Drive {
+    public static Sample TargetSample;
+
     MecanumDrive drive;
     Apriltag apriltag;
     WebcamCV camCV;
+    Telemetry telemetry;
 
     public Drive(MecanumDrive drive, Apriltag apriltag) {
         this.drive = drive;
@@ -41,6 +45,12 @@ public class Drive {
         this.camCV = camCV;
     }
 
+    public Drive(MecanumDrive drive, WebcamCV camCV, Telemetry telemetry) {
+        this.drive = drive;
+        this.camCV = camCV;
+        this.telemetry = telemetry;
+    }
+
     public Action moveApriltag(Pose2d targetPose) {
         return new MoveApriltag(targetPose, drive, apriltag);
     }
@@ -54,9 +64,9 @@ public class Drive {
         return new LoopAction(
                 () -> alignToSample(targetSamplePos.get()),
                 () -> new InstantAction(() -> {
-                    camCV.resetSampleList();
-                    if (camCV.lookForSamples())
-                        targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
+//                    camCV.resetSampleList();
+//                    if (camCV.lookForSamples())
+//                        targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
                 }),
                 () -> new InstantAction(() -> {
                     drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
@@ -66,10 +76,15 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
-                    camCV.lookForSamples();
+//                    camCV.lookForSamples();
+                    if (camCV.lookForSamples())
+                        targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
 
-                    Point center = camCV.getBestSample(targetSamplePos.get()).center;
+                    TargetSample = camCV.getBestSample(targetSamplePos.get());
+
+                    Point center = TargetSample.center;
                     double dist = Math.sqrt(Math.pow(center.x - CameraConfig.pixelOptimalCenterX, 2) + Math.pow(center.y - CameraConfig.pixelOptimalCenterY, 2));
+                    telemetry.addData("dist", dist);
                     return dist <= CameraConfig.pixelThreshRadius;
                 }
         );
