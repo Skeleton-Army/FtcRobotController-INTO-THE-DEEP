@@ -12,8 +12,8 @@ public class CameraConfig {
     public static int halfImageHeight = 180;
     public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 7.87;
-    public static double offsetHorizontal = 4.3;
-    public static double offsetVertical = 22.05;
+    public static double offsetHorizontal = 0;
+    public static double offsetVertical = 20.45;
 
     public static double pickupSampleOffsetX = 1.5;
     public static double pickupSampleOffsetY = 26.5;
