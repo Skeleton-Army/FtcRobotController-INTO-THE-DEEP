@@ -81,10 +81,10 @@ public class PickupSample extends TeleopOpMode {
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
 
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
         Actions.runBlocking(
                 intake.rotate(rotationTarget)
@@ -99,9 +99,9 @@ public class PickupSample extends TeleopOpMode {
                         new SleepAction(0.2),
 
                         drive.actionBuilder(drive.pose)
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y - wiggleDistance), null, new ProfileAccelConstraint(-100, 100))
-                                .afterDisp(1.5, intake.closeClaw())
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y + wiggleBackDistance), null, new ProfileAccelConstraint(-100, 100))
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
+                                .afterDisp(wiggleDistance, intake.closeClaw())
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
                                 .build(),
 
 //                        intake.closeClaw(),

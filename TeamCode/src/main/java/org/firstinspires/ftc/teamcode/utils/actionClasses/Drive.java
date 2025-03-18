@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.actionClasses;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupMinInterval;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupSpeed;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTimeout;
 
 import com.acmerobotics.roadrunner.Action;
@@ -139,7 +140,7 @@ public class Drive {
         Vector2d target = targetSamplePos.minus(offset);
 
         return drive.actionBuilder(drive.pose)
-                .strafeToConstantHeading(target, null, new ProfileAccelConstraint(-80, 80))
+                .strafeToConstantHeading(target, null, new ProfileAccelConstraint(-pickupSpeed, pickupSpeed))
                 .build();
     }
 }

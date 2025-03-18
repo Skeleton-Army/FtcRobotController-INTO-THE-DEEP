@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
+
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -644,15 +647,21 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-//        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
-        Sample targetSample = camCV.getBestSample(new Vector2d(-5, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
+//        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), new Vector2d(-8, -13), new Vector2d(5, 10));
+        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
         );
 
         double orientation = -Drive.targetSampleStatic.orientation;
-        double rotationTarget = (90 - Math.abs(orientation)) / 90 * Math.signum(orientation);
+        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
+        double rotationTarget = normalizedOrientation / 90;
+
+        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
         runBlocking(
                 new SequentialAction(
@@ -660,9 +669,9 @@ public class AutoApplication extends AutoOpMode {
                         extendSequence,
 
                         drive.actionBuilder(drive.pose)
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y - 1.5), null, new ProfileAccelConstraint(-100, 100))
-                                .afterDisp(1.5, intake.closeClaw())
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y + 0.5), null, new ProfileAccelConstraint(-100, 100))
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
+                                .afterDisp(wiggleDistance, intake.closeClaw())
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
                                 .build(),
 
                         grabSequence
