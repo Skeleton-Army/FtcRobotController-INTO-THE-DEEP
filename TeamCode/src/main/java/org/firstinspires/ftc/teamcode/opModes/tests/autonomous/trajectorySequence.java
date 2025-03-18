@@ -6,14 +6,17 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 
+@Autonomous
 public class trajectorySequence extends OpMode {
     MecanumDrive drive;
     Intake intake;
+
     @Override
     public void init() {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
@@ -21,26 +24,34 @@ public class trajectorySequence extends OpMode {
     }
 
     @Override
-    public void loop() {
+    public void start() {
         runBlocking(new SequentialAction(
                 intake.extend(),
                 new SleepAction(2)
         ));
 
         // runs intake action 5 UNITS before the spline ends
-        drive.actionBuilder(drive.pose)
-                .splineTo(new Vector2d(15, 0 ), 0)
-                .afterDisp(5, intake.extendWrist())
-                .build();
+        runBlocking(
+                drive.actionBuilder(drive.pose)
+                        .afterDisp(30 - 5, intake.extendWrist()) // 5 inches before
+                        .splineTo(new Vector2d(30, 0), 0)
+                        .build()
+        );
 
-        runBlocking(new SequentialAction(
-                new SleepAction(2)
-        ));
-
-        // runs intake action after 0.5 sec the spline begins
-        drive.actionBuilder(drive.pose)
-                .splineTo(new Vector2d(30, 0 ), 0)
-                .afterTime(0.5, intake.extendWrist())
-                .build();
+//        runBlocking(new SequentialAction(
+//                new SleepAction(2),
+//                intake.retractWrist()
+//        ));
+//
+//        // runs intake action after 0.5 sec the spline begins
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .afterTime(1, intake.extendWrist())
+//                        .splineTo(new Vector2d(30, 0), 0)
+//                        .build()
+//        );
     }
+
+    @Override
+    public void loop() {}
 }
