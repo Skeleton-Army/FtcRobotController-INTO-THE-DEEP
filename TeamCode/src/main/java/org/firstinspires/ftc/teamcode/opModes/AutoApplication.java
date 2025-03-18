@@ -475,9 +475,11 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(7, new ParallelAction(
+                                        .afterDisp(7, new SequentialAction(
                                                 intake.extraOpenClaw(),
-                                                wristSequence
+                                                wristSequence,
+                                                new SleepAction(0.15),
+                                                intake.closeClaw()
                                         ))
                                         .splineToLinearHeading(new Pose2d(-55.5, -48.25, Math.toRadians(120)), Math.PI)
                                         .build()
@@ -551,17 +553,14 @@ public class AutoApplication extends AutoOpMode {
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
-                                    new ParallelAction(
-                                            extendOuttake,
-                                            dunk
-                                    )
+                                    dunkSequence
                             )
                     )
             );
         }
         else {
             // Grab sample
-            runBlocking(grab);
+            if (collectedSamples != 3) runBlocking(grab);
 
             // Retract and go to basket
             runBlocking(
@@ -620,14 +619,13 @@ public class AutoApplication extends AutoOpMode {
                                 new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
                                 intake.extendWrist()
                         )
-                ),
-                new SleepAction(0.1)
+                )
+//                new SleepAction(0.1)
         );
 
         Action grabSequence = new SequentialAction(
-                new SleepAction(0.15),
-                intake.retractWrist(),
-                new SleepAction(0.1)
+                intake.retractWrist()
+//                new SleepAction(0.1)
         );
 
         runBlocking(
@@ -637,10 +635,6 @@ public class AutoApplication extends AutoOpMode {
         );
 
         camCV.resetSampleList();
-
-//        runBlocking(
-//                new SleepAction(0.2)
-//        );
 
         // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
