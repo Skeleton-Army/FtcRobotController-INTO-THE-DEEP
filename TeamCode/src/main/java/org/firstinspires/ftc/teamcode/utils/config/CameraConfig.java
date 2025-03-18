@@ -21,7 +21,7 @@ public class CameraConfig {
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;
     public static double pickupMinInterval = 0.3;
-    public static double pickupTimeout = 1.5;
+    public static double pickupTimeout = 1.8;
 
     public static double pickupSpeed = 70;
 

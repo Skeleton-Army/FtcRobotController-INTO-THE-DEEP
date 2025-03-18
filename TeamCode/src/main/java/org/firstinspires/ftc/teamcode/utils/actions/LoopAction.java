@@ -84,7 +84,9 @@ public class LoopAction implements Action {
             currentAction = loopAction.get();
         }
 
-        if (!currentAction.run(telemetryPacket) || intervalTimer.seconds() >= interval) {
+        boolean completedAction = currentAction.run(telemetryPacket);
+
+        if (!completedAction || intervalTimer.seconds() >= interval) {
             intervalTimer.reset();
             interval /= intervalDivision;
             if (interval < minInterval) interval = minInterval;
@@ -95,9 +97,9 @@ public class LoopAction implements Action {
 
         boolean ended = totalTimer.seconds() > timeout || Objects.requireNonNull(endCondition).get();
 
-        if (ended)
+        if (ended && completedAction)
             endAction.get().run(telemetryPacket);
 
-        return !ended;
+        return !(ended && completedAction);
     }
 }

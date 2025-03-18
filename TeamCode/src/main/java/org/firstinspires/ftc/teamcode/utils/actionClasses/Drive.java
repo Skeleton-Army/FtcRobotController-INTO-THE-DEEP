@@ -66,6 +66,10 @@ public class Drive {
     }
 
     public Action alignToSampleContinuous(Sample targetSample) {
+        return alignToSampleContinuous(targetSample, new Vector2d(-1000, -1000), new Vector2d(1000, 1000));
+    }
+
+    public Action alignToSampleContinuous(Sample targetSample, Vector2d lower, Vector2d upper) {
         AtomicReference<Vector2d> targetSamplePos = new AtomicReference<>(targetSample.getSamplePosition().position);
         return new LoopAction(
                 () -> alignToSample(targetSamplePos.get()),
@@ -82,17 +86,18 @@ public class Drive {
                 pickupMinInterval,
                 pickupTimeout,
                 () -> {
-//                    camCV.lookForSamples();
-                    if (camCV.lookForSamples())
-                        targetSamplePos.set(camCV.getBestSamplePos(targetSamplePos.get()).position);
+                    if (camCV.lookForSamples()) {
+                        Sample newSample = camCV.getBestSampleInRange(targetSamplePos.get(), lower, upper);
+                        targetSamplePos.set(newSample.getSamplePosition().position);
 
-                    targetSampleStatic = camCV.getBestSample(targetSamplePos.get());
+                        targetSampleStatic = newSample;
+                    }
 
                     Point center = targetSampleStatic.center;
                     double dist = Math.sqrt(Math.pow(center.x - CameraConfig.pixelOptimalCenterX, 2) + Math.pow(center.y - CameraConfig.pixelOptimalCenterY, 2));
 
-                    telemetry.addData("dist", dist);
-                    telemetry.update();
+//                    telemetry.addData("dist", dist);
+//                    telemetry.update();
 
                     return dist <= CameraConfig.pixelThreshRadius;
                 }

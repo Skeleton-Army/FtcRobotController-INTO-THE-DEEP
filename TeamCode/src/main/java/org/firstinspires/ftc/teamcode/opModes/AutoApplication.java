@@ -515,7 +515,7 @@ public class AutoApplication extends AutoOpMode {
                 outtake.bucketMiddle(),
                 outtake.extend(),
                 new SequentialAction(
-                        new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -500),
+                        new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
                         outtake.bucketReady()
                 )
         );
@@ -547,12 +547,14 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-53, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 300))
+                                    .splineToLinearHeading(new Pose2d(-51, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
-                                    extendOuttake,
-                                    dunk
+                                    new ParallelAction(
+                                            extendOuttake,
+                                            dunk
+                                    )
                             )
                     )
             );
@@ -618,8 +620,8 @@ public class AutoApplication extends AutoOpMode {
                                 new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
                                 intake.extendWrist()
                         )
-                )
-//                new SleepAction(0.1)
+                ),
+                new SleepAction(0.1)
         );
 
         Action grabSequence = new SequentialAction(
@@ -647,11 +649,16 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-//        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), new Vector2d(-8, -13), new Vector2d(5, 10));
-        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
+        Vector2d lower = new Vector2d(-8, -10);
+        Vector2d upper = new Vector2d(5, 10);
+
+        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), lower, upper);
+//        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
+
+        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
 
         runBlocking(
-                driveActions.alignToSampleContinuous(targetSample)
+                driveActions.alignToSampleContinuous(targetSample, lower, upper)
         );
 
         double orientation = -Drive.targetSampleStatic.orientation;

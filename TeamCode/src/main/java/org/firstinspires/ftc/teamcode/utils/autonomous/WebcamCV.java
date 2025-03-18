@@ -78,13 +78,20 @@ public class WebcamCV {
     public Sample getBestSampleInRange(Vector2d pos, Vector2d lower, Vector2d upper) {
         if (samples.isEmpty()) return null;
 
-        Sample closest = samples.get(0);
+        Sample closest = null;
+        double minDistance = Double.MAX_VALUE;
 
         for (Sample currSample : samples) {
             Vector2d samplePos = currSample.getSamplePosition().position;
-            if (isLegal(samplePos, lower, upper))
-                if (distanceFromPosition(closest, pos) > distanceFromPosition(currSample, pos) || !isLegal(closest.getSamplePosition().position, lower, upper)) {
+
+            // Ensure sample is within the allowed range
+            if (!isLegal(samplePos, lower, upper)) continue;
+
+            double currDistance = distanceFromPosition(currSample, pos);
+
+            if (closest == null || currDistance < minDistance) {
                 closest = currSample;
+                minDistance = currDistance;
             }
         }
 
