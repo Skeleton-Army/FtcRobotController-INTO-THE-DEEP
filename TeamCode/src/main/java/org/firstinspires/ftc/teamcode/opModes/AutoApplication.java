@@ -649,11 +649,13 @@ public class AutoApplication extends AutoOpMode {
         Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), lower, upper);
 //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
-        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
+//        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
 
-        runBlocking(
-                driveActions.alignToSampleContinuous(targetSample, lower, upper)
-        );
+        if (collectedSamples < 7) {
+            runBlocking(
+                    driveActions.alignToSampleContinuous(targetSample, lower, upper)
+            );
+        }
 
         double orientation = -Drive.targetSampleStatic.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
@@ -664,11 +666,26 @@ public class AutoApplication extends AutoOpMode {
         double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
         double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
+        runAsync(
+                intake.rotate(rotationTarget)
+        );
+
+        if (collectedSamples < 7) {
+            runBlocking(
+                    extendSequence
+            );
+        }
+        else {
+            runBlocking(
+                    new ParallelAction(
+                            driveActions.alignToSample(targetSample),
+                            extendSequence
+                    )
+            );
+        }
+
         runBlocking(
                 new SequentialAction(
-                        intake.rotate(rotationTarget),
-                        extendSequence,
-
                         drive.actionBuilder(drive.pose)
                                 .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
                                 .afterDisp(wiggleDistance, intake.closeClaw())

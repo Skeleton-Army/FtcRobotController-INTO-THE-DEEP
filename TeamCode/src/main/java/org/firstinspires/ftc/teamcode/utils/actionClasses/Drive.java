@@ -65,6 +65,13 @@ public class Drive {
         );
     }
 
+    public Action alignToSample(Sample targetSample) {
+        return new ParallelAction(
+                new InstantAction(() -> targetSampleStatic = targetSample),
+                getTrajectoryToSample(targetSample.getSamplePosition().position)
+        );
+    }
+
     public Action alignToSampleContinuous(Sample targetSample) {
         return alignToSampleContinuous(targetSample, new Vector2d(-1000, -1000), new Vector2d(1000, 1000));
     }
