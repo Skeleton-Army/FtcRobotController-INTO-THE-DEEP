@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.utils.config;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.opencv.core.MatOfDouble;
-
 @Config
 public class CameraConfig {
     public static double MAX_AREA = 12;
     public static float z = 12.5f;
-    public static float horizontalFOV = 65.76f; // needs tuning - TODO: check for 65.76
-    public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
+    public static float horizontalFOV = 66.584f; // old: 65.76f
+    public static float verticalFOV = 40.481f; // old: 39.88f
     public static int halfImageWidth = 320;
     public static int halfImageHeight = 180;
     public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)

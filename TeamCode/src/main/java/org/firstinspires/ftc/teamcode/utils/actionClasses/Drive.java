@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTim
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -56,7 +57,10 @@ public class Drive {
     }
 
     public Action alignToSample(Vector2d targetSamplePos) {
-        return getTrajectoryToSample(targetSamplePos);
+        return new ParallelAction(
+                new InstantAction(() -> targetSampleStatic = camCV.getBestSample(targetSamplePos)),
+                getTrajectoryToSample(targetSamplePos)
+        );
     }
 
     public Action alignToSampleContinuous(Sample targetSample) {

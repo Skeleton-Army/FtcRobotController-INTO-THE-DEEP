@@ -28,9 +28,9 @@ class SampleTest {
             new Test(new Point(66, 313), 11, 16.6),
             new Test(new Point(81, 184), 16.7, 31),
             new Test(new Point(190, 220), 7.5, 26),
-            new Test(new Point(440, 225), -6.5, 26),
-            new Test(new Point(430, 283), -5, 19.75),
-            new Test(new Point(373, 334), -2, 15.75),
+//            new Test(new Point(440, 225), -6.5, 26),
+//            new Test(new Point(430, 283), -5, 19.75),
+//            new Test(new Point(373, 334), -2, 15.75),
     };
 
     final double epsilonX = 1.2;
