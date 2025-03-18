@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -138,7 +139,7 @@ public class Drive {
         Vector2d target = targetSamplePos.minus(offset);
 
         return drive.actionBuilder(drive.pose)
-                .strafeToConstantHeading(target)
+                .strafeToConstantHeading(target, null, new ProfileAccelConstraint(-80, 80))
                 .build();
     }
 }
