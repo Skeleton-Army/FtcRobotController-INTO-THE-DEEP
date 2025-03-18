@@ -40,7 +40,7 @@ enum Strategy {
 public class AutoApplication extends AutoOpMode {
     public enum State {
         HANG_SPECIMEN(2),
-        COLLECT_ADDITIONAL_SAMPLE(4),
+        COLLECT_ADDITIONAL_SAMPLE(4.5),
 
         COLLECT_COLOR_SAMPLES(),
         COLLECT_SPECIMEN(2),
@@ -433,8 +433,8 @@ public class AutoApplication extends AutoOpMode {
         collectedSamples++;
 
         Action wristSequence = new SequentialAction(
-                intake.extendWrist(),
-                new SleepAction(0.15)
+                intake.extendWrist()
+//                new SleepAction(0.15)
         );
 
         runAsync(intake.openClaw());
@@ -446,9 +446,9 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
+                                        .afterDisp(3, wristSequence)
                                         .splineToLinearHeading(new Pose2d(-52.5, -52.25, Math.toRadians(80)), Math.PI)
-                                        .build(),
-                                wristSequence
+                                        .build()
                         )
                 );
                 break;
@@ -457,9 +457,9 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
+                                        .afterDisp(5, wristSequence)
                                         .splineToLinearHeading(new Pose2d(-57.25, -51.25, Math.toRadians(90)), Math.PI)
-                                        .build(),
-                                wristSequence
+                                        .build()
                         )
                 );
                 break;
@@ -472,10 +472,12 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
+                                        .afterDisp(7, new ParallelAction(
+                                                intake.extraOpenClaw(),
+                                                wristSequence
+                                        ))
                                         .splineToLinearHeading(new Pose2d(-55.5, -48.25, Math.toRadians(120)), Math.PI)
-                                        .build(),
-                                intake.extraOpenClaw(),
-                                wristSequence
+                                        .build()
                         )
                 );
                 break;
@@ -542,7 +544,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-54, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 300))
+                                    .splineToLinearHeading(new Pose2d(-53, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 300))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -604,17 +606,20 @@ public class AutoApplication extends AutoOpMode {
 
         collectedSamples++;
 
-        Action prepareIntake = new SequentialAction(
+        Action extendSequence = new SequentialAction(
                 intake.wristReady(),
                 intake.openClaw(),
-                intake.extend()
+                new ParallelAction(
+                        intake.extend(),
+                        new SequentialAction(
+                                new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
+                                intake.extendWrist()
+                        )
+                )
+//                new SleepAction(0.1)
         );
 
         Action grabSequence = new SequentialAction(
-                intake.openClaw(),
-                intake.extendWrist(),
-                new SleepAction(0.2),
-                intake.closeClaw(),
                 new SleepAction(0.15),
                 intake.retractWrist(),
                 new SleepAction(0.1)
@@ -628,9 +633,9 @@ public class AutoApplication extends AutoOpMode {
 
         camCV.resetSampleList();
 
-        runBlocking(
-                new SleepAction(0.2)
-        );
+//        runBlocking(
+//                new SleepAction(0.2)
+//        );
 
         // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
@@ -640,8 +645,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
 //        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-2, -4), new Vector2d(-9, -12), new Vector2d(4, 2));
-//        Sample targetSample = camCV.getBestSample(new Vector2d(-5, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
-        Sample targetSample = camCV.getBestSample(new Vector2d(drive.pose.position.x + 30, drive.pose.position.y));
+        Sample targetSample = camCV.getBestSample(new Vector2d(-5, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
         runBlocking(
                 driveActions.alignToSampleContinuous(targetSample)
@@ -653,7 +657,14 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         intake.rotate(rotationTarget),
-                        prepareIntake,
+                        extendSequence,
+
+                        drive.actionBuilder(drive.pose)
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y - 1.5), null, new ProfileAccelConstraint(-100, 100))
+                                .afterDisp(1.5, intake.closeClaw())
+                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x, drive.pose.position.y + 0.5), null, new ProfileAccelConstraint(-100, 100))
+                                .build(),
+
                         grabSequence
                 )
         );

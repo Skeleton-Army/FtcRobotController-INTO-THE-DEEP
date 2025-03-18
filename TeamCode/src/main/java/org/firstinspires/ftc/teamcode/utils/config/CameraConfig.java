@@ -23,9 +23,12 @@ public class CameraConfig {
     public static double pickupMinInterval = 0.3;
     public static double pickupTimeout = 2;
 
-    public static int pixelThreshRadius = 15;
+    public static int pixelThreshRadius = 20;
     public static int pixelOptimalCenterX = 165;
     public static int pixelOptimalCenterY = 260;
+
+    public static double wiggleDistance = 1.5;
+    public static double wiggleBackDistance = 0.5;
 
 
     // Distortion coefficients
