@@ -558,12 +558,13 @@ public class AutoApplication extends AutoOpMode {
         else if (collectedSamples >= 4) {
             double xCompensation = collectedSamples >= 6 ? 1.5 : 0;
             double yCompensation = collectedSamples >= 6 ? 1.5 : 0;
+            double angleCompensation = collectedSamples >= 6 ? 5 : 0;
 
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-51 + xCompensation, -54 - yCompensation, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
+                                    .splineToLinearHeading(new Pose2d(-51 + xCompensation, -54 - yCompensation, Math.toRadians(45 + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -648,15 +649,20 @@ public class AutoApplication extends AutoOpMode {
 
 //        if (collectedSamples == 5) camCV.startStream();
 
+        double xCompensation = collectedSamples >= 6 ? 2 : 0;
+
         runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(-32, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                        .splineTo(new Vector2d(-32 - xCompensation, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                         .build()
         );
 
         runBlocking(
-                new SleepAction(0.35)
+                new SleepAction(0.4)
         );
+
+        Vector2d lower = new Vector2d(-8, -10);
+        Vector2d upper = new Vector2d(5, 8);
 
         camCV.resetSampleList();
 
@@ -667,22 +673,24 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 8);
+        Vector2d bestSamplePos = new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX);
 
-        Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), lower, upper);
-//        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
+        Sample targetSample = camCV.getBestSampleInRange(bestSamplePos, lower, upper);
+
+        if (targetSample == null) camCV.getBestSample(bestSamplePos);
+
+        //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
 //        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
+
+        double orientation = -targetSample.orientation;
+        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
+        double rotationTarget = normalizedOrientation / 90;
 
 //        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
 //        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
 //        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 //        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-
-        double orientation = -targetSample.orientation;
-        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-        double rotationTarget = normalizedOrientation / 90;
 
         runBlocking(
                 intake.rotate(rotationTarget)
@@ -700,11 +708,11 @@ public class AutoApplication extends AutoOpMode {
 
 //        runBlocking(
 //                new SequentialAction(
-////                        drive.actionBuilder(drive.pose)
-////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-////                                .afterDisp(wiggleDistance, intake.closeClaw())
-////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-////                                .build(),
+//                        drive.actionBuilder(drive.pose)
+//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
+//                                .afterDisp(wiggleDistance, intake.closeClaw())
+//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
+//                                .build(),
 //
 //                )
 //        );
@@ -754,7 +762,7 @@ public class AutoApplication extends AutoOpMode {
 
                 runAsync(
                         new SequentialAction(
-                                new SleepUntilAction(() -> drive.pose.position.x > -30),
+                                new SleepUntilAction(() -> drive.pose.position.x > -40),
                                 specimenArm.gripToOuttake(),
                                 specimenArm.goToPark()
                         )
@@ -764,7 +772,7 @@ public class AutoApplication extends AutoOpMode {
                 if (drive.pose.position.x < -35) {
                     runBlocking(
                             drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                                    .splineTo(new Vector2d(-30, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                                     .build()
                     );
                 }
