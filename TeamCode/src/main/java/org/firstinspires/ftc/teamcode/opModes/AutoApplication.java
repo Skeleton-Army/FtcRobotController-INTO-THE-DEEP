@@ -772,7 +772,7 @@ public class AutoApplication extends AutoOpMode {
                 if (drive.pose.position.x < -35) {
                     runBlocking(
                             drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-30, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                                     .build()
                     );
                 }
