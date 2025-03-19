@@ -37,7 +37,7 @@ public class TeleopApplication extends TeleopOpMode {
     Outtake outtake;
     SpecimenArm specimenArm;
     Hang hang;
-    IntakeSensor intakeSensor;
+//    IntakeSensor intakeSensor;
 
     MovementUtils movementUtils;
 
@@ -59,7 +59,7 @@ public class TeleopApplication extends TeleopOpMode {
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
-        intakeSensor = new IntakeSensor(hardwareMap);
+//        intakeSensor = new IntakeSensor(hardwareMap);
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -94,7 +94,7 @@ public class TeleopApplication extends TeleopOpMode {
         runAllActions();
 
         // Bulk reads from walmart
-        intakeSensor.updateRGBCache();
+//        intakeSensor.updateRGBCache();
 
         // Debugging
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
@@ -104,8 +104,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
-        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
+//        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
+//        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
         telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
 
@@ -131,11 +131,8 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.rotate(0),
                             outtake.hold(),
                             new SequentialAction(
-                                    new SleepAction(0.3),
-                                    new ParallelAction(
-                                            intake.retract(),
-                                            new SleepAction(0.4)
-                                    ),
+                                    new SleepAction(0.2),
+                                    intake.retract(),
                                     intake.openClaw(),
                                     intake.wristMiddle(),
                                     new SleepAction(0.2),

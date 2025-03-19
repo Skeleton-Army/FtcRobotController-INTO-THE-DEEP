@@ -66,10 +66,7 @@ public class Drive {
     }
 
     public Action alignToSample(Sample targetSample) {
-        return new ParallelAction(
-                new InstantAction(() -> targetSampleStatic = targetSample),
-                getTrajectoryToSample(targetSample.getSamplePosition().position)
-        );
+        return alignToSample(targetSample.getSamplePosition().position);
     }
 
     public Action alignToSampleContinuous(Sample targetSample) {

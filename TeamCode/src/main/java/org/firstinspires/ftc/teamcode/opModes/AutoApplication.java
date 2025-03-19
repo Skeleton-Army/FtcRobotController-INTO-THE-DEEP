@@ -4,12 +4,14 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBac
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -121,11 +123,14 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
-        driveActions = new Drive(drive, camCV, telemetry);
+
+//        runAsync(
+//                new SequentialAction(
+//                        new SleepAction(3),
+//                        new InstantAction(() -> camCV.stopStream())
+//                )
+//        );
     }
 
     @Override
@@ -168,6 +173,12 @@ public class AutoApplication extends AutoOpMode {
     public void onStart() {
         // Set starting position
         drive.pose = startPose;
+
+        // Configure webcam CV
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
+
+        driveActions = new Drive(drive, camCV, telemetry);
 
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
@@ -460,7 +471,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(5, wristSequence)
+                                        .afterDisp(6, wristSequence)
                                         .splineToLinearHeading(new Pose2d(-57.25, -51.25, Math.toRadians(90)), Math.PI)
                                         .build()
                         )
@@ -475,7 +486,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(7, new SequentialAction(
+                                        .afterDisp(8, new SequentialAction(
                                                 intake.extraOpenClaw(),
                                                 wristSequence,
                                                 new SleepAction(0.15),
@@ -523,7 +534,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -900),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -850),
                 outtake.dunk(),
                 new SleepAction(0.25)
         );
@@ -545,11 +556,14 @@ public class AutoApplication extends AutoOpMode {
             );
         }
         else if (collectedSamples >= 4) {
+            double xCompensation = collectedSamples >= 6 ? 1.5 : 0;
+            double yCompensation = collectedSamples >= 6 ? 1.5 : 0;
+
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-51, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 300))
+                                    .splineToLinearHeading(new Pose2d(-51 + xCompensation, -54 - yCompensation, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -566,7 +580,7 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225))
+                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -614,24 +628,34 @@ public class AutoApplication extends AutoOpMode {
                 intake.wristReady(),
                 intake.openClaw(),
                 new ParallelAction(
-                        intake.extend(),
-                        new SequentialAction(
-                                new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
-                                intake.extendWrist()
-                        )
+                        intake.extend()
+//                        new SequentialAction(
+//                                new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
+//                                intake.extendWrist()
+//                        )
                 )
 //                new SleepAction(0.1)
         );
 
         Action grabSequence = new SequentialAction(
-                intake.retractWrist()
+                intake.extendWrist(),
+                new SleepAction(0.2),
+                intake.closeClaw(),
+                new SleepAction(0.1)
+//                intake.retractWrist()
 //                new SleepAction(0.1)
         );
+
+//        if (collectedSamples == 5) camCV.startStream();
 
         runBlocking(
                 drive.actionBuilder(drive.pose)
                         .splineTo(new Vector2d(-32, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                         .build()
+        );
+
+        runBlocking(
+                new SleepAction(0.35)
         );
 
         camCV.resetSampleList();
@@ -644,57 +668,46 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 10);
+        Vector2d upper = new Vector2d(5, 8);
 
         Sample targetSample = camCV.getBestSampleInRange(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX), lower, upper);
 //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
 //        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
 
-        if (collectedSamples < 7) {
-            runBlocking(
-                    driveActions.alignToSampleContinuous(targetSample, lower, upper)
-            );
-        }
+//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
+//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
-        double orientation = -Drive.targetSampleStatic.orientation;
+        double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
 
-        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-
-        runAsync(
+        runBlocking(
                 intake.rotate(rotationTarget)
         );
 
-        if (collectedSamples < 7) {
-            runBlocking(
-                    extendSequence
-            );
-        }
-        else {
-            runBlocking(
-                    new ParallelAction(
-                            driveActions.alignToSample(targetSample),
-                            extendSequence
-                    )
-            );
-        }
-
         runBlocking(
                 new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-                                .afterDisp(wiggleDistance, intake.closeClaw())
-                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-                                .build(),
-
+                        new ParallelAction(
+                                driveActions.alignToSample(targetSample.getSamplePosition().position),
+                                extendSequence
+                        ),
                         grabSequence
                 )
         );
+
+//        runBlocking(
+//                new SequentialAction(
+////                        drive.actionBuilder(drive.pose)
+////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
+////                                .afterDisp(wiggleDistance, intake.closeClaw())
+////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
+////                                .build(),
+//
+//                )
+//        );
 
         addTransition(State.PUT_IN_BASKET);
     }
@@ -741,7 +754,7 @@ public class AutoApplication extends AutoOpMode {
 
                 runAsync(
                         new SequentialAction(
-                                new SleepUntilAction(() -> drive.pose.position.x > -35),
+                                new SleepUntilAction(() -> drive.pose.position.x > -30),
                                 specimenArm.gripToOuttake(),
                                 specimenArm.goToPark()
                         )
