@@ -58,15 +58,45 @@ public class Sample {
     }
 
     private Vector2d pixelToWorld(double x, double y, double height) {
-        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
-        double worldY = height / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
-        double worldX = Math.tan(horizontal) * worldY;
-        return new Vector2d(worldX, worldY);
+//        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
+//        double worldY = height / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+//        double worldX = Math.tan(horizontal) * worldY;
+        //return new Vector2d(worldX, worldY);
+
+        // Step 1. Convert pixel coordinates to normalized image coordinates.
+        // x' = (u - cx) / fx, y' = (v - cy) / fy.
+        double xNorm = (x - CameraConfig.cameraMatrix[2]) / CameraConfig.cameraMatrix[0];
+        double yNorm = (y - CameraConfig.cameraMatrix[5]) / CameraConfig.cameraMatrix[4];
+
+        // Step 2. Form the ray in the "level" camera coordinate system.
+        // (Flip y because image coordinates increase downward.)
+        // r_level = [ xNorm, -yNorm, 1 ].
+        //
+        // Now, rotate this ray about the x-axis by the tilt angle.
+        // d = [ xNorm,
+        //       -cos(tilt)*yNorm - sin(tilt),
+        //       -sin(tilt)*yNorm + cos(tilt) ].
+        double dX = xNorm;
+        double dY = -Math.cos(Math.toRadians(CameraConfig.offsetVertical)) * yNorm - Math.sin(Math.toRadians(CameraConfig.offsetVertical));
+        double dZ = -Math.sin(Math.toRadians(CameraConfig.offsetVertical)) * yNorm + Math.cos(Math.toRadians(CameraConfig.offsetVertical));
+
+        // Step 3. Find the intersection with the ground plane (Y = 0).
+        // The ray originates at the camera center: C = (camX, H, camZ).
+        // A point along the ray is: P(t) = C + t * d.
+        // Set the Y component to 0: H + t * dY = 0 => t = -H / dY.
+        double t = -height / dY;
+
+        // Step 4. Compute ground coordinates (in world coordinates).
+        double groundX = -t * dX;
+        double groundZ = t * dZ;
+
+        return new Vector2d(groundX, groundZ);
     }
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition(RotatedRect rect) {
         Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
+
         sampleY = lowestPos.y;
         sampleX = lowestPos.x;
 
