@@ -167,6 +167,8 @@ public class AutoApplication extends AutoOpMode {
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
         runBlocking(specimenArm.grabClose());
+        runBlocking(intake.wristMiddle());
+        runBlocking(intake.rotate(0));
     }
 
     @Override
