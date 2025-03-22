@@ -42,7 +42,7 @@ public class TeleopApplication extends TeleopOpMode {
     Outtake outtake;
     SpecimenArm specimenArm;
     Hang hang;
-    IntakeSensor intakeSensor;
+//    IntakeSensor intakeSensor;
 
     Drive actionsDrive;
     Webcam actionCam;
@@ -73,7 +73,8 @@ public class TeleopApplication extends TeleopOpMode {
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
-        actionsDrive = new Drive(drive, aprilTagSamplesPipeline);
+//        intakeSensor = new IntakeSensor(hardwareMap);
+        actionsDrive = new Drive(drive, camCV, telemetry, aprilTagSamplesPipeline);
         actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: check this alliance parameter!!
 
         movementUtils = new MovementUtils(hardwareMap);
@@ -110,7 +111,7 @@ public class TeleopApplication extends TeleopOpMode {
         runAllActions();
 
         // Bulk reads from walmart
-        intakeSensor.updateRGBCache();
+//        intakeSensor.updateRGBCache();
 
         // Debugging
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
@@ -120,8 +121,10 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
-        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
+//        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
+//        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
+        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
+        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
 
         telemetry.update();
     }
@@ -166,12 +169,9 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.rotate(0),
                             outtake.hold(),
                             new SequentialAction(
-                                    new ParallelAction(
-                                            intake.retract(),
-                                            new SleepAction(0.6)
-                                    ),
+                                    new SleepAction(0.2),
+                                    intake.retract(),
                                     intake.openClaw(),
-                                    new SleepAction(0.1),
                                     intake.wristMiddle(),
                                     new SleepAction(0.2),
                                     outtake.bucketMiddle()
@@ -193,10 +193,11 @@ public class TeleopApplication extends TeleopOpMode {
                     ),
 
                     // Retract intake
-                    new ParallelAction(
-                            intake.retract(),
+                    new SequentialAction(
                             intake.wristMiddle(),
-                            intake.rotate(0)
+                            new SleepAction(0.3),
+                            intake.rotate(0),
+                            intake.retract()
                     )
             );
         }
@@ -205,8 +206,8 @@ public class TeleopApplication extends TeleopOpMode {
     public void runIntakeControls() {
         // Intake claw rotation
         if (isInState("intake", 1)) {
-            double x = Math.ceil(gamepad2.left_stick_x);
-            double y = Math.ceil(-gamepad2.left_stick_y);
+            double x = Math.ceil(Math.abs(gamepad2.left_stick_x)) * Math.signum(gamepad2.left_stick_x);
+            double y = Math.ceil(Math.abs(gamepad2.left_stick_y)) * Math.signum(-gamepad2.left_stick_y);
 
             String key = (int) x + "," + (int) y;
 

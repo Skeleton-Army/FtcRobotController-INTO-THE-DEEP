@@ -2,31 +2,36 @@ package org.firstinspires.ftc.teamcode.utils.config;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.opencv.core.MatOfDouble;
-
 @Config
 public class CameraConfig {
+    public static double MAX_AREA = 12;
+    public static double MIN_AREA = 6;
     public static float z = 12.5f;
-    public static float horizontalFOV = 65.76f; // needs tuning - TODO: check for 65.76
-    public static float verticalFOV = 39.88f; // needs tuning - TODO: check for 39.88
+    public static float horizontalFOV = 66.584f; // old: 65.76f
+    public static float verticalFOV = 40.481f; // old: 39.88f
     public static int halfImageWidth = 320;
     public static int halfImageHeight = 180;
     public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 7.87;
-    public static double offsetHorizontal = 4.3;
-    public static double offsetVertical = 22.05;
+    public static double offsetHorizontal = 0;
+    public static double offsetVertical = 20.45;
 
-    public static double pickupSampleOffsetX = 1.25;
-    public static double pickupSampleOffsetY = 24;
+    public static double pickupSampleOffsetX = 1.5;
+    public static double pickupSampleOffsetY = 26;
 
-    public static double pickupInterval = 0.5;
-    public static double pickupIntervalDivision = 1.4;
-    public static double pickupTimeout = 3;
+    public static double pickupInterval = 0.6;
+    public static double pickupIntervalDivision = 1.3;
+    public static double pickupMinInterval = 0.3;
+    public static double pickupTimeout = 1.8;
 
-    public static int pixelThreshMinX = 108;
-    public static int pixelThreshMaxX = 135;
-    public static int pixelThreshMinY = 305;
-    public static int pixelThreshMaxY = 335;
+    public static double pickupSpeed = 50;
+
+    public static int pixelThreshRadius = 20;
+    public static int pixelOptimalCenterX = 165;
+    public static int pixelOptimalCenterY = 260;
+
+    public static double wiggleDistance = 1.5;
+    public static double wiggleBackDistance = 0.5;
 
 
     // Distortion coefficients
@@ -54,6 +59,8 @@ public class CameraConfig {
     public static double offsetXApriltag = 6.6;
     public static double offsetYApriltag = 8.2;
     public static double offsetZApriltag = 9.4;
+    public static double vOVERheight = CameraConfig.vOverHeight();
+    public static double hOVERwidth = CameraConfig.hOverWidth();
 
     public static float hOverWidth() {
         return horizontalFOV / (halfImageWidth * 2);
