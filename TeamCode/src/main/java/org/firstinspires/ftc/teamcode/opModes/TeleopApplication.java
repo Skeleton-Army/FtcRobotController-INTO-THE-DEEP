@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
@@ -66,7 +65,7 @@ public class TeleopApplication extends TeleopOpMode {
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
         camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW});
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
         aprilTagSamplesPipeline = camCV.getAprilTagSamplesPipeline();
 
         intake = new Intake(hardwareMap);
@@ -75,7 +74,7 @@ public class TeleopApplication extends TeleopOpMode {
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
         actionsDrive = new Drive(drive, camCV, telemetry, aprilTagSamplesPipeline);
-        actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: check this alliance parameter!!
+        actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for correct sequences
 
         movementUtils = new MovementUtils(hardwareMap);
 
@@ -133,20 +132,26 @@ public class TeleopApplication extends TeleopOpMode {
         aprilTagSamplesPipeline.getRobotPosByAprilTag();
 
         if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence
-            runAction("sequence",actionsDrive.alignToSampleContinuous(camCV.getBestSample(drive.pose.position)));
+            runAction("driver sequence",actionsDrive.alignToSample(camCV.getBestSample(drive.pose.position)));
         }
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
-            runAction("sequence",actionCam.pickupSample(camCV.getBestSample(drive.pose.position)));
+            runAction("driver sequence",actionCam.pickupSample(camCV.getBestSample(drive.pose.position)));
         }
         if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence, only could run when an apriltag is in sight
-            runAction("sequence",actionCam.basketCycle());
+            runAction("driver sequence",actionCam.basketCycle());
         }
         if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
-            runAction("sequence",actionCam.specimenCycle());
+            runAction("driver sequence",actionCam.specimenCycle());
         }
-
+        if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
+            runSequentialActions("driver sequence",
+                    actionCam.basketCycle(),
+                    actionsDrive.goToSubmersible(),
+                    actionCam.pickupSample(camCV.getBestSample(drive.pose.position))
+                    );
+        }
         if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action
-            stopAction("sequence");
+            stopAction("driver sequence");
         }
     }
 

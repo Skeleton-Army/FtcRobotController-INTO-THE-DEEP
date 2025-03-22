@@ -10,8 +10,8 @@ import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYell
 import org.opencv.core.Scalar;
 
 public class Threshold {
-    Scalar lowerBound;
-    Scalar upperBound;
+    public Scalar lowerBound;
+    public Scalar upperBound;
     public Threshold(SampleColor color) {
         switch (color) {
             case YELLOW:

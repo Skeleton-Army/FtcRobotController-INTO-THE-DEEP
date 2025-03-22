@@ -5,10 +5,6 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInt
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupMinInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupSpeed;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTimeout;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMaxY;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinX;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pixelThreshMinY;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -53,6 +49,12 @@ public class Drive {
 
     }
 
+    public Action goToSubmersible() {
+        Action a = drive.actionBuilder(drive.pose)
+                .splineToLinearHeading(new Pose2d(-51, -54, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
+                .build();
+        return a;
+    }
     public Action alignToSample(Vector2d targetSamplePos) {
         return new ParallelAction(
                 new InstantAction(() -> targetSampleStatic = camCV.getBestSample(targetSamplePos)),

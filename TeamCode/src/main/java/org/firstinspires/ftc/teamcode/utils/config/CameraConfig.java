@@ -48,10 +48,10 @@ public class CameraConfig {
 
     // Apriltag settings
 
-    public static double fx = (halfImageWidth * 2) / (2 * Math.tan(Math.toRadians(horizontalFOV)));
-    public static double fy = (halfImageHeight * 2) / (2 * Math.tan(Math.toRadians(verticalFOV)));
-    public static double cx = CameraConfig.halfImageWidth;
-    public static double cy = CameraConfig.halfImageHeight;
+    public static double fx = cameraMatrix[0];
+    public static double fy = cameraMatrix[4];
+    public static double cx = cameraMatrix[2];
+    public static double cy = cameraMatrix[5];
 
     public static double yaw = 0;
     public static double pitch = -90;

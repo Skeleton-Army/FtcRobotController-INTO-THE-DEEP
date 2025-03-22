@@ -204,10 +204,6 @@ public class WebcamCV {
     public AprilTagSamplesPipeline getAprilTagSamplesPipeline() { return this.aprilTagSamplesPipeline;}
 
 
-    public static void drawSample(Sample sample) {
-        if (sample.getContour() != null)
-            DetectSamples.drawSample(sample.getContour());
-    }
 
     /**
      * Resets the list of detected samples.
