@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -25,6 +26,26 @@ public class BasketCycle implements Action {
 
     Pose2d dunkPose;
 
+    Action extendOuttake = new ParallelAction(
+            outtake.bucketMiddle(),
+            outtake.extend(),
+            new SequentialAction(
+                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
+                    outtake.bucketReady()
+            )
+    );
+
+    Action dunk = new SequentialAction(
+            new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -850),
+            outtake.dunk(),
+            new SleepAction(0.25)
+    );
+
+    Action dunkSequence = new ParallelAction(
+            extendOuttake,
+            dunk
+    );
+
     public BasketCycle(Drive Actionsdrive, Outtake outtake, String alliance) {
         this.Actionsdrive = Actionsdrive;
         this.outtake = outtake;
@@ -40,13 +61,8 @@ public class BasketCycle implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         Actions.runBlocking(new SequentialAction(
-                Actionsdrive.moveApriltag(dunkPose),
-                outtake.extend(),
-                new SleepAction(0.5),
-                outtake.dunk(),
-                new SleepAction(0.2),
-                outtake.hold(),
-                outtake.retract()
+                new ParallelAction(
+                Actionsdrive.moveApriltag(dunkPose), dunkSequence)
         ));
         return false;
     }
