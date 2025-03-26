@@ -58,7 +58,7 @@ public class WebcamCV {
 
                     // The following default settings are available to un-comment and edit as needed.
                     .setDrawAxes(true)
-                    .setDrawCubeProjection(true)
+                    .setDrawCubeProjection(false)
                     //.setDrawTagOutline(true)
                     //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                     //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
