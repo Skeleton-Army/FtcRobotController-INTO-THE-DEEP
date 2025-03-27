@@ -134,4 +134,8 @@ public class Sample {
     public boolean isTooBig() {
         return (widthInches * heightInches >= CameraConfig.MAX_AREA);
     }
+
+    public boolean isTooSmall() {
+        return (widthInches * heightInches <= CameraConfig.MIN_AREA);
+    }
 }
