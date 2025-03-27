@@ -561,7 +561,10 @@ public class AutoApplication extends AutoOpMode {
         else if (collectedSamples >= 4) {
             double xCompensation = collectedSamples >= 6 ? 1.5 : 0;
             double yCompensation = collectedSamples >= 6 ? 1.5 : 0;
-            double angleCompensation = collectedSamples >= 6 ? 5 : 0;
+            double angleCompensation = 0;
+
+            if (collectedSamples == 6) angleCompensation = 5;
+            if (collectedSamples == 7) angleCompensation = 10;
 
             runBlocking(
                     new ParallelAction(
