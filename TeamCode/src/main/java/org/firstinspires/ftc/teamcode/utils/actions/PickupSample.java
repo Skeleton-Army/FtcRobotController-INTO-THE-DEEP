@@ -22,6 +22,8 @@ public class PickupSample implements Action {
 
     double rotationTarget;
 
+    Action extendSequence;
+    Action grabSequence;
     public PickupSample(Intake intake, Drive driveActions, Sample targetSample) {
         this.intake = intake;
         this.driveActions = driveActions;
@@ -30,29 +32,29 @@ public class PickupSample implements Action {
         double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         rotationTarget = normalizedOrientation / 90;
-    }
 
-    Action extendSequence = new SequentialAction(
-            intake.wristReady(),
-            intake.openClaw(),
-            new ParallelAction(
-                    intake.extend()
+        extendSequence = new SequentialAction(
+                intake.wristReady(),
+                intake.openClaw(),
+                new ParallelAction(
+                        intake.extend(1)
 //                        new SequentialAction(
 //                                new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
 //                                intake.extendWrist()
 //                        )
-            )
+                )
 //                new SleepAction(0.1)
-    );
+        );
 
-    Action grabSequence = new SequentialAction(
-            intake.extendWrist(),
-            new SleepAction(0.2),
-            intake.closeClaw(),
-            new SleepAction(0.1)
+        grabSequence = new SequentialAction(
+                intake.extendWrist(),
+                new SleepAction(0.2),
+                intake.closeClaw(),
+                new SleepAction(0.1)
 //                intake.retractWrist()
 //                new SleepAction(0.1)
-    );
+        );
+    }
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         runBlocking(

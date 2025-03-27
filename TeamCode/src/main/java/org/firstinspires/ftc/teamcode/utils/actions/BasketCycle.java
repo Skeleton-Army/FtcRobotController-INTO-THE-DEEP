@@ -26,26 +26,10 @@ public class BasketCycle implements Action {
 
     Pose2d dunkPose;
 
-    Action extendOuttake = new ParallelAction(
-            outtake.bucketMiddle(),
-            outtake.extend(),
-            new SequentialAction(
-                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
-                    outtake.bucketReady()
-            )
-    );
+    Action extendOuttake;
 
-    Action dunk = new SequentialAction(
-            new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -850),
-            outtake.dunk(),
-            new SleepAction(0.25)
-    );
-
-    Action dunkSequence = new ParallelAction(
-            extendOuttake,
-            dunk
-    );
-
+    Action dunk;
+    Action dunkSequence;
     public BasketCycle(Drive Actionsdrive, Outtake outtake, String alliance) {
         this.Actionsdrive = Actionsdrive;
         this.outtake = outtake;
@@ -56,8 +40,28 @@ public class BasketCycle implements Action {
         else if (Objects.equals(alliance, "red")) {
             dunkPose = new Pose2d(-51,-54,Math.toRadians(45));
         }
-    }
 
+        extendOuttake = new ParallelAction(
+                outtake.bucketMiddle(),
+                outtake.extend(),
+                new SequentialAction(
+                        new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
+                        outtake.bucketReady()
+                )
+        );
+
+        dunk = new SequentialAction(
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -850),
+                outtake.dunk(),
+                new SleepAction(0.25)
+        );
+
+        dunkSequence = new ParallelAction(
+                extendOuttake,
+                dunk
+        );
+
+    }
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         Actions.runBlocking(new SequentialAction(

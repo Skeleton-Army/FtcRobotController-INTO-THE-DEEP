@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -17,10 +18,14 @@ public class MoveApriltag implements Action {
 
     MecanumDrive drive;
 
+    Pose2d robotPose;
+
     public MoveApriltag(Pose2d targetPose, MecanumDrive drive, AprilTagSamplesPipeline AprilTagSamplesPipeline) {
         this.targetPose = targetPose;
         this.drive = drive;
         this.AprilTagSamplesPipeline = AprilTagSamplesPipeline;
+        this.robotPose = AprilTagSamplesPipeline.getRobotPosByAprilTag();
+        drive.pose = robotPose;
     }
 
     @Override
@@ -36,8 +41,9 @@ public class MoveApriltag implements Action {
         }
         // do a spline to the target apriltag, in this case the first one that was detected
         Actions.runBlocking(
-                drive.actionBuilder(AprilTagSamplesPipeline.getRobotPosByAprilTag())
-                        .splineToLinearHeading(targetPose, 0)
+                drive.actionBuilder(robotPose)
+                        .setTangent(Math.PI / 2)
+                        .splineToLinearHeading(targetPose, Math.toRadians(225))
                         .build()
         );
         return false;

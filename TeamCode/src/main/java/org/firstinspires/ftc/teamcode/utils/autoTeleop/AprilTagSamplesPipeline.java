@@ -97,10 +97,10 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     {
         CameraCalibration calibration = CameraCalibrationHelper.getInstance().getCalibration(ident, firstFrame.width(), firstFrame.height());
 
-        calibration.focalLengthX = (float)CameraConfig.fx;
-        calibration.focalLengthY = (float) CameraConfig.fy;
-        calibration.principalPointX = (float)CameraConfig.cx;
-        calibration.principalPointY = (float)CameraConfig.cy;
+//        calibration.focalLengthX = (float)CameraConfig.fx;
+//        calibration.focalLengthY = (float) CameraConfig.fy;
+//        calibration.principalPointX = (float)CameraConfig.cx;
+//        calibration.principalPointY = (float)CameraConfig.cy;
 
         processor.init(firstFrame.width(), firstFrame.height(), calibration);
     }
@@ -241,7 +241,7 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             AprilTagDetection detection = processor.getDetections().get(0);
             Position detectionPos = detection.robotPose.getPosition();
 
-            return new Pose2d(detectionPos.x, detectionPos.y, detection.robotPose.getOrientation().getYaw());
+            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw()));
         }
         return drive.pose;
     }

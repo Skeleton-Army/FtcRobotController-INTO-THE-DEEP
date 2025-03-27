@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -129,13 +131,21 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runDriverActions() {
-        aprilTagSamplesPipeline.getRobotPosByAprilTag();
+        telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getRobotPosByAprilTag().position);
+
+        camCV.lookForSamples();
+        Sample bestSample = camCV.getBestSample(drive.pose.position);
+
+        if(bestSample != null)
+            telemetry.addData("sample detected: ",bestSample.getSamplePosition());
+
+        drive.updatePoseEstimate();
 
         if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence
-            runAction("driver sequence",actionsDrive.alignToSample(camCV.getBestSample(drive.pose.position)));
+            runAction("driver sequence",actionsDrive.alignToSample(bestSample));
         }
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
-            runAction("driver sequence",actionCam.pickupSample(camCV.getBestSample(drive.pose.position)));
+            runAction("driver sequence",actionCam.pickupSample(bestSample));
         }
         if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence, only could run when an apriltag is in sight
             runAction("driver sequence",actionCam.basketCycle());
@@ -147,7 +157,7 @@ public class TeleopApplication extends TeleopOpMode {
             runSequentialActions("driver sequence",
                     actionCam.basketCycle(),
                     actionsDrive.goToSubmersible(),
-                    actionCam.pickupSample(camCV.getBestSample(drive.pose.position))
+                    actionCam.pickupSample(bestSample)
                     );
         }
         if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action

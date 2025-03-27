@@ -37,7 +37,7 @@ public class WebcamCV {
     OpenCvPipeline pipeline;
 
     AprilTagProcessor aprilTag;
-    AprilTagSamplesPipeline aprilTagSamplesPipeline;
+    static AprilTagSamplesPipeline aprilTagSamplesPipeline;
     static DetectSamples detectSamples;
     List<Sample> samples = new ArrayList<>();
     HardwareMap hardwareMap;
@@ -151,7 +151,14 @@ public class WebcamCV {
      * @return true if samples are found, false otherwise.
      */
     public boolean lookForSamples() {
-        List<Sample> newSamples = detectSamples.samples;
+        List<Sample> newSamples;
+
+        if (!withAprilTag)
+            newSamples = detectSamples.samples;
+
+        else {
+            newSamples = AprilTagSamplesPipeline.samples;
+        }
 
         if (!(newSamples.isEmpty())) {
             samples = newSamples;
