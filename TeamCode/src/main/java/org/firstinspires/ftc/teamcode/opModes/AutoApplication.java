@@ -463,8 +463,8 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(3, wristSequence)
-                                        .splineToLinearHeading(new Pose2d(-52.5, -52.25, Math.toRadians(80)), Math.PI)
+                                        .afterDisp(3.5, wristSequence)
+                                        .splineToLinearHeading(new Pose2d(-52, -52.25, Math.toRadians(80)), Math.PI)
                                         .build()
                         )
                 );
@@ -683,7 +683,7 @@ public class AutoApplication extends AutoOpMode {
 
         Sample targetSample = camCV.getBestSampleInRange(bestSamplePos, lower, upper);
 
-        if (targetSample == null) camCV.getBestSample(bestSamplePos);
+        if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
         //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
