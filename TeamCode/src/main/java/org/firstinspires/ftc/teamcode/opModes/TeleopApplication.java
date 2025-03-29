@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -132,13 +131,15 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runDriverActions() {
         telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getRobotPosByAprilTag().position);
+        telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getApriltagDetection().ftcPose);
 
         camCV.lookForSamples();
         Sample bestSample = camCV.getBestSample(drive.pose.position);
 
-        if(bestSample != null)
-            telemetry.addData("sample detected: ",bestSample.getSamplePosition());
-
+        if(bestSample != null) {
+            telemetry.addData("sample detected x pos: ", bestSample.getSamplePosition().position.x);
+            telemetry.addData("sample detected y pos: ", bestSample.getSamplePosition().position.y);
+        }
         drive.updatePoseEstimate();
 
         if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence

@@ -22,7 +22,7 @@ public class ApriltagRobotPose extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
-            CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
+            CameraConfig.offsetXApriltag, CameraConfig.offsetZApriltag, CameraConfig.offsetYApriltag, 0); //TODO: filled the y-axis and the z-axis, maybe it should work
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             CameraConfig.yaw, CameraConfig.pitch, CameraConfig.roll, 0); //TODO: figure out these!!!
 
