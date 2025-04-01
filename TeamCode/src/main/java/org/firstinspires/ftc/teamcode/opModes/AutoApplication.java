@@ -160,6 +160,8 @@ public class AutoApplication extends AutoOpMode {
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
         runBlocking(specimenArm.grabClose());
+        runBlocking(intake.wristMiddle());
+        runBlocking(intake.rotate(0));
     }
 
     @Override
@@ -197,8 +199,8 @@ public class AutoApplication extends AutoOpMode {
 
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 100 : 150))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 100 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 60 : 150))
+                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 60 : 150))
                                 .build()
                 )
         );
@@ -271,7 +273,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         new SleepUntilAction(() -> drive.pose.position.y < -42),
                         intake.wristReady(),
-                        intake.extend(0.57)
+                        intake.extend(0.52)
                 )
         );
 
@@ -333,7 +335,7 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 intake.wristReady(),
                                 intake.openClaw(),
-                                intake.extend(0.57),
+                                intake.extend(0.52),
                                 new SleepAction(0.3), // Wait for sample to fall out
                                 intake.extendWrist(),
                                 new SleepAction(0.2),
@@ -385,7 +387,8 @@ public class AutoApplication extends AutoOpMode {
                                         intake.wristReady(),
                                         intake.rotate(-0.2),
                                         intake.extraOpenClaw(),
-                                        intake.extend(0.73),
+                                        intake.extend(0.67),
+                                        new SleepAction(0.2),
                                         intake.extendWrist(),
                                         new SleepAction(0.2),
                                         intake.closeClaw(),
@@ -453,8 +456,8 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(3, wristSequence)
-                                        .splineToLinearHeading(new Pose2d(-52.5, -52.25, Math.toRadians(80)), Math.PI)
+                                        .afterDisp(3.5, wristSequence)
+                                        .splineToLinearHeading(new Pose2d(-52, -52.25, Math.toRadians(80)), Math.PI)
                                         .build()
                         )
                 );
@@ -551,7 +554,10 @@ public class AutoApplication extends AutoOpMode {
         else if (collectedSamples >= 4) {
             double xCompensation = collectedSamples >= 6 ? 1.5 : 0;
             double yCompensation = collectedSamples >= 6 ? 1.5 : 0;
-            double angleCompensation = collectedSamples >= 6 ? 5 : 0;
+            double angleCompensation = 0;
+
+            if (collectedSamples == 6) angleCompensation = 5;
+            if (collectedSamples == 7) angleCompensation = 10;
 
             runBlocking(
                     new ParallelAction(
@@ -670,7 +676,7 @@ public class AutoApplication extends AutoOpMode {
 
         Sample targetSample = camCV.getBestSampleInRange(bestSamplePos, lower, upper);
 
-        if (targetSample == null) camCV.getBestSample(bestSamplePos);
+        if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
         //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
 
@@ -743,7 +749,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         drive.actionBuilder(drive.pose)
                                 .setTangent(Math.toRadians(270))
-                                .splineTo(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-100, 200))
+                                .splineToConstantHeading(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-100, 200))
                                 .build()
                 );
 

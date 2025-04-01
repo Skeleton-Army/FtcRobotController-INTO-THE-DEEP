@@ -12,8 +12,21 @@
 // Custom definitions may go here
 
 // Include common definitions from above.
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://repo.dairy.foundation/releases"
+        }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.2.1"
+    }
+}
+
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -26,16 +39,33 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url = "https://repo.dairy.foundation/releases"
+    }
+}
+
 dependencies {
     implementation project(':FtcRobotController')
 
-    implementation "com.acmerobotics.roadrunner:ftc:0.1.14"
-    implementation "com.acmerobotics.roadrunner:core:1.0.0"
-    implementation "com.acmerobotics.roadrunner:actions:1.0.0"
-    implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
+    // Both RR and Pedro require excluding the dashboard import (if using the sloth dashboard instead)
+
+    implementation("com.acmerobotics.roadrunner:core:1.0.0") {
+        exclude group: "com.acmerobotics.dashboard"
+    }
+    implementation("com.acmerobotics.roadrunner:ftc:0.1.14") {
+        exclude group: "com.acmerobotics.dashboard"
+    }
+    implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
+        exclude group: "com.acmerobotics.dashboard"
+    }
+
+    implementation "com.acmerobotics.slothboard:dashboard:0.2.1+0.4.16"
+    implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 tasks.withType(Test).configureEach {

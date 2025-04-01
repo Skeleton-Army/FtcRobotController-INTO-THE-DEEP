@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -87,6 +88,9 @@ public class TeleopApplication extends TeleopOpMode {
     public void start() {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
+        runAction(intake.wristMiddle());
+        runAction(intake.rotate(0));
     }
 
     @Override
