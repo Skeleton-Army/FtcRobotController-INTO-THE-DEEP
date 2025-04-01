@@ -51,9 +51,9 @@ public class WebcamCV {
         this.withAprilTag = withAprilTag;
         if (withAprilTag) {
             Position cameraPosition = new Position(DistanceUnit.INCH,
-                    CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
+                    CameraConfig.offsetXApriltag, CameraConfig.offsetZApriltag, CameraConfig.offsetYApriltag, 0); //TODO: figure out these!!!
             YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-                    CameraConfig.yaw, CameraConfig.pitch, CameraConfig.roll, 0); //TODO: figure out these!!!
+                    CameraConfig.yaw, CameraConfig.pitch, -CameraConfig.roll, 0); //TODO: figure out these!!!
             aprilTag = new AprilTagProcessor.Builder()
 
                     // The following default settings are available to un-comment and edit as needed.

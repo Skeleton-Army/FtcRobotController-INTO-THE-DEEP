@@ -241,13 +241,16 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             AprilTagDetection detection = processor.getDetections().get(0);
             Position detectionPos = detection.robotPose.getPosition();
 
+            drive.pose = new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw()));
             return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw()));
         }
         return drive.pose;
     }
 
     public AprilTagDetection getApriltagDetection() {
-        return processor.getDetections().get(0);
+        if (!processor.getDetections().isEmpty())
+            return processor.getDetections().get(0);
+        return null;
     }
 
     @Override

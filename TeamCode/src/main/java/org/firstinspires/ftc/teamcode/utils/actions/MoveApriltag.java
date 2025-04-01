@@ -42,7 +42,6 @@ public class MoveApriltag implements Action {
         // do a spline to the target apriltag, in this case the first one that was detected
         Actions.runBlocking(
                 drive.actionBuilder(robotPose)
-                        .setTangent(Math.PI / 2)
                         .splineToLinearHeading(targetPose, Math.toRadians(225))
                         .build()
         );

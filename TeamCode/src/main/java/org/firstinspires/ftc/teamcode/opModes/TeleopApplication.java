@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -131,7 +132,10 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runDriverActions() {
         telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getRobotPosByAprilTag().position);
-        telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getApriltagDetection().ftcPose);
+        telemetry.addData("robot angle by apriltag: ",Math.toRadians(aprilTagSamplesPipeline.getRobotPosByAprilTag().heading.toDouble()));
+        telemetry.addData("robot pos: ", drive.pose.position);
+        if (aprilTagSamplesPipeline.getApriltagDetection() != null)
+            telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getApriltagDetection().ftcPose);
 
         camCV.lookForSamples();
         Sample bestSample = camCV.getBestSample(drive.pose.position);
@@ -152,7 +156,7 @@ public class TeleopApplication extends TeleopOpMode {
             runAction("driver sequence",actionCam.basketCycle());
         }
         if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
-            runAction("driver sequence",actionCam.specimenCycle());
+            runAction("driver sequence",actionsDrive.moveApriltag(new Pose2d(0,0,0)));
         }
         if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
             runSequentialActions("driver sequence",
