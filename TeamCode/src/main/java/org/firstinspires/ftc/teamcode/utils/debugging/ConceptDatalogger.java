@@ -43,10 +43,12 @@ public class ConceptDatalogger extends LinearOpMode
         battery = hardwareMap.voltageSensor.get("Control Hub");
         imu = hardwareMap.get(IMU.class, "imu");
 
-        // Create a unique filename based on date and time
+        /*// Create a unique filename based on date and time
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HHmmss");
         String timestamp = LocalDateTime.now().format(dtf);
-        String filename = "datalog_" + timestamp;
+        String filename = "datalog_" + timestamp;*/
+
+        String filename = "datalog_1";
 
         // Initialize the datalog with the timestamped filename
         datalog = new Datalog(filename);
