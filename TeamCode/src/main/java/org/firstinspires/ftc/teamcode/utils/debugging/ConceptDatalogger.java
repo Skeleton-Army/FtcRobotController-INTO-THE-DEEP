@@ -25,9 +25,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
 public class ConceptDatalogger extends LinearOpMode
 {
@@ -104,6 +101,21 @@ public class ConceptDatalogger extends LinearOpMode
             telemetry.update();
 
             sleep(20);
+        }
+
+        if (isStopRequested()) {
+
+            ProcessBuilder builder = new ProcessBuilder();
+
+            builder.directory();
+            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/datalog_1.csv C:/Users/User/Desktop");
+
+            /*try {
+                Runtime.getRuntime().exec("/bin/bash -c your_command");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }*/
+
         }
 
         /*
