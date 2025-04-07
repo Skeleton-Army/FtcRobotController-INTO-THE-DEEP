@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.pedropathing.localization.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -132,7 +133,7 @@ public abstract class AutoOpMode extends LinearOpMode {
     }
 
     private void internalStop() {
-        PoseStorage.currentPose = drive.pose;
+        PoseStorage.currentPose = new Pose(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble());
     }
 
     /**

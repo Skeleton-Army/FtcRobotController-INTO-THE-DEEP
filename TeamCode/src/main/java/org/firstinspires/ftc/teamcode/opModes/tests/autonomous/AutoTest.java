@@ -56,9 +56,4 @@ public class AutoTest extends OpMode {
     public void loop() {
 
     }
-
-    @Override
-    public void stop() {
-        PoseStorage.currentPose = drive.pose;
-    }
 }

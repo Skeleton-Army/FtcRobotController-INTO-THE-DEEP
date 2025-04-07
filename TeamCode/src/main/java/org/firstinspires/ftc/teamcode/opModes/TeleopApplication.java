@@ -5,25 +5,26 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.MovementConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
-import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
 import java.util.List;
@@ -32,15 +33,13 @@ import java.util.List;
 public class TeleopApplication extends TeleopOpMode {
     public static TeleopApplication Instance;
 
-    public MecanumDrive drive;
+    public Follower follower;
 
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
     Hang hang;
 //    IntakeSensor intakeSensor;
-
-    MovementUtils movementUtils;
 
     DigitalChannel outtakeSwitch;
 
@@ -54,15 +53,15 @@ public class TeleopApplication extends TeleopOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower.setStartingPose(PoseStorage.currentPose);
 
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
-
-        movementUtils = new MovementUtils(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
     }
@@ -74,14 +73,15 @@ public class TeleopApplication extends TeleopOpMode {
 
         runAction(intake.wristMiddle());
         runAction(intake.rotate(0));
+
+        follower.startTeleopDrive();
     }
 
     @Override
     public void loop() {
-//        movementUtils.fieldCentricMovement();
-        movementUtils.movement();
-
         // Run systems
+        movement(true);
+
         runIntakeWithDeposit();
         runIntake();
         runIntakeControls();
@@ -114,6 +114,19 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
 
         telemetry.update();
+    }
+
+    public void movement(boolean robotCentric) {
+        boolean slowModeActive = gamepad1.right_bumper;
+        double multiplier = slowModeActive ? MovementConfig.SLOW_MODE_MULTIPLIER : 1;
+
+        follower.setTeleOpMovementVectors(
+                -gamepad1.left_stick_y * multiplier * MovementConfig.AXIAL_MULTIPLIER,
+                -gamepad1.left_stick_x * multiplier * MovementConfig.LATERAL_MULTIPLIER,
+                -gamepad1.right_stick_x * multiplier * MovementConfig.YAW_MULTIPLIER,
+                robotCentric);
+
+        follower.update();
     }
 
     public void runIntakeWithDeposit() {
