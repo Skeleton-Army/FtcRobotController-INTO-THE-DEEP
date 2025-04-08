@@ -110,7 +110,7 @@ public class ConceptDatalogger extends LinearOpMode
             builder.directory();
             builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/datalog_1.csv C:/Users/User/Desktop");
 
-
+            builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
 
             /*try {
                 Runtime.getRuntime().exec("/bin/bash -c your_command");
