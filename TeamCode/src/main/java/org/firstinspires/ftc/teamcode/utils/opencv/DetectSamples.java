@@ -153,7 +153,7 @@ public class DetectSamples extends OpenCvPipeline {
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 //            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));
 
-            if (sample.isTooBig()) {
+            if (sample.isTooBig() || sample.isTooSmall()) {
                 continue;
             }
 
