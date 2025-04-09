@@ -98,6 +98,11 @@ public class ConceptDatalogger extends LinearOpMode
             telemetry.addData("Loop Counter", datalog.loopCounter);
             telemetry.addData("Battery", datalog.battery);
 
+            for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
+                telemetry.addData("Voltage Sensor Name: ", sensor.getDeviceName());
+                telemetry.addData("Voltage: ", sensor.getVoltage());
+            }
+
             telemetry.update();
 
             sleep(20);
@@ -108,7 +113,7 @@ public class ConceptDatalogger extends LinearOpMode
             ProcessBuilder builder = new ProcessBuilder();
 
             builder.directory();
-            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/datalog_1.csv C:/Users/User/Desktop");
+            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/" + filename + " C:/Users/User/Desktop");
 
             builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
 
