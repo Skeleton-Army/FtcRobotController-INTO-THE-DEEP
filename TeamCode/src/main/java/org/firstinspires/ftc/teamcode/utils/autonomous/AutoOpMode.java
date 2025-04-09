@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.utils.autonomous;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /*
     An OpMode that implements the choice menu and FSM (Finite State Machine).
@@ -35,6 +38,10 @@ public abstract class AutoOpMode extends LinearOpMode {
     protected MecanumDrive drive;
 
     protected ElapsedTime runtime = new ElapsedTime();
+
+    private Supplier<Boolean> fallbackCondition;
+    private Runnable fallbackFunction;
+    private boolean didFallback = false;
 
     // Abstract method to set the prompts
     public abstract void setPrompts();
@@ -165,6 +172,14 @@ public abstract class AutoOpMode extends LinearOpMode {
         TelemetryPacket packet = new TelemetryPacket();
 
         while (action.run(packet) && opModeIsActive()) {
+            if (fallbackCondition.get() && !didFallback) {
+                didFallback = true;
+                fallbackFunction.run();
+
+                requestOpModeStop();
+                break;
+            }
+
             runAsyncActions();
             runAsyncFunctions();
         }
@@ -242,5 +257,15 @@ public abstract class AutoOpMode extends LinearOpMode {
      */
     protected boolean isEnoughTime(AutoApplication.State state) {
         return getRemainingTime() >= state.getRequiredTime();
+    }
+
+    /**
+     * Sets a fallback state for the FSM.
+     * @param condition The condition to check
+     * @param handler The function to run if the condition is true
+     */
+    protected void setFallbackState(Supplier<Boolean> condition, Runnable handler) {
+        fallbackCondition = condition;
+        fallbackFunction = handler;
     }
 }

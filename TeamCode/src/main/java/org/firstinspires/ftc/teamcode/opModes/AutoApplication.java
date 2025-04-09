@@ -123,8 +123,6 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-
-
 //        runAsync(
 //                new SequentialAction(
 //                        new SleepAction(3),
@@ -142,6 +140,8 @@ public class AutoApplication extends AutoOpMode {
         addState(State.PARK, this::park);
         addState(State.COLLECT_SPECIMEN, this::collectSpecimen);
         addState(State.COLLECT_COLOR_SAMPLES, this::collectColorSamples);
+
+        setFallbackState(() -> gamepad1.guide || gamepad2.guide, this::resetRobot);
     }
 
     @Override
@@ -786,5 +786,30 @@ public class AutoApplication extends AutoOpMode {
                 requestOpModeStop();
                 break;
         }
+    }
+
+    private void resetRobot() {
+        runBlocking(
+                new ParallelAction(
+                        drive.actionBuilder(drive.pose)
+                                .splineToLinearHeading(startPose, 0)
+                                .build(),
+
+                        intake.retract(),
+                        intake.wristMiddle(),
+                        intake.rotate(0),
+                        intake.openClaw(),
+
+                        outtake.retract(),
+                        outtake.hold(),
+
+                        specimenArm.goToIntake(),
+                        specimenArm.gripToOuttake(),
+                        specimenArm.grabClose()
+                )
+
+        );
+
+        requestOpModeStop();
     }
 }
