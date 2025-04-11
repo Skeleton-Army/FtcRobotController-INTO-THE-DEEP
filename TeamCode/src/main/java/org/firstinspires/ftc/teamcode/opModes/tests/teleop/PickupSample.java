@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -18,9 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -39,9 +34,13 @@ public class PickupSample extends TeleopOpMode {
     WebcamCV camCV;
     Sample targetSample;
 
+    TelemetryPacket telemetryPacket;
+
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        telemetryPacket = new TelemetryPacket();
 
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         intake = new Intake(hardwareMap);
@@ -59,6 +58,20 @@ public class PickupSample extends TeleopOpMode {
         if (camCV.lookForSamples()) {
             targetSample = camCV.getBestSample(new Vector2d(30,0));
             Pose2d targetSamplePos = targetSample.getSamplePosition();
+
+            // setting the origin point to the same origin point of the field
+            telemetryPacket.fieldOverlay().setTranslation(3 * 24, 3 * 24);
+
+
+            for (Sample sample : camCV.getSamplesList()) {
+                if (sample == targetSample) {
+                    telemetryPacket.fieldOverlay().setStroke("green");
+                }
+                telemetryPacket.fieldOverlay().strokeRect(sample.getCenterX(), sample.getCenterY(), 10, 6);
+                telemetryPacket.fieldOverlay().setStroke("red");
+            }
+
+            FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket);
 
             telemetry.addLine("Detected samples");
             telemetry.addData("X: ", "" + targetSamplePos.position.x);

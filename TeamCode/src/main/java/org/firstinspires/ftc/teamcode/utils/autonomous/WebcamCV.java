@@ -117,6 +117,10 @@ public class WebcamCV {
         return (samples != null) && (!samples.isEmpty());
     }
 
+    public List<Sample> getSamplesList() {
+        return samples;
+    }
+
     /**
      * Configures the webcam for detecting samples with given colors.
      * @param colors The colors to detect.
