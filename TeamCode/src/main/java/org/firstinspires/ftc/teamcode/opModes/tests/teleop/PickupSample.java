@@ -61,7 +61,7 @@ public class PickupSample extends TeleopOpMode {
 
             // setting the origin point to the same origin point of the field
             telemetryPacket.fieldOverlay().setTranslation(3 * 24, 3 * 24);
-
+            telemetryPacket.fieldOverlay().fillCircle(0,0, 3); // check to see if this is indeed the center of the field
 
             for (Sample sample : camCV.getSamplesList()) {
                 if (sample == targetSample) {
