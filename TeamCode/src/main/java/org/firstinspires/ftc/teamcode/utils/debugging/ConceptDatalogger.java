@@ -20,10 +20,15 @@ package org.firstinspires.ftc.teamcode.utils.debugging;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+
+import java.io.IOException;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
 public class ConceptDatalogger extends LinearOpMode
@@ -32,6 +37,8 @@ public class ConceptDatalogger extends LinearOpMode
     IMU imu;
     VoltageSensor battery;
 
+    DcMotorEx motor;
+
     @Override
     public void runOpMode() throws InterruptedException
     {
@@ -39,6 +46,7 @@ public class ConceptDatalogger extends LinearOpMode
         // If needed, change "Control Hub" to (e.g.) "Expansion Hub 1".
         battery = hardwareMap.voltageSensor.get("Control Hub");
         imu = hardwareMap.get(IMU.class, "imu");
+
 
         /*// Create a unique filename based on date and time
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HHmmss");
@@ -110,18 +118,20 @@ public class ConceptDatalogger extends LinearOpMode
 
         if (isStopRequested()) {
 
-            ProcessBuilder builder = new ProcessBuilder();
+            sleep(250);
+//
+//            ProcessBuilder builder = new ProcessBuilder();
+//
+//            builder.directory();
+//            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/ " + filename + "C:/Users/User/Desktop");
+//
+//            builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
 
-            builder.directory();
-            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/" + filename + " C:/Users/User/Desktop");
-
-            builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
-
-            /*try {
-                Runtime.getRuntime().exec("/bin/bash -c your_command");
+            try {
+                Runtime.getRuntime().exec("adb pull /sdcard/FIRST/Datalogs/"+ filename + " C:/Users/User/Desktop");
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            }*/
+            }
 
         }
 
