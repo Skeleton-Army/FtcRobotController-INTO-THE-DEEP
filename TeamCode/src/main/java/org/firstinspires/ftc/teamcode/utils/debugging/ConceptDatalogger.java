@@ -26,6 +26,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+import java.io.File;
 import java.io.IOException;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
@@ -51,17 +52,11 @@ public class ConceptDatalogger extends LinearOpMode
         String timestamp = LocalDateTime.now().format(dtf);
         String filename = "datalog_" + timestamp;*/
 
-        String filename = "datalog_1";
-
-        // Initialize the datalog with the timestamped filename
-        datalog = new Datalog(filename);
+        String filename;
 
         // You do not need to fill every field of the datalog
         // every time you call writeLine(); those fields will simply
         // contain the last value.
-        datalog.opModeStatus.set("INIT");
-        datalog.battery.set(battery.getVoltage());
-        datalog.writeLine();
 
         // Initialize IMU parameters
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
@@ -72,6 +67,27 @@ public class ConceptDatalogger extends LinearOpMode
         imu.initialize(parameters);
 
         telemetry.setMsTransmissionInterval(50);
+
+
+        File downloadDir = new File("/sdcard/FIRST/Datalogs");
+        int index = 1;
+        File logFile;
+
+        // Find the next available filename
+        do {
+            logFile = new File(downloadDir, "my_log_" + index + ".csv");
+            index++;
+        } while (logFile.exists());
+
+        telemetry.addLine("Log file name: " + logFile.getName());
+        telemetry.update();
+
+        filename = logFile.getName();
+        datalog = new Datalog(filename);
+
+        datalog.opModeStatus.set("INIT");
+        datalog.battery.set(battery.getVoltage());
+        datalog.writeLine();
 
         waitForStart();
 
