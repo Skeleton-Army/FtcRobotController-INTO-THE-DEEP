@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

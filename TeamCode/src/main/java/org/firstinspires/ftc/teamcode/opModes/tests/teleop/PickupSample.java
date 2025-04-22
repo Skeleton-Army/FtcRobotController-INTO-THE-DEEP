@@ -1,12 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -18,12 +14,9 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
 @Autonomous
 public class PickupSample extends TeleopOpMode {

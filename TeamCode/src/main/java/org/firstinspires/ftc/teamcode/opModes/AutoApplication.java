@@ -1,17 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -20,16 +15,11 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
-import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
-import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 enum Alliance {
     RED,

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 public class MovementUtils {
     MecanumDrive drive;

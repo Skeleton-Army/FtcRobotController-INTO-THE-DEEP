@@ -41,7 +41,7 @@ android {
 
 repositories {
     maven {
-        url = "https://repo.dairy.foundation/releases"
+        url "https://repo.dairy.foundation/releases"
     }
     maven {
         url "https://jitpack.io"
