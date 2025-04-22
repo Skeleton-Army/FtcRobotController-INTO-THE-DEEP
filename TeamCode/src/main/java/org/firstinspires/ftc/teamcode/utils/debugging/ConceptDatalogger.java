@@ -20,9 +20,7 @@ package org.firstinspires.ftc.teamcode.utils.debugging;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -129,6 +127,9 @@ public class ConceptDatalogger extends LinearOpMode
 
             try {
                 Runtime.getRuntime().exec("adb pull /sdcard/FIRST/Datalogs/"+ filename + " C:/Users/User/Desktop");
+
+                // runs the python script after the file is at Desktop
+                Runtime.getRuntime().exec("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
