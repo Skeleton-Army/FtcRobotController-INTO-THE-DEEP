@@ -10,6 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.skeletonarmy.marrow.actions.SleepUntilAction;
+import com.skeletonarmy.marrow.gamepads.MarrowGamepad;
+import com.skeletonarmy.marrow.gamepads.Button;
+import com.skeletonarmy.marrow.TeleopOpMode;
+import com.skeletonarmy.marrow.MarrowUtils;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
@@ -29,6 +34,9 @@ public class TeleopApplication extends TeleopOpMode {
 
     public MecanumDrive drive;
 
+    MarrowGamepad gamepad1;
+    MarrowGamepad gamepad2;
+
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
@@ -43,9 +51,15 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean highBasket = true;
 
+    boolean resetOuttake = false;
+
     @Override
     public void init() {
         Instance = this;
+
+        // Set gamepads to MarrowGamepads (ignore the warning, chatgpt said it's fine :3)
+        gamepad1 = new MarrowGamepad(super.gamepad1);
+        gamepad2 = new MarrowGamepad(super.gamepad2);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -57,7 +71,7 @@ public class TeleopApplication extends TeleopOpMode {
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
 
-        movementUtils = new MovementUtils(hardwareMap);
+        movementUtils = new MovementUtils(hardwareMap, gamepad1, gamepad2);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
     }
@@ -65,7 +79,7 @@ public class TeleopApplication extends TeleopOpMode {
     @Override
     public void start() {
         // Enable auto bulk reads
-        Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+        MarrowUtils.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         runAction(intake.wristMiddle());
         runAction(intake.rotate(0));
@@ -112,7 +126,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntakeWithDeposit() {
-        if (Utilities.isPressed(gamepad2.a)) {
+        if (gamepad2.justPressed(Button.A)) {
             runSequentialActions(
                     "intake",
 
@@ -143,7 +157,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntake() {
-        if (Utilities.isPressed(gamepad2.x)) {
+        if (gamepad2.justPressed(Button.X)) {
             runSequentialActions(
                     "intake",
 
@@ -192,7 +206,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runOuttake() {
-        if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
+        if (gamepad2.justPressed(Button.Y) && !isActionRunning("intake", 1)) {
             runSequentialActions(
                     // Extend outtake
                     new ParallelAction(
@@ -214,16 +228,16 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        if (Utilities.isPressed(gamepad2.back)) {
+        if (gamepad2.justPressed(Button.BACK)) {
             highBasket = !highBasket;
             gamepad2.rumble(200);
         }
     }
 
     public void runWrist() {
-        if (Utilities.isPressed(gamepad2.right_trigger > 0.1)) {
+        if (gamepad2.justReleased(Button.RIGHT_TRIGGER)) {
             runAction(intake.extendWrist());
-        } else if (Utilities.isPressed(gamepad2.left_trigger > 0.1)) {
+        } else if (gamepad2.justReleased(Button.LEFT_TRIGGER)) {
             runAction(
                     new ParallelAction(
                             intake.wristReady(),
@@ -234,9 +248,9 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runClaw() {
-        if (Utilities.isPressed(gamepad2.right_bumper)) {
+        if (gamepad2.justPressed(Button.RIGHT_BUMPER)) {
             runAction(intake.closeClaw());
-        } else if (Utilities.isPressed(gamepad2.left_bumper)) {
+        } else if (gamepad2.justPressed(Button.LEFT_BUMPER)) {
             runAction(intake.openClaw());
         }
     }
@@ -249,7 +263,7 @@ public class TeleopApplication extends TeleopOpMode {
             stopAction("specimen_grab");
         };
 
-        if (Utilities.isPressed(gamepad2.dpad_up)) {
+        if (gamepad2.justPressed(Button.DPAD_UP)) {
             stopOtherActions.run();
 
             runAction(
@@ -259,7 +273,7 @@ public class TeleopApplication extends TeleopOpMode {
                             specimenArm.goToOuttake()
                     )
             );
-        } else if (Utilities.isReleased(gamepad2.dpad_up)) {
+        } else if (gamepad2.justReleased(Button.DPAD_UP)) {
             stopOtherActions.run();
 
             runAction(
@@ -271,7 +285,7 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        if (Utilities.isPressed(gamepad2.dpad_down)) {
+        if (gamepad2.justPressed(Button.DPAD_DOWN)) {
             stopOtherActions.run();
 
             runAction(
@@ -282,7 +296,7 @@ public class TeleopApplication extends TeleopOpMode {
                             specimenArm.grabOpen()
                     )
             );
-        } else if (Utilities.isReleased(gamepad2.dpad_down)) {
+        } else if (gamepad2.justReleased(Button.DPAD_DOWN)) {
             stopOtherActions.run();
 
             runAction(
@@ -302,7 +316,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runHang() {
-        if (Utilities.isPressed(gamepad2.start)) {
+        if (gamepad2.justPressed(Button.START)) {
             runSequentialActions(
                     // Ready hang
                     hang.middleHang(),
@@ -317,7 +331,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runEmergencyStop() {
-        if (Utilities.isPressed(gamepad2.b)) {
+        if (gamepad2.justPressed(Button.B)) {
             stopAllActions();
 
             // Stop all motors
@@ -332,14 +346,20 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runResetMotors() {
-        if (Utilities.isPressed(gamepad2.guide)) {
+        if (gamepad2.justPressed(Button.GUIDE)) {
             intake.resetMotor();
         }
     }
 
     public void outtakeLimitSwitch() {
-        if (Utilities.isPressed(!outtakeSwitch.getState())) {
-            outtake.resetMotor();
+        if (!outtakeSwitch.getState()) {
+            if (!resetOuttake) {
+                resetOuttake = true;
+                outtake.resetMotor();
+            }
+        }
+        else {
+            resetOuttake = false;
         }
     }
 }

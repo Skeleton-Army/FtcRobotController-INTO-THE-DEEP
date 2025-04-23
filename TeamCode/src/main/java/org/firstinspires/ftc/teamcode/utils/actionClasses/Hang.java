@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.skeletonarmy.marrow.actions.MotorToPosition;
 
 import org.firstinspires.ftc.teamcode.utils.config.HangConfig;
 
@@ -24,7 +25,7 @@ public class Hang {
 
     // General actions
     public Action hangToPosition(int targetPos, double power) {
-        return new MotorToPosition(motor, targetPos, power, HangConfig.velocityThreshold, HangConfig.startThreshold, false);
+        return new MotorToPosition(motor, targetPos, power, HangConfig.velocityThreshold, false);
     }
 
     // Specific actions

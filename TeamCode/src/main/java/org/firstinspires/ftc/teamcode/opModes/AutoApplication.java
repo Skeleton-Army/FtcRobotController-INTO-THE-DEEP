@@ -9,6 +9,9 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.skeletonarmy.marrow.AutoOpMode;
+import com.skeletonarmy.marrow.actions.SleepUntilAction;
+import com.skeletonarmy.marrow.prompts.OptionPrompt;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
@@ -60,6 +63,8 @@ public class AutoApplication extends AutoOpMode {
             return requiredTime;
         }
     }
+
+    MecanumDrive drive;
 
     Intake intake;
     Outtake outtake;
@@ -179,7 +184,7 @@ public class AutoApplication extends AutoOpMode {
     // -------------- States --------------
 
     private void hangSpecimen() {
-        if (!isEnoughTime(State.HANG_SPECIMEN)) {
+        if (!isEnoughTime(State.HANG_SPECIMEN.getRequiredTime())) {
             addTransition(State.PARK);
             return;
         }
@@ -212,7 +217,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void collectSpecimen() {
-        if (!isEnoughTime(State.COLLECT_SPECIMEN)) {
+        if (!isEnoughTime(State.COLLECT_SPECIMEN.getRequiredTime())) {
             addTransition(State.PARK);
             return;
         }
@@ -496,7 +501,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void putInBasket() {
-        if (!isEnoughTime(State.PUT_IN_BASKET)) {
+        if (!isEnoughTime(State.PUT_IN_BASKET.getRequiredTime())) {
             addTransition(State.PARK);
             return;
         }
@@ -614,7 +619,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     private void sampleFromSubmersible() {
-        if (!isEnoughTime(State.COLLECT_ADDITIONAL_SAMPLE)) {
+        if (!isEnoughTime(State.COLLECT_ADDITIONAL_SAMPLE.getRequiredTime())) {
             addTransition(State.PARK);
             return;
         }

@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.skeletonarmy.marrow.actions.MotorToPosition;
+import com.skeletonarmy.marrow.actions.ServoToPosition;
 
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
@@ -43,7 +45,7 @@ public class Intake {
 
     // General actions
     public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(motor, targetPos, power, IntakeConfig.velocityThreshold, IntakeConfig.startThreshold, holdPosition);
+        return new MotorToPosition(motor, targetPos, power, IntakeConfig.velocityThreshold, holdPosition);
     }
 
     public Action clawToPosition(double targetPos) {
@@ -111,6 +113,24 @@ public class Intake {
     }
 
     public Action rotate(double input) {
-        return clawToRotation(Utilities.remap(input, -1, 0, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationForward, IntakeConfig.rotationRight));
+        return clawToRotation(remap(input, -1, 0, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationForward, IntakeConfig.rotationRight));
+    }
+
+    /**
+     * Remaps a value from one range to another using linear interpolation.
+     *
+     * @param value  The input value to remap.
+     * @param inMin  The lower bound of the input range.
+     * @param inMax  The upper bound of the input range.
+     * @param outMin The lower bound of the output range.
+     * @param outMax The upper bound of the output range.
+     * @return The remapped value in the output range.
+     */
+    private static double remap(double value, double inMin, double inMid, double inMax, double outMin, double outMid, double outMax) {
+        if (value <= inMid) {
+            return outMin + (value - inMin) * (outMid - outMin) / (inMid - inMin);
+        } else {
+            return outMid + (value - inMid) * (outMax - outMid) / (inMax - inMid);
+        }
     }
 }

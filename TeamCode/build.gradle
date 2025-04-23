@@ -39,7 +39,13 @@ android {
     }
 }
 
+// Tells Gradle not to cache changing modules (e.g., SNAPSHOTs) for any period of time (0 seconds)
+configurations.configureEach {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 repositories {
+    mavenCentral()
     maven {
         url "https://repo.dairy.foundation/releases"
     }
@@ -67,7 +73,9 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
 
-    implementation "com.github.Skeleton-Army:Marrow:main-SNAPSHOT"
+    implementation("com.github.Skeleton-Army:Marrow:dev-SNAPSHOT") {
+        changing = true // This tells Gradle that the dependency is subject to change and should not be cached aggressively
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'

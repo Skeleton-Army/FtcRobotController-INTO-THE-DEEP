@@ -18,10 +18,10 @@ public class MovementUtils {
 
     double multiplier;
 
-    public MovementUtils(HardwareMap hardwareMap) {
+    public MovementUtils(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         drive = TeleopApplication.Instance.drive;
-        gamepad1 = TeleopApplication.Instance.gamepad1;
-        gamepad2 = TeleopApplication.Instance.gamepad2;
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
     }
 
     void calculateMultipliers() {
@@ -58,7 +58,7 @@ public class MovementUtils {
 
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
-        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
+        Vector2d input = rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
         ), -poseEstimate.heading.toDouble());
 
         // Pass in the rotated input + right stick value for rotation
@@ -72,5 +72,12 @@ public class MovementUtils {
 
         // Update everything. Odometry. Etc.
         drive.updatePoseEstimate();
+    }
+
+    public static Vector2d rotate(Vector2d original, double angle) {
+        double rx = (original.x * Math.cos(angle)) - (original.y * Math.sin(angle));
+        double ry = (original.x * Math.sin(angle)) + (original.y * Math.cos(angle));
+
+        return new Vector2d(rx, ry);
     }
 }
