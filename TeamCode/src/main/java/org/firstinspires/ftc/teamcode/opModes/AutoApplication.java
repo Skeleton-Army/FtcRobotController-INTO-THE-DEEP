@@ -87,43 +87,23 @@ public class AutoApplication extends AutoOpMode {
     boolean didCollectSamples = false;
 
     @Override
-    public void setPrompts() {
-        choiceMenu.enqueuePrompt(new OptionPrompt("alliance", "SELECT AN ALLIANCE:", "Red", "Blue"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("strategy", "SELECT A STRATEGY:", "Specimens", "Basket"));
-        choiceMenu.enqueuePrompt(new OptionPrompt("specimens", "SELECT HUMAN PLAYER SPECIMENS:", "1", "0"));
-    }
+    public void preAutonomousSetup() {
+        alliance = choiceMenu.prompt(new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
+        strategy = choiceMenu.prompt(new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
+        extraSpecimens = 0;
 
-    @Override
-    public void onPromptsSelected() {
-        // Fetch choices
-        String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
-        String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
-        String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
-
-        telemetry.addData("Selected Alliance", selectedAlliance);
-        telemetry.addData("Selected Strategy", selectedStrategy);
-        telemetry.addData("Selected Specimen", selectedSpecimens);
-
-        // Initialize values
-        alliance = selectedAlliance.equals("Red") ? Alliance.RED : Alliance.BLUE;
-        strategy = selectedStrategy.equals("Specimens") ? Strategy.SPECIMENS : Strategy.BASKET;
-        extraSpecimens = Integer.parseInt(selectedSpecimens);
-
-        switch (strategy) {
-            case SPECIMENS:
-                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
-                break;
-            case BASKET:
-                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
-                break;
+        if (strategy == Strategy.SPECIMENS) {
+            extraSpecimens = choiceMenu.prompt(new OptionPrompt<>("SELECT HUMAN PLAYER SPECIMENS:", 1, 0));
         }
 
-//        runAsync(
-//                new SequentialAction(
-//                        new SleepAction(3),
-//                        new InstantAction(() -> camCV.stopStream())
-//                )
-//        );
+        telemetry.addData("Selected Alliance", alliance);
+        telemetry.addData("Selected Strategy", strategy);
+        telemetry.addData("Selected Specimen", extraSpecimens);
+
+        startPose =
+                strategy == Strategy.SPECIMENS
+                ? new Pose2d(0, -62.5, Math.toRadians(90.00)) // Specimens
+                : new Pose2d(-39, -62.5, Math.toRadians(0)); // Basket
     }
 
     @Override
