@@ -59,7 +59,10 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Set gamepads to MarrowGamepads (ignore the warning, chatgpt said it's fine :3)
         gamepad1 = new MarrowGamepad(super.gamepad1);
+//        super.gamepad1 = gamepad1;
+
         gamepad2 = new MarrowGamepad(super.gamepad2);
+//        super.gamepad2 = gamepad2;
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -87,6 +90,9 @@ public class TeleopApplication extends TeleopOpMode {
 
     @Override
     public void loop() {
+        gamepad1.update();
+        gamepad2.update();
+
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();
 
@@ -126,7 +132,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntakeWithDeposit() {
-        if (gamepad2.justPressed(Button.A)) {
+        if (gamepad2.a) {
             runSequentialActions(
                     "intake",
 
