@@ -141,14 +141,14 @@ public class ConceptDatalogger extends LinearOpMode
 //
 //            builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
 
-            try {
-                Runtime.getRuntime().exec("adb pull /sdcard/FIRST/Datalogs/"+ filename + " C:/Users/User/Desktop");
-
-                // runs the python script after the file is at Desktop
-                Runtime.getRuntime().exec("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+//            try {
+//                Runtime.getRuntime().exec("adb pull /sdcard/FIRST/Datalogs/"+ filename + " C:/Users/User/Desktop");
+//
+//                // runs the python script after the file is at Desktop
+//                Runtime.getRuntime().exec("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
 
         }
 
