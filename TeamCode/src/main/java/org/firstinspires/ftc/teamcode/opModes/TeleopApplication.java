@@ -132,7 +132,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runIntakeWithDeposit() {
-        if (gamepad2.a) {
+        if (gamepad2.justPressed(Button.A)) {
             runSequentialActions(
                     "intake",
 
