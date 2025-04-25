@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -13,6 +16,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class NewCamera extends LinearOpMode {
         VisionPortal portal1;
         VisionPortal portal2;
+        VisionPortal portal3;
+        VisionPortal portal4;
 
         AprilTagProcessor aprilTagProcessor1;
         AprilTagProcessor aprilTagProcessor2;
@@ -30,6 +35,8 @@ public class NewCamera extends LinearOpMode {
             // NB: the array is 2 long because we asked for 2 portals up above.
             int portal1ViewId = viewIds[0];
             int portal2ViewId = viewIds[1];
+            //int portal3ViewId = viewIds[2];
+            //int portal4ViewId = viewIds[3];
 
             // If we want to run AprilTag detection on two portals simultaneously,
             // we need to create two distinct instances of the AprilTag processor,
@@ -45,13 +52,29 @@ public class NewCamera extends LinearOpMode {
             portal1 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setLiveViewContainerId(portal1ViewId)
-              //      .addProcessor(aprilTagProcessor1)
+                    .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight  * 2))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+
+                    //      .addProcessor(aprilTagProcessor1)
                     .build();
             portal2 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
                     .setLiveViewContainerId(portal2ViewId)
+                    .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 //    .addProcessor(aprilTagProcessor2)
                     .build();
+
+//            portal3 = new VisionPortal.Builder()
+//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 3"))
+//                    .setLiveViewContainerId(portal3ViewId)
+//                    //    .addProcessor(aprilTagProcessor2)
+//                    .build();
+//            portal4 = new VisionPortal.Builder()
+//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 4"))
+//                    .setLiveViewContainerId(portal4ViewId)
+//                    //    .addProcessor(aprilTagProcessor2)
+//                    .build();
 
             waitForStart();
 

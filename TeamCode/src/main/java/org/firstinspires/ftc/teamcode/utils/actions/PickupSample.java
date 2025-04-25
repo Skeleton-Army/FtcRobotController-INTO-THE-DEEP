@@ -24,6 +24,7 @@ public class PickupSample implements Action {
 
     Action extendSequence;
     Action grabSequence;
+    Action intakeRetract;
     public PickupSample(Intake intake, Drive driveActions, Sample targetSample) {
         this.intake = intake;
         this.driveActions = driveActions;
@@ -54,6 +55,16 @@ public class PickupSample implements Action {
 //                intake.retractWrist()
 //                new SleepAction(0.1)
         );
+
+        intakeRetract = new SequentialAction(
+                intake.retractWrist(),
+                intake.rotate(0),
+                intake.retract(),
+                intake.openClaw(),
+                new SleepAction(0.05),
+                intake.wristReady(),
+                new SleepAction(0.2)
+        );
     }
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -67,7 +78,8 @@ public class PickupSample implements Action {
                                 driveActions.alignToSample(targetSample.getSamplePosition().position),
                                 extendSequence
                         ),
-                        grabSequence
+                        grabSequence,
+                        intakeRetract
                 )
         );
 
