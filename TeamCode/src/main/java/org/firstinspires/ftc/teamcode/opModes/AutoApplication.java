@@ -88,12 +88,12 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void preAutonomousSetup() {
-        alliance = choiceMenu.prompt(new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
-        strategy = choiceMenu.prompt(new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
+        alliance = prompt(new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
+        strategy = prompt(new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
         extraSpecimens = 0;
 
         if (strategy == Strategy.SPECIMENS) {
-            extraSpecimens = choiceMenu.prompt(new OptionPrompt<>("SELECT HUMAN PLAYER SPECIMENS:", 1, 0));
+            extraSpecimens = prompt(new OptionPrompt<>("SELECT HUMAN PLAYER SPECIMENS:", 1, 0));
         }
 
         telemetry.addData("Selected Alliance", alliance);
@@ -107,7 +107,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
-    protected void registerStates() {
+    public void registerStates() {
         addState(State.HANG_SPECIMEN, this::hangSpecimen);
         addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
         addState(State.PUT_IN_BASKET, this::putInBasket);
