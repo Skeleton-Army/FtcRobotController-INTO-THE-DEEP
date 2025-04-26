@@ -9,8 +9,9 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.skeletonarmy.marrow.AutoOpMode;
+import com.skeletonarmy.marrow.autonomous.AutoOpMode;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
+import com.skeletonarmy.marrow.fsm.State;
 import com.skeletonarmy.marrow.prompts.OptionPrompt;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -36,34 +37,6 @@ enum Strategy {
 
 @Autonomous(name = "Autonomous App", group = "SA_FTC", preselectTeleOp = "Teleop App")
 public class AutoApplication extends AutoOpMode {
-    public enum State {
-        HANG_SPECIMEN(2),
-        COLLECT_ADDITIONAL_SAMPLE(4.5),
-
-        COLLECT_COLOR_SAMPLES(),
-        COLLECT_SPECIMEN(2),
-
-        COLLECT_YELLOW_SAMPLE(),
-        PUT_IN_BASKET(2),
-
-        PARK(2);
-
-        // ------------ Attributes ------------
-        private final double requiredTime; // in seconds
-
-        State() {
-            this.requiredTime = 0;
-        }
-
-        State(double requiredTime) {
-            this.requiredTime = requiredTime;
-        }
-
-        public double getRequiredTime() {
-            return requiredTime;
-        }
-    }
-
     MecanumDrive drive;
 
     Intake intake;
@@ -107,28 +80,17 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
-    public void registerStates() {
-        addState(State.HANG_SPECIMEN, this::hangSpecimen);
-        addState(State.COLLECT_YELLOW_SAMPLE, this::collectYellowSample);
-        addState(State.PUT_IN_BASKET, this::putInBasket);
-        addState(State.COLLECT_ADDITIONAL_SAMPLE, this::sampleFromSubmersible);
-        addState(State.PARK, this::park);
-        addState(State.COLLECT_SPECIMEN, this::collectSpecimen);
-        addState(State.COLLECT_COLOR_SAMPLES, this::collectColorSamples);
-
+    public String initialState() {
         setFallbackState(() -> gamepad1.guide || gamepad2.guide, this::resetRobot);
-    }
 
-    @Override
-    public void setInitialState() {
         switch (strategy) {
             case SPECIMENS:
-                addTransition(State.HANG_SPECIMEN);
-                break;
+                return "hangSpecimen";
             case BASKET:
-                addTransition(State.PUT_IN_BASKET);
-                break;
+                return "putInBasket";
         }
+
+        return null;
     }
 
     @Override
@@ -163,9 +125,10 @@ public class AutoApplication extends AutoOpMode {
 
     // -------------- States --------------
 
+    @State(requiredTime = 2)
     private void hangSpecimen() {
-        if (!isEnoughTime(State.HANG_SPECIMEN.getRequiredTime())) {
-            addTransition(State.PARK);
+        if (!isEnoughTime()) {
+            transition("park");
             return;
         }
 
@@ -188,17 +151,18 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (!didCollectSamples) {
-            addTransition(State.COLLECT_COLOR_SAMPLES);
+            transition("collectColorSamples");
         } else if (hangedSpecimens < (4 + extraSpecimens)) {
-            addTransition(State.COLLECT_SPECIMEN);
+            transition("collectSpecimen");
         } else {
-            addTransition(State.PARK);
+            transition("park");
         }
     }
 
+    @State(requiredTime = 2)
     private void collectSpecimen() {
-        if (!isEnoughTime(State.COLLECT_SPECIMEN.getRequiredTime())) {
-            addTransition(State.PARK);
+        if (!isEnoughTime()) {
+            transition("park");
             return;
         }
 
@@ -235,9 +199,10 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        addTransition(State.HANG_SPECIMEN);
+        transition("hangSpecimen");
     }
 
+    @State
     private void collectColorSamples() {
         didCollectSamples = true;
 
@@ -418,7 +383,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        addTransition(State.COLLECT_SPECIMEN);
+        transition("collectSpecimen");
     }
 
     private void collectYellowSample() {
@@ -477,12 +442,13 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        addTransition(State.PUT_IN_BASKET);
+        transition("putInBasket");
     }
 
+    @State(requiredTime = 2)
     private void putInBasket() {
-        if (!isEnoughTime(State.PUT_IN_BASKET.getRequiredTime())) {
-            addTransition(State.PARK);
+        if (!isEnoughTime()) {
+            transition("park");
             return;
         }
 
@@ -592,15 +558,16 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (collectedSamples < 6) {
-            addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
+            conditionalTransition(collectedSamples < 3, "collectYellowSample", "sampleFromSubmersible");
         } else {
-            addTransition(State.PARK);
+            transition("park");
         }
     }
 
+    @State(requiredTime = 4.5)
     private void sampleFromSubmersible() {
-        if (!isEnoughTime(State.COLLECT_ADDITIONAL_SAMPLE.getRequiredTime())) {
-            addTransition(State.PARK);
+        if (!isEnoughTime()) {
+            transition("park");
             return;
         }
 
@@ -698,9 +665,10 @@ public class AutoApplication extends AutoOpMode {
 //                )
 //        );
 
-        addTransition(State.PUT_IN_BASKET);
+        transition("putInBasket");
     }
 
+    @State(requiredTime = 2)
     private void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
@@ -763,6 +731,7 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
+    @State
     private void resetRobot() {
         runBlocking(
                 new ParallelAction(

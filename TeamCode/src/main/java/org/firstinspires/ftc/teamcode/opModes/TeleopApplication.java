@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
 import com.skeletonarmy.marrow.MarrowGamepad;
-import com.skeletonarmy.marrow.TeleopOpMode;
+import com.skeletonarmy.marrow.teleop.TeleopOpMode;
 import com.skeletonarmy.marrow.MarrowUtils;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
