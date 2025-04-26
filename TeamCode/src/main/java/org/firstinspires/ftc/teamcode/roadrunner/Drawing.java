@@ -8,10 +8,11 @@ public final class Drawing {
     private Drawing() {}
 
 
-    public static void drawRobot(Canvas c, Pose2d t) {
+    public static void drawRobot(Canvas c, Pose2d t, String color) {
         final double ROBOT_RADIUS = 9;
 
         c.setStrokeWidth(1);
+        c.setStroke(color);
         c.strokeCircle(t.position.x, t.position.y, ROBOT_RADIUS);
 
         Vector2d halfv = t.heading.vec().times(0.5 * ROBOT_RADIUS);

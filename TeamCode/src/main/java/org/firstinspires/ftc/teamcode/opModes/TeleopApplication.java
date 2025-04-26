@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
+import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
@@ -59,6 +60,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean highBasket = true;
 
+    Canvas c;
+
     @Override
     public void init() {
         Instance = this;
@@ -82,6 +85,8 @@ public class TeleopApplication extends TeleopOpMode {
         movementUtils = new MovementUtils(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
+
+        c = new Canvas();
     }
 
     @Override
@@ -118,6 +123,10 @@ public class TeleopApplication extends TeleopOpMode {
         // Bulk reads from walmart
 //        intakeSensor.updateRGBCache();
 
+        Drawing.drawRobot(c, drive.pose, "blue"); // where the robot thinks he is
+        Drawing.drawRobot(c, aprilTagSamplesPipeline.getRobotPosByAprilTag(), "green"); // where the AprilTag thinks the robot is
+        // should be the same for now
+
         // Debugging
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
         telemetry.addData("Intake Velocity", intake.motor.getVelocity());
@@ -143,6 +152,9 @@ public class TeleopApplication extends TeleopOpMode {
 
         camCV.lookForSamples();
         Sample bestSample = camCV.getBestSample(drive.pose.position);
+
+        // drawing the best sample (the selected sample to pickup)
+        c.fillRect(bestSample.getSamplePosition().position.x, bestSample.getSamplePosition().position.y, 7,7);
 
         if(bestSample != null) {
             telemetry.addData("sample detected x pos: ", bestSample.getSamplePosition().position.x);
