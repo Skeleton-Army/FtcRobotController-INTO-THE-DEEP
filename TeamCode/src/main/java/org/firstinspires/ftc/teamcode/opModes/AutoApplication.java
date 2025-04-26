@@ -80,17 +80,15 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @Override
-    public String initialState() {
+    public void onStateMachineStart() {
         setFallbackState(() -> gamepad1.guide || gamepad2.guide, this::resetRobot);
 
         switch (strategy) {
             case SPECIMENS:
-                return "hangSpecimen";
+                transition(this::hangSpecimen);
             case BASKET:
-                return "putInBasket";
+                transition(this::putInBasket);
         }
-
-        return null;
     }
 
     @Override
@@ -128,7 +126,7 @@ public class AutoApplication extends AutoOpMode {
     @State(requiredTime = 2)
     private void hangSpecimen() {
         if (!isEnoughTime()) {
-            transition("park");
+            transition(this::park);
             return;
         }
 
@@ -151,18 +149,18 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (!didCollectSamples) {
-            transition("collectColorSamples");
+            transition(this::collectColorSamples);
         } else if (hangedSpecimens < (4 + extraSpecimens)) {
-            transition("collectSpecimen");
+            transition(this::collectSpecimen);
         } else {
-            transition("park");
+            transition(this::park);
         }
     }
 
     @State(requiredTime = 2)
     private void collectSpecimen() {
         if (!isEnoughTime()) {
-            transition("park");
+            transition(this::park);
             return;
         }
 
@@ -199,7 +197,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        transition("hangSpecimen");
+        transition(this::hangSpecimen);
     }
 
     @State
@@ -383,7 +381,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        transition("collectSpecimen");
+        transition(this::collectSpecimen);
     }
 
     private void collectYellowSample() {
@@ -442,13 +440,13 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        transition("putInBasket");
+        transition(this::putInBasket);
     }
 
     @State(requiredTime = 2)
     private void putInBasket() {
         if (!isEnoughTime()) {
-            transition("park");
+            transition(this::park);
             return;
         }
 
@@ -558,16 +556,16 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (collectedSamples < 6) {
-            conditionalTransition(collectedSamples < 3, "collectYellowSample", "sampleFromSubmersible");
+            conditionalTransition(collectedSamples < 3, this::collectYellowSample, this::sampleFromSubmersible);
         } else {
-            transition("park");
+            transition(this::park);
         }
     }
 
     @State(requiredTime = 4.5)
     private void sampleFromSubmersible() {
         if (!isEnoughTime()) {
-            transition("park");
+            transition(this::park);
             return;
         }
 
@@ -665,7 +663,7 @@ public class AutoApplication extends AutoOpMode {
 //                )
 //        );
 
-        transition("putInBasket");
+        transition(this::putInBasket);
     }
 
     @State(requiredTime = 2)

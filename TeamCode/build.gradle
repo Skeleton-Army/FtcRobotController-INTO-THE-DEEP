@@ -71,9 +71,6 @@ dependencies {
     implementation("com.acmerobotics.roadrunner:ftc:0.1.14") {
         exclude group: "com.acmerobotics.dashboard"
     }
-    implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
-        exclude group: "com.acmerobotics.dashboard"
-    }
 
     implementation "com.acmerobotics.slothboard:dashboard:0.2.1+0.4.16"
     implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
