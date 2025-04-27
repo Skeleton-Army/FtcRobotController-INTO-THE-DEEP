@@ -241,7 +241,7 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             Position detectionPos = detection.robotPose.getPosition();
 
             drive.pose = new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw()));
-            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw()));
+            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
         }
         return drive.pose;
     }
