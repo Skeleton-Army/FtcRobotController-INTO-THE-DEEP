@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
-
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -49,6 +47,7 @@ public class NewCamera extends LinearOpMode {
             // Now we build both portals. The CRITICAL thing to notice here is the call to
             // setLiveViewContainerId(), where we pass in the IDs we received earlier from
             // makeMultiPortalView().
+
             portal1 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setLiveViewContainerId(portal1ViewId)
@@ -57,6 +56,8 @@ public class NewCamera extends LinearOpMode {
 
                     //      .addProcessor(aprilTagProcessor1)
                     .build();
+
+
             portal2 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
                     .setLiveViewContainerId(portal2ViewId)
@@ -65,16 +66,22 @@ public class NewCamera extends LinearOpMode {
                 //    .addProcessor(aprilTagProcessor2)
                     .build();
 
-//            portal3 = new VisionPortal.Builder()
-//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 3"))
-//                    .setLiveViewContainerId(portal3ViewId)
-//                    //    .addProcessor(aprilTagProcessor2)
-//                    .build();
-//            portal4 = new VisionPortal.Builder()
-//                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 4"))
-//                    .setLiveViewContainerId(portal4ViewId)
-//                    //    .addProcessor(aprilTagProcessor2)
-//                    .build();
+/*
+            portal3 = new VisionPortal.Builder()
+                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 3"))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .setLiveViewContainerId(portal3ViewId)
+
+                    //    .addProcessor(aprilTagProcessor2)
+                    .build();
+
+            portal4 = new VisionPortal.Builder()
+                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 4"))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .setLiveViewContainerId(portal4ViewId)
+                    //    .addProcessor(aprilTagProcessor2)
+                    .build();
+*/
 
             waitForStart();
 
