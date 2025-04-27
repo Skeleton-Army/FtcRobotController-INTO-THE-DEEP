@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -24,7 +28,7 @@ public class ApriltagRobotPose extends OpMode {
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: filled the y-axis and the z-axis, maybe it should work
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            CameraConfig.yaw, -CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
+            CameraConfig.yaw, CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
 
     private void initAprilTag() {
 
@@ -117,11 +121,20 @@ public class ApriltagRobotPose extends OpMode {
                 telemetry.addData("x: ",detection.ftcPose.x);
                 telemetry.addData("y: ",detection.ftcPose.y);
                 telemetry.addData("z: ",detection.ftcPose.z);
+                telemetry.addLine();
+                telemetry.addData("bearing",detection.ftcPose.bearing);
+                telemetry.addData("range",detection.ftcPose.range);
+                telemetry.addData("yaw",detection.ftcPose.yaw);
 
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
                         detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES)));
+
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.fieldOverlay().setStroke("#3F51B5");
+                Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(detection.robotPose.getPosition().x, detection.robotPose.getPosition().y, Math.toRadians(detection.robotPose.getOrientation().getYaw())), "#3F51B5");
+                FtcDashboard.getInstance().sendTelemetryPacket(packet);
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                 telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));

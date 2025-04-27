@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -61,12 +62,16 @@ public class TeleopApplication extends TeleopOpMode {
     boolean highBasket = true;
 
     Canvas c;
+    //TelemetryPacket telemetryPacket;
 
     @Override
     public void init() {
         Instance = this;
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        //
+        // telemetryPacket = new TelemetryPacket();
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
@@ -123,22 +128,29 @@ public class TeleopApplication extends TeleopOpMode {
         // Bulk reads from walmart
 //        intakeSensor.updateRGBCache();
 
-        Drawing.drawRobot(c, drive.pose, "blue"); // where the robot thinks he is
-        Drawing.drawRobot(c, aprilTagSamplesPipeline.getRobotPosByAprilTag(), "green"); // where the AprilTag thinks the robot is
+        drive.updatePoseEstimate();
+
+        TelemetryPacket telemetryPacket = new TelemetryPacket();
+        //c = telemetryPacket.field();
+        telemetryPacket.fieldOverlay().setStroke("blue");
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), drive.pose, "blue"); // where the robot thinks he is
+       // Drawing.drawRobot(c, aprilTagSamplesPipeline.getRobotPosByAprilTag(), "green"); // where the AprilTag thinks the robot is
         // should be the same for now
 
+        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket);
+
         // Debugging
-        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
+        //telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
         telemetry.addData("Intake Velocity", intake.motor.getVelocity());
-        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
+        //telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
         telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
-        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
-        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
-        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+        //telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+        //telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
+        //telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 //        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
 //        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
-        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
-        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+        //telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
+        //telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
 
         telemetry.update();
     }
@@ -154,11 +166,11 @@ public class TeleopApplication extends TeleopOpMode {
         Sample bestSample = camCV.getBestSample(drive.pose.position);
 
         // drawing the best sample (the selected sample to pickup)
-        c.fillRect(bestSample.getSamplePosition().position.x, bestSample.getSamplePosition().position.y, 7,7);
 
         if(bestSample != null) {
             telemetry.addData("sample detected x pos: ", bestSample.getSamplePosition().position.x);
             telemetry.addData("sample detected y pos: ", bestSample.getSamplePosition().position.y);
+            c.fillRect(bestSample.getSamplePosition().position.x, bestSample.getSamplePosition().position.y, 7,7);
         }
         drive.updatePoseEstimate();
 

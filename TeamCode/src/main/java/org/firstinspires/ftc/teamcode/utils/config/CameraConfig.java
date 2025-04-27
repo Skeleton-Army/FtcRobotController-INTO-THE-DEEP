@@ -48,10 +48,10 @@ public class CameraConfig {
 
     // Apriltag settings
 
-    public static double fx = 501.97;
-    public static double fy = 501.97;
-    public static double cx = 339.442;
-    public static double cy = 158.552;
+    public static double fx = cameraMatrix[0]; // 501.97
+    public static double fy = cameraMatrix[4]; // 501.97
+    public static double cx = cameraMatrix[2]; // 339.442
+    public static double cy = cameraMatrix[5]; // 158.552
 
     public static double yaw = 0;
     public static double pitch = -90;
