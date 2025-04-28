@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.skeletonarmy.marrow.autonomous.AutoOpMode;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
-import com.skeletonarmy.marrow.fsm.State;
+import com.skeletonarmy.marrow.autonomous.State;
 import com.skeletonarmy.marrow.prompts.OptionPrompt;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -123,13 +123,8 @@ public class AutoApplication extends AutoOpMode {
 
     // -------------- States --------------
 
-    @State(requiredTime = 2)
+    @State(requiredTime = 2, timeoutState = "park")
     private void hangSpecimen() {
-        if (!isEnoughTime()) {
-            transition(this::park);
-            return;
-        }
-
         hangedSpecimens++;
 
         int angleCompensation = (hangedSpecimens - 1) * -4;
@@ -157,13 +152,8 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    @State(requiredTime = 2)
+    @State(requiredTime = 2, timeoutState = "park")
     private void collectSpecimen() {
-        if (!isEnoughTime()) {
-            transition(this::park);
-            return;
-        }
-
         int angleCompensation = (hangedSpecimens - 1) * -4;
 
         if (hangedSpecimens > 1) {
@@ -384,6 +374,7 @@ public class AutoApplication extends AutoOpMode {
         transition(this::collectSpecimen);
     }
 
+    @State
     private void collectYellowSample() {
         collectedSamples++;
 
@@ -443,13 +434,8 @@ public class AutoApplication extends AutoOpMode {
         transition(this::putInBasket);
     }
 
-    @State(requiredTime = 2)
+    @State(requiredTime = 2, timeoutState = "park")
     private void putInBasket() {
-        if (!isEnoughTime()) {
-            transition(this::park);
-            return;
-        }
-
         Action grab = new SequentialAction(
                 intake.closeClaw(),
                 new SleepAction(0.1)
@@ -562,13 +548,8 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    @State(requiredTime = 4.5)
+    @State(requiredTime = 4.5, timeoutState = "park")
     private void sampleFromSubmersible() {
-        if (!isEnoughTime()) {
-            transition(this::park);
-            return;
-        }
-
         collectedSamples++;
 
         Action extendSequence = new SequentialAction(
