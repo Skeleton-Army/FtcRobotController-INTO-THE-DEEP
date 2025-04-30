@@ -29,12 +29,11 @@
 
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
@@ -88,6 +87,7 @@ public class TuneExposureCamera extends LinearOpMode
     boolean thisGainDn = false;
     boolean thisFocusUp = false;
     boolean thisFocusDn = false;
+    boolean thisCalibratingButton = false;
 
     boolean lastExpUp = false;
     boolean lastExpDn = false;
@@ -96,6 +96,7 @@ public class TuneExposureCamera extends LinearOpMode
     boolean lastFocusUp = false;
     boolean lastFocusDn = false;
 
+    boolean isApriltag = false;
     @Override public void runOpMode()
     {
         // Initialize the Apriltag Detection process
@@ -123,15 +124,18 @@ public class TuneExposureCamera extends LinearOpMode
             // Display how many Tags Detected
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
             int numTags = currentDetections.size();
-            if (numTags > 0 )
+            if (numTags > 0 ) {
                 telemetry.addData("Tag", "####### %d Detected  ######", currentDetections.size());
-            else
+                isApriltag = true;
+            }
+            else {
                 telemetry.addData("Tag", "----------- none - ----------");
+                isApriltag = false;
+            }
 
             telemetry.addData("Exposure","%d  (%d - %d)", myExposure, minExposure, maxExposure);
             telemetry.addData("Gain","%d  (%d - %d)", myGain, minGain, maxGain);
             telemetry.addData("Focus","%d  (%d - %d)", (int)myFocus, (int)minFocus, (int)maxFocus);
-            telemetry.update();
 
             // check to see if we need to change exposure or gain.
             thisExpUp = gamepad1.left_bumper;
@@ -141,6 +145,9 @@ public class TuneExposureCamera extends LinearOpMode
 
             thisFocusUp = gamepad1.dpad_up;
             thisFocusDn = gamepad1.dpad_down;
+
+            if(gamepad1.a && !thisCalibratingButton)
+                thisCalibratingButton = true;
 
             // look for clicks to change exposure
             if (thisExpUp && !lastExpUp) {
@@ -162,12 +169,24 @@ public class TuneExposureCamera extends LinearOpMode
 
             // look for clicks to change the gain
             if (thisFocusUp && !lastFocusUp) {
-                myFocus = Range.clip(myFocus + 0.5 , minFocus, maxFocus );
+                myFocus = Range.clip(myFocus + 1 , minFocus, maxFocus );
                 setManualExposure(myExposure, myGain, myFocus );
             } else if (thisFocusDn && !lastFocusDn) {
-                myFocus = Range.clip(myFocus - 0.5 , minFocus, maxFocus );
+                myFocus = Range.clip(myFocus - 1 , minFocus, maxFocus );
                 setManualExposure(myExposure, myGain, myFocus);
             }
+
+            if(thisCalibratingButton) {
+                if (!calibrateExposure(isApriltag, telemetry)) {
+                    telemetry.addData("status", "calibrating camera...");
+                    telemetry.addData("note", "make sure the apriltag is visible throughout calibration!");
+                }
+                else {
+                    thisCalibratingButton = false;
+                }
+            }
+
+
 
             lastExpUp = thisExpUp;
             lastExpDn = thisExpDn;
@@ -177,6 +196,7 @@ public class TuneExposureCamera extends LinearOpMode
             lastFocusDn = thisFocusDn;
 
             sleep(20);
+            telemetry.update();
         }
     }
 
@@ -204,7 +224,7 @@ public class TuneExposureCamera extends LinearOpMode
         Can only be called AFTER calling initAprilTag();
         Returns true if controls are set.
      */
-    private boolean    setManualExposure(int exposureMS, int gain, double focus) {
+    private boolean  setManualExposure(int exposureMS, int gain, double focus) {
         // Ensure Vision Portal has been setup.
         if (visionPortal == null) {
             return false;
@@ -252,6 +272,34 @@ public class TuneExposureCamera extends LinearOpMode
         } else {
             return (false);
         }
+    }
+
+    // finds the lowest exposure that still detects the apriltag (in order to remove the motion blur)
+    private boolean calibrateExposure(boolean detectsApriltag, Telemetry telemetry) {
+        ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+        if (!isStopRequested() && (exposureControl.getMode() != ExposureControl.Mode.Manual)) {
+            exposureControl.setMode(ExposureControl.Mode.Manual);
+            sleep(50);
+        }
+
+        if (detectsApriltag) {
+            myExposure = Range.clip(myExposure - 1, minExposure, maxExposure);
+            exposureControl.setExposure(myExposure, TimeUnit.MILLISECONDS);
+            sleep(20);
+
+            telemetry.addData("status", "Calibrating exposure...");
+            telemetry.addData("NOTE", "make sure to keep the apriltag in sight!");
+
+            sleep(600);
+
+            return false;
+        }
+
+        myExposure = Range.clip(myExposure + 1, minExposure, maxExposure); // should be the lowest exposure
+        exposureControl.setExposure(myExposure, TimeUnit.MILLISECONDS);
+
+        return true;
+
     }
 
     /*
