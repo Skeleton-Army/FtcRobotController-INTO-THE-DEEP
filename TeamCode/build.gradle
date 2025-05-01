@@ -64,7 +64,7 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
     implementation "com.github.mwiede:jsch:0.2.25"
-
+    implementation "commons-net:commons-net:3.6"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'
 }
