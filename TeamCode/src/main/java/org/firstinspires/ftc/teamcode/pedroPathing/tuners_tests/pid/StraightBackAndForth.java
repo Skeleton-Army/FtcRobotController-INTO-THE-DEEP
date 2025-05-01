@@ -12,9 +12,12 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 /**
  * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
@@ -43,12 +46,15 @@ public class StraightBackAndForth extends OpMode {
     private Path forwards;
     private Path backwards;
 
+    private DcMotorEx intake;
+
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
      * initializes the FTC Dashboard telemetry.
      */
     @Override
     public void init() {
+        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
         forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));
@@ -59,6 +65,11 @@ public class StraightBackAndForth extends OpMode {
         follower.followPath(forwards);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        intake = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
+        intake.setTargetPosition(0);
+        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
                             + " inches forward. The robot will go forward and backward continuously"
                             + " along the path. Make sure you have enough room.");
@@ -71,7 +82,10 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void loop() {
+        intake.setTargetPosition(0);
+
         follower.update();
+
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;

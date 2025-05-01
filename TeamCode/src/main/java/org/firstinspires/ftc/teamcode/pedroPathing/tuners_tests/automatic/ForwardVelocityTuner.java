@@ -9,9 +9,12 @@ import static com.pedropathing.follower.FollowerConstants.leftRearMotorDirection
 import static com.pedropathing.follower.FollowerConstants.rightFrontMotorDirection;
 import static com.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
 
+import android.content.ContentQueryMap;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -71,6 +74,8 @@ public class ForwardVelocityTuner extends OpMode {
      */
     @Override
     public void init() {
+        Constants.setConstants(FConstants.class, LConstants.class);
+
         poseUpdater = new PoseUpdater(hardwareMap, FConstants.class, LConstants.class);
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
