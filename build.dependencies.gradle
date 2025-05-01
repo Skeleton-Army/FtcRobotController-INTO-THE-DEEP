@@ -1,7 +1,6 @@
 repositories {
     mavenCentral()
     maven { url = 'https://maven.brott.dev/' }
-    maven { url = 'https://maven.pedropathing.com/' }
     maven {
         url "https://repo.dairy.foundation/releases"
     }
@@ -22,7 +21,4 @@ dependencies {
     implementation 'org.ftclib.ftclib:vision:2.1.0' // vision
     implementation 'org.ftclib.ftclib:core:2.1.1' // core
     implementation 'org.ftclib.ftclib:core:2.1.1'
-    implementation("com.pedropathing:pedro:1.0.9") {
-        exclude group: "com.acmerobotics.dashboard"
-    }
 }

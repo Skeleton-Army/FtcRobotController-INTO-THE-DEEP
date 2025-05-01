@@ -6,12 +6,12 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class LConstants {
     static {
-        ThreeWheelIMUConstants.forwardTicksToInches = .001989436789;
-        ThreeWheelIMUConstants.strafeTicksToInches = .001989436789;
-        ThreeWheelIMUConstants.turnTicksToInches = .001989436789;
-        ThreeWheelIMUConstants.leftY = 4;
-        ThreeWheelIMUConstants.rightY = -4;
-        ThreeWheelIMUConstants.strafeX = -6.5;
+        ThreeWheelIMUConstants.forwardTicksToInches = 0.0029;
+        ThreeWheelIMUConstants.strafeTicksToInches = 0.003;
+        ThreeWheelIMUConstants.turnTicksToInches = 0.002;
+        ThreeWheelIMUConstants.leftY = 4.25;
+        ThreeWheelIMUConstants.rightY = -4.25;
+        ThreeWheelIMUConstants.strafeX = -6.9;
         ThreeWheelIMUConstants.leftEncoder_HardwareMapName = "leftFront";
         ThreeWheelIMUConstants.rightEncoder_HardwareMapName = "rightBack";
         ThreeWheelIMUConstants.strafeEncoder_HardwareMapName = "rightFront";
