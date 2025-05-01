@@ -1,12 +1,5 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
-
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.motorName;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -20,7 +13,12 @@ import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 @TeleOp(name = "PIDF test", group = "test")
 @Config
 public class PIDFTest extends OpMode {
+    public static String motorName = "";
     public static int target = 0;
+    public static double p = 0;
+    public static double i = 0;
+    public static double d = 0;
+    public static double f = 0;
 
     private PIDController controller;
 
@@ -41,10 +39,12 @@ public class PIDFTest extends OpMode {
         int pos = motor.getCurrentPosition();
         double pid = controller.calculate(pos, target);
 
-        int diffFromTop = SpecimenArmConfig.topPos - pos;
-        double ff = diffFromTop * f;
+//        int diffFromTop = SpecimenArmConfig.topPos - pos;
+//        double ff = diffFromTop * f;
 
-        double power = pid + ff;
+//        double power = pid + ff;
+
+        double power = pid + f;
 
         motor.setPower(power);
 

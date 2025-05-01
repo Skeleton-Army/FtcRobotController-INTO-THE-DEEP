@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -93,6 +94,8 @@ public abstract class AutoOpMode extends LinearOpMode {
     private void internalInit() {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
         setPrompts();

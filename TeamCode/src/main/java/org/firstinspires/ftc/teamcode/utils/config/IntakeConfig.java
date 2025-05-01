@@ -17,12 +17,12 @@ public class IntakeConfig {
     public static int velocityThreshold = 500;
     public static double startThreshold = 0.5;
 
-    public static double clawClosed = 0.42;
-    public static double clawOpen = 0.25;
+    public static double clawClosed = 0.61;
+    public static double clawOpen = 0.45;
     public static double extraOpenClaw = 0;
 
-    public static double wristExtend = 0.87;
-    public static double wristRetract = 0.3;
+    public static double wristExtend = 0.88;
+    public static double wristRetract = 0.35;
     public static double wristMiddle = 0.6;
     public static double wristReady = 0.7;
 
