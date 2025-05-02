@@ -4,9 +4,9 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class FtpConfig {
-    public static String Server;
+    public static String Server = "192.168.x.x";
     public static int ServerPort = 21;
-    public static String User;
-    public static String Password;
+    public static String User = "Enter User Name";
+    public static String Password = "Enter Password";
 
 }

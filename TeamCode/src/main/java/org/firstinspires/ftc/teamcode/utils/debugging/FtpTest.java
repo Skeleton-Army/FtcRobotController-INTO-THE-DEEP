@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-
+@TeleOp(name = "FtpTest", group = "DataLogging")
 public class FtpTest extends LinearOpMode {
     void CreateTestFile(){
         File TestFile = new File("/sdcard/FIRST/datalogs/test.txt");
