@@ -49,9 +49,9 @@ public class PickupSample implements Action {
 
         grabSequence = new SequentialAction(
                 intake.extendWrist(),
-                new SleepAction(0.2),
+                new SleepAction(0.4),
                 intake.closeClaw(),
-                new SleepAction(0.1)
+                new SleepAction(0.2)
 //                intake.retractWrist()
 //                new SleepAction(0.1)
         );

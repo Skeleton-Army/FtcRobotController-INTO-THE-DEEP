@@ -174,7 +174,7 @@ public class TeleopApplication extends TeleopOpMode {
         }
         drive.updatePoseEstimate();
 
-        if (Utilities.isPressed(gamepad1.a)) { // running the alignToSample sequence
+        if (Utilities.isPressed(gamepad1.a) && bestSample != null) { // running the alignToSample sequence
             runAction("driver sequence",actionsDrive.alignToSample(bestSample));
         }
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
