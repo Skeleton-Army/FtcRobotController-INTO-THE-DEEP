@@ -17,7 +17,7 @@ public class IntakeConfig {
     public static int velocityThreshold = 500;
     public static double startThreshold = 0.5;
 
-    public static double clawClosed = 0.61;
+    public static double clawClosed = 0.628;
     public static double clawOpen = 0.45;
     public static double extraOpenClaw = 0;
 
