@@ -4,16 +4,12 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.opModes.AutoApplication;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
@@ -37,7 +33,6 @@ public abstract class AutoOpMode extends LinearOpMode {
     private Enum<?> currentState = null;
 
     protected ChoiceMenu choiceMenu;
-    protected MecanumDrive drive;
 
     protected ElapsedTime runtime = new ElapsedTime();
 
@@ -135,9 +130,7 @@ public abstract class AutoOpMode extends LinearOpMode {
         telemetry.update();
     }
 
-    private void internalStop() {
-        PoseStorage.currentPose = new Pose(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble());
-    }
+    private void internalStop() {}
 
     /**
      * Run all queued actions.

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
@@ -12,15 +11,15 @@ public class Sample {
     public Point lowest; // The lowest detected point of the sample in the image
 
     public Point center;
-    private final Pose2d detectionPose; // The pose where the sample was detected
+    private final Pose detectionPose; // The pose where the sample was detected
     private double sampleX, sampleY, horizontalAngle, quality;
     private double centerX, centerY;
     public double orientation;
-    private Pose2d fieldPos; // Field-relative position of the sample
+    private Pose fieldPos; // Field-relative position of the sample
     public double widthInches;
     public double heightInches;
 
-    public Sample(Point lowest, Point center, RotatedRect rect, Pose2d detectionPose) {
+    public Sample(Point lowest, Point center, RotatedRect rect, Pose detectionPose) {
         this.lowest = lowest;
         this.center = center;
         this.detectionPose = detectionPose;
@@ -53,11 +52,11 @@ public class Sample {
         return quality;
     }
 
-    public Pose2d getSamplePosition() {
+    public Pose getSamplePosition() {
         return fieldPos;
     }
 
-    private Vector2d pixelToWorld(double x, double y, double height) {
+    private Pose pixelToWorld(double x, double y, double height) {
 //        double horizontal = Math.toRadians((CameraConfig.halfImageWidth - x) * CameraConfig.hOverWidth() + CameraConfig.offsetHorizontal);
 //        double worldY = height / Math.tan(Math.toRadians((y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
 //        double worldX = Math.tan(horizontal) * worldY;
@@ -90,23 +89,23 @@ public class Sample {
         double groundX = -t * dX;
         double groundZ = t * dZ;
 
-        return new Vector2d(groundX, groundZ);
+        return new Pose(groundX, groundZ);
     }
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition(RotatedRect rect) {
-        Vector2d lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
+        Pose lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
 
-        sampleY = lowestPos.y;
-        sampleX = lowestPos.x;
+        sampleY = lowestPos.getY();
+        sampleX = lowestPos.getX();
 
         double angle = Math.toRadians(90 - rect.angle);
-        Vector2d second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CameraConfig.z);
-        orientation = Math.toDegrees(Math.atan((lowestPos.y - second.y) / (lowestPos.x - second.x)));
+        Pose second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CameraConfig.z);
+        orientation = Math.toDegrees(Math.atan((lowestPos.getY() - second.getY()) / (lowestPos.getX() - second.getX())));
 
-        Vector2d centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 0.75);
-        centerY = centerPos.y;
-        centerX = centerPos.x;
+        Pose centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 0.75);
+        centerY = centerPos.getY();
+        centerX = centerPos.getX();
 
         // Adjust positions based on camera offsets
         sampleY += CameraConfig.offsetY;
@@ -126,9 +125,9 @@ public class Sample {
 
     // Calculates the sample position relative to the field
     public void calculateField() {
-        double x = detectionPose.position.x + centerY * Math.cos(detectionPose.heading.toDouble()) - centerX * Math.sin(detectionPose.heading.toDouble());
-        double y = detectionPose.position.y + centerY * Math.sin(detectionPose.heading.toDouble()) + centerX * Math.cos(detectionPose.heading.toDouble());
-        fieldPos = new Pose2d(new Vector2d(x, y), orientation);
+        double x = detectionPose.getX() + centerY * Math.cos(detectionPose.getHeading()) - centerX * Math.sin(detectionPose.getHeading());
+        double y = detectionPose.getY() + centerY * Math.sin(detectionPose.getHeading()) + centerX * Math.cos(detectionPose.getHeading());
+        fieldPos = new Pose(x, y, orientation);
     }
 
     public boolean isTooBig() {

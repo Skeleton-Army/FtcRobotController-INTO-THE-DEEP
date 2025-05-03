@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -30,20 +29,20 @@ public class WebcamCV {
     List<Sample> samples = new ArrayList<>();
     HardwareMap hardwareMap;
     Telemetry telemetry;
-    MecanumDrive drive;
+    Follower follower;
 
-    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive) {
+    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, Follower follower) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
-        this.drive = drive;
+        this.follower = follower;
     }
 
     /**
      * Computes the distance between a sample and a given position.
      */
-    private double distanceFromPosition(Sample currSample, Vector2d pos) {
-        Vector2d samplePos = currSample.getSamplePosition().position;
-        return Math.sqrt(Math.pow(samplePos.x - pos.x, 2) + Math.pow(samplePos.y - pos.y, 2));
+    private double distanceFromPosition(Sample currSample, Pose pos) {
+        Pose samplePos = currSample.getSamplePosition();
+        return Math.sqrt(Math.pow(samplePos.getX() - pos.getX(), 2) + Math.pow(samplePos.getY() - pos.getY(), 2));
     }
 
     /**
@@ -51,7 +50,7 @@ public class WebcamCV {
      * @param pos The reference position.
      * @return Pose2d of the closest sample.
      */
-    public Pose2d getBestSamplePos(Vector2d pos) {
+    public Pose getBestSamplePos(Pose pos) {
         return getBestSample(pos).getSamplePosition();
     }
 
@@ -60,7 +59,7 @@ public class WebcamCV {
      * @param pos The reference position.
      * @return The closest sample.
      */
-    public Sample getBestSample(Vector2d pos) {
+    public Sample getBestSample(Pose pos) {
         // searching for the min value of distance
         if (samples.isEmpty()) return null;
 
@@ -75,14 +74,14 @@ public class WebcamCV {
         return closest;
     }
 
-    public Sample getBestSampleInRange(Vector2d pos, Vector2d lower, Vector2d upper) {
+    public Sample getBestSampleInRange(Pose pos, Pose lower, Pose upper) {
         if (samples.isEmpty()) return null;
 
         Sample closest = null;
         double minDistance = Double.MAX_VALUE;
 
         for (Sample currSample : samples) {
-            Vector2d samplePos = currSample.getSamplePosition().position;
+            Pose samplePos = currSample.getSamplePosition();
 
             // Ensure sample is within the allowed range
             if (!isLegal(samplePos, lower, upper)) continue;
@@ -99,8 +98,8 @@ public class WebcamCV {
     }
 
     // checking if the sample is between the boundaries that we can collect
-    private boolean isLegal(Vector2d samplePos, Vector2d lower, Vector2d upper) {
-        return samplePos.x > lower.x && samplePos.x < upper.x && samplePos.y > lower.y && samplePos.y < upper.y;
+    private boolean isLegal(Pose samplePos, Pose lower, Pose upper) {
+        return samplePos.getX() > lower.getX() && samplePos.getX() < upper.getX() && samplePos.getY() > lower.getY() && samplePos.getY() < upper.getY();
     }
 
     /**
@@ -128,9 +127,9 @@ public class WebcamCV {
         FtcDashboard.getInstance().startCameraStream(webcam, 10);
 
         if (colors.length == 2)
-            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
+            detectSamples = new DetectSamples(telemetry, webcam, follower, colors[0], colors[1]);
         else
-            detectSamples = new DetectSamples(telemetry, webcam, drive, colors[0]);
+            detectSamples = new DetectSamples(telemetry, webcam, follower, colors[0]);
 
         webcam.setPipeline(detectSamples);
 

@@ -1,33 +1,31 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
+import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
 @Autonomous
 public class PickupSample extends TeleopOpMode {
-    MecanumDrive drive;
+    Follower follower;
 
     Intake intake;
     Outtake outtake;
@@ -43,26 +41,29 @@ public class PickupSample extends TeleopOpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower.setStartingPose(new Pose(0, 0, 0));
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
 
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, SampleColor.RED});
 
-        driveActions = new Drive(drive, camCV, telemetry);
+        driveActions = new Drive(follower, camCV, telemetry);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 
     @Override
     public void init_loop() {
         if (camCV.lookForSamples()) {
-            targetSample = camCV.getBestSample(new Vector2d(30,0));
-            Pose2d targetSamplePos = targetSample.getSamplePosition();
+            targetSample = camCV.getBestSample(new Pose(30,0));
+            Pose targetSamplePos = targetSample.getSamplePosition();
 
             telemetry.addLine("Detected samples");
-            telemetry.addData("X: ", "" + targetSamplePos.position.x);
-            telemetry.addData("Y: ", "" + targetSamplePos.position.y);
+            telemetry.addData("X: ", "" + targetSamplePos.getX());
+            telemetry.addData("Y: ", "" + targetSamplePos.getY());
             telemetry.addData("sample center x: ", targetSample.center.x);
             telemetry.addData("sample center y: ", targetSample.center.y);
         }
@@ -74,7 +75,7 @@ public class PickupSample extends TeleopOpMode {
     @Override
     public void start() {
         Actions.runBlocking(
-                driveActions.alignToSample(targetSample.getSamplePosition().position)
+                driveActions.alignToSample(targetSample.getSamplePosition())
         );
 
         double orientation = -Drive.targetSampleStatic.orientation;
@@ -120,9 +121,11 @@ public class PickupSample extends TeleopOpMode {
         );
 
         Actions.runBlocking(
-                drive.actionBuilder(drive.pose)
-                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(180))
-                        .build()
+                new FollowPath(follower,
+                        follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), new Pose(0, 0, 0)))
+                                .build()
+                )
         );
 
         requestOpModeStop();

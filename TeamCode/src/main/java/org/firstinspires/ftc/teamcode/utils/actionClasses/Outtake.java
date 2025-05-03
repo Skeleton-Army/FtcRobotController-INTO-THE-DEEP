@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.actions.ServoToPosition;
-import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;

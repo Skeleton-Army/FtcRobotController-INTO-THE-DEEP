@@ -4,37 +4,43 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 
 public class AlignToSample implements Action {
-    MecanumDrive drive;
-    Vector2d targetSamplePos;
-    public AlignToSample(MecanumDrive drive, Vector2d targetSamplePos) {
-        this.drive = drive;
+    Follower follower;
+    Pose targetSamplePos;
+
+    public AlignToSample(Follower follower, Pose targetSamplePos) {
+        this.follower = follower;
         this.targetSamplePos = targetSamplePos;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
-            double heading = drive.pose.heading.toDouble();
-            Vector2d offset = new Vector2d(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
+            double heading = follower.getPose().getHeading();
+
+            Pose offset = new Pose(CameraConfig.pickupSampleOffsetY* Math.cos(heading) -
                     CameraConfig.pickupSampleOffsetX * Math.sin(heading),
                  CameraConfig.pickupSampleOffsetY * Math.sin(heading) +
                     CameraConfig.pickupSampleOffsetX * Math.cos(heading));
-            targetSamplePos = targetSamplePos.minus(offset);
+
+            targetSamplePos.subtract(offset);
 
             telemetryPacket.addLine(targetSamplePos.toString());
 
             Actions.runBlocking(
-                    drive.actionBuilder(new Pose2d(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble()))
-                            .splineToConstantHeading(targetSamplePos, heading)
-                            .build()
+                    new FollowPath(follower,
+                            follower.pathBuilder()
+                                    .addPath(new BezierLine(follower.getPose(), targetSamplePos))
+                                    .setConstantHeadingInterpolation(heading)
+                                    .build()
+                    )
             );
         }
 

@@ -1,25 +1,24 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
@@ -28,8 +27,6 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 enum Alliance {
     RED,
@@ -71,6 +68,8 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
+    Follower follower;
+
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
@@ -81,7 +80,7 @@ public class AutoApplication extends AutoOpMode {
     Strategy strategy;
     int extraSpecimens;
 
-    Pose2d startPose;
+    Pose startPose;
     WebcamCV camCV;
 
     DigitalChannel outtakeSwitch;
@@ -90,6 +89,31 @@ public class AutoApplication extends AutoOpMode {
     int hangedSpecimens = 0;
 
     boolean didCollectSamples = false;
+
+    private final Pose basketPose = new Pose(128.00, 16.00, Math.toRadians(135.00));
+    private final Pose preloadCP = new Pose(125.28, 26.85);
+    private final Pose submersibleCP1 = new Pose(83.52, 21.48);
+    private final Pose submersibleCP2 = new Pose(107.95, 36.04);
+
+    private final Pose toSubmersiblePose = new Pose(77.00, 40.00, Math.toRadians(90.00));
+    private final Pose toSubmersibleCP = new Pose(91.66, 20.62);
+
+    private final Pose submersibleParkPose = new Pose(81.00, 45.00, Math.toRadians(90.00));
+    private final Pose observationParkPose = new Pose(134.50, 122.00, Math.toRadians(-120.00));
+
+    private final Pose yellowSample1Pose = new Pose(124.25, 20.00, Math.toRadians(170.00));
+    private final Pose yellowSample2Pose = new Pose(123.25, 14.75, Math.toRadians(180.00));
+    private final Pose yellowSample3Pose = new Pose(120.25, 16.50, Math.toRadians(-150.00));
+
+    private final Pose colorSample1Pose = new Pose(114.00, 120.50, Math.toRadians(180.00));
+    private final Pose colorSample2Pose = new Pose(112.50, 130.00, Math.toRadians(180.00));
+    private final Pose colorSample3Pose = new Pose(113.50, 128.00, Math.toRadians(150.00));
+    private final Pose colorSample3DropPose = new Pose(111.00, 129.50, Math.toRadians(180.00));
+
+    private final Pose hangSpecimenPose = new Pose(104.50, 72.00, Math.toRadians(180.00));
+    private final Pose hangSpecimenCP = new Pose(133.77, 71.91);
+
+    private final Pose collectSpecimenPose = new Pose(135.20, 99.00, Math.toRadians(180.00));
 
     @Override
     public void setPrompts() {
@@ -116,19 +140,12 @@ public class AutoApplication extends AutoOpMode {
 
         switch (strategy) {
             case SPECIMENS:
-                startPose = new Pose2d(0, -62.5, Math.toRadians(90.00));
+                startPose = new Pose(134.50, 72.00, Math.toRadians(-180.00));
                 break;
             case BASKET:
-                startPose = new Pose2d(-39, -62.5, Math.toRadians(0));
+                startPose = new Pose(134.50, 33.00, Math.toRadians(90.00));
                 break;
         }
-
-//        runAsync(
-//                new SequentialAction(
-//                        new SleepAction(3),
-//                        new InstantAction(() -> camCV.stopStream())
-//                )
-//        );
     }
 
     @Override
@@ -158,7 +175,8 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void onInit() {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
@@ -174,13 +192,13 @@ public class AutoApplication extends AutoOpMode {
     @Override
     public void onStart() {
         // Set starting position
-        drive.pose = startPose;
+        follower.setStartingPose(startPose);
 
         // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
-        driveActions = new Drive(drive, camCV, telemetry);
+        driveActions = new Drive(follower, camCV, telemetry);
 
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
@@ -196,19 +214,17 @@ public class AutoApplication extends AutoOpMode {
 
         hangedSpecimens++;
 
-        int angleCompensation = (hangedSpecimens - 1) * -4;
-
         runBlocking(
                 new ParallelAction(
                         specimenArm.grabClose(),
                         specimenArm.gripToOuttake(),
                         specimenArm.goToOuttake(),
 
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x, -37, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-1000000, hangedSpecimens == 1 ? 60 : 150))
-                                .splineToLinearHeading(new Pose2d(startPose.position.x,  hangedSpecimens == 5 ? -30 : -32.5, Math.toRadians(95 + angleCompensation)), Math.PI / 2, null, new ProfileAccelConstraint(-60, hangedSpecimens == 1 ? 60 : 150))
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierCurve(follower.getPose(), hangSpecimenCP, hangSpecimenPose))
+                                .setConstantHeadingInterpolation(hangSpecimenPose.getHeading())
                                 .build()
+                        )
                 )
         );
 
@@ -227,8 +243,6 @@ public class AutoApplication extends AutoOpMode {
             return;
         }
 
-        int angleCompensation = (hangedSpecimens - 1) * -4;
-
         if (hangedSpecimens > 1) {
             runBlocking(
                     new ParallelAction(
@@ -240,13 +254,15 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 new ParallelAction(
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(hangedSpecimens == 1 ? 180 : 270))
-                                .splineToLinearHeading(new Pose2d(27, -63.2, Math.toRadians(95 + angleCompensation)), Math.toRadians(270), null, new ProfileAccelConstraint(-60, 150))
-                                .build(),
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), collectSpecimenPose))
+                                .setConstantHeadingInterpolation(collectSpecimenPose.getHeading())
+                                .build()
+                        ),
+
                         new SequentialAction(
                                 specimenArm.grabOpen(),
-                                new SleepUntilAction(() -> drive.pose.position.y < -45),
+                                new SleepUntilAction(() -> follower.getPose().getX() > 117),
                                 specimenArm.gripToIntake(),
                                 specimenArm.goToIntake()
                         )
@@ -269,7 +285,7 @@ public class AutoApplication extends AutoOpMode {
         runAsync(
                 new SequentialAction(
                         specimenArm.grabOpen(),
-                        new SleepUntilAction(() -> drive.pose.position.y < -50),
+                        new SleepUntilAction(() -> follower.getPose().getX() > 122),
                         specimenArm.gripToIntake(),
                         specimenArm.goToIntake()
                 )
@@ -278,7 +294,7 @@ public class AutoApplication extends AutoOpMode {
         // Grab first sample
         runAsync(
                 new SequentialAction(
-                        new SleepUntilAction(() -> drive.pose.position.y < -42),
+                        new SleepUntilAction(() -> follower.getPose().getX() > 114),
                         intake.wristReady(),
                         intake.extend(0.52)
                 )
@@ -286,10 +302,12 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 new SequentialAction(
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(270))
-                                .splineToLinearHeading(new Pose2d(48.5, -42, Math.toRadians(95)), 0, null, new ProfileAccelConstraint(-25, 100))
-                                .build(),
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), colorSample1Pose))
+                                .setConstantHeadingInterpolation(colorSample1Pose.getHeading())
+                                .build()
+                        ),
+
                         new SequentialAction(
                                 intake.openClaw(),
                                 intake.extendWrist(),
@@ -316,10 +334,11 @@ public class AutoApplication extends AutoOpMode {
                                 new SleepAction(0.2)
                         ),
 
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(0)
-                                .splineToConstantHeading(new Vector2d(58, -40.5), 0)
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), colorSample2Pose))
+                                .setConstantHeadingInterpolation(colorSample2Pose.getHeading())
                                 .build()
+                        )
                 )
         );
 
@@ -384,10 +403,11 @@ public class AutoApplication extends AutoOpMode {
                                 outtake.hold(),
                                 outtake.retract(),
 
-                                drive.actionBuilder(drive.pose)
-                                        .setTangent(0)
-                                        .splineToLinearHeading(new Pose2d(56, -41.5, Math.toRadians(60)), 0)
-                                        .build(),
+                                new FollowPath(follower, follower.pathBuilder()
+                                        .addPath(new BezierLine(follower.getPose(), colorSample3Pose))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), colorSample3Pose.getHeading())
+                                        .build()
+                                ),
 
                                 // Grab sample
                                 new SequentialAction(
@@ -405,9 +425,11 @@ public class AutoApplication extends AutoOpMode {
                         ),
 
                         new ParallelAction(
-                                drive.actionBuilder(drive.pose)
-                                        .splineToLinearHeading(new Pose2d(57.5, -39, Math.toRadians(95)), 0)
-                                        .build(),
+                                new FollowPath(follower, follower.pathBuilder()
+                                        .addPath(new BezierLine(follower.getPose(), colorSample3DropPose))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), colorSample3DropPose.getHeading())
+                                        .build()
+                                ),
 
                                 // Put in basket
                                 intake.retractWrist(),
@@ -462,10 +484,12 @@ public class AutoApplication extends AutoOpMode {
                 // Collect first sample
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(3.5, wristSequence)
-                                        .splineToLinearHeading(new Pose2d(-52, -52.25, Math.toRadians(80)), Math.PI)
+                                new FollowPath(follower, follower.pathBuilder()
+                                        .addPath(new BezierLine(follower.getPose(), yellowSample1Pose))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample1Pose.getHeading())
                                         .build()
+                                ),
+                                wristSequence
                         )
                 );
                 break;
@@ -473,10 +497,12 @@ public class AutoApplication extends AutoOpMode {
                 // Collect second sample
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(6, wristSequence)
-                                        .splineToLinearHeading(new Pose2d(-57.25, -51.25, Math.toRadians(90)), Math.PI)
+                                new FollowPath(follower, follower.pathBuilder()
+                                        .addPath(new BezierLine(follower.getPose(), yellowSample2Pose))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample2Pose.getHeading())
                                         .build()
+                                ),
+                                wristSequence
                         )
                 );
                 break;
@@ -488,15 +514,16 @@ public class AutoApplication extends AutoOpMode {
 
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(8, new SequentialAction(
-                                                intake.extraOpenClaw(),
-                                                wristSequence,
-                                                new SleepAction(0.15),
-                                                intake.closeClaw()
-                                        ))
-                                        .splineToLinearHeading(new Pose2d(-55.5, -48.25, Math.toRadians(120)), Math.PI)
+                                new FollowPath(follower, follower.pathBuilder()
+                                        .addPath(new BezierLine(follower.getPose(), yellowSample3Pose))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample3Pose.getHeading())
                                         .build()
+                                ),
+
+                                intake.extraOpenClaw(),
+                                wristSequence,
+                                new SleepAction(0.15),
+                                intake.closeClaw()
                         )
                 );
                 break;
@@ -550,28 +577,23 @@ public class AutoApplication extends AutoOpMode {
         if (collectedSamples == 0) {
             runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose)
-                                    .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
-                                    .build(),
+                            new FollowPath(follower, follower.pathBuilder()
+                                    .addPath(new BezierCurve(follower.getPose(), preloadCP, basketPose))
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), basketPose.getHeading())
+                                    .build()
+                            ),
                             dunkSequence
                     )
             );
         }
         else if (collectedSamples >= 4) {
-            double xCompensation = collectedSamples >= 6 ? 1.5 : 0;
-            double yCompensation = collectedSamples >= 6 ? 1.5 : 0;
-            double angleCompensation = 0;
-
-            if (collectedSamples == 6) angleCompensation = 5;
-            if (collectedSamples == 7) angleCompensation = 10;
-
             runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose)
-                                    .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-51 + xCompensation, -54 - yCompensation, Math.toRadians(45 + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
-                                    .build(),
+                            new FollowPath(follower, follower.pathBuilder()
+                                    .addPath(new BezierCurve(follower.getPose(), submersibleCP1, submersibleCP2, basketPose))
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), basketPose.getHeading())
+                                    .build()
+                            ),
                             new SequentialAction(
                                     intakeRetract,
                                     dunkSequence
@@ -586,9 +608,11 @@ public class AutoApplication extends AutoOpMode {
             // Retract and go to basket
             runBlocking(
                     new ParallelAction(
-                            drive.actionBuilder(drive.pose)
-                                    .splineToLinearHeading(new Pose2d(-56, -56, Math.toRadians(45)), Math.toRadians(225))
-                                    .build(),
+                            new FollowPath(follower, follower.pathBuilder()
+                                    .addPath(new BezierLine(follower.getPose(), basketPose))
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), basketPose.getHeading())
+                                    .build()
+                            ),
                             new SequentialAction(
                                     intakeRetract,
                                     dunkSequence
@@ -616,11 +640,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        if (collectedSamples < 6) {
-            addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
-        } else {
-            addTransition(State.PARK);
-        }
+        addConditionalTransition(collectedSamples < 3, State.COLLECT_YELLOW_SAMPLE, State.COLLECT_ADDITIONAL_SAMPLE);
     }
 
     private void sampleFromSubmersible() {
@@ -653,22 +673,20 @@ public class AutoApplication extends AutoOpMode {
 //                new SleepAction(0.1)
         );
 
-//        if (collectedSamples == 5) camCV.startStream();
-
-        double xCompensation = collectedSamples >= 6 ? 2 : 0;
-
         runBlocking(
-                drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(-32 - xCompensation, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                new FollowPath(follower, follower.pathBuilder()
+                        .addPath(new BezierCurve(follower.getPose(), toSubmersibleCP, toSubmersiblePose))
+                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), toSubmersiblePose.getHeading())
                         .build()
+                )
         );
 
         runBlocking(
                 new SleepAction(0.4)
         );
 
-        Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 8);
+        Pose lower = new Pose(82.00, 64.00);
+        Pose upper = new Pose(64.00, 77.00);
 
         camCV.resetSampleList();
 
@@ -679,24 +697,15 @@ public class AutoApplication extends AutoOpMode {
                 new SleepUntilAction(() -> camCV.lookForSamples())
         );
 
-        Vector2d bestSamplePos = new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX);
+        Pose bestSamplePos = new Pose(follower.getPose().getX() - CameraConfig.pickupSampleOffsetX, 69);
 
         Sample targetSample = camCV.getBestSampleInRange(bestSamplePos, lower, upper);
 
         if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
-        //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
-
-//        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
-
         double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
-
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
         runBlocking(
                 intake.rotate(rotationTarget)
@@ -705,23 +714,12 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                driveActions.alignToSample(targetSample.getSamplePosition().position),
+                                driveActions.alignToSample(targetSample.getSamplePosition()),
                                 extendSequence
                         ),
                         grabSequence
                 )
         );
-
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
-//
-//                )
-//        );
 
         addTransition(State.PUT_IN_BASKET);
     }
@@ -747,17 +745,19 @@ public class AutoApplication extends AutoOpMode {
                 runAsync(
                         new SequentialAction(
                                 specimenArm.grabOpen(),
-                                new SleepUntilAction(() -> drive.pose.position.y < -45),
+                                new SleepUntilAction(() -> follower.getPose().getX() > 117),
                                 specimenArm.gripToIntake(),
                                 specimenArm.goToIntake()
                         )
                 );
 
                 runBlocking(
-                        drive.actionBuilder(drive.pose)
-                                .setTangent(Math.toRadians(270))
-                                .splineToConstantHeading(new Vector2d(50, startPose.position.y), Math.toRadians(-45), null, new ProfileAccelConstraint(-100, 200))
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierCurve(follower.getPose(), observationParkPose))
+                                .setTangentHeadingInterpolation()
+                                .setReversed(true)
                                 .build()
+                        )
                 );
 
                 requestOpModeStop();
@@ -768,18 +768,20 @@ public class AutoApplication extends AutoOpMode {
 
                 runAsync(
                         new SequentialAction(
-                                new SleepUntilAction(() -> drive.pose.position.x > -40),
+                                new SleepUntilAction(() -> follower.getPose().getY() > 32),
                                 specimenArm.gripToOuttake(),
                                 specimenArm.goToPark()
                         )
                 );
 
 
-                if (drive.pose.position.x < -35) {
+                if (follower.getPose().getY() < 37) {
                     runBlocking(
-                            drive.actionBuilder(drive.pose)
-                                    .splineTo(new Vector2d(-27, -9), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                            new FollowPath(follower, follower.pathBuilder()
+                                    .addPath(new BezierCurve(follower.getPose(), toSubmersibleCP, submersibleParkPose))
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), submersibleParkPose.getHeading())
                                     .build()
+                            )
                     );
                 }
 
@@ -791,9 +793,11 @@ public class AutoApplication extends AutoOpMode {
     private void resetRobot() {
         runBlocking(
                 new ParallelAction(
-                        drive.actionBuilder(drive.pose)
-                                .splineToLinearHeading(startPose, 0)
-                                .build(),
+                        new FollowPath(follower, follower.pathBuilder()
+                                .addPath(new BezierLine(follower.getPose(), startPose))
+                                .setLinearHeadingInterpolation(follower.getPose().getHeading(), startPose.getHeading())
+                                .build()
+                        ),
 
                         intake.retract(),
                         intake.wristMiddle(),

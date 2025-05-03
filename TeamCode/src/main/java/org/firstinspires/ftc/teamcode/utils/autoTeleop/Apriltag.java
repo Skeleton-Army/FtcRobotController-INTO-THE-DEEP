@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 
 import android.util.Size;
 
-import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.MathFunctions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -10,7 +12,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -31,11 +32,11 @@ public class Apriltag {
 
     HardwareMap hardwareMap;
 
-    static MecanumDrive drive;
+    static Follower follower;
 
-    public Apriltag(HardwareMap hardwareMap, MecanumDrive drive) {
+    public Apriltag(HardwareMap hardwareMap, Follower follower) {
         this.hardwareMap = hardwareMap;
-        this.drive = drive;
+        this.follower = follower;
 
         initAprilTag();
         disableApriltag();
@@ -112,15 +113,20 @@ public class Apriltag {
 
     }   // end method initAprilTag()
 
-    public static Pose2d getRobotPos(AprilTagDetection aprilTagDetection) {
+    public static Pose getRobotPos(AprilTagDetection aprilTagDetection) {
         Position robotPose = aprilTagDetection.robotPose.getPosition();
         double robotAngle = aprilTagDetection.robotPose.getOrientation().getYaw();
 
-        return new Pose2d(robotPose.x, robotPose.y, robotAngle);
+        Pose ftcCoordinatesPose = new Pose(robotPose.x, robotPose.y, robotAngle);
+
+        Pose rotatedPose = MathFunctions.rotatePose(ftcCoordinatesPose, Math.PI / 2, true);
+        Pose pedroCoordinatesPose = new Pose(rotatedPose.getX() + 72.0, rotatedPose.getY() + 72.0, rotatedPose.getHeading());
+
+        return pedroCoordinatesPose;
     }
 
     public static void updateRobotPos(AprilTagDetection aprilTagDetection) {
-        drive.pose = getRobotPos(aprilTagDetection);
+        follower.setPose(getRobotPos(aprilTagDetection));
     }
 
     public static List<AprilTagDetection> getCurrentDetections() {
