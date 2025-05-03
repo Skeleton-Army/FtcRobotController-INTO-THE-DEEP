@@ -81,7 +81,7 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void onStateMachineStart() {
-        setFallbackState(() -> gamepad1.guide || gamepad2.guide, this::resetRobot);
+        setFallbackState(() -> gamepad1.guide.isDown() || gamepad2.guide.isDown(), this::resetRobot);
 
         switch (strategy) {
             case SPECIMENS:
@@ -124,7 +124,7 @@ public class AutoApplication extends AutoOpMode {
     // -------------- States --------------
 
     @State(requiredTime = 2, timeoutState = "park")
-    private void hangSpecimen() {
+    public void hangSpecimen() {
         hangedSpecimens++;
 
         int angleCompensation = (hangedSpecimens - 1) * -4;
@@ -153,7 +153,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State(requiredTime = 2, timeoutState = "park")
-    private void collectSpecimen() {
+    public void collectSpecimen() {
         int angleCompensation = (hangedSpecimens - 1) * -4;
 
         if (hangedSpecimens > 1) {
@@ -191,7 +191,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State
-    private void collectColorSamples() {
+    public void collectColorSamples() {
         didCollectSamples = true;
 
         runAsync(
@@ -375,7 +375,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State
-    private void collectYellowSample() {
+    public void collectYellowSample() {
         collectedSamples++;
 
         Action wristSequence = new SequentialAction(
@@ -435,7 +435,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State(requiredTime = 2, timeoutState = "park")
-    private void putInBasket() {
+    public void putInBasket() {
         Action grab = new SequentialAction(
                 intake.closeClaw(),
                 new SleepAction(0.1)
@@ -549,7 +549,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State(requiredTime = 4.5, timeoutState = "park")
-    private void sampleFromSubmersible() {
+    public void sampleFromSubmersible() {
         collectedSamples++;
 
         Action extendSequence = new SequentialAction(
@@ -648,7 +648,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State(requiredTime = 2)
-    private void park() {
+    public void park() {
         Action intakeRetract = new ParallelAction(
                 intake.retract(),
                 intake.wristMiddle()
@@ -711,7 +711,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State
-    private void resetRobot() {
+    public void resetRobot() {
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
