@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -7,10 +9,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+
 @TeleOp(name = "FtpTest", group = "DataLogging")
 public class FtpTest extends LinearOpMode {
+    String SDCard = Environment.getExternalStorageDirectory().getAbsolutePath();
+    File TestFile = new File( SDCard + "/FIRST/Datalogs/test.txt");
     void CreateTestFile(){
-        File TestFile = new File("/sdcard/FIRST/datalogs/test.txt");
         try {
             FileWriter WriteToFile = new FileWriter(TestFile.getAbsolutePath());
             WriteToFile.write("14a09a541b95feabdc52f218aaef9579e65ca8973bd29b8b62eab044cc0661aa");
@@ -26,11 +30,13 @@ public class FtpTest extends LinearOpMode {
     }
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry.addData("File to upload: ", TestFile.getAbsolutePath());
         try {
-            FtpLogging ftpLogging = new FtpLogging();
+            FtpUploading ftpUploading = new FtpUploading();
             CreateTestFile();
-            ftpLogging.UploadFile("/sdcard/FIRST/datalogs/test.txt");
-            ftpLogging.Disconnect();
+            ftpUploading.UploadFile(SDCard + "/FIRST/Datalogs/test.txt", "/test.txt", FtpUploading.ASCII);
+            telemetry.addData("FTP Reply code: ", ftpUploading.GetReplyCode());
+            ftpUploading.Disconnect();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
