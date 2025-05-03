@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
+import org.firstinspires.ftc.teamcode.utils.actions.TurnToSample;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
@@ -126,7 +127,9 @@ public class Drive {
                 2
         );
     }
-
+    public Action turnToSample(Intake intake, Sample targetSample) {
+        return new TurnToSample(drive, intake, targetSample);
+    }
     private PoseVelocity2d getVelocityToSample(Vector2d targetSamplePos, double firstDist) {
         // Assuming the vector is (sampleX, sampleY) sample position relative to the robot
 
@@ -152,4 +155,6 @@ public class Drive {
                 .strafeToConstantHeading(target, null, new ProfileAccelConstraint(-pickupSpeed, pickupSpeed))
                 .build();
     }
+
+
 }

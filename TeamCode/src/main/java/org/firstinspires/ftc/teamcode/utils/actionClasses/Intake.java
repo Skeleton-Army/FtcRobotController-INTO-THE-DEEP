@@ -70,6 +70,10 @@ public class Intake {
         return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
     }
 
+    public Action extendInches(double distance) {
+        return motorToPosition((int)(IntakeConfig.tickOverInch * distance), IntakeConfig.motorPower, true);
+    }
+
     /**
      * Partially extend the arm by a given factor.
      * @param multiplier The factor by which to extend the arm

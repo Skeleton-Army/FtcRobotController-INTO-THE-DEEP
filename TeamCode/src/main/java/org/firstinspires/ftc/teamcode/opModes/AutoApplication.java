@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -685,28 +686,18 @@ public class AutoApplication extends AutoOpMode {
 
         if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
-        //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
-
-//        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
-
-        double orientation = -targetSample.orientation;
-        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-        double rotationTarget = normalizedOrientation / 90;
-
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-
-        runBlocking(
-                intake.rotate(rotationTarget)
-        );
+        Vector2d relative = drive.pose.position.minus(targetSample.getSamplePosition().position);
+        double distance = relative.norm();
 
         runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                driveActions.alignToSample(targetSample.getSamplePosition().position),
-                                extendSequence
+                                driveActions.turnToSample(intake, targetSample),
+                                new SequentialAction(
+                                        intake.wristReady(),
+                                        intake.openClaw(),
+                                        intake.extendInches(Math.sqrt(Math.pow(distance, 2) - Math.pow(IntakeConfig.offsetFromCenterX, 2)))
+                                )
                         ),
                         grabSequence
                 )

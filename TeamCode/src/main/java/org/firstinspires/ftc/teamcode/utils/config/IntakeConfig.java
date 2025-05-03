@@ -31,4 +31,6 @@ public class IntakeConfig {
     public static double rotationRight = 0;
 
     public static double manualSpeed = -0.35;
+    public static double tickOverInch = -1; //TODO: FIND CORRECT VALUE PLEASE😭😭😭
+    public static double offsetFromCenterX = -1; //TODO: THIS
 }

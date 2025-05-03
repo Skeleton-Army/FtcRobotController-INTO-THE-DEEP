@@ -128,7 +128,7 @@ public class Sample {
     public void calculateField() {
         double x = detectionPose.position.x + centerY * Math.cos(detectionPose.heading.toDouble()) - centerX * Math.sin(detectionPose.heading.toDouble());
         double y = detectionPose.position.y + centerY * Math.sin(detectionPose.heading.toDouble()) + centerX * Math.cos(detectionPose.heading.toDouble());
-        fieldPos = new Pose2d(new Vector2d(x, y), orientation);
+        fieldPos = new Pose2d(new Vector2d(x, y), orientation - Math.toDegrees(detectionPose.heading.toDouble()));
     }
 
     public boolean isTooBig() {
