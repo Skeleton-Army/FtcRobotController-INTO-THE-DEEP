@@ -2,17 +2,7 @@
 This sample FTC OpMode uses methods of the Datalogger class to specify and
 collect robot data to be logged in a CSV file, ready for download and charting.
 
-For instructions, see the tutorial at the FTC Wiki:
-https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Datalogging
-
-
-The Datalogger class is suitable for FTC OnBot Java (OBJ) programmers.
-Its methods can be made available for FTC Blocks, by creating myBlocks in OBJ.
-
-Android Studio programmers can see instructions in the Datalogger class notes.
-
 Credit to @Windwoes (https://github.com/Windwoes).
-
 */
 
 package org.firstinspires.ftc.teamcode.utils.debugging;
@@ -27,53 +17,31 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.io.File;
-import java.io.IOException;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
-public class ConceptDatalogger extends LinearOpMode
-{
+public class ConceptDatalogger extends LinearOpMode {
     Datalog datalog;
     IMU imu;
     VoltageSensor battery;
-
     DcMotorEx motor;
 
     @Override
-    public void runOpMode() throws InterruptedException
-    {
-        // Get devices from the hardwareMap.
-        // If needed, change "Control Hub" to (e.g.) "Expansion Hub 1".
+    public void runOpMode() throws InterruptedException {
         battery = hardwareMap.voltageSensor.get("Control Hub");
         imu = hardwareMap.get(IMU.class, "imu");
 
-
-        /*// Create a unique filename based on date and time
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HHmmss");
-        String timestamp = LocalDateTime.now().format(dtf);
-        String filename = "datalog_" + timestamp;*/
-
-        String filename;
-
-        // You do not need to fill every field of the datalog
-        // every time you call writeLine(); those fields will simply
-        // contain the last value.
-
-        // Initialize IMU parameters
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-        IMU.Parameters parameters = new IMU.Parameters(orientationOnRobot);
-        imu.initialize(parameters);
+        // IMU initialization
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         telemetry.setMsTransmissionInterval(50);
 
-
+        // File setup
         File downloadDir = new File("/sdcard/FIRST/Datalogs");
         int index = 1;
         File logFile;
-
-        // Find the next available filename
         do {
             logFile = new File(downloadDir, "my_log_" + index + ".csv");
             index++;
@@ -82,8 +50,7 @@ public class ConceptDatalogger extends LinearOpMode
         telemetry.addLine("Log file name: " + logFile.getName());
         telemetry.update();
 
-        filename = logFile.getName();
-        datalog = new Datalog(filename);
+        datalog = new Datalog(logFile.getName());
 
         datalog.opModeStatus.set("INIT");
         datalog.battery.set(battery.getVoltage());
@@ -93,25 +60,17 @@ public class ConceptDatalogger extends LinearOpMode
 
         datalog.opModeStatus.set("RUNNING");
 
-        for (int i = 0; opModeIsActive(); i++)
-        {
-            // Note that the order in which we set datalog fields
-            // does *not* matter! The order is configured inside
-            // the Datalog class constructor.
-
+        for (int i = 0; opModeIsActive(); i++) {
             datalog.loopCounter.set(i);
             datalog.battery.set(battery.getVoltage());
 
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-
             datalog.yaw.set(orientation.getYaw());
             datalog.pitch.set(orientation.getPitch());
             datalog.roll.set(orientation.getRoll());
 
-            // The logged timestamp is taken when writeLine() is called.
             datalog.writeLine();
 
-            // Datalog fields are stored as text only; do not format here.
             telemetry.addData("Yaw", datalog.yaw);
             telemetry.addData("Pitch", datalog.pitch);
             telemetry.addData("Roll", datalog.roll);
@@ -121,53 +80,23 @@ public class ConceptDatalogger extends LinearOpMode
             telemetry.addData("Battery", datalog.battery);
 
             for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
-                telemetry.addData("Voltage Sensor Name: ", sensor.getDeviceName());
-                telemetry.addData("Voltage: ", sensor.getVoltage());
+                telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
+                telemetry.addData("Voltage", sensor.getVoltage());
             }
-
             telemetry.update();
 
             sleep(20);
         }
 
         if (isStopRequested()) {
-
             sleep(250);
-//
-//            ProcessBuilder builder = new ProcessBuilder();
-//
-//            builder.directory();
-//            builder.command("cmd.exe", "/c", "adb pull /sdcard/FIRST/Datalogs/ " + filename + "C:/Users/User/Desktop");
-//
-//            builder.command("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
-
-//            try {
-//                Runtime.getRuntime().exec("adb pull /sdcard/FIRST/Datalogs/"+ filename + " C:/Users/User/Desktop");
-//
-//                // runs the python script after the file is at Desktop
-//                Runtime.getRuntime().exec("python FtcRobotController-INTO-THE-DEEP/debugging/copy_csv_datalog.py");
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-
+            // File operations are removed for OnBot Java compatibility
         }
-
-        /*
-         * The datalog is automatically closed and flushed to disk after
-         * the OpMode ends - no need to do that manually :')
-         */
     }
 
-    /*
-     * This class encapsulates all the fields that will go into the datalog.
-     */
-    public static class Datalog
-    {
-        // The underlying datalogger object - it cares only about an array of loggable fields
+    public static class Datalog {
         private final Datalogger datalogger;
 
-        // These are all of the fields that we want in the datalog.
-        // Note that order here is NOT important. The order is important in the setFields() call below
         public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
         public Datalogger.GenericField loopCounter  = new Datalogger.GenericField("Loop Counter");
         public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
@@ -175,20 +104,10 @@ public class ConceptDatalogger extends LinearOpMode
         public Datalogger.GenericField roll         = new Datalogger.GenericField("Roll");
         public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
 
-        public Datalog(String name)
-        {
-            // Build the underlying datalog object
-            datalogger = new Datalogger.Builder()
-
-                    // Pass through the filename
+        public Datalog(String name) {
+            datalogger = Datalogger.builder()
                     .setFilename(name)
-
-                    // Request an automatic timestamp field
                     .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
-
-                    // Tell it about the fields we care to log.
-                    // Note that order *IS* important here! The order in which we list
-                    // the fields is the order in which they will appear in the log.
                     .setFields(
                             opModeStatus,
                             loopCounter,
@@ -200,10 +119,7 @@ public class ConceptDatalogger extends LinearOpMode
                     .build();
         }
 
-        // Tell the datalogger to gather the values of the fields
-        // and write a new line in the log.
-        public void writeLine()
-        {
+        public void writeLine() {
             datalogger.writeLine();
         }
     }
