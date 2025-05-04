@@ -16,38 +16,24 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
-public class TurnToSample implements Action {
+public class StrafeToSample implements Action {
     final MecanumDrive drive;
     final Intake intake;
-    final Sample targetSample;
-    public TurnToSample(MecanumDrive drive, Intake intake, Sample targetSample) {
+    final Vector2d targetSampleVec;
+    public StrafeToSample(MecanumDrive drive, Intake intake, Vector2d targetSampleVec) {
         this.drive = drive;
         this.intake = intake;
-        this.targetSample = targetSample;
+        this.targetSampleVec = targetSampleVec;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
-            double heading = drive.pose.heading.toDouble();
-            Vector2d currPose = drive.pose.position;
-            Vector2d sampleVec = targetSample.getSamplePosition().position;
-            Vector2d relative = sampleVec.minus(currPose);
+            Vector2d relative = drive.pose.position.minus(targetSampleVec);
             double distance = relative.norm();
-            double targetAngle = Math.atan2(relative.y, relative.x) + Math.acos(IntakeConfig.offsetFromCenterX / distance);
-
-            double orientation = targetSample.orientation - Math.toDegrees(targetAngle);
-            double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-            double rotationTarget = normalizedOrientation / 90;
-            telemetryPacket.addLine(sampleVec.toString());
-
-            Actions.runBlocking(
-                    intake.rotate(rotationTarget)
-            );
 
             Actions.runBlocking(
                     drive.actionBuilder(new Pose2d(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble()))
-                            .turnTo(targetAngle)
                             .build()
             );
         }
