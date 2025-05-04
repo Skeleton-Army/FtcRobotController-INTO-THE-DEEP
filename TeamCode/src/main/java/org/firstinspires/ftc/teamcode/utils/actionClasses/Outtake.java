@@ -68,6 +68,10 @@ public class Outtake {
         return bucketToPosition(OuttakeConfig.bucketDunk);
     }
 
+    public Action filledDunk() {
+        return bucketToPosition(OuttakeConfig.bucketFilledDunk);
+    }
+
     public Action hold() {
         return bucketToPosition(OuttakeConfig.bucketHold);
     }

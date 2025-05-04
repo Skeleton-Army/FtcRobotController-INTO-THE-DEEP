@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -30,6 +31,12 @@ import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
 public class TeleopApplication extends TeleopOpMode {
+    enum OuttakeMode {
+        HIGH,
+        FILLED,
+        LOW
+    }
+
     public static TeleopApplication Instance;
 
     public MecanumDrive drive;
@@ -46,7 +53,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean manuallyMoved = false;
 
-    boolean highBasket = true;
+    OuttakeMode outtakeMode = OuttakeMode.HIGH;
 
     @Override
     public void init() {
@@ -85,9 +92,8 @@ public class TeleopApplication extends TeleopOpMode {
         runIntakeWithDeposit();
         runIntake();
         runIntakeControls();
-        runWrist();
+        runGrab();
         runOuttake();
-        runClaw();
         runSpecimenArm();
         runHang();
         runEmergencyStop();
@@ -124,7 +130,7 @@ public class TeleopApplication extends TeleopOpMode {
                     // Extend intake
                     new SequentialAction(
                             intake.wristReady(),
-                            intake.extend(),
+                            intake.extend(0.75),
                             intake.openClaw()
                     ),
 
@@ -152,10 +158,13 @@ public class TeleopApplication extends TeleopOpMode {
             runSequentialActions(
                     "intake",
 
-                    // Extend intake
-                    new ParallelAction(
+                    // Throw sample
+                    new SequentialAction(
                             intake.extend(),
-                            intake.wristReady()
+                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.75),
+                            intake.openClaw(),
+                            new SleepAction(0.1),
+                            intake.retract()
                     ),
 
                     // Retract intake
@@ -178,11 +187,14 @@ public class TeleopApplication extends TeleopOpMode {
             String key = (int) x + "," + (int) y;
 
             switch (key) {
-                case "-1,0": runAction(intake.rotate(-1)); break;
-                case "-1,1": runAction(intake.rotate(-0.5)); break;
-                case "0,1": runAction(intake.rotate(0)); break;
-                case "1,1": runAction(intake.rotate(0.5)); break;
-                case "1,0": runAction(intake.rotate(1)); break;
+                case "-1,0":
+                    runAction(intake.rotate(-1)); break;
+                case "-1,1":
+                case "0,1":
+                case "1,1":
+                    runAction(intake.rotate(0)); break;
+                case "1,0":
+                    runAction(intake.rotate(1)); break;
             }
         }
 
@@ -201,7 +213,7 @@ public class TeleopApplication extends TeleopOpMode {
             runSequentialActions(
                     // Extend outtake
                     new ParallelAction(
-                            outtake.extend(highBasket),
+                            outtake.extend(outtakeMode != OuttakeMode.LOW),
                             new SequentialAction(
                                     new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
                                     outtake.bucketReady()
@@ -209,7 +221,7 @@ public class TeleopApplication extends TeleopOpMode {
                     ),
 
                     // Dunk bucket
-                    outtake.dunk(),
+                    outtakeMode == OuttakeMode.FILLED ? outtake.filledDunk() : outtake.dunk(),
 
                     // Retract outtake
                     new ParallelAction(
@@ -220,29 +232,30 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         if (Utilities.isPressed(gamepad2.back)) {
-            highBasket = !highBasket;
-            gamepad2.rumble(200);
+            outtakeMode = OuttakeMode.values()[(outtakeMode.ordinal() + 1) % OuttakeMode.values().length]; // Cycle to next mode
+
+            gamepad2.rumbleBlips(outtakeMode.ordinal() + 1);
         }
     }
 
-    public void runWrist() {
-        if (Utilities.isPressed(gamepad2.right_trigger > 0.1)) {
-            runAction(intake.extendWrist());
-        } else if (Utilities.isPressed(gamepad2.left_trigger > 0.1)) {
+    public void runGrab() {
+        if (Utilities.isPressed(gamepad2.right_bumper)) {
             runAction(
-                    new ParallelAction(
-                            intake.wristReady(),
+                    new SequentialAction(
+                            intake.extendWrist(),
+                            new SleepAction(0.1),
+                            intake.closeClaw(),
+                            new SleepAction(0.1),
+                            intake.wristReady()
+                    )
+            );
+        } else if (Utilities.isPressed(gamepad2.left_bumper)) {
+            runAction(
+                    new SequentialAction(
+                            isInState("intake", 1) ? intake.wristReady() : new NullAction(), // Move wrist if intaking samples, else only open claw
                             intake.openClaw()
                     )
             );
-        }
-    }
-
-    public void runClaw() {
-        if (Utilities.isPressed(gamepad2.right_bumper)) {
-            runAction(intake.closeClaw());
-        } else if (Utilities.isPressed(gamepad2.left_bumper)) {
-            runAction(intake.openClaw());
         }
     }
 
@@ -269,8 +282,9 @@ public class TeleopApplication extends TeleopOpMode {
 
             runAction(
                     "specimen_hanged",
-                    new ParallelAction(
+                    new SequentialAction(
                             specimenArm.goToHanged(),
+                            new SleepAction(0.2),
                             specimenArm.grabOpen()
                     )
             );
