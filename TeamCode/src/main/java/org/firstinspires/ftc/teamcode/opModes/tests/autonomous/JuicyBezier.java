@@ -30,40 +30,47 @@ public class JuicyBezier extends OpMode {
     Pose beginPose = new Pose(24, 24, Math.toRadians(0));
     Outtake outtake;
 
-    Pose ExtendingPos = new Pose(ExtendConfig.ExtendX, ExtendConfig.ExtendY, ExtendConfig.ExtendHeading);
-
-    Action depositAction = new SequentialAction(
-            new ParallelAction(
-                    outtake.extend(OuttakeConfig.extendPosition),
-                    outtake.bucketReady()
-            ),
-            outtake.dunk(),
-            new ParallelAction(
-                    outtake.retract(),
-                    outtake.bucketToPosition(OuttakeConfig.bucketHold)
-            )
-    );
-
-    Pose robotPos = follower.getPose().getAsPedroCoordinates();
-
-    boolean Condition = robotPos.getX() >= ExtendingPos.getX() &&
-            robotPos.getY() >= ExtendingPos.getY() &&
-            robotPos.getHeading() <= ExtendingPos.getHeading();
-
     @Override
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower.setStartingPose(beginPose);
+
         outtake = new Outtake(hardwareMap);
+        follower.followPath(GeneratedPath.paths);
     }
 
     @Override
     public void loop() {
-        follower.followPath(GeneratedPath.paths); // oh, this better be good...
-        Actions.runBlocking(new ParallelAction(
+        follower.update();
+       // Pose ExtendingPos = new Pose(ExtendConfig.ExtendX, ExtendConfig.ExtendY, ExtendConfig.ExtendHeading);
+
+        Pose robotPos = follower.getPose().getAsPedroCoordinates();
+
+        /*boolean Condition = robotPos.getX() >= ExtendingPos.getX() &&
+                robotPos.getY() >= ExtendingPos.getY() &&
+                robotPos.getHeading() <= ExtendingPos.getHeading();
+
+        Action depositAction = new SequentialAction(
+                new ParallelAction(
+                        outtake.extend(OuttakeConfig.extendPosition),
+                        outtake.bucketReady()
+                ),
+                outtake.dunk(),
+                new ParallelAction(
+                        outtake.retract(),
+                        outtake.bucketToPosition(OuttakeConfig.bucketHold)
+                )
+        );*/
+
+        if (follower.atParametricEnd()) {
+            follower.followPath(GeneratedPath.paths);
+        }
+        //follower.followPath(GeneratedPath.paths); // oh, this better be good...
+        /*Actions.runBlocking(new ParallelAction(
                 new FollowPath(follower, GeneratedPath.paths),
                 new ConditionAction(depositAction, () -> Condition)
 
-        ));
+        )); */
 
     }
 
@@ -75,7 +82,7 @@ public class JuicyBezier extends OpMode {
                 .addPath(
                         // Line 1
                         new BezierCurve(
-                                new Point(23.311, 23.642, Point.CARTESIAN),
+                                new Point(24, 24, Point.CARTESIAN),
                                 new Point(47.118, 122.838, Point.CARTESIAN),
                                 new Point(55.385, 112.918, Point.CARTESIAN),
                                 new Point(-50.000, 220.000, Point.CARTESIAN),
