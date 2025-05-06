@@ -31,6 +31,8 @@ public class FtpTest extends LinearOpMode {
     }
     @Override
     public void runOpMode() throws InterruptedException {
+        waitForStart();
+
         telemetry.addData("File to upload: ", TestFile.getAbsolutePath());
         try {
             FtpUploading ftpUploading = new FtpUploading();
