@@ -202,6 +202,7 @@ public class AutoApplication extends AutoOpMode {
 
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
+        runAsync(() -> follower.update());
     }
 
     // -------------- States --------------
