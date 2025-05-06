@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class FtpTest extends LinearOpMode {
     String SDCard = Environment.getExternalStorageDirectory().getAbsolutePath();
     File TestFile = new File( SDCard + "/FIRST/Datalogs/test.txt");
-    void CreateTestFile(){
+    String CreateTestFile(){
         try {
             FileWriter WriteToFile = new FileWriter(TestFile.getAbsolutePath());
             WriteToFile.write("14a09a541b95feabdc52f218aaef9579e65ca8973bd29b8b62eab044cc0661aa");
@@ -27,17 +27,17 @@ public class FtpTest extends LinearOpMode {
             telemetry.addLine("Stack Trace: " + Arrays.toString(e.getStackTrace()));
             telemetry.update();
         }
+        return TestFile.getAbsolutePath();
     }
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry.addData("File to upload: ", TestFile.getAbsolutePath());
         try {
             FtpUploading ftpUploading = new FtpUploading();
-            CreateTestFile();
-            ftpUploading.UploadFile(SDCard + "/FIRST/Datalogs/test.txt", "/test.txt", FtpUploading.ASCII);
-            telemetry.addData("FTP Reply code: ", ftpUploading.GetReplyCode());
+            ftpUploading.UploadFile(CreateTestFile(), "/test.txt", FtpUploading.ASCII);
+            telemetry.addData("FTP Reply: ",ftpUploading.GetReplyString() + ftpUploading.GetReplyCode());
             ftpUploading.Disconnect();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

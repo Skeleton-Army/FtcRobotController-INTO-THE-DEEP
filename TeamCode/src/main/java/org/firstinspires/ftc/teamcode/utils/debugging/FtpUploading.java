@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import androidx.annotation.NonNull;
+
 import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 
 import org.apache.commons.net.PrintCommandListener;
@@ -91,18 +93,48 @@ public class FtpUploading {
     /**
      * Uploads a file to the FTP server.
      *
-     * @param LocalFile  the local file path to upload.
+     * @param LocalFilePath  the local file path to upload.
      * @param RemotePath the remote destination path on the FTP server.
      * @param FileType   the file transfer mode (use {@link #ASCII} or {@link #BINARY}).
      * @throws IOException if the file doesn't exist or upload fails.
      */
-    public void UploadFile(String LocalFile, String RemotePath, int FileType) throws IOException {
-        File FileToUpload = new File(LocalFile);
-        this.ftp.setFileType(FileType);
-        if (FileToUpload.exists()) {
-            this.ftp.storeFile(RemotePath, new FileInputStream(LocalFile));
+    public void UploadFile(String LocalFilePath, String RemotePath, int FileType) throws Exception {
+        File FileToUpload = new File(LocalFilePath);
+        if (FileType == 0 || FileType == 2) {
+            this.ftp.setFileType(FileType);
+            if (FileToUpload.exists()) {
+                this.ftp.storeFile(RemotePath, new FileInputStream(FileToUpload));
+            } else {
+                throw new IOException("Input file does not exist");
+            }
         } else {
-            throw new IOException("Input file does not exist");
+            throw new Exception("Filetype isnt set to ASCII or Binary");
         }
+   }
+    /**
+     * Uploads a file to a remote FTP server.
+     *
+     * <p>This method sets the file type for the FTP client and uploads a local file to the specified remote path.
+     * If the local file does not exist, it throws an {@link IOException}.</p>
+     *
+     * @param LocalFilePath the {@link File} object representing the path to the local file to be uploaded
+     * @param RemotePath the destination path on the remote FTP server where the file should be uploaded
+     * @param FileType the file type for FTP transmission
+     * @throws IOException if the local file does not exist or if an I/O error occurs during upload
+     */
+    public void UploadFile(@NonNull File LocalFilePath, String RemotePath, int FileType) throws Exception {
+        if (FileType == 0 || FileType == 2){
+            this.ftp.setFileType(FileType);
+            if (LocalFilePath.exists()) {
+                this.ftp.storeFile(RemotePath, new FileInputStream(LocalFilePath));
+            } else {
+                throw new IOException("Input file does not exist");
+            }
+        }
+        else {
+            throw new Exception("Filetype isnt set to ASCII or Binary");
+        }
+
     }
+
 }
