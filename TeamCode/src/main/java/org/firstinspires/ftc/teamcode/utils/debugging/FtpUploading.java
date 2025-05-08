@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.debugging;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.net.ftp.FTPFile;
 import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 
 import org.apache.commons.net.PrintCommandListener;
@@ -12,6 +13,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class for uploading files to an FTP server.
@@ -43,6 +46,12 @@ public class FtpUploading {
     public FtpUploading() throws IOException {
         Connect();
     }
+
+    /**
+     * Checks if the client is connected
+     *
+     * @return If client is connected to the server
+     */
     public boolean IsConnected() {
         return ftp.isConnected();
     }
@@ -138,5 +147,19 @@ public class FtpUploading {
         }
 
     }
-
+    /**
+     * Retrieves a list of file names from the current directory of the connected FTP server.
+     *
+     * @return A list of file names (as Strings) in the current FTP directory.
+     * @throws IOException If an I/O error occurs while communicating with the FTP server.
+     */
+    public List<String> ListFiles() throws IOException {
+        FTPFile[] list = ftp.listFiles();
+        List<String> FileList = new ArrayList<>();
+        for (FTPFile file : list) {
+            FileList.add(file.getName());
+        }
+        return FileList;
+    }
 }
+

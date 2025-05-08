@@ -22,6 +22,8 @@ import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.ArrayList;
+import java.util.List;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
 public class ConceptDatalogger extends LinearOpMode {
@@ -45,14 +47,8 @@ public class ConceptDatalogger extends LinearOpMode {
         telemetry.setMsTransmissionInterval(50);
 
         // File setup
-        File LogDir = new File(SDcard + "/FIRST/Datalogs/");
-        int index = 1;
-        File LogFile;
-        do {
-            LogFile = new File(LogDir, "my_log_" + index + ".csv");
-            index++;
-        } while (LogFile.exists());
-
+        String LogDir = SDcard + "/FIRST/Datalogs/";
+        File LogFile = new File(SDcard + "Log");
         telemetry.addLine("Log file name: " + LogFile.getName());
         telemetry.update();
 
@@ -101,6 +97,14 @@ public class ConceptDatalogger extends LinearOpMode {
                 FtpUploading ftp = new FtpUploading();
                 if (ftp.IsConnected()){
                     telemetry.addLine("Connetion successful!");
+                    List<String> FtpFileList = ftp.ListFiles();
+                    index = 1;
+                    String NewLogFileName;
+                    do {
+                        NewLogFileName = "my_log" + index + ".csv";
+                        index++;
+                    } while(FtpFileList.contains(NewLogFileName));
+                    RenameFile(LogFile, NewLogFileName);
                     telemetry.addData("Attempting to upload file ", LogFile.getName());
                     telemetry.update();
                     ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII);
@@ -109,8 +113,10 @@ public class ConceptDatalogger extends LinearOpMode {
                         telemetry.addLine("Attempting to delete local file");
                         telemetry.update();
                         if (LogFile.delete()){
-
+                            telemetry.addLine("File deletion failed! Please remove file later");
                         }
+                    } else {
+                        throw new IOException("Upload Failed!");
                     }
                 } else {
                     telemetry.addLine("Connction Failed! Exiting...");
@@ -152,4 +158,11 @@ public class ConceptDatalogger extends LinearOpMode {
             datalogger.writeLine();
         }
     }
+    private void RenameFile(File OriginalFile, String NewName) throws IOException {
+        File FileWithNewName = new File(OriginalFile.getParent(), NewName);
+        boolean success = OriginalFile.renameTo(FileWithNewName);
+        if (!success) {
+            throw new IOException("File renaming faild!");
+        }
+   }
 }
