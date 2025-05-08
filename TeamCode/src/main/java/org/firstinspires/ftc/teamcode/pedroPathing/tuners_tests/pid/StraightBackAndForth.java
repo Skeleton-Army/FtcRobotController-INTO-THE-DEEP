@@ -69,6 +69,7 @@ public class StraightBackAndForth extends OpMode {
         intake = hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName);
         intake.setTargetPosition(0);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setPower(1);
 
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
                             + " inches forward. The robot will go forward and backward continuously"

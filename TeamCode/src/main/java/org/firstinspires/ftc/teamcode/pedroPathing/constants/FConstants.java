@@ -23,24 +23,24 @@ public class FConstants {
         FollowerConstants.mass = 13.4; // In kg
 
         FollowerConstants.xMovement = 57.63679418842653;
-        FollowerConstants.yMovement = 43.91715223774089;
+        FollowerConstants.yMovement = 42.18358571428571;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -33.64377804465182;
-        FollowerConstants.lateralZeroPowerAcceleration = -69.9466522696658;
+        FollowerConstants.forwardZeroPowerAcceleration = -28.65131666666667;
+        FollowerConstants.lateralZeroPowerAcceleration = -73.1317;
 
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.15,0,0.005,0);
-        FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.3,0,0.03,0);
+        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.2,0,0.02,0); // Not being used, @see useSecondaryTranslationalPID
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(2,0,0.1,0);
-        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(3,0,0.1,0);
+        FollowerConstants.useSecondaryHeadingPID = true;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
 
-        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.01,0,0.000006,0.6,0);
+        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.03,0,0.00006,0.6,0);
         FollowerConstants.useSecondaryDrivePID = false;
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0,0.6,0); // Not being used, @see useSecondaryDrivePID
 
-        FollowerConstants.zeroPowerAccelerationMultiplier = 7;
+        FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.00035;
 
         FollowerConstants.pathEndTimeoutConstraint = 500;
