@@ -75,7 +75,8 @@ public class TeleopApplication extends TeleopOpMode {
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
-        camCV = new WebcamCV(hardwareMap, telemetry, drive, true);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
         aprilTagSamplesPipeline = camCV.getAprilTagSamplesPipeline();
 

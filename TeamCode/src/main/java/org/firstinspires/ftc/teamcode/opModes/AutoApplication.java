@@ -170,7 +170,7 @@ public class AutoApplication extends AutoOpMode {
         drive.pose = startPose;
 
         // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, drive, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, false, false);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
         driveActions = new Drive(drive, camCV, telemetry, null);
