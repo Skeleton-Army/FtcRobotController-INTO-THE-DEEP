@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -74,7 +76,7 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(
+        runBlocking(
                 driveActions.alignToSample(targetSample.getSamplePosition())
         );
 
@@ -87,11 +89,11 @@ public class PickupSample extends TeleopOpMode {
 //        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 //        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
-        Actions.runBlocking(
+        runBlocking(
                 intake.rotate(rotationTarget)
         );
 
-        Actions.runBlocking(
+        runBlocking(
                 new SequentialAction(
                         intake.openClaw(),
                         intake.wristReady(),
@@ -120,7 +122,7 @@ public class PickupSample extends TeleopOpMode {
                 )
         );
 
-        Actions.runBlocking(
+        runBlocking(
                 new FollowPath(follower,
                         follower.pathBuilder()
                                 .addPath(new BezierLine(follower.getPose(), new Pose(0, 0, 0)))
@@ -132,5 +134,15 @@ public class PickupSample extends TeleopOpMode {
     }
 
     @Override
-    public void loop() {}
+    public void loop() {
+        follower.update();
+    }
+
+    void runBlocking(Action action) {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        while (action.run(packet)) {
+            follower.update();
+        }
+    }
 }
