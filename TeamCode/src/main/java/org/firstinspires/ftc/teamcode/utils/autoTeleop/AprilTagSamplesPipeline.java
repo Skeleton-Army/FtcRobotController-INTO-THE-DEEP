@@ -59,6 +59,8 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     private MecanumDrive drive;
     public static List<Sample> samples = new ArrayList<>();
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
+
+    MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
     public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
@@ -120,7 +122,6 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
 
-        MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
 
         Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);
