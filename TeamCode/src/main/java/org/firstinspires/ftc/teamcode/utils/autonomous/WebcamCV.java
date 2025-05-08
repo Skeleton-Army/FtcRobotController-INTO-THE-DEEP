@@ -12,11 +12,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -32,6 +34,7 @@ import java.util.List;
  */
 public class WebcamCV {
     private final boolean withAprilTag;
+    private final boolean onlyAprilTag;
     public OpenCvWebcam webcam;
 
     OpenCvPipeline pipeline;
@@ -44,12 +47,13 @@ public class WebcamCV {
     Telemetry telemetry;
     MecanumDrive drive;
 
-    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive, boolean withAprilTag) {
+    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, MecanumDrive drive, boolean withAprilTag, boolean onlyAprilTag) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.drive = drive;
         this.withAprilTag = withAprilTag;
-        if (withAprilTag) {
+        this.onlyAprilTag = onlyAprilTag;
+        if (withAprilTag || onlyAprilTag) {
             Position cameraPosition = new Position(DistanceUnit.INCH,
                     CameraConfig.offsetXApriltag, CameraConfig.offsetZApriltag, CameraConfig.offsetYApriltag, 0); //TODO: figure out these!!!
             YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
@@ -57,11 +61,11 @@ public class WebcamCV {
             aprilTag = new AprilTagProcessor.Builder()
 
                     // The following default settings are available to un-comment and edit as needed.
-                    .setDrawAxes(true)
+                    .setDrawAxes(false)
                     .setDrawCubeProjection(false)
-                    //.setDrawTagOutline(true)
+                    .setDrawTagOutline(true)
                     //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                    //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                    .setTagLibrary(AprilTagGameDatabase.getIntoTheDeepTagLibrary())
                     //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                     .setCameraPose(cameraPosition, cameraOrientation)
                     .setLensIntrinsics(
@@ -178,17 +182,20 @@ public class WebcamCV {
         FtcDashboard.getInstance().startCameraStream(webcam, 15);
 
         OpenCvPipeline selectedPipeline = null;
-        if (withAprilTag) {
-            if (colors.length == 2)
-                selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0], colors[1]);
-            if (colors.length == 1)
-                selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0]);
-            aprilTagSamplesPipeline = (AprilTagSamplesPipeline) selectedPipeline;
+        if (!onlyAprilTag) {
+            if (withAprilTag) {
+                if (colors.length == 2)
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0], colors[1]);
+                if (colors.length == 1)
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0]);
+                aprilTagSamplesPipeline = (AprilTagSamplesPipeline) selectedPipeline;
+            } else if (colors.length == 2)
+                selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
+            else
+                selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0]);
         }
-        else if (colors.length == 2)
-            selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
         else
-            selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0]);
+            selectedPipeline = new AprilTagPipeline(aprilTag);
 
         webcam.setPipeline(selectedPipeline);
 
