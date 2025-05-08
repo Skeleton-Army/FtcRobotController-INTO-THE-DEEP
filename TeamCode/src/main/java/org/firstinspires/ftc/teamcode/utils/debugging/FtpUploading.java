@@ -43,7 +43,9 @@ public class FtpUploading {
     public FtpUploading() throws IOException {
         Connect();
     }
-
+    public boolean IsConnected() {
+        return ftp.isConnected();
+    }
     /**
      * Establishes a connection to the FTP server using configuration from {@link FtpConfig}.
      *

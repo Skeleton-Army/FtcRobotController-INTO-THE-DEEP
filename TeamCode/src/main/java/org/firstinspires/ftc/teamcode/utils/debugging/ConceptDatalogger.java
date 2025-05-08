@@ -7,6 +7,8 @@ Credit to @Windwoes (https://github.com/Windwoes).
 
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import android.os.Environment;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,8 +17,11 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
 public class ConceptDatalogger extends LinearOpMode {
@@ -24,6 +29,7 @@ public class ConceptDatalogger extends LinearOpMode {
     IMU imu;
     VoltageSensor battery;
     DcMotorEx motor;
+    String SDcard = Environment.getExternalStorageDirectory().getAbsolutePath();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -39,18 +45,18 @@ public class ConceptDatalogger extends LinearOpMode {
         telemetry.setMsTransmissionInterval(50);
 
         // File setup
-        File downloadDir = new File("/sdcard/FIRST/Datalogs");
+        File LogDir = new File(SDcard + "/FIRST/Datalogs/");
         int index = 1;
-        File logFile;
+        File LogFile;
         do {
-            logFile = new File(downloadDir, "my_log_" + index + ".csv");
+            LogFile = new File(LogDir, "my_log_" + index + ".csv");
             index++;
-        } while (logFile.exists());
+        } while (LogFile.exists());
 
-        telemetry.addLine("Log file name: " + logFile.getName());
+        telemetry.addLine("Log file name: " + LogFile.getName());
         telemetry.update();
 
-        datalog = new Datalog(logFile.getName());
+        datalog = new Datalog(LogFile.getName());
 
         datalog.opModeStatus.set("INIT");
         datalog.battery.set(battery.getVoltage());
@@ -89,10 +95,31 @@ public class ConceptDatalogger extends LinearOpMode {
         }
 
         if (isStopRequested()) {
-            sleep(250);
-            // File operations are removed for OnBot Java compatibility
+            try {
+                telemetry.addData("Attempting to connect to ", FtpConfig.Server + ":" + FtpConfig.ServerPort);
+                telemetry.update();
+                FtpUploading ftp = new FtpUploading();
+                if (ftp.IsConnected()){
+                    telemetry.addLine("Connetion successful!");
+                    telemetry.addData("Attempting to upload file ", LogFile.getName());
+                    telemetry.update();
+                    ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII);
+                    if (ftp.GetReplyCode() == 226) {
+                        telemetry.addLine("Upload successful!");
+                        telemetry.addLine("Attempting to delete local file");
+                        telemetry.update();
+                        if (LogFile.delete()){
 
-
+                        }
+                    }
+                } else {
+                    telemetry.addLine("Connction Failed! Exiting...");
+                    telemetry.update();
+                    throw new ConnectException("Connetion to server failed");
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
