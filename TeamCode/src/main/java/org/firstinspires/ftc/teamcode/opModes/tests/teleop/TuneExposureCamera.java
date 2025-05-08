@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
@@ -215,6 +217,7 @@ public class TuneExposureCamera extends LinearOpMode
         // Create the WEBCAM vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
                 .addProcessor(aprilTag)
                 .build();
     }
