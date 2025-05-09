@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,6 +31,9 @@ public class ApriltagRobotPose extends OpMode {
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
             CameraConfig.yaw, CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
 
+    private int decimation = 1;
+    private final int decimationMin = 1;
+    private final int decimationMax = 5;
     private void initAprilTag() {
 
         // Create the AprilTag processor.
@@ -65,7 +69,7 @@ public class ApriltagRobotPose extends OpMode {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(3);
+        aprilTag.setDecimation(1);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -131,6 +135,10 @@ public class ApriltagRobotPose extends OpMode {
                 telemetry.addLine("----------------");
 
                 telemetry.addLine("----------------");
+                telemetry.addData("Current decimation: ", decimation);
+                telemetry.addLine("----------------");
+
+                telemetry.addLine("----------------");
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
                         detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
@@ -160,6 +168,16 @@ public class ApriltagRobotPose extends OpMode {
     @Override
     public void init_loop() {
         telemetryAprilTag();
+
+        if (gamepad1.dpad_up) {
+            decimation = Range.clip(decimation + 1, decimationMin, decimationMax);
+            aprilTag.setDecimation(decimation);
+        }
+
+        if (gamepad1.dpad_down) {
+            decimation = Range.clip(decimation - 1, decimationMin, decimationMax);
+            aprilTag.setDecimation(decimation);
+        }
     }
     @Override
     public void loop() {
