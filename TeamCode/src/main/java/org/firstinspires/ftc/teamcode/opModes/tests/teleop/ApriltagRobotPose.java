@@ -65,7 +65,7 @@ public class ApriltagRobotPose extends OpMode {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        //aprilTag.setDecimation(3);
+        aprilTag.setDecimation(3);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -108,28 +108,34 @@ public class ApriltagRobotPose extends OpMode {
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
                 telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
+                telemetry.addLine("----------------");
                 telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)",
                         detection.robotPose.getPosition().x,
                         detection.robotPose.getPosition().y,
                         detection.robotPose.getPosition().z));
+                telemetry.addLine("----------------");
 
-                telemetry.addLine("distance from apriltag: ");
+                telemetry.addLine("----------------");
+                telemetry.addLine("relative position to the camera: ");
                 telemetry.addData("x: ",detection.rawPose.x);
                 telemetry.addData("y: ",detection.rawPose.y);
                 telemetry.addData("z: ",detection.rawPose.z);
-                telemetry.addLine("distance from apriltag2: ");
-                telemetry.addData("x: ",detection.ftcPose.x);
-                telemetry.addData("y: ",detection.ftcPose.y);
-                telemetry.addData("z: ",detection.ftcPose.z);
-                telemetry.addLine();
+                telemetry.addLine("----------------");
+
                 telemetry.addData("bearing",detection.ftcPose.bearing);
                 telemetry.addData("range",detection.ftcPose.range);
                 telemetry.addData("yaw",detection.ftcPose.yaw);
 
+                telemetry.addLine("----------------");
+                telemetry.addData("Confidence: ", detection.decisionMargin);
+                telemetry.addLine("----------------");
+
+                telemetry.addLine("----------------");
                 telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)",
                         detection.robotPose.getOrientation().getPitch(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getRoll(AngleUnit.DEGREES),
                         detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES)));
+                telemetry.addLine("----------------");
 
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
