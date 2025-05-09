@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
@@ -56,7 +57,7 @@ public class TeleopApplication extends TeleopOpMode {
 
     WebcamCV camCV;
 
-    AprilTagSamplesPipeline aprilTagSamplesPipeline;
+    AprilTagPipeline aprilTagPipeline;
     boolean manuallyMoved = false;
 
     boolean highBasket = true;
@@ -78,14 +79,14 @@ public class TeleopApplication extends TeleopOpMode {
         //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
         camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
-        aprilTagSamplesPipeline = camCV.getAprilTagSamplesPipeline();
+        aprilTagPipeline = camCV.getAprilTagPipeline();
 
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
-        actionsDrive = new Drive(drive, camCV, telemetry, aprilTagSamplesPipeline);
+        actionsDrive = new Drive(drive, camCV, telemetry, aprilTagPipeline);
         actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for correct sequences
 
         movementUtils = new MovementUtils(hardwareMap);
@@ -157,11 +158,11 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runDriverActions() {
-        telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getRobotPosByAprilTag().position);
-        telemetry.addData("robot angle by apriltag: ",Math.toRadians(aprilTagSamplesPipeline.getRobotPosByAprilTag().heading.toDouble()));
+        telemetry.addData("robot pos by apriltag: ",aprilTagPipeline.getRobotPosByAprilTag().position);
+        telemetry.addData("robot angle by apriltag: ",Math.toRadians(aprilTagPipeline.getRobotPosByAprilTag().heading.toDouble()));
         telemetry.addData("robot pos: ", drive.pose.position);
-        if (aprilTagSamplesPipeline.getApriltagDetection() != null)
-            telemetry.addData("robot pos by apriltag: ",aprilTagSamplesPipeline.getApriltagDetection().ftcPose);
+        if (aprilTagPipeline.getApriltagDetection() != null)
+            telemetry.addData("robot pos by apriltag: ",aprilTagPipeline.getApriltagDetection().ftcPose);
 
         camCV.lookForSamples();
         Sample bestSample = camCV.getBestSample(drive.pose.position);

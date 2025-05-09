@@ -40,6 +40,7 @@ public class WebcamCV {
     OpenCvPipeline pipeline;
 
     AprilTagProcessor aprilTag;
+    AprilTagPipeline aprilTagPipeline;
     static AprilTagSamplesPipeline aprilTagSamplesPipeline;
     static DetectSamples detectSamples;
     List<Sample> samples = new ArrayList<>();
@@ -82,7 +83,9 @@ public class WebcamCV {
                     // ... these parameters are fx, fy, cx, cy.
 
                     .build();
+            aprilTagPipeline = new AprilTagPipeline(aprilTag, drive);
         }
+
     }
 
     /**
@@ -195,7 +198,7 @@ public class WebcamCV {
                 selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0]);
         }
         else
-            selectedPipeline = new AprilTagPipeline(aprilTag);
+            selectedPipeline = aprilTagPipeline;
 
         webcam.setPipeline(selectedPipeline);
 
@@ -215,7 +218,9 @@ public class WebcamCV {
         });
     }
 
-    public AprilTagSamplesPipeline getAprilTagSamplesPipeline() { return this.aprilTagSamplesPipeline;}
+    public AprilTagPipeline getAprilTagPipeline() {
+        return this.aprilTagPipeline;
+    }
 
 
 

@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
@@ -32,20 +33,20 @@ public class Drive {
 
     MecanumDrive drive;
 
-    AprilTagSamplesPipeline aprilTagSamplesPipeline;
+    AprilTagPipeline aprilTagPipeline;
     HardwareMap hardwareMap;
     WebcamCV camCV;
     Telemetry telemetry;
 
-    public Drive(MecanumDrive drive, WebcamCV camCV, Telemetry telemetry, AprilTagSamplesPipeline aprilTagSamplesPipeline) {
+    public Drive(MecanumDrive drive, WebcamCV camCV, Telemetry telemetry, AprilTagPipeline aprilTagPipeline) {
         this.drive = drive;
         this.camCV = camCV;
         this.telemetry = telemetry;
-        this.aprilTagSamplesPipeline = aprilTagSamplesPipeline;
+        this.aprilTagPipeline = aprilTagPipeline;
     }
 
     public Action moveApriltag(Pose2d targetPose) {
-        return new MoveApriltag(targetPose, drive, aprilTagSamplesPipeline);
+        return new MoveApriltag(targetPose, drive, aprilTagPipeline);
 
     }
 

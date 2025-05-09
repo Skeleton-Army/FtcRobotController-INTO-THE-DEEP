@@ -9,28 +9,29 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public class MoveApriltag implements Action {
-    AprilTagSamplesPipeline AprilTagSamplesPipeline;
+    AprilTagPipeline aprilTagPipeline;
     Pose2d targetPose;
 
     MecanumDrive drive;
 
     Pose2d robotPose;
 
-    public MoveApriltag(Pose2d targetPose, MecanumDrive drive, AprilTagSamplesPipeline AprilTagSamplesPipeline) {
+    public MoveApriltag(Pose2d targetPose, MecanumDrive drive, AprilTagPipeline aprilTagPipeline) {
         this.targetPose = targetPose;
         this.drive = drive;
-        this.AprilTagSamplesPipeline = AprilTagSamplesPipeline;
-        this.robotPose = AprilTagSamplesPipeline.getRobotPosByAprilTag();
+        this.aprilTagPipeline = aprilTagPipeline;
+        this.robotPose = aprilTagPipeline.getRobotPosByAprilTag();
         drive.pose = robotPose;
     }
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        AprilTagDetection detections = AprilTagSamplesPipeline.getApriltagDetection(); // gets the first detection that it sees
+        AprilTagDetection detections = aprilTagPipeline.getApriltagDetection(); // gets the first detection that it sees
 
         if (detections != null) {
 
