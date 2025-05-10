@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -17,8 +17,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
-import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
-import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 // very interesting path to push pedro to its limits with the bezier curves it provides
@@ -30,6 +28,9 @@ public class JuicyBezier extends OpMode {
     Pose beginPose = new Pose(24, 24, Math.toRadians(0));
     Outtake outtake;
 
+    public Action depositAction;
+
+
     @Override
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
@@ -37,6 +38,18 @@ public class JuicyBezier extends OpMode {
 
         outtake = new Outtake(hardwareMap);
         follower.followPath(GeneratedPath.paths);
+
+        depositAction  = new SequentialAction(
+                new ParallelAction(
+                        outtake.extend(OuttakeConfig.extendPosition),
+                        outtake.bucketReady()
+                ),
+                outtake.dunk(),
+                new ParallelAction(
+                        outtake.retract(),
+                        outtake.bucketToPosition(OuttakeConfig.bucketHold)
+                )
+        );
     }
 
     @Override
@@ -44,7 +57,7 @@ public class JuicyBezier extends OpMode {
         follower.update();
        // Pose ExtendingPos = new Pose(ExtendConfig.ExtendX, ExtendConfig.ExtendY, ExtendConfig.ExtendHeading);
 
-        Pose robotPos = follower.getPose().getAsPedroCoordinates();
+        //Pose robotPos = follower.getPose().getAsPedroCoordinates();
 
         /*boolean Condition = robotPos.getX() >= ExtendingPos.getX() &&
                 robotPos.getY() >= ExtendingPos.getY() &&
@@ -80,7 +93,6 @@ public class JuicyBezier extends OpMode {
 
         public static PathChain paths = builder
                 .addPath(
-                        // Line 1
                         new BezierCurve(
                                 new Point(24, 24, Point.CARTESIAN),
                                 new Point(47.118, 122.838, Point.CARTESIAN),
@@ -91,6 +103,7 @@ public class JuicyBezier extends OpMode {
                                 new Point(71.752, 101.346, Point.CARTESIAN)
                         )
                 )
+                .addParametricCallback(0.3, () -> new JuicyBezier().depositAction.run(new TelemetryPacket())) // runs the action when t=0.5
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(275))
                 .build();
     }
