@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.NoSleepAction;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
@@ -160,8 +161,8 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Throw sample
                     new SequentialAction(
-                            intake.extend(),
-                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.75),
+                            new NoSleepAction(intake.extend()),
+                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.5),
                             intake.openClaw(),
                             new SleepAction(0.1),
                             intake.retract()
@@ -245,7 +246,7 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.extendWrist(),
                             new SleepAction(0.1),
                             intake.closeClaw(),
-                            new SleepAction(0.1),
+                            new SleepAction(0.2),
                             intake.wristReady()
                     )
             );
