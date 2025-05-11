@@ -56,7 +56,7 @@ public class WebcamCV {
         this.onlyAprilTag = onlyAprilTag;
         if (withAprilTag || onlyAprilTag) {
             Position cameraPosition = new Position(DistanceUnit.INCH,
-                    CameraConfig.offsetXApriltag, CameraConfig.offsetZApriltag, CameraConfig.offsetYApriltag, 0); //TODO: figure out these!!!
+                    CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
             YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
                     CameraConfig.yaw, CameraConfig.offsetVertical,0, 0); //TODO: figure out these!!!
             aprilTag = new AprilTagProcessor.Builder()
