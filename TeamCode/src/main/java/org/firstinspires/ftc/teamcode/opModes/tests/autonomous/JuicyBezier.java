@@ -95,15 +95,15 @@ public class JuicyBezier extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Point(24, 24, Point.CARTESIAN),
-                                new Point(47.118, 122.838, Point.CARTESIAN),
-                                new Point(55.385, 112.918, Point.CARTESIAN),
-                                new Point(-50.000, 220.000, Point.CARTESIAN),
-                                new Point(30.090, 28.767, Point.CARTESIAN),
-                                new Point(18.186, 132.427, Point.CARTESIAN),
+                                new Point(45.09, 113.831, Point.CARTESIAN),
+                                new Point(50.07, 107, Point.CARTESIAN),
+                                new Point(-40, 210, Point.CARTESIAN),
+                                new Point(41.676, 33.5, Point.CARTESIAN),
+                                new Point(24.88, 139.95, Point.CARTESIAN),
                                 new Point(71.752, 101.346, Point.CARTESIAN)
                         )
                 )
-                .addParametricCallback(0.3, () -> new JuicyBezier().depositAction.run(new TelemetryPacket())) // runs the action when t=0.5
+                //.addParametricCallback(0.3, () -> new JuicyBezier().depositAction.run(new TelemetryPacket())) // runs the action when t=0.5
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(275))
                 .build();
     }
