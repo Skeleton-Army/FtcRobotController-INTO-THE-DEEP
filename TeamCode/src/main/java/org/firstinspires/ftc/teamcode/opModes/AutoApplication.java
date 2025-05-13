@@ -96,14 +96,14 @@ public class AutoApplication extends AutoOpMode {
     private final Pose submersibleCP2 = new Pose(107.95, 36.04);
 
     private final Pose toSubmersiblePose = new Pose(77.00, 40.00, Math.toRadians(90.00));
-    private final Pose toSubmersibleCP = new Pose(91.66, 20.62);
+    private final Pose toSubmersibleCP = new Pose(77.00, 16.00);
 
     private final Pose submersibleParkPose = new Pose(81.00, 45.00, Math.toRadians(90.00));
     private final Pose observationParkPose = new Pose(134.50, 122.00, Math.toRadians(-120.00));
 
-    private final Pose yellowSample1Pose = new Pose(124.25, 20.00, Math.toRadians(170.00));
-    private final Pose yellowSample2Pose = new Pose(123.25, 14.75, Math.toRadians(180.00));
-    private final Pose yellowSample3Pose = new Pose(120.25, 16.50, Math.toRadians(-150.00));
+    private final Pose yellowSample1Pose = new Pose(124.25, 19.50, Math.toRadians(175.00));
+    private final Pose yellowSample2Pose = new Pose(124.25, 14.25, Math.toRadians(180.00));
+    private final Pose yellowSample3Pose = new Pose(121.25, 16.50, Math.toRadians(-150.00));
 
     private final Pose colorSample1Pose = new Pose(114.00, 120.50, Math.toRadians(180.00));
     private final Pose colorSample2Pose = new Pose(112.50, 130.00, Math.toRadians(180.00));
@@ -472,13 +472,9 @@ public class AutoApplication extends AutoOpMode {
     private void collectYellowSample() {
         collectedSamples++;
 
-        Action wristSequence = new SequentialAction(
-                intake.extendWrist()
-//                new SleepAction(0.15)
-        );
-
         runAsync(intake.openClaw());
         runAsync(intake.rotate(0));
+        runAsync(intake.extendWrist());
 
         switch (collectedSamples) {
             case 1:
@@ -489,8 +485,7 @@ public class AutoApplication extends AutoOpMode {
                                         .addPath(new BezierLine(follower.getPose(), yellowSample1Pose))
                                         .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample1Pose.getHeading())
                                         .build()
-                                ),
-                                wristSequence
+                                )
                         )
                 );
                 break;
@@ -502,8 +497,7 @@ public class AutoApplication extends AutoOpMode {
                                         .addPath(new BezierLine(follower.getPose(), yellowSample2Pose))
                                         .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample2Pose.getHeading())
                                         .build()
-                                ),
-                                wristSequence
+                                )
                         )
                 );
                 break;
@@ -519,12 +513,7 @@ public class AutoApplication extends AutoOpMode {
                                         .addPath(new BezierLine(follower.getPose(), yellowSample3Pose))
                                         .setLinearHeadingInterpolation(follower.getPose().getHeading(), yellowSample3Pose.getHeading())
                                         .build()
-                                ),
-
-                                intake.extraOpenClaw(),
-                                wristSequence,
-                                new SleepAction(0.15),
-                                intake.closeClaw()
+                                )
                         )
                 );
                 break;
@@ -541,7 +530,7 @@ public class AutoApplication extends AutoOpMode {
 
         Action grab = new SequentialAction(
                 intake.closeClaw(),
-                new SleepAction(0.1)
+                new SleepAction(0.25)
         );
 
         Action intakeRetract = new SequentialAction(
@@ -565,9 +554,9 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -850),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -800),
                 outtake.dunk(),
-                new SleepAction(0.25)
+                new SleepAction(0.3)
         );
 
         Action dunkSequence = new ParallelAction(
@@ -592,7 +581,9 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             new FollowPath(follower, follower.pathBuilder()
                                     .addPath(new BezierCurve(follower.getPose(), submersibleCP1, submersibleCP2, basketPose))
-                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), basketPose.getHeading())
+//                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), basketPose.getHeading())
+                                    .setTangentHeadingInterpolation()
+                                    .setReversed(true)
                                     .build()
                             ),
                             new SequentialAction(
@@ -604,7 +595,7 @@ public class AutoApplication extends AutoOpMode {
         }
         else {
             // Grab sample
-            if (collectedSamples != 3) runBlocking(grab);
+            runBlocking(grab);
 
             // Retract and go to basket
             runBlocking(
@@ -627,7 +618,7 @@ public class AutoApplication extends AutoOpMode {
             runAsync(
                     new ParallelAction(
                             intake.openClaw(),
-                            intake.extend(0.9),
+                            intake.extend(0.8),
                             intake.wristReady()
                     )
             );
@@ -677,7 +668,8 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new FollowPath(follower, follower.pathBuilder()
                         .addPath(new BezierCurve(follower.getPose(), toSubmersibleCP, toSubmersiblePose))
-                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), toSubmersiblePose.getHeading())
+//                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), toSubmersiblePose.getHeading())
+                        .setTangentHeadingInterpolation()
                         .build()
                 )
         );
@@ -780,7 +772,8 @@ public class AutoApplication extends AutoOpMode {
                     runBlocking(
                             new FollowPath(follower, follower.pathBuilder()
                                     .addPath(new BezierCurve(follower.getPose(), toSubmersibleCP, submersibleParkPose))
-                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), submersibleParkPose.getHeading())
+//                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), submersibleParkPose.getHeading())
+                                    .setTangentHeadingInterpolation()
                                     .build()
                             )
                     );
