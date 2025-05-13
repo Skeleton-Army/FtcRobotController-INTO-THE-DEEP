@@ -44,7 +44,7 @@ public class PickupSample extends TeleopOpMode {
         camCV = new WebcamCV(hardwareMap, telemetry, drive, false, false);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, SampleColor.RED});
 
-        driveActions = new Drive(drive, camCV, telemetry, null);
+        driveActions = new Drive(drive, camCV, telemetry);
         webcamSequences = new Webcam(driveActions, intake, outtake, "red");
     }
 

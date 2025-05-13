@@ -29,4 +29,5 @@ public class IntakeConfig {
     public static double rotationLeft = 0.82;
     public static double rotationForward = 0.46;
     public static double rotationRight = 0;
+    public static double manualSpeed = -0.35;
 }

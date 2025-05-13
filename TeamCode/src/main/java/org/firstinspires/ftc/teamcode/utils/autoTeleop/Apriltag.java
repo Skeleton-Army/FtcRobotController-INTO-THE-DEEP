@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 
-import android.util.Size;
-
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -14,6 +11,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
@@ -37,8 +35,8 @@ public class Apriltag {
         this.hardwareMap = hardwareMap;
         this.drive = drive;
 
-        initAprilTag();
-        disableApriltag();
+        initAprilTag(); // creates the apriltag processor
+        //disableApriltag();
     }
 
     private void initAprilTag() {
@@ -51,7 +49,7 @@ public class Apriltag {
                 .setDrawCubeProjection(true)
                 //.setDrawTagOutline(true)
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                .setTagLibrary(AprilTagGameDatabase.getIntoTheDeepTagLibrary())
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
@@ -76,17 +74,17 @@ public class Apriltag {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(3);
+        aprilTag.setDecimation(1);
 
         // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
+        //VisionPortal.Builder builder = new VisionPortal.Builder();
 
         // Set the camera (webcam vs. built-in RC phone camera).
 
-        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        //builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2));
+        //builder.setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableLiveView(true);
@@ -100,10 +98,10 @@ public class Apriltag {
         //builder.setAutoStopLiveView(false);
 
         // Set and enable the processor.
-        builder.addProcessor(aprilTag);
+        //builder.addProcessor(aprilTag);
 
         // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
+        //visionPortal = builder.build();
 
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
@@ -111,17 +109,6 @@ public class Apriltag {
         currentDetections = aprilTag.getDetections();
 
     }   // end method initAprilTag()
-
-    public static Pose2d getRobotPos(AprilTagDetection aprilTagDetection) {
-        Position robotPose = aprilTagDetection.robotPose.getPosition();
-        double robotAngle = aprilTagDetection.robotPose.getOrientation().getYaw();
-
-        return new Pose2d(robotPose.x, robotPose.y, robotAngle);
-    }
-
-    public static void updateRobotPos(AprilTagDetection aprilTagDetection) {
-        drive.pose = getRobotPos(aprilTagDetection);
-    }
 
     public static List<AprilTagDetection> getCurrentDetections() {
         return aprilTag.getDetections();
@@ -131,6 +118,22 @@ public class Apriltag {
         return aprilTag;
     }
 
+    public Pose2d getRobotPosByAprilTag() {
+        if (!aprilTag.getDetections().isEmpty())  {
+            AprilTagDetection detection = aprilTag.getDetections().get(0);
+            Position detectionPos = detection.robotPose.getPosition();
+
+            drive.pose = new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
+            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
+        }
+        return drive.pose;
+    }
+
+    public AprilTagDetection getApriltagDetection() {
+        if (!aprilTag.getDetections().isEmpty())
+            return aprilTag.getDetections().get(0);
+        return null;
+    }
     public void enableApriltag() {
         visionPortal.setProcessorEnabled(aprilTag, true);
     }

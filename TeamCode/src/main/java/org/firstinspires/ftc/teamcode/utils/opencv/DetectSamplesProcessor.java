@@ -27,7 +27,6 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
-import org.openftc.easyopencv.OpenCvCamera;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import java.util.List;
 public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSource {
 
     public List<Sample> samples = new ArrayList<>();
-    public OpenCvCamera webcam;
 
     private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
@@ -49,9 +47,8 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
 
     private static Mat input;
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
-    public DetectSamplesProcessor(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
+    public DetectSamplesProcessor(Telemetry telemetry, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
-        this.webcam = webcam;
         this.drive = drive;
         thresholds = new Threshold[] { new Threshold(color) };
 
@@ -61,9 +58,8 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
                 cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
-    public DetectSamplesProcessor(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
+    public DetectSamplesProcessor(Telemetry telemetry, MecanumDrive drive, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
-        this.webcam = webcam;
         this.drive = drive;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 

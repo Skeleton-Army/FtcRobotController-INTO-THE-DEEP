@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import android.util.Size;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -14,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
@@ -24,16 +27,19 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
-import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
+import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamplesProcessor;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.List;
 
@@ -58,6 +64,10 @@ public class TeleopApplication extends TeleopOpMode {
     WebcamCV camCV;
 
     AprilTagPipeline aprilTagPipeline;
+
+    VisionPortal visionPortal;
+    Apriltag apriltagProcessor;
+    DetectSamplesProcessor detectSamplesProcessor;
     boolean manuallyMoved = false;
 
     boolean highBasket = true;
@@ -76,17 +86,34 @@ public class TeleopApplication extends TeleopOpMode {
 
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
+        // ---------- processors way ----------
+        apriltagProcessor = new Apriltag(hardwareMap, drive);
+        detectSamplesProcessor = new DetectSamplesProcessor(telemetry, drive, SampleColor.YELLOW, SampleColor.RED);
+        visionPortal = new VisionPortal.Builder()
+                .addProcessors(apriltagProcessor.getAprilTagAprocessor(), detectSamplesProcessor) // processor to the vision
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .enableLiveView(true) // live view for srcpy
+                .setAutoStopLiveView(true)
+                .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
+                .build();
+        // ---------- processors way ----------
+
+
+        // ---------- opencv pipelines way ----------
         //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
         camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
         aprilTagPipeline = camCV.getAprilTagPipeline();
+        // ---------- opencv pipelines way ----------
 
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         specimenArm = new SpecimenArm(hardwareMap);
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
-        actionsDrive = new Drive(drive, camCV, telemetry, aprilTagPipeline);
+        actionsDrive = new Drive(drive, camCV, telemetry);
         actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for correct sequences
 
         movementUtils = new MovementUtils(hardwareMap);
@@ -158,11 +185,22 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runDriverActions() {
-        telemetry.addData("robot pos by apriltag: ",aprilTagPipeline.getRobotPosByAprilTag().position);
-        telemetry.addData("robot angle by apriltag: ",Math.toRadians(aprilTagPipeline.getRobotPosByAprilTag().heading.toDouble()));
+        telemetry.addLine("--------------");
+        if (aprilTagPipeline != null) {
+            telemetry.addData("robot pos by apriltag x: ", aprilTagPipeline.getRobotPosByAprilTag().position.x);
+            telemetry.addData("robot pos by apriltag y: ", aprilTagPipeline.getRobotPosByAprilTag().position.y);
+            telemetry.addData("robot angle by apriltag: ", aprilTagPipeline.getRobotPosByAprilTag().heading.toDouble());
+        }
+
+        if (apriltagProcessor != null) {
+            telemetry.addData("robot pos by apriltag x: ", apriltagProcessor.getRobotPosByAprilTag().position.x);
+            telemetry.addData("robot pos by apriltag y: ", apriltagProcessor.getRobotPosByAprilTag().position.y);
+            telemetry.addData("robot angle by apriltag: ", apriltagProcessor.getRobotPosByAprilTag().heading.toDouble());
+        }
+        telemetry.addLine("--------------");
+
         telemetry.addData("robot pos: ", drive.pose.position);
-        if (aprilTagPipeline.getApriltagDetection() != null)
-            telemetry.addData("robot pos by apriltag: ",aprilTagPipeline.getApriltagDetection().ftcPose);
+
 
         camCV.lookForSamples();
         Sample bestSample = camCV.getBestSample(drive.pose.position);
@@ -172,7 +210,7 @@ public class TeleopApplication extends TeleopOpMode {
         if(bestSample != null) {
             telemetry.addData("sample detected x pos: ", bestSample.getSamplePosition().position.x);
             telemetry.addData("sample detected y pos: ", bestSample.getSamplePosition().position.y);
-            c.fillRect(bestSample.getSamplePosition().position.x, bestSample.getSamplePosition().position.y, 7,7);
+            c.fillRect(bestSample.getSamplePosition().position.x, bestSample.getSamplePosition().position.y, 3,3);
         }
         drive.updatePoseEstimate();
 
@@ -182,11 +220,11 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
             runAction("driver sequence",actionCam.pickupSample(bestSample));
         }
-        if (Utilities.isPressed(gamepad1.y)) { // running basketCycle sequence, only could run when an apriltag is in sight
+        if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline.getApriltagDetection() != null) || apriltagProcessor.getApriltagDetection() != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
             runAction("driver sequence",actionCam.basketCycle());
         }
         if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
-            runAction("driver sequence",actionsDrive.moveApriltag(new Pose2d(0,0,0)));
+            runAction("driver sequence",actionsDrive.MoveToPoint(new Pose2d(0,0,0)));
         }
         if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
             runSequentialActions("driver sequence",
