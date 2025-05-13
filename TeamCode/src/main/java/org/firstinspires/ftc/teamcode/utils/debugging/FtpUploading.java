@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
-import androidx.annotation.NonNull;
-
 import org.apache.commons.net.ftp.FTPFile;
 import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 
@@ -11,6 +9,7 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ public class FtpUploading {
     public boolean IsConnected() {
         return ftp.isConnected();
     }
+
     /**
      * Establishes a connection to the FTP server using configuration from {@link FtpConfig}.
      *
@@ -104,24 +104,29 @@ public class FtpUploading {
     /**
      * Uploads a file to the FTP server.
      *
-     * @param LocalFilePath  the local file path to upload.
-     * @param RemotePath the remote destination path on the FTP server.
-     * @param FileType   the file transfer mode (use {@link #ASCII} or {@link #BINARY}).
+     * @param LocalFilePath the local file path to upload.
+     * @param RemotePath    the remote destination path on the FTP server.
+     * @param FileType      the file transfer mode (use {@link #ASCII} or {@link #BINARY}).
+     * @param DeleteAfter   delete the local file after upload
      * @throws IOException if the file doesn't exist or upload fails.
      */
-    public void UploadFile(String LocalFilePath, String RemotePath, int FileType) throws Exception {
+    public void UploadFile(String LocalFilePath, String RemotePath, int FileType, boolean DeleteAfter) throws Exception {
         File FileToUpload = new File(LocalFilePath);
         if (FileType == 0 || FileType == 2) {
             this.ftp.setFileType(FileType);
             if (FileToUpload.exists()) {
                 this.ftp.storeFile(RemotePath, new FileInputStream(FileToUpload));
+                if (DeleteAfter) {
+                    FileToUpload.delete();
+                }
             } else {
                 throw new IOException("Input file does not exist");
             }
         } else {
             throw new Exception("Filetype isnt set to ASCII or Binary");
         }
-   }
+    }
+
     /**
      * Uploads a file to a remote FTP server.
      *
@@ -129,24 +134,28 @@ public class FtpUploading {
      * If the local file does not exist, it throws an {@link IOException}.</p>
      *
      * @param LocalFilePath the {@link File} object representing the path to the local file to be uploaded
-     * @param RemotePath the destination path on the remote FTP server where the file should be uploaded
-     * @param FileType the file type for FTP transmission
+     * @param RemotePath    the destination path on the remote FTP server where the file should be uploaded
+     * @param FileType      the file type for FTP transmission
+     * @param DeleteAfter   delete the local file after upload
      * @throws IOException if the local file does not exist or if an I/O error occurs during upload
      */
-    public void UploadFile(@NonNull File LocalFilePath, String RemotePath, int FileType) throws Exception {
-        if (FileType == 0 || FileType == 2){
+    public void UploadFile(File LocalFilePath, String RemotePath, int FileType, boolean DeleteAfter) throws Exception {
+        if (FileType == 0 || FileType == 2) {
             this.ftp.setFileType(FileType);
             if (LocalFilePath.exists()) {
                 this.ftp.storeFile(RemotePath, new FileInputStream(LocalFilePath));
+                if (DeleteAfter) {
+                    LocalFilePath.delete();
+                }
             } else {
                 throw new IOException("Input file does not exist");
             }
-        }
-        else {
+        } else {
             throw new Exception("Filetype isnt set to ASCII or Binary");
         }
 
     }
+
     /**
      * Retrieves a list of file names from the current directory of the connected FTP server.
      *
@@ -161,5 +170,59 @@ public class FtpUploading {
         }
         return FileList;
     }
-}
 
+    /**
+     * Downloads a file from a remote FTP server to a local destination file path.
+     *
+     * @param RemoteSrcFile   Path to the remote source file on the FTP server.
+     * @param LocalDestFile   Local file path where the file should be saved.
+     * @param FileType        Type of file transfer: 0 for ASCII, 2 for BINARY.
+     * @param DeleteRemote    If true, deletes the file from the remote FTP server after download.
+     * @throws IOException    If destination file exists, file type is invalid, or an I/O error occurs during download.
+     */
+    public void DownloadFile(String RemoteSrcFile, String LocalDestFile, int FileType, boolean DeleteRemote) throws IOException {
+        File Dest = new File(LocalDestFile);
+        FileOutputStream DestStream = new FileOutputStream(Dest);
+        if (FileType == 0 || FileType == 2) {
+            this.ftp.setFileType(FileType);
+            if (Dest.exists()) {
+                ftp.retrieveFile(RemoteSrcFile, DestStream);
+                if (DeleteRemote) {
+                    ftp.deleteFile(RemoteSrcFile);
+                }
+            } else {
+                throw new IOException("Destination file already exists");
+            }
+        } else {
+            throw new IOException("FileType isnt set to ASCII or BINARY");
+        }
+    }
+
+    /**
+     * Downloads a file from a remote FTP server to a specified local File object.
+     *
+     * @param RemoteSrcFile   Path to the remote source file on the FTP server.
+     * @param LocalDestFile   File object pointing to where the file should be saved.
+     * @param FileType        Type of file transfer: 0 for ASCII, 2 for BINARY.
+     * @param DeleteRemote    If true, deletes the file from the remote FTP server after download.
+     * @return                The downloaded local File object.
+     * @throws IOException    If destination file exists, file type is invalid, or an I/O error occurs during download.
+     */
+    public File DownloadFile(String RemoteSrcFile, File LocalDestFile, int FileType, boolean DeleteRemote) throws IOException {
+        FileOutputStream DestStream = new FileOutputStream(LocalDestFile);
+        if (FileType == 0 || FileType == 2) {
+            this.ftp.setFileType(FileType);
+            if (LocalDestFile.exists()) {
+                ftp.retrieveFile(RemoteSrcFile, DestStream);
+                if (DeleteRemote) {
+                    ftp.deleteFile(RemoteSrcFile);
+                }
+                return LocalDestFile;
+            } else {
+                throw new IOException("Destination file already exists");
+            }
+        } else {
+            throw new IOException("FileType isnt set to ASCII or BINARY");
+        }
+    }
+}

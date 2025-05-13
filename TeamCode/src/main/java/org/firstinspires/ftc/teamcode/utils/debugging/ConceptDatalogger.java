@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
@@ -47,9 +46,9 @@ public class ConceptDatalogger extends LinearOpMode {
         telemetry.setMsTransmissionInterval(50);
 
         // File setup
-        String LogDir = SDcard + "/FIRST/Datalogs/";
-        File LogFile = new File(SDcard + "Log");
-        telemetry.addLine("Log file name: " + LogFile.getName());
+        String LogDir = SDcard + "/FIRST/Datalogs";
+        File LogFile = new File(LogDir + "/Log.csv");
+        telemetry.addLine("Log file name: " + LogFile.getAbsolutePath());
         telemetry.update();
 
         datalog = new Datalog(LogFile.getName());
@@ -98,21 +97,23 @@ public class ConceptDatalogger extends LinearOpMode {
                 if (ftp.IsConnected()){
                     telemetry.addLine("Connetion successful!");
                     List<String> FtpFileList = ftp.ListFiles();
-                    index = 1;
-                    String NewLogFileName;
+                    int index = 1;
+                    String NewLogFileName = "";
                     do {
                         NewLogFileName = "my_log" + index + ".csv";
                         index++;
                     } while(FtpFileList.contains(NewLogFileName));
                     RenameFile(LogFile, NewLogFileName);
+                    wait(200);
                     telemetry.addData("Attempting to upload file ", LogFile.getName());
                     telemetry.update();
-                    ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII);
+                    ftp.UploadFile(LogFile, "/sigmasigmasigma.csv", FtpUploading.ASCII, false);
                     if (ftp.GetReplyCode() == 226) {
                         telemetry.addLine("Upload successful!");
+                        ftp.Disconnect();
                         telemetry.addLine("Attempting to delete local file");
                         telemetry.update();
-                        if (LogFile.delete()){
+                        if (!LogFile.delete()){
                             telemetry.addLine("File deletion failed! Please remove file later");
                         }
                     } else {
@@ -131,7 +132,6 @@ public class ConceptDatalogger extends LinearOpMode {
 
     public static class Datalog {
         private final Datalogger datalogger;
-
         public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
         public Datalogger.GenericField loopCounter  = new Datalogger.GenericField("Loop Counter");
         public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
@@ -159,10 +159,7 @@ public class ConceptDatalogger extends LinearOpMode {
         }
     }
     private void RenameFile(File OriginalFile, String NewName) throws IOException {
-        File FileWithNewName = new File(OriginalFile.getParent(), NewName);
-        boolean success = OriginalFile.renameTo(FileWithNewName);
-        if (!success) {
-            throw new IOException("File renaming faild!");
-        }
-   }
+        File FileWithNewName = new File(OriginalFile, NewName);
+        OriginalFile.renameTo(FileWithNewName);
+    }
 }
