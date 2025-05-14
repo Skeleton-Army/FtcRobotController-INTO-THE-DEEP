@@ -1,7 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -19,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
 import org.firstinspires.ftc.teamcode.utils.actions.NoSleepAction;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
@@ -90,7 +96,6 @@ public class TeleopApplication extends TeleopOpMode {
         movementUtils.movement();
 
         // Run systems
-        runIntakeWithDeposit();
         runIntake();
         runIntakeControls();
         runGrab();
@@ -123,7 +128,7 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.update();
     }
 
-    public void runIntakeWithDeposit() {
+    public void runIntake() {
         if (Utilities.isPressed(gamepad2.a)) {
             runSequentialActions(
                     "intake",
@@ -131,48 +136,40 @@ public class TeleopApplication extends TeleopOpMode {
                     // Extend intake
                     new SequentialAction(
                             intake.wristReady(),
-                            intake.extend(0.75),
-                            intake.openClaw()
+                            intake.extend(0.75)
                     ),
 
                     // Retract intake
-                    new ParallelAction(
+                    new SequentialAction(
                             intake.closeClaw(),
                             intake.retractWrist(),
                             intake.rotate(0),
-                            outtake.hold(),
-                            new SequentialAction(
-                                    new SleepAction(0.2),
-                                    intake.retract(),
-                                    intake.openClaw(),
-                                    intake.wristMiddle(),
-                                    new SleepAction(0.2),
-                                    outtake.bucketMiddle()
-                            )
+                            new SleepAction(0.2),
+                            intake.retract(),
+
+                            new ConditionAction(
+                                    new SequentialAction(
+                                            outtake.hold(),
+                                            intake.openClaw(),
+                                            intake.wristMiddle(),
+                                            new SleepAction(0.2),
+                                            outtake.bucketMiddle()
+                                    ),
+                                    () -> !gamepad2.a
+                            ),
+
+                            intake.wristMiddle()
                     )
             );
         }
-    }
-
-    public void runIntake() {
-        if (Utilities.isPressed(gamepad2.x)) {
-            runSequentialActions(
-                    "intake",
-
-                    // Throw sample
+        else if (Utilities.isReleased(gamepad2.a) && isInState("intake", 0) && !isActionRunning("intake", 1)) {
+            runAction(
                     new SequentialAction(
+                            intake.wristMiddle(),
                             new NoSleepAction(intake.extend()),
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.5),
                             intake.openClaw(),
-                            new SleepAction(0.1),
-                            intake.retract()
-                    ),
-
-                    // Retract intake
-                    new SequentialAction(
-                            intake.wristMiddle(),
-                            new SleepAction(0.3),
-                            intake.rotate(0),
+                            new SleepAction(0.2),
                             intake.retract()
                     )
             );
@@ -240,7 +237,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runGrab() {
-        if (Utilities.isPressed(gamepad2.right_bumper)) {
+        if (Utilities.isPressed(gamepad2.right_bumper) && isInState("intake", 1)) {
             runAction(
                     new SequentialAction(
                             intake.extendWrist(),
