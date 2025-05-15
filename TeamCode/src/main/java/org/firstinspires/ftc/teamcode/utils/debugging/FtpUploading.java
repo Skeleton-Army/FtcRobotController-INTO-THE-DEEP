@@ -38,12 +38,22 @@ public class FtpUploading {
     private FTPClient ftp;
 
     /**
-     * Constructs a new {@code FtpUploading} instance and connects to the FTP server.
+     * Constructs an instance of the {@code FtpUploading} class.
+     * <p>
+     * During instantiation, this constructor checks if the FTP configuration is valid
+     * using {@code IsConfigValid()}. If the configuration is valid, it attempts to
+     * establish a connection via the {@code Connect()} method. If the configuration
+     * is invalid, a {@link ConfigurationException} is thrown.
      *
-     * @throws IOException if the connection to the server fails.
+     * @throws ConfigurationException if the FTP configuration is invalid
+     * @throws IOException              if an error occurs during the connection process
      */
-    public FtpUploading() throws IOException {
-        Connect();
+    public FtpUploading() throws Exception {
+        if (IsConfigValid()) {
+            Connect();
+        } else {
+            throw new ConfigurationException("Invalid FTP configuration");
+        }
     }
 
     /**
@@ -136,15 +146,15 @@ public class FtpUploading {
      * @param LocalFilePath the {@link File} object representing the path to the local file to be uploaded
      * @param RemotePath    the destination path on the remote FTP server where the file should be uploaded
      * @param FileType      the file type for FTP transmission
-     * @param DeleteAfter   delete the local file after upload
+     * @param DeleteSrc   delete the local file after upload
      * @throws IOException if the local file does not exist or if an I/O error occurs during upload
      */
-    public void UploadFile(File LocalFilePath, String RemotePath, int FileType, boolean DeleteAfter) throws Exception {
+    public void UploadFile(File LocalFilePath, String RemotePath, int FileType, boolean DeleteSrc) throws Exception {
         if (FileType == 0 || FileType == 2) {
             this.ftp.setFileType(FileType);
             if (LocalFilePath.exists()) {
                 this.ftp.storeFile(RemotePath, new FileInputStream(LocalFilePath));
-                if (DeleteAfter) {
+                if (DeleteSrc) {
                     LocalFilePath.delete();
                 }
             } else {
@@ -224,5 +234,18 @@ public class FtpUploading {
         } else {
             throw new IOException("FileType isnt set to ASCII or BINARY");
         }
+    }
+    /**
+     * Checks whether the FTP configuration is valid by ensuring that
+     * default placeholder values are not being used.
+     *
+     * @return true if all FTP configuration fields (Server, User, Password)
+     *         have been set to values other than the default placeholders;
+     *         false otherwise.
+     */
+    private boolean IsConfigValid() {
+        return !FtpConfig.Server.equals("192.168.x.x") &&
+                !FtpConfig.User.equals("Enter UserName") &&
+                !FtpConfig.Password.equals("Enter Password");
     }
 }

@@ -103,11 +103,11 @@ public class ConceptDatalogger extends LinearOpMode {
                         NewLogFileName = "my_log" + index + ".csv";
                         index++;
                     } while(FtpFileList.contains(NewLogFileName));
-                    RenameFile(LogFile, NewLogFileName);
-                    wait(200);
+                    sleep(200);
+                    renameFile(LogFile, NewLogFileName);
                     telemetry.addData("Attempting to upload file ", LogFile.getName());
                     telemetry.update();
-                    ftp.UploadFile(LogFile, "/sigmasigmasigma.csv", FtpUploading.ASCII, false);
+                    ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII, false);
                     if (ftp.GetReplyCode() == 226) {
                         telemetry.addLine("Upload successful!");
                         ftp.Disconnect();
@@ -153,13 +153,36 @@ public class ConceptDatalogger extends LinearOpMode {
                     )
                     .build();
         }
-
         public void writeLine() {
             datalogger.writeLine();
         }
     }
-    private void RenameFile(File OriginalFile, String NewName) throws IOException {
-        File FileWithNewName = new File(OriginalFile, NewName);
-        OriginalFile.renameTo(FileWithNewName);
+    /**
+     * Renames the given file to the new name within the same directory.
+     *
+     * @param originalFile The original File object.
+     * @param newName The new name for the file (without directory path).
+     *
+     */
+    public static void renameFile(File originalFile, String newName) throws IOException {
+        if (originalFile == null || newName == null || newName.trim().isEmpty()) {
+            throw new IOException("Invalid file or new name.");
+        }
+
+        if (!originalFile.exists()) {
+            throw new IOException("Original file does not exist: " + originalFile.getAbsolutePath());
+        }
+
+        File parentDir = originalFile.getParentFile();
+        File renamedFile = new File(parentDir, newName);
+
+        if (renamedFile.exists()) {
+            throw new IOException("A file with the new name already exists: " + renamedFile.getAbsolutePath());
+        }
+
+        boolean success = originalFile.renameTo(renamedFile);
+        if (!success) {
+            throw new IOException("Failed to rename the file.");
+        }
     }
 }

@@ -8,5 +8,4 @@ public class FtpConfig {
     public static int ServerPort = 21;
     public static String User = "Enter UserName";
     public static String Password = "Enter Password";
-
 }
