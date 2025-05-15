@@ -142,13 +142,15 @@ public class TeleopApplication extends TeleopOpMode {
                     // Retract intake
                     new SequentialAction(
                             intake.closeClaw(),
-                            intake.retractWrist(),
+                            intake.wristMiddle(),
                             intake.rotate(0),
                             new SleepAction(0.2),
                             intake.retract(),
 
                             new ConditionAction(
                                     new SequentialAction(
+                                            intake.retractWrist(),
+                                            new SleepAction(0.3 ),
                                             outtake.hold(),
                                             intake.openClaw(),
                                             intake.wristMiddle(),
@@ -156,9 +158,7 @@ public class TeleopApplication extends TeleopOpMode {
                                             outtake.bucketMiddle()
                                     ),
                                     () -> !gamepad2.a
-                            ),
-
-                            intake.wristMiddle()
+                            )
                     )
             );
         }
@@ -240,8 +240,9 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad2.right_bumper) && isInState("intake", 1)) {
             runAction(
                     new SequentialAction(
+                            intake.openClaw(),
                             intake.extendWrist(),
-                            new SleepAction(0.1),
+                            new SleepAction(0.25),
                             intake.closeClaw(),
                             new SleepAction(0.2),
                             intake.wristReady()
