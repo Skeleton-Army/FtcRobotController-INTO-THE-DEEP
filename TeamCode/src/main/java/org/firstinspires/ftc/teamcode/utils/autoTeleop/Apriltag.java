@@ -22,7 +22,7 @@ public class Apriltag {
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            CameraConfig.yaw, CameraConfig.pitch, CameraConfig.roll, 0); //TODO: figure out these!!!
+            CameraConfig.yaw, CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
 
 
     List<AprilTagDetection> currentDetections;

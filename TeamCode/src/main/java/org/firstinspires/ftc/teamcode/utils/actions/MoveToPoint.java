@@ -11,18 +11,13 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 
 public class MoveToPoint implements Action {
-    AprilTagPipeline aprilTagPipeline;
     Pose2d targetPose;
 
     MecanumDrive drive;
 
-    Pose2d robotPose;
-
     public MoveToPoint(Pose2d targetPose, MecanumDrive drive) {
         this.targetPose = targetPose;
         this.drive = drive;
-        this.robotPose = aprilTagPipeline.getRobotPosByAprilTag();
-        drive.pose = robotPose;
     }
 
     @Override

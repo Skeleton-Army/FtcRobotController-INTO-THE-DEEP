@@ -71,6 +71,7 @@ public class TeleopApplication extends TeleopOpMode {
     boolean manuallyMoved = false;
 
     boolean highBasket = true;
+    Sample bestSample;
 
     Canvas c;
     //TelemetryPacket telemetryPacket;
@@ -103,9 +104,9 @@ public class TeleopApplication extends TeleopOpMode {
 
         // ---------- opencv pipelines way ----------
         //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
-        camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
-        aprilTagPipeline = camCV.getAprilTagPipeline();
+        //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
+        //camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
+        //aprilTagPipeline = camCV.getAprilTagPipeline();
         // ---------- opencv pipelines way ----------
 
         intake = new Intake(hardwareMap);
@@ -202,8 +203,8 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("robot pos: ", drive.pose.position);
 
 
-        camCV.lookForSamples();
-        Sample bestSample = camCV.getBestSample(drive.pose.position);
+        //camCV.lookForSamples();
+        //bestSample = camCV.getBestSample(drive.pose.position);
 
         // drawing the best sample (the selected sample to pickup)
 
@@ -220,7 +221,7 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad1.b)) { // running the pickupSample sequence
             runAction("driver sequence",actionCam.pickupSample(bestSample));
         }
-        if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline.getApriltagDetection() != null) || apriltagProcessor.getApriltagDetection() != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
+        if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline != null) || apriltagProcessor != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
             runAction("driver sequence",actionCam.basketCycle());
         }
         if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
