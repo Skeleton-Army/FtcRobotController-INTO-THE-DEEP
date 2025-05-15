@@ -630,26 +630,7 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SleepUntilAction(() -> camCV.lookForSamples()));
 
-        Vector2d bestSamplePos = new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX);
 
-        Sample targetSample = camCV.getBestSampleInRange(bestSamplePos, lower, upper);
-
-        if (targetSample == null)
-            targetSample = camCV.getBestSample(bestSamplePos);
-
-        Vector2d relative = drive.pose.position.minus(targetSample.getSamplePosition().position);
-        double distance = relative.norm();
-
-        runBlocking(
-                new SequentialAction(
-                        new ParallelAction(
-                                driveActions.turnToSample(intake, targetSample),
-                                new SequentialAction(
-                                        intake.wristReady(),
-                                        intake.openClaw(),
-                                        intake.extendInches(Math.sqrt(
-                                                Math.pow(distance, 2) - Math.pow(IntakeConfig.offsetFromCenterX, 2))))),
-                        grabSequence));
 
         // runBlocking(
         // new SequentialAction(

@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
+import static com.acmerobotics.roadrunner.ftc.Actions.runBlocking;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -21,6 +23,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -73,57 +76,70 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(
-                driveActions.alignToSample(targetSample.getSamplePosition().position)
-        );
-
-        double orientation = -Drive.targetSampleStatic.orientation;
-        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-        double rotationTarget = normalizedOrientation / 90;
-
 //        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
 //        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
 //        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 //        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        Vector2d bestSamplePos = new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX);
 
-        Actions.runBlocking(
-                intake.rotate(rotationTarget)
-        );
+        Sample targetSample = camCV.getBestSample(bestSamplePos);
 
-        Actions.runBlocking(
+        if (targetSample == null)
+            targetSample = camCV.getBestSample(bestSamplePos);
+
+        Vector2d relative = drive.pose.position.minus(targetSample.getSamplePosition().position);
+        double distance = relative.norm();
+
+        runBlocking(
                 new SequentialAction(
-                        intake.openClaw(),
-                        intake.wristReady(),
-                        intake.extend(),
-                        intake.extendWrist(),
-                        new SleepAction(0.2),
-
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
-
-                        intake.closeClaw(),
-                        new SleepAction(0.2),
-
-                        outtake.hold(),
-                        intake.retractWrist(),
-                        new SleepAction(0.1),
-                        intake.rotate(0),
-                        intake.retract(),
-                        intake.openClaw(),
-                        new SleepAction(0.05),
-                        intake.wristMiddle(),
-                        new SleepAction(0.2)
+                        new ParallelAction(
+                                driveActions.turnToSample(intake, targetSample),
+                                new SequentialAction(
+                                        intake.wristReady(),
+                                        intake.openClaw()
+                                )
+                        )
                 )
         );
 
-        Actions.runBlocking(
-                drive.actionBuilder(drive.pose)
-                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(180))
-                        .build()
-        );
+//        runBlocking(
+//                intake.rotate(rotationTarget)
+//        );
+//
+//        runBlocking(
+//                new SequentialAction(
+//                        intake.openClaw(),
+//                        intake.wristReady(),
+//                        intake.extend(),
+//                        intake.extendWrist(),
+//                        new SleepAction(0.2),
+//
+////                        drive.actionBuilder(drive.pose)
+////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
+////                                .afterDisp(wiggleDistance, intake.closeClaw())
+////                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
+////                                .build(),
+//
+//                        intake.closeClaw(),
+//                        new SleepAction(0.2),
+//
+//                        outtake.hold(),
+//                        intake.retractWrist(),
+//                        new SleepAction(0.1),
+//                        intake.rotate(0),
+//                        intake.retract(),
+//                        intake.openClaw(),
+//                        new SleepAction(0.05),
+//                        intake.wristMiddle(),
+//                        new SleepAction(0.2)
+//                )
+//        );
+//
+//        runBlocking(
+//                drive.actionBuilder(drive.pose)
+//                        .splineToConstantHeading(new Vector2d(0, 0), Math.toRadians(180))
+//                        .build()
+//        );
 
         requestOpModeStop();
     }
