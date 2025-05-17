@@ -475,7 +475,7 @@ public class AutoApplication extends AutoOpMode {
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
                                         .afterDisp(6, wristSequence)
-                                        .splineToLinearHeading(new Pose2d(-57.25, -51.25, Math.toRadians(90)), Math.PI)
+                                        .splineToLinearHeading(new Pose2d(-57.5, -51.25, Math.toRadians(90)), Math.PI)
                                         .build()
                         )
                 );
@@ -552,7 +552,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-55, -55, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                                    .splineToLinearHeading(new Pose2d(-56, -54.5, Math.toRadians(45)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
                                     .build(),
                             dunkSequence
                     )
@@ -570,7 +570,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-51 + xCompensation, -54 - yCompensation, Math.toRadians(45 + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
+                                    .splineToLinearHeading(new Pose2d(-56 + xCompensation, -54.5 - yCompensation, Math.toRadians(45 + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
