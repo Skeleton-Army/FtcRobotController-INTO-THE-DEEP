@@ -9,12 +9,12 @@ public class SpecimenArmConfig {
     public static String grabServoName = "specimenGrab";
 
     public static int intakePosition = -15;
-    public static int outtakePosition = -620;
+    public static int outtakePosition = -595;
     public static int hangedPosition = -680;
     public static int parkPosition = -550;
 
-    public static double gripIntake = 0.75;
-    public static double gripOuttake = 0.05;
+    public static double gripIntake = 0.8;
+    public static double gripOuttake = 0.15;
 
     public static double grabClose = 0.65;
     public static double grabOpen = 0.3;
