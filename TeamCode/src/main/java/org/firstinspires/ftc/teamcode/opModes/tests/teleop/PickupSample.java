@@ -96,7 +96,7 @@ public class PickupSample extends TeleopOpMode {
                         intake.wristReady(),
                         intake.extend(),
                         intake.extendWrist(),
-                        new SleepAction(0.2),
+                        new SleepAction(0.3),
 
 //                        drive.actionBuilder(drive.pose)
 //                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))

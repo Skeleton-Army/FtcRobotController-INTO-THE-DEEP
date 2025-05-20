@@ -11,7 +11,7 @@ public class IntakeConfig {
     public static String rotationName = "rotation";
 
     public static double motorPower = 1;
-    public static int extendPosition = -780;
+    public static int extendPosition = -450;
     public static int retractPosition = 0;
 
     public static int velocityThreshold = 500;
@@ -30,5 +30,5 @@ public class IntakeConfig {
     public static double rotationForward = 0.46;
     public static double rotationRight = 0;
 
-    public static double manualSpeed = -0.5;
+    public static double manualSpeed = 0.6;
 }

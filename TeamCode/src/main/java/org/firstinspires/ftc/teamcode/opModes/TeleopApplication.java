@@ -150,7 +150,7 @@ public class TeleopApplication extends TeleopOpMode {
                             new ConditionAction(
                                     new SequentialAction(
                                             intake.retractWrist(),
-                                            new SleepAction(0.3 ),
+                                            new SleepAction(0.3),
                                             outtake.hold(),
                                             intake.openClaw(),
                                             intake.wristMiddle(),
@@ -167,7 +167,7 @@ public class TeleopApplication extends TeleopOpMode {
                     new SequentialAction(
                             intake.wristMiddle(),
                             new NoSleepAction(intake.extend()),
-                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.5),
+                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() < IntakeConfig.extendPosition * 0.5),
                             intake.openClaw(),
                             new SleepAction(0.2),
                             intake.retract()
@@ -188,16 +188,18 @@ public class TeleopApplication extends TeleopOpMode {
                 case "-1,0":
                     runAction(intake.rotate(-1)); break;
                 case "-1,1":
+                    runAction(intake.rotate(-0.5)); break;
                 case "0,1":
-                case "1,1":
                     runAction(intake.rotate(0)); break;
+                case "1,1":
+                    runAction(intake.rotate(0.5)); break;
                 case "1,0":
                     runAction(intake.rotate(1)); break;
             }
         }
 
         // Intake manual movement
-        if (Math.abs(gamepad2.right_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.right_stick_y > 0 || intake.motor.getCurrentPosition() < IntakeConfig.extendPosition)) {
+        if (Math.abs(gamepad2.right_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.right_stick_y > 0 || intake.motor.getCurrentPosition() > IntakeConfig.extendPosition)) {
             manuallyMoved = true;
             intake.setPower(gamepad2.right_stick_y * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
