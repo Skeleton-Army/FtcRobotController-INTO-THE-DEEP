@@ -62,7 +62,7 @@ public class FtpUploading {
      * @return If client is connected to the server
      */
     public boolean IsConnected() {
-        return ftp.isConnected();
+        return this.ftp.isConnected();
     }
 
     /**
@@ -89,7 +89,7 @@ public class FtpUploading {
      *
      * @throws IOException if an I/O error occurs while disconnecting.
      */
-    public void Disconnect() throws IOException {
+    public void Exit() throws IOException {
         this.ftp.disconnect();
     }
 
@@ -173,12 +173,49 @@ public class FtpUploading {
      * @throws IOException If an I/O error occurs while communicating with the FTP server.
      */
     public List<String> ListFiles() throws IOException {
-        FTPFile[] list = ftp.listFiles();
+        FTPFile[] list = this.ftp.listFiles();
         List<String> FileList = new ArrayList<>();
         for (FTPFile file : list) {
             FileList.add(file.getName());
         }
         return FileList;
+    }
+
+    /**
+     * Retrieves a list of filenames from the specified path on the FTP server.
+     *
+     * @param path The remote directory path from which to list files.
+     * @return A list of file names (as Strings) from the given path.
+     * @throws IOException If an I/O error occurs while accessing the FTP server.
+     */
+    public List<String> ListFiles(String path) throws IOException {
+        FTPFile[] list = this.ftp.listFiles(path);
+        List<String> FileList = new ArrayList<>();
+        for (FTPFile file : list) {
+            FileList.add(file.getName());
+        }
+        return FileList;
+    }
+
+    /**
+     * Retrieves a list of {@link FTPFile} objects from the current working directory on the FTP server.
+     *
+     * @return An array of {@link FTPFile} representing files and directories in the current directory.
+     * @throws IOException If an I/O error occurs while accessing the FTP server.
+     */
+    public FTPFile[] getFTPFiles() throws IOException {
+        return this.ftp.listFiles();
+    }
+
+    /**
+     * Retrieves a list of {@link FTPFile} objects from the specified directory on the FTP server.
+     *
+     * @param path The remote directory path to list files from.
+     * @return An array of {@link FTPFile} representing files and directories in the specified path.
+     * @throws IOException If an I/O error occurs while accessing the FTP server.
+     */
+    public FTPFile[] getFTPFiles(String path) throws IOException {
+        return this.ftp.listFiles(path);
     }
 
     /**
@@ -196,7 +233,7 @@ public class FtpUploading {
         if (FileType == 0 || FileType == 2) {
             this.ftp.setFileType(FileType);
             if (Dest.exists()) {
-                ftp.retrieveFile(RemoteSrcFile, DestStream);
+                this.ftp.retrieveFile(RemoteSrcFile, DestStream);
                 if (DeleteRemote) {
                     ftp.deleteFile(RemoteSrcFile);
                 }
@@ -223,7 +260,7 @@ public class FtpUploading {
         if (FileType == 0 || FileType == 2) {
             this.ftp.setFileType(FileType);
             if (LocalDestFile.exists()) {
-                ftp.retrieveFile(RemoteSrcFile, DestStream);
+                this.ftp.retrieveFile(RemoteSrcFile, DestStream);
                 if (DeleteRemote) {
                     ftp.deleteFile(RemoteSrcFile);
                 }
@@ -235,6 +272,7 @@ public class FtpUploading {
             throw new IOException("FileType isnt set to ASCII or BINARY");
         }
     }
+
     /**
      * Checks whether the FTP configuration is valid by ensuring that
      * default placeholder values are not being used.
@@ -247,5 +285,40 @@ public class FtpUploading {
         return !FtpConfig.Server.equals("192.168.x.x") &&
                 !FtpConfig.User.equals("Enter UserName") &&
                 !FtpConfig.Password.equals("Enter Password");
+    }
+
+    /**
+     * Logs out from the FTP server.
+     *
+     * @throws IOException if an I/O error occurs during logout
+     */
+    public void logout() throws IOException {
+        this.ftp.logout();
+    }
+
+    /**
+     * Logs out from the FTP server and then disconnects the FTP session.
+     * <p>
+     * This method calls {@code ftp.logout()} followed by {@code ftp.disconnect()} to ensure
+     * the session is cleanly terminated and the connection is properly closed.
+     * </p>
+     *
+     * @throws IOException if an I/O error occurs during logout or disconnect
+     */
+    public void disconnect() throws IOException {
+        this.ftp.logout();
+        this.ftp.disconnect();
+    }
+
+    /**
+     * Changes the current working directory on the FTP server to the specified path.
+     *
+     * @param path the absulute path to which the working directory should be changed.
+     *
+     * @return {@code true} if the working directory was successfully changed, {@code false} otherwise.
+     * @throws IOException if an I/O error occurs while communicating with the FTP server.
+     */
+    public boolean changeWorkingDirectory(String path) throws IOException {
+        return this.ftp.changeWorkingDirectory(path);
     }
 }

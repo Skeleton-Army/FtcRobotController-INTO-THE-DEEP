@@ -110,7 +110,7 @@ public class ConceptDatalogger extends LinearOpMode {
                     ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII, false);
                     if (ftp.GetReplyCode() == 226) {
                         telemetry.addLine("Upload successful!");
-                        ftp.Disconnect();
+                        ftp.disconnect();
                         telemetry.addLine("Attempting to delete local file");
                         telemetry.update();
                         if (!LogFile.delete()){

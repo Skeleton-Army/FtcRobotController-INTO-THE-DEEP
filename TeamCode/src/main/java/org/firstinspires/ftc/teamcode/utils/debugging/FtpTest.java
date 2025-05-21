@@ -63,7 +63,7 @@ public class FtpTest extends LinearOpMode {
                 telemetry.addLine("Download Failed");
                 telemetry.update();
             }
-            ftpUploading.Disconnect();
+            ftpUploading.disconnect();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
