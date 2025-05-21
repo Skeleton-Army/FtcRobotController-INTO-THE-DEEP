@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
@@ -59,8 +60,11 @@ public class TeleopApplication extends TeleopOpMode {
     DigitalChannel outtakeSwitch;
 
     boolean manuallyMoved = false;
+    boolean hangExtended = false;
 
     OuttakeMode outtakeMode = OuttakeMode.HIGH;
+
+    ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void init() {
@@ -88,6 +92,8 @@ public class TeleopApplication extends TeleopOpMode {
 
         runAction(intake.wristMiddle());
         runAction(intake.rotate(0));
+
+        runtime.reset();
     }
 
     @Override
@@ -323,6 +329,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     public void runHang() {
         if (Utilities.isPressed(gamepad2.start)) {
+            hangExtended = true;
+
             runSequentialActions(
                     // Ready hang
                     hang.middleHang(),
@@ -332,6 +340,14 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract hang
                     hang.retractHang()
+            );
+        }
+
+        if (runtime.seconds() >= 90 && !hangExtended) {
+            hangExtended = true;
+
+            runAction(
+                    hang.middleHang()
             );
         }
     }
