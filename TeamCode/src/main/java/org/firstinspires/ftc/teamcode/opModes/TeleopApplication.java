@@ -152,7 +152,9 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.wristMiddle(),
                             intake.rotate(0),
                             new SleepAction(0.2),
-                            intake.retract(),
+                            new NoSleepAction(intake.retract()),
+
+                            new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.3),
 
                             new ConditionAction(
                                     new SequentialAction(
@@ -175,8 +177,10 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.wristMiddle(),
                             new NoSleepAction(intake.extend()),
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() < IntakeConfig.extendPosition * 0.5),
+                            intake.wristReady(),
                             intake.openClaw(),
                             new SleepAction(0.2),
+                            intake.wristMiddle(),
                             intake.retract()
                     )
             );
