@@ -12,7 +12,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
@@ -47,6 +49,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     boolean highBasket = true;
 
+    IMU imu;
+
     @Override
     public void init() {
         Instance = this;
@@ -64,6 +68,7 @@ public class TeleopApplication extends TeleopOpMode {
 //        intakeSensor = new IntakeSensor(hardwareMap);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
+        imu = follower.poseUpdater.getLocalizer().getIMU(); // the imu pedro also uses for localizations
     }
 
     @Override
@@ -112,6 +117,13 @@ public class TeleopApplication extends TeleopOpMode {
 //        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
         telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+
+        // graph this onto the dashboard in order to see if collision occurred
+        telemetry.addData("IMU rotation x: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).xRotationRate);
+        telemetry.addData("IMU rotation y: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).yRotationRate);
+        telemetry.addData("IMU rotation z: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate);
+
+        telemetry.addData("IMU acquisition time: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).acquisitionTime);
 
         telemetry.update();
     }
