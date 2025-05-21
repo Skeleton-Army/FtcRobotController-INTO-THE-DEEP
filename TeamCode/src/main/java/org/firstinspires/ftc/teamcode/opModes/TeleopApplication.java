@@ -130,6 +130,7 @@ public class TeleopApplication extends TeleopOpMode {
 //        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
         telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+        telemetry.addData("Intake Rotation", Math.atan2(gamepad2.left_stick_x, -gamepad2.left_stick_y));
 
         telemetry.update();
     }
@@ -185,22 +186,30 @@ public class TeleopApplication extends TeleopOpMode {
     public void runIntakeControls() {
         // Intake claw rotation
         if (isInState("intake", 1)) {
-            double x = Math.ceil(Math.abs(gamepad2.left_stick_x)) * Math.signum(gamepad2.left_stick_x);
-            double y = Math.ceil(Math.abs(gamepad2.left_stick_y)) * Math.signum(-gamepad2.left_stick_y);
+//            double x = Math.ceil(Math.abs(gamepad2.left_stick_x)) * Math.signum(gamepad2.left_stick_x);
+//            double y = Math.ceil(Math.abs(gamepad2.left_stick_y)) * Math.signum(-gamepad2.left_stick_y);
 
-            String key = (int) x + "," + (int) y;
+//            String key = (int) x + "," + (int) y;
+//
+//            switch (key) {
+//                case "-1,0":
+//                    runAction(intake.rotate(-1)); break;
+//                case "-1,1":
+//                    runAction(intake.rotate(-0.5)); break;
+//                case "0,1":
+//                    runAction(intake.rotate(0)); break;
+//                case "1,1":
+//                    runAction(intake.rotate(0.5)); break;
+//                case "1,0":
+//                    runAction(intake.rotate(1)); break;
+//            }
 
-            switch (key) {
-                case "-1,0":
-                    runAction(intake.rotate(-1)); break;
-                case "-1,1":
-                    runAction(intake.rotate(-0.5)); break;
-                case "0,1":
-                    runAction(intake.rotate(0)); break;
-                case "1,1":
-                    runAction(intake.rotate(0.5)); break;
-                case "1,0":
-                    runAction(intake.rotate(1)); break;
+            double x = gamepad2.left_stick_x;
+            double y = -gamepad2.left_stick_y;
+            double rotation = Math.atan2(x, y);
+
+            if (rotation >= -1 && rotation <= 1) {
+                runAction(intake.rotate(rotation));
             }
         }
 
