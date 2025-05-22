@@ -203,6 +203,8 @@ public class AutoApplication extends AutoOpMode {
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
         runAsync(() -> follower.update());
+        telemetry.addData("robot stuck: ", follower.isRobotStuck());
+        telemetry.addData("Localization NAN: ", follower.isLocalizationNAN());
     }
 
     // -------------- States --------------
