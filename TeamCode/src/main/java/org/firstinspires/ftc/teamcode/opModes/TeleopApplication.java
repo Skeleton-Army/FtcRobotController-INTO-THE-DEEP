@@ -117,8 +117,7 @@ public class TeleopApplication extends TeleopOpMode {
         // Bulk reads from walmart
 //        intakeSensor.updateRGBCache();
 
-        // Debugging
-        /*
+        // Debugging to Driver Hub
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
         telemetry.addData("Intake Velocity", intake.motor.getVelocity());
         telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
@@ -130,10 +129,18 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
         telemetry.addData("Current voltage: " , battery.getVoltage());
         telemetry.update();
-         */
+        // Debugging to log file
         datalog.loopCounter.set(time);
         datalog.battery.set(battery.getVoltage());
-
+        datalog.intakePos.set(intake.motor.getCurrentPosition());
+        datalog.intakeVel.set(intake.motor.getVelocity());
+        datalog.outtakePos.set(outtake.motor.getCurrentPosition());
+        datalog.outtakeVel.set(outtake.motor.getVelocity());
+        datalog.specArmPos.set(specimenArm.motor.getCurrentPosition());
+        datalog.hangPos.set(hang.motor.getCurrentPosition());
+        datalog.outtakeLimit.set(Boolean.toString(!outtakeSwitch.getState()));
+        datalog.gamepad2X.set(gamepad2.left_stick_x);
+        datalog.gamepad2Y.set(-gamepad2.left_stick_y);
         /*
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         datalog.yaw.set(orientation.getYaw());
@@ -401,6 +408,10 @@ public class TeleopApplication extends TeleopOpMode {
         public Datalogger.GenericField outtakePos = new Datalogger.GenericField("Outtake Position");
         public Datalogger.GenericField outtakeVel = new Datalogger.GenericField("Outtake Velocity");
         public Datalogger.GenericField specArmPos = new Datalogger.GenericField("SpecimenArm Position");
+        public Datalogger.GenericField hangPos = new Datalogger.GenericField("Hang Position");
+        public Datalogger.GenericField outtakeLimit = new Datalogger.GenericField("Outtake Limit Switch");
+        public Datalogger.GenericField gamepad2X = new Datalogger.GenericField("Gamepad 2 X");
+        public Datalogger.GenericField gamepad2Y = new Datalogger.GenericField("Gamepad 2 Y");
         public Datalogger .GenericField battery = new Datalogger.GenericField("Battery");
         /* public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
         public Datalogger.GenericField pitch        = new Datalogger.GenericField("Pitch");
