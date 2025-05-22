@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -117,8 +118,7 @@ public class AutoApplication extends AutoOpMode {
 
         driveActions = new Drive(drive, camCV, telemetry);
 
-        //runAsync(this::outtakeLimitSwitch);
-        runAsync(specimenArm::update);
+        runAsync(new InstantAction(specimenArm::update));
     }
 
     // -------------- States --------------

@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -17,7 +13,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.skeletonarmy.marrow.actions.ConditionAction;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
+import com.skeletonarmy.marrow.actions.ImmediateAction;
 import com.skeletonarmy.marrow.MarrowGamepad;
 import com.skeletonarmy.marrow.teleop.TeleopOpMode;
 import com.skeletonarmy.marrow.MarrowUtils;
@@ -27,9 +25,6 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
-import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
-import org.firstinspires.ftc.teamcode.utils.actions.NoSleepAction;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
@@ -160,7 +155,7 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.wristMiddle(),
                             intake.rotate(0),
                             new SleepAction(0.2),
-                            new NoSleepAction(intake.retract()),
+                            new ImmediateAction(intake.retract()),
 
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.3),
 
@@ -174,16 +169,16 @@ public class TeleopApplication extends TeleopOpMode {
                                             new SleepAction(0.2),
                                             outtake.bucketMiddle()
                                     ),
-                                    () -> !gamepad2.a.isJustPressed()
+                                    () -> !gamepad2.a.value()
                             )
                     )
             );
         }
-        else if (Utilities.isReleased(gamepad2.a.isJustPressed()) && isInState("intake", 0) && !isActionRunning("intake", 1)) {
+        else if (gamepad2.a.isJustReleased() && isInState("intake", 0) && !isActionRunning("intake", 1)) {
             runAction(
                     new SequentialAction(
                             intake.wristMiddle(),
-                            new NoSleepAction(intake.extend()),
+                            new ImmediateAction(intake.extend()),
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() < IntakeConfig.extendPosition * 0.5),
                             intake.wristReady(),
                             intake.openClaw(),
@@ -216,8 +211,8 @@ public class TeleopApplication extends TeleopOpMode {
 //                    runAction(intake.rotate(1)); break;
 //            }
 
-            double x = gamepad2.left_stick_x;
-            double y = -gamepad2.left_stick_y;
+            double x = gamepad2.left_stick_x.value();
+            double y = -gamepad2.left_stick_y.value();
             double rotation = Math.toDegrees(Math.atan2(x, y)) / 90;
 
             if (rotation >= -1 && rotation <= 1) {
