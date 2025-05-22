@@ -22,6 +22,8 @@ import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @TeleOp(name = "Concept Datalogger v01", group = "Datalogging")
@@ -48,7 +50,7 @@ public class ConceptDatalogger extends LinearOpMode {
         // File setup
         String LogDir = SDcard + "/FIRST/Datalogs";
         File LogFile = new File(LogDir + "/Log.csv");
-        telemetry.addLine("Log file name: " + LogFile.getAbsolutePath());
+        telemetry.addData("Log file name: ", LogFile.getAbsolutePath());
         telemetry.update();
 
         datalog = new Datalog(LogFile.getName());
@@ -98,16 +100,15 @@ public class ConceptDatalogger extends LinearOpMode {
                     telemetry.addLine("Connetion successful!");
                     List<String> FtpFileList = ftp.ListFiles();
                     int index = 1;
-                    String NewLogFileName = "";
+                    String remoteLogName;
                     do {
-                        NewLogFileName = "my_log" + index + ".csv";
+                        remoteLogName = "robotLog-" + index + ".csv";
                         index++;
-                    } while(FtpFileList.contains(NewLogFileName));
+                    } while(FtpFileList.contains(remoteLogName));
                     sleep(200);
-                    renameFile(LogFile, NewLogFileName);
                     telemetry.addData("Attempting to upload file ", LogFile.getName());
                     telemetry.update();
-                    ftp.UploadFile(LogFile, "/" + LogFile.getName(), FtpUploading.ASCII, false);
+                    ftp.UploadFile(LogFile, "/" + remoteLogName, FtpUploading.ASCII, false);
                     if (ftp.GetReplyCode() == 226) {
                         telemetry.addLine("Upload successful!");
                         ftp.disconnect();
@@ -157,32 +158,5 @@ public class ConceptDatalogger extends LinearOpMode {
             datalogger.writeLine();
         }
     }
-    /**
-     * Renames the given file to the new name within the same directory.
-     *
-     * @param originalFile The original File object.
-     * @param newName The new name for the file (without directory path).
-     *
-     */
-    public static void renameFile(File originalFile, String newName) throws IOException {
-        if (originalFile == null || newName == null || newName.trim().isEmpty()) {
-            throw new IOException("Invalid file or new name.");
-        }
 
-        if (!originalFile.exists()) {
-            throw new IOException("Original file does not exist: " + originalFile.getAbsolutePath());
-        }
-
-        File parentDir = originalFile.getParentFile();
-        File renamedFile = new File(parentDir, newName);
-
-        if (renamedFile.exists()) {
-            throw new IOException("A file with the new name already exists: " + renamedFile.getAbsolutePath());
-        }
-
-        boolean success = originalFile.renameTo(renamedFile);
-        if (!success) {
-            throw new IOException("Failed to rename the file.");
-        }
-    }
 }

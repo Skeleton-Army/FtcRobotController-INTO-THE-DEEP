@@ -1,17 +1,23 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPFileFilters;
 import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
 
 import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.firstinspires.ftc.teamcode.utils.customExceptions.ConfigurationException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +95,7 @@ public class FtpUploading {
      *
      * @throws IOException if an I/O error occurs while disconnecting.
      */
-    public void Exit() throws IOException {
+    public void exit() throws IOException {
         this.ftp.disconnect();
     }
 
@@ -218,6 +224,27 @@ public class FtpUploading {
         return this.ftp.listFiles(path);
     }
 
+    /** Retrieves an array of FTPFile objects representing the directories located at the specified path on the FTP server.
+     *
+     * @param path the path on the FTP server to search for directories
+     * @return an array of FTPFile objects that are directories within the specified path
+     * @throws IOException if an I/O error occurs while communicating with the FTP server
+     */
+    public FTPFile[] getFTPDirectories(String path) throws IOException {
+        return this.ftp.listFiles(path, FTPFileFilters.DIRECTORIES);
+    }
+
+    /**
+     * Retrieves an array of FTPFile objects representing the directories located in the current working directory
+     * of the FTP session.
+     *
+     * @return an array of FTPFile objects that are directories in the current working directory
+     * @throws IOException if an I/O error occurs while communicating with the FTP server
+     */
+    public FTPFile[] getFTPDirectories() throws IOException {
+        return this.ftp.listDirectories();
+    }
+
     /**
      * Downloads a file from a remote FTP server to a local destination file path.
      *
@@ -320,5 +347,15 @@ public class FtpUploading {
      */
     public boolean changeWorkingDirectory(String path) throws IOException {
         return this.ftp.changeWorkingDirectory(path);
+    }
+
+    /**
+     * Gets working directory.
+     *
+     * @return the working directory
+     * @throws IOException if an I/O error occurs while communicating with the FTP server.
+     */
+    public String getWorkingDirectory() throws IOException {
+        return this.ftp.printWorkingDirectory();
     }
 }

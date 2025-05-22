@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import android.os.Environment;
+
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,8 +11,8 @@ import java.util.List;
 
 public class Datalogger {
     public enum AutoTimestamp { NONE, DECIMAL_SECONDS }
-
-    public interface LoggableField {
+    static String SDcard = Environment.getExternalStorageDirectory().getAbsolutePath();
+        public interface LoggableField {
         String getName();
         String getValue();
     }
@@ -115,5 +118,9 @@ public class Datalogger {
         public String getValue() {
             return value;
         }
+    }
+    public static File setupLogFile(String localName) {
+        String logDir = SDcard + "/FIRST/Datalogs";
+        return new File(logDir + "/" + localName + ".csv");
     }
 }

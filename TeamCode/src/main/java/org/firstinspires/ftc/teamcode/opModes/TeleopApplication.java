@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import androidx.arch.core.executor.DefaultTaskExecutor;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
@@ -20,11 +23,13 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.debugging.Datalogger;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 
+import java.io.File;
 import java.util.List;
 
 @TeleOp(name = "Teleop App", group = "SA_FTC")
@@ -48,6 +53,8 @@ public class TeleopApplication extends TeleopOpMode {
     boolean highBasket = true;
 
     VoltageSensor battery;
+    File logFile;
+    Datalog datalog;
 
     @Override
     public void init() {
@@ -68,6 +75,12 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
         battery = hardwareMap.voltageSensor.get("Control Hub");
+        logFile = Datalogger.setupLogFile("localLog");
+        telemetry.addData("Local log file ", logFile.getAbsolutePath());
+        telemetry.update();
+        datalog = new Datalog(logFile.getName());
+        datalog.opModeStatus.set("INIT");
+        datalog.writeLine();
     }
 
     @Override
@@ -77,6 +90,7 @@ public class TeleopApplication extends TeleopOpMode {
 
         runAction(intake.wristMiddle());
         runAction(intake.rotate(0));
+        datalog.opModeStatus.set("RUNNING");
     }
 
     @Override
@@ -104,6 +118,7 @@ public class TeleopApplication extends TeleopOpMode {
 //        intakeSensor.updateRGBCache();
 
         // Debugging
+        /*
         telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
         telemetry.addData("Intake Velocity", intake.motor.getVelocity());
         telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
@@ -111,14 +126,39 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
         telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-//        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
-//        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
         telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
         telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
-
         telemetry.addData("Current voltage: " , battery.getVoltage());
-
         telemetry.update();
+         */
+        datalog.loopCounter.set(time);
+        datalog.battery.set(battery.getVoltage());
+
+        /*
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        datalog.yaw.set(orientation.getYaw());
+        datalog.pitch.set(orientation.getPitch());
+        datalog.roll.set(orientation.getRoll());
+        */
+        datalog.writeLine();
+
+        /*
+        telemetry.addData("Yaw", datalog.yaw);
+        telemetry.addData("Pitch", datalog.pitch);
+        telemetry.addData("Roll", datalog.roll);
+         */
+        telemetry.addLine();
+        telemetry.addData("OpMode Status", datalog.opModeStatus);
+        telemetry.addData("Loop Counter", datalog.loopCounter);
+        telemetry.addData("Battery", datalog.battery);
+
+        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
+            telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
+            telemetry.addData("Voltage", sensor.getVoltage());
+        }
+        telemetry.update();
+
+
     }
 
     public void runIntakeWithDeposit() {
@@ -350,6 +390,40 @@ public class TeleopApplication extends TeleopOpMode {
     public void outtakeLimitSwitch() {
         if (Utilities.isPressed(!outtakeSwitch.getState())) {
             outtake.resetMotor();
+        }
+    }
+    public static class Datalog {
+        private final Datalogger datalogger;
+        public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
+        public Datalogger.GenericField loopCounter  = new Datalogger.GenericField("Loop Counter");
+        public Datalogger.GenericField intakePos = new Datalogger.GenericField("Intake Position");
+        public Datalogger.GenericField intakeVel = new Datalogger.GenericField("Intake Velocity");
+        public Datalogger.GenericField outtakePos = new Datalogger.GenericField("Outtake Position");
+        public Datalogger.GenericField outtakeVel = new Datalogger.GenericField("Outtake Velocity");
+        public Datalogger.GenericField specArmPos = new Datalogger.GenericField("SpecimenArm Position");
+        public Datalogger .GenericField battery = new Datalogger.GenericField("Battery");
+        /* public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
+        public Datalogger.GenericField pitch        = new Datalogger.GenericField("Pitch");
+        public Datalogger.GenericField roll         = new Datalogger.GenericField("Roll");
+        public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
+        */
+        public Datalog(String name) {
+            datalogger = Datalogger.builder()
+                    .setFilename(name)
+                    .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
+                    .setFields(
+                            opModeStatus,
+                            loopCounter,
+                            intakePos,
+                            intakeVel,
+                            outtakePos,
+                            outtakeVel,
+                            specArmPos
+                    )
+                    .build();
+        }
+        public void writeLine() {
+            datalogger.writeLine();
         }
     }
 }
