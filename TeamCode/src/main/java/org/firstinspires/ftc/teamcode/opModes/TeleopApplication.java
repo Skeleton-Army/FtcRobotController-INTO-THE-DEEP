@@ -169,7 +169,7 @@ public class TeleopApplication extends TeleopOpMode {
                                             new SleepAction(0.2),
                                             outtake.bucketMiddle()
                                     ),
-                                    () -> !gamepad2.a.value()
+                                    () -> gamepad2.a.isUp()
                             )
                     )
             );

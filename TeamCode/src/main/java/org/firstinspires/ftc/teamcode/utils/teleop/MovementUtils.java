@@ -58,7 +58,7 @@ public class MovementUtils {
 
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
-        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
+        Vector2d input = rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
         ), -drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw());
 
         // Pass in the rotated input + right stick value for rotation
