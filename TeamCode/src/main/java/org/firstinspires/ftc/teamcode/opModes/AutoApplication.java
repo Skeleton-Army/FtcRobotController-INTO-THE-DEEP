@@ -86,9 +86,9 @@ public class AutoApplication extends AutoOpMode {
 
         switch (strategy) {
             case SPECIMENS:
-                transition(this::hangSpecimen);
+                transition("hangSpecimen");
             case BASKET:
-                transition(this::putInBasket);
+                transition("putInBasket");
         }
     }
 
@@ -144,11 +144,11 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (!didCollectSamples) {
-            transition(this::collectColorSamples);
+            transition("collectColorSamples");
         } else if (hangedSpecimens < (4 + extraSpecimens)) {
-            transition(this::collectSpecimen);
+            transition("collectSpecimen");
         } else {
-            transition(this::park);
+            transition("park");
         }
     }
 
@@ -187,7 +187,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        transition(this::hangSpecimen);
+        transition("hangSpecimen");
     }
 
     @State
@@ -371,7 +371,7 @@ public class AutoApplication extends AutoOpMode {
                 )
         );
 
-        transition(this::collectSpecimen);
+        transition("collectSpecimen");
     }
 
     @State
@@ -426,7 +426,7 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
-        transition(this::putInBasket);
+        transition("putInBasket");
     }
 
     @State(requiredTime = 2, timeoutState = "park")
@@ -537,9 +537,9 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (collectedSamples < 6) {
-            conditionalTransition(collectedSamples < 3, this::collectYellowSample, this::sampleFromSubmersible);
+            conditionalTransition(collectedSamples < 3, "collectYellowSample", "sampleFromSubmersible");
         } else {
-            transition(this::park);
+            transition("park");
         }
     }
 
@@ -639,7 +639,7 @@ public class AutoApplication extends AutoOpMode {
 //                )
 //        );
 
-        transition(this::putInBasket);
+        transition("putInBasket");
     }
 
     @State(requiredTime = 2)
