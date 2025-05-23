@@ -82,8 +82,18 @@ public class BezierToPoint {
         Pose[] temp = new Pose[n];
         //System.arraycopy(points, 0, temp, 0, n);
 
-        for(int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
+            temp[i] = new Pose(0,0,0);
+        }
+
+        /*for(int i = 0; i < n; i++) {
             temp[i] = points[i];
+        }*/
+
+        for(int i = 0; i < n; i++) {
+            temp[i].setX(points[i].getX());
+            temp[i].setY(points[i].getY());
+            temp[i].setHeading(points[i].getHeading());
         }
 
         for (int r = 1; r < n; r++) {
@@ -101,6 +111,8 @@ public class BezierToPoint {
     private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles) {
         Pose[] adjusted = new Pose[controlPoints.length];
 
+        adjusted[0] = controlPoints[0];
+        adjusted[controlPoints.length - 1] = controlPoints[controlPoints.length - 1];
         for (int i = 1; i < controlPoints.length - 1; i++) {
             Pose pose = controlPoints[i];
             Pose newPose = pose;

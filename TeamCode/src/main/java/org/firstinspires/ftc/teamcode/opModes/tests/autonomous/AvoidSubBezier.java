@@ -24,6 +24,7 @@ public class AvoidSubBezier extends OpMode {
 
     Obstacle SubObstacle = new Obstacle(48, 96, 48, 48);
 
+    BezierToPoint Bezier;
     @Override
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
@@ -37,16 +38,16 @@ public class AvoidSubBezier extends OpMode {
         List<Obstacle> obstacles = new ArrayList<>();
         obstacles.add(SubObstacle);
 
-        BezierToPoint Bezier = new BezierToPoint(controlPoints,3 , obstacles);
+        Bezier = new BezierToPoint(controlPoints,3 , obstacles);
 
         follower.followPath(Bezier.pathchain);
     }
 
     @Override
     public void loop() {
-
+        follower.update();
         if (follower.atParametricEnd()) {
-            follower.followPath(JuicyBezier.GeneratedPath.paths);
+            follower.followPath(Bezier.pathchain);
         }
     }
 }
