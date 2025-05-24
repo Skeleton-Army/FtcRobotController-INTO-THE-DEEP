@@ -14,23 +14,24 @@ import com.skeletonarmy.marrow.actions.ServoToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 
 public class Intake {
     public final AdvancedDcMotor motor;
-    private final Servo clawServo;
-    private final Servo wristServo1;
-    private final Servo wristServo2;
-    private final Servo rotationServo;
+    private final CachingServo clawServo;
+    private final CachingServo wristServo1;
+    private final CachingServo wristServo2;
+    private final CachingServo rotationServo;
 
     public Intake(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        clawServo = hardwareMap.get(Servo.class, IntakeConfig.clawName);
-        wristServo1 = hardwareMap.get(Servo.class, IntakeConfig.wrist1Name);
-        wristServo2 = hardwareMap.get(Servo.class, IntakeConfig.wrist2Name);
-        rotationServo = hardwareMap.get(Servo.class, IntakeConfig.rotationName);
+        clawServo = new CachingServo(hardwareMap.get(Servo.class, IntakeConfig.clawName));
+        wristServo1 = new CachingServo(hardwareMap.get(Servo.class, IntakeConfig.wrist1Name));
+        wristServo2 = new CachingServo(hardwareMap.get(Servo.class, IntakeConfig.wrist2Name));
+        rotationServo = new CachingServo(hardwareMap.get(Servo.class, IntakeConfig.rotationName));
     }
 
     public void resetMotor() {

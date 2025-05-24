@@ -13,17 +13,18 @@ import com.skeletonarmy.marrow.actions.MotorToPosition;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 
 public class Outtake {
     public final CachingDcMotorEx motor;
-    private final Servo bucketServo;
+    private final CachingServo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setTargetPosition(0);
 
-        bucketServo = hardwareMap.get(Servo.class, OuttakeConfig.bucketName);
+        bucketServo = new CachingServo(hardwareMap.get(Servo.class, OuttakeConfig.bucketName));
 
         Actions.runBlocking(hold());
     }

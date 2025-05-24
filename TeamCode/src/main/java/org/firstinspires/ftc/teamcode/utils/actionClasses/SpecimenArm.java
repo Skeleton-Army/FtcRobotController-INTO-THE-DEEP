@@ -22,11 +22,12 @@ import com.skeletonarmy.marrow.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 
 public class SpecimenArm {
     public final AdvancedDcMotor motor;
-    private final Servo gripServo;
-    private final Servo grabServo;
+    private final CachingServo gripServo;
+    private final CachingServo grabServo;
 
     private int target;
 
@@ -36,8 +37,8 @@ public class SpecimenArm {
         motor.setCustomPIDFCoefficients(p, i, d, f);
         motor.setCustomPIDFController(this::customPIDFController);
 
-        gripServo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
-        grabServo = hardwareMap.get(Servo.class, SpecimenArmConfig.grabServoName);
+        gripServo = new CachingServo(hardwareMap.get(Servo.class, SpecimenArmConfig.servoName));
+        grabServo = new CachingServo(hardwareMap.get(Servo.class, SpecimenArmConfig.grabServoName));
 
         target = motor.getCurrentPosition();
     }
