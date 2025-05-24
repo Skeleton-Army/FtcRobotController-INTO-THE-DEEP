@@ -123,9 +123,9 @@ public class ApriltagRobotPose extends OpMode {
                 telemetry.addData("y: ",detection.rawPose.y);
                 telemetry.addData("z: ",detection.rawPose.z);
                 telemetry.addLine("----------------");
-                telemetry.addData("bearing",detection.ftcPose.bearing);
-                telemetry.addData("range",detection.ftcPose.range);
-                telemetry.addData("yaw",detection.ftcPose.yaw);
+                telemetry.addData("bearing ",detection.ftcPose.bearing);
+                telemetry.addData("range ",detection.ftcPose.range);
+                telemetry.addData("yaw ",detection.ftcPose.yaw);
                 telemetry.addLine("----------------");
                 telemetry.addData("Confidence: ", detection.decisionMargin);
                 telemetry.addLine("----------------");
@@ -137,6 +137,7 @@ public class ApriltagRobotPose extends OpMode {
                         detection.robotPose.getOrientation().getYaw(AngleUnit.DEGREES)));
                 telemetry.addLine("----------------");
 
+                telemetry.addData("solve time: ", aprilTag.getPerTagAvgPoseSolveTime());
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(detection.robotPose.getPosition().x, detection.robotPose.getPosition().y, Math.toRadians(detection.robotPose.getOrientation().getYaw())), "#3F51B5");
