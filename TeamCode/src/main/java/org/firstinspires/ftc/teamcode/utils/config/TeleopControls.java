@@ -3,27 +3,27 @@ package org.firstinspires.ftc.teamcode.utils.config;
 import com.skeletonarmy.marrow.MarrowGamepad;
 
 public class TeleopControls {
-    public final MarrowGamepad.ButtonState SLOW_MODE_BUTTON;
+    public MarrowGamepad.ButtonState SLOW_MODE_BUTTON;
 
-    public final MarrowGamepad.ButtonState INTAKE_BUTTON;
-    public final MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_X;
-    public final MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_Y;
-    public final MarrowGamepad.SimpleAnalogState INTAKE_MANUAL_Y;
+    public MarrowGamepad.ButtonState INTAKE_BUTTON;
+    public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_X;
+    public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_Y;
+    public MarrowGamepad.SimpleAnalogState INTAKE_MANUAL_Y;
 
-    public final MarrowGamepad.ButtonState OUTTAKE_BUTTON;
-    public final MarrowGamepad.ButtonState OUTTAKE_CYCLE_BUTTON;
+    public MarrowGamepad.ButtonState OUTTAKE_BUTTON;
+    public MarrowGamepad.ButtonState OUTTAKE_CYCLE_BUTTON;
 
-    public final MarrowGamepad.ButtonState GRAB_BUTTON;
-    public final MarrowGamepad.ButtonState RELEASE_BUTTON;
+    public MarrowGamepad.ButtonState GRAB_BUTTON;
+    public MarrowGamepad.ButtonState RELEASE_BUTTON;
 
-    public final MarrowGamepad.ButtonState SPECIMEN_HANG_BUTTON;
-    public final MarrowGamepad.ButtonState SPECIMEN_INTAKE_BUTTON;
-    public final MarrowGamepad.SimpleAnalogState SPECIMEN_MANUAL_Y;
+    public MarrowGamepad.ButtonState SPECIMEN_HANG_BUTTON;
+    public MarrowGamepad.ButtonState SPECIMEN_INTAKE_BUTTON;
+    public MarrowGamepad.SimpleAnalogState SPECIMEN_MANUAL_Y;
 
-    public final MarrowGamepad.ButtonState HANG_BUTTON;
+    public MarrowGamepad.ButtonState HANG_BUTTON;
 
-    public final MarrowGamepad.ButtonState EMERGENCY_STOP_BUTTON;
-    public final MarrowGamepad.ButtonState RESET_MOTORS_BUTTON;
+    public MarrowGamepad.ButtonState EMERGENCY_STOP_BUTTON;
+    public MarrowGamepad.ButtonState RESET_MOTORS_BUTTON;
 
     public TeleopControls(MarrowGamepad gamepad1, MarrowGamepad gamepad2) {
         SLOW_MODE_BUTTON = gamepad1.right_bumper;
