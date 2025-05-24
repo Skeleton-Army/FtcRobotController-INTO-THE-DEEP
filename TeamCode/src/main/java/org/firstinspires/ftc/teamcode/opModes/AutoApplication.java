@@ -117,8 +117,6 @@ public class AutoApplication extends AutoOpMode {
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
         driveActions = new Drive(drive, camCV, telemetry);
-
-        runAsync(new InstantAction(specimenArm::update));
     }
 
     // -------------- States --------------

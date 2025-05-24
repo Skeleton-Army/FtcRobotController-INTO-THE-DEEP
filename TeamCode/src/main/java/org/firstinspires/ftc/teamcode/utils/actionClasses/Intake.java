@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.MotorToPosition;
 import com.skeletonarmy.marrow.actions.ServoToPosition;
 
@@ -15,14 +16,14 @@ import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class Intake {
-    public final CachingDcMotorEx motor;
+    public final AdvancedDcMotor motor;
     private final Servo clawServo;
     private final Servo wristServo1;
     private final Servo wristServo2;
     private final Servo rotationServo;
 
     public Intake(HardwareMap hardwareMap) {
-        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 

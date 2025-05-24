@@ -10,10 +10,12 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.ServoToPosition;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
 
@@ -22,19 +24,20 @@ import org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig;
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 public class SpecimenArm {
-    public final CachingDcMotorEx motor;
+    public final AdvancedDcMotor motor;
     private final Servo gripServo;
     private final Servo grabServo;
-    private final PIDController controller;
 
     private int target;
 
     public SpecimenArm(HardwareMap hardwareMap) {
-        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
+        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
+        motor.setUseCustomPIDF(true);
+        motor.setCustomPIDFCoefficients(p, i, d, f);
+        motor.setCustomPIDFController(this::customPIDFController);
+
         gripServo = hardwareMap.get(Servo.class, SpecimenArmConfig.servoName);
         grabServo = hardwareMap.get(Servo.class, SpecimenArmConfig.grabServoName);
-
-        controller = new PIDController(p, i, d);
 
         target = motor.getCurrentPosition();
     }
@@ -45,19 +48,12 @@ public class SpecimenArm {
     }
 
     // General actions
-    /**
-     * Updates the motor power. Call this every loop.
-     */
-    public void update() {
-        motor.setPower(calculateArmPower());
-    }
-
     public void setPower(double power) {
         motor.setPower(power);
     }
 
     public void setPID(double kp, double ki, double kd) {
-        controller.setPID(kp, ki, kd);
+        motor.setCustomPIDCoefficients(kp, ki, kd);
     }
 
     public Action setTarget(int target) {
@@ -114,12 +110,14 @@ public class SpecimenArm {
         return grabToPosition(SpecimenArmConfig.grabClose);
     }
 
-    public double calculateArmPower() {
+    public double customPIDFController(AdvancedDcMotor motor, int target) {
         int pos = motor.getCurrentPosition();
+        PIDFController controller = motor.getPIDFController();
+
         double pid = controller.calculate(pos, target);
 
         int diffFromTop = SpecimenArmConfig.topPos - pos;
-        double ff = diffFromTop * f;
+        double ff = diffFromTop * controller.getF();
 
         return pid + ff;
     }

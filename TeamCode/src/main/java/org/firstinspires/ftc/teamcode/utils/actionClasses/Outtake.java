@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.ServoToPosition;
 import com.skeletonarmy.marrow.actions.MotorToPosition;
 
@@ -18,7 +19,7 @@ public class Outtake {
     private final Servo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
-        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setTargetPosition(0);
 

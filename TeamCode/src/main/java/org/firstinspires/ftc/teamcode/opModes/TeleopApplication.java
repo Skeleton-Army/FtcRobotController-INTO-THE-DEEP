@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.ConditionAction;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
 import com.skeletonarmy.marrow.actions.ImmediateAction;
@@ -108,6 +109,8 @@ public class TeleopApplication extends TeleopOpMode {
 
     @Override
     public void loop() {
+        AdvancedDcMotor.updateAll();
+
 //        movementUtils.fieldCentricMovement();
         movementUtils.movement();
 
@@ -327,8 +330,6 @@ public class TeleopApplication extends TeleopOpMode {
                     specimenArm.runManualControl(controls.SPECIMEN_MANUAL_Y.value())
             );
         }
-
-        specimenArm.update();
     }
 
     public void runHang() {
