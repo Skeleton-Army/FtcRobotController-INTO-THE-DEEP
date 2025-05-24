@@ -543,7 +543,7 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    @State(requiredTime = 4.5, timeoutState = "park")
+    @State(requiredTime = 4.5, timeoutState = "park", forceExitTime = 1)
     public void sampleFromSubmersible() {
         collectedSamples++;
 
