@@ -31,6 +31,7 @@ public class SpecimenArm {
 
     public SpecimenArm(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setUseCustomPIDF(true);
         motor.setCustomPIDFCoefficients(p, i, d, f);
         motor.setCustomPIDFController(this::customPIDFController);
