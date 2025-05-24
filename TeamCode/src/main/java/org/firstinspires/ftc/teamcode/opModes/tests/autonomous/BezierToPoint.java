@@ -1,39 +1,20 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.PathBuilder;
+import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.pathgen.Vector;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class BezierToPoint {
 
     Pose[] generatedControls;
     public PathChain pathchain;
 
-    /*public static class Obstacle {
-        public final double x, y, width, height;
-
-        public Obstacle(double x, double y, double width, double height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        public boolean isColliding(Pose pose) {
-            Vector point = pose.getVector();
-            return point.getXComponent() >= x && point.getXComponent() <= x + width &&
-                    point.getYComponent() >= y && point.getYComponent() <= y + height;
-        }
-    }*/
-
     public BezierToPoint(Pose[] controlPoints, int numPoints, List<Obstacle> obstacles) {
-        Pose[] safeControlPoints = avoidRectangularObstacles(controlPoints, obstacles);
+        Pose[] safeControlPoints = avoidRectangularObstacles(controlPoints, obstacles, numPoints);
         generatedControls = computeBezierPoints(safeControlPoints, numPoints);
         pathchain = generateBezierPathChain(safeControlPoints);
     }
@@ -80,11 +61,7 @@ public class BezierToPoint {
     private static Pose deCasteljau(Pose[] points, double t) {
         int n = points.length;
         Pose[] temp = new Pose[n];
-        //System.arraycopy(points, 0, temp, 0, n);
-
-        for(int i = 0; i < n; i++) {
-            temp[i] = points[i];
-        }
+        System.arraycopy(points, 0, temp, 0, n);
 
         for (int r = 1; r < n; r++) {
             for (int i = 0; i < n - r; i++) {
@@ -98,27 +75,43 @@ public class BezierToPoint {
         return temp[0];
     }
 
-    private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles) {
-        Pose[] adjusted = new Pose[controlPoints.length];
+    private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles, int numSamples) {
+        Pose[] adjusted = Arrays.copyOf(controlPoints, controlPoints.length);
+        final double stepSize = 2.0;
+        final int maxIterations = 20;
 
-        for (int i = 1; i < controlPoints.length - 1; i++) {
-            Pose pose = controlPoints[i];
-            Pose newPose = pose;
+        for (int iteration = 0; iteration < maxIterations; iteration++) {
+            boolean collisionFound = false;
+            Pose[] pathSamples = computeBezierPoints(adjusted, numSamples);
 
-            for (Obstacle obs : obstacles) {
-                while (obs.isColliding(newPose)) {
-                    double shiftX = (newPose.getVector().getXComponent() > obs.x + obs.width / 2) ? 1 : -1;
-                    double shiftY = (newPose.getVector().getYComponent() > obs.y + obs.height / 2) ? 1 : -1;
-                    newPose = new Pose(
-                                    newPose.getVector().getXComponent() + shiftX,
-                                    newPose.getVector().getYComponent() + shiftY
-                            ,
-                            newPose.getHeading()
-                    );
+            for (Pose p : pathSamples) {
+                for (Obstacle obs : obstacles) {
+                    if (obs.isColliding(p, AvoidSubParameters.width, AvoidSubParameters.height)) {
+                        collisionFound = true;
+
+                        // Adjust mid control points only
+                        for (int i = 1; i < adjusted.length - 1; i++) {
+                            Pose mid = adjusted[i];
+                            double dx = mid.getVector().getXComponent() - (obs.x + obs.width / 2.0);
+                            double dy = mid.getVector().getYComponent() - (obs.y + obs.height / 2.0);
+                            double norm = Math.sqrt(dx * dx + dy * dy);
+                            if (norm == 0) norm = 1;
+                            dx /= norm;
+                            dy /= norm;
+
+                            double newX = mid.getVector().getXComponent() + dx * stepSize;
+                            double newY = mid.getVector().getYComponent() + dy * stepSize;
+
+                            adjusted[i] = new Pose(newX, newY, mid.getHeading());
+                        }
+
+                        break;
+                    }
                 }
+                if (collisionFound) break;
             }
 
-            adjusted[i] = newPose;
+            if (!collisionFound) break;
         }
 
         return adjusted;
