@@ -29,18 +29,15 @@ public class SpecimenArm {
     private final CachingServo gripServo;
     private final CachingServo grabServo;
 
-    private int target;
-
     public SpecimenArm(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
         motor.setUseCustomPIDF(true);
         motor.setCustomPIDFCoefficients(p, i, d, f);
         motor.setCustomPIDFController(this::customPIDFController);
+        motor.setTargetPosition(motor.getCurrentPosition());
 
         gripServo = new CachingServo(hardwareMap.get(Servo.class, SpecimenArmConfig.servoName));
         grabServo = new CachingServo(hardwareMap.get(Servo.class, SpecimenArmConfig.grabServoName));
-
-        target = motor.getCurrentPosition();
     }
 
     public void resetMotor() {
@@ -59,7 +56,7 @@ public class SpecimenArm {
 
     public Action setTarget(int target) {
         return new SequentialAction(
-                new InstantAction(() -> this.target = target),
+                new InstantAction(() -> motor.setTargetPosition(target)),
                 new SleepUntilAction(() -> Math.abs(motor.getCurrentPosition() - target) < 10)
         );
     }
@@ -67,7 +64,7 @@ public class SpecimenArm {
     public Action runManualControl(float value) {
         if (value == 0) return new NullAction();
         int mirror = motor.getCurrentPosition() < SpecimenArmConfig.topPos ? -1 : 1;
-        return setTarget(target + (int)(value * SpecimenArmConfig.manualSpeed * mirror));
+        return setTarget(motor.getTargetPosition() + (int)(value * SpecimenArmConfig.manualSpeed * mirror));
     }
 
     public Action gripToPosition(double targetPos) {
