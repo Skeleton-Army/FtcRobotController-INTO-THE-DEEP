@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,6 +22,9 @@ public class AvoidSubBezier extends OpMode {
 
     Obstacle SubObstacle = new Obstacle(48, 96, 48, 48);
     BezierToPoint Bezier;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    TelemetryPacket packet = new TelemetryPacket();
+
 
     @Override
     public void init() {
@@ -41,6 +46,24 @@ public class AvoidSubBezier extends OpMode {
 
     @Override
     public void init_loop() {
+        for (Pose p : Bezier.generatedControls) {
+            packet.fieldOverlay().setStroke("green").strokeCircle(
+                    p.getVector().getXComponent(),
+                    p.getVector().getYComponent(),
+                    2
+            );
+        }
+
+        // I think it gets the points along the curve, but we will see...
+        for (double[] p : Bezier.pathchain.getPath(0).getDashboardDrawingPoints())
+        {
+            packet.fieldOverlay().setStroke("blue").strokeCircle(
+                    p[0],
+                    p[1],
+                    2
+            );
+        }
+
         telemetry.addData("start pos: ", beginPos.getVector());
 
         telemetry.addLine("------- mid point selected -------");
@@ -49,6 +72,7 @@ public class AvoidSubBezier extends OpMode {
 
         telemetry.addData("end pos: ", targetPos.getVector());
 
+        dashboard.sendTelemetryPacket(packet);
         telemetry.update();
     }
 
