@@ -15,8 +15,8 @@ import java.util.List;
 @Autonomous(name = "BezierToPoint")
 public class AvoidSubBezier extends OpMode {
     Follower follower;
-    Pose beginPos = new Pose(AvoidSubParameters.startX, AvoidSubParameters.startY, Math.toRadians(AvoidSubParameters.startAngle));
-    Pose targetPos = new Pose(AvoidSubParameters.endX, AvoidSubParameters.endY, Math.toRadians(AvoidSubParameters.endAngle));
+    Pose beginPos = new Pose(AvoidSubParametersConfig.startX, AvoidSubParametersConfig.startY, Math.toRadians(AvoidSubParametersConfig.startAngle));
+    Pose targetPos = new Pose(AvoidSubParametersConfig.endX, AvoidSubParametersConfig.endY, Math.toRadians(AvoidSubParametersConfig.endAngle));
 
     Obstacle SubObstacle = new Obstacle(48, 96, 48, 48);
     BezierToPoint Bezier;
@@ -34,7 +34,7 @@ public class AvoidSubBezier extends OpMode {
         List<Obstacle> obstacles = new ArrayList<>();
         obstacles.add(SubObstacle);
 
-        Bezier = new BezierToPoint(controlPoints,3 , obstacles);
+        Bezier = new BezierToPoint(controlPoints,AvoidSubParametersConfig.numSamplesPos , obstacles);
 
         follower.followPath(Bezier.pathchain);
     }

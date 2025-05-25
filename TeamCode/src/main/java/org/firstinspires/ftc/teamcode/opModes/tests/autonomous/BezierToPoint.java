@@ -8,17 +8,25 @@ import com.pedropathing.pathgen.Point;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class BezierToPoint {
 
-    Pose[] generatedControls;
-    public PathChain pathchain;
+    Pose[] generatedControls;  // Final adjusted control points
+    public PathChain pathchain;  // PathChain built from adjusted Bézier control points
 
+    /**
+     * Constructs a BezierToPoint object, automatically adjusting the control points
+     * to ensure a collision-free Bézier path between them.
+     */
     public BezierToPoint(Pose[] controlPoints, int numPoints, List<Obstacle> obstacles) {
         Pose[] safeControlPoints = avoidRectangularObstacles(controlPoints, obstacles, numPoints);
         generatedControls = computeBezierPoints(safeControlPoints, numPoints);
         pathchain = generateBezierPathChain(safeControlPoints);
     }
 
+    /**
+     * Generates a PathChain using Pedro's library from the adjusted control points.
+     */
     public static PathChain generateBezierPathChain(Pose[] controlPoints) {
         if (controlPoints == null || controlPoints.length < 2) {
             throw new IllegalArgumentException("At least 2 control points are required for a Bézier curve.");
@@ -43,6 +51,9 @@ public class BezierToPoint {
         return builder.build();
     }
 
+    /**
+     * Computes points along a Bézier curve using the de Casteljau algorithm.
+     */
     private static Pose[] computeBezierPoints(Pose[] controlPoints, int numPoints) {
         if (controlPoints == null || controlPoints.length < 2) {
             throw new IllegalArgumentException("At least 2 control points are required.");
@@ -58,6 +69,9 @@ public class BezierToPoint {
         return result;
     }
 
+    /**
+     * Recursively interpolates control points to produce a point on the Bézier curve.
+     */
     private static Pose deCasteljau(Pose[] points, double t) {
         int n = points.length;
         Pose[] temp = new Pose[n];
@@ -75,21 +89,22 @@ public class BezierToPoint {
         return temp[0];
     }
 
+    /**
+     * Iteratively adjusts the Bézier midpoints to avoid collisions with rectangular obstacles.
+     * Only midpoints (excluding the first and last) are adjusted.
+     */
     private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles, int numSamples) {
         Pose[] adjusted = Arrays.copyOf(controlPoints, controlPoints.length);
-        final double stepSize = 2.0;
-        final int maxIterations = 20;
 
-        for (int iteration = 0; iteration < maxIterations; iteration++) {
+        for (int iteration = 0; iteration < AvoidSubParametersConfig.maxIterations; iteration++) {
             boolean collisionFound = false;
             Pose[] pathSamples = computeBezierPoints(adjusted, numSamples);
 
             for (Pose p : pathSamples) {
                 for (Obstacle obs : obstacles) {
-                    if (obs.isColliding(p, AvoidSubParameters.width, AvoidSubParameters.height)) {
+                    if (obs.isColliding(p, AvoidSubParametersConfig.width, AvoidSubParametersConfig.height)) {
                         collisionFound = true;
 
-                        // Adjust mid control points only
                         for (int i = 1; i < adjusted.length - 1; i++) {
                             Pose mid = adjusted[i];
                             double dx = mid.getVector().getXComponent() - (obs.x + obs.width / 2.0);
@@ -99,8 +114,8 @@ public class BezierToPoint {
                             dx /= norm;
                             dy /= norm;
 
-                            double newX = mid.getVector().getXComponent() + dx * stepSize;
-                            double newY = mid.getVector().getYComponent() + dy * stepSize;
+                            double newX = mid.getVector().getXComponent() + dx * AvoidSubParametersConfig.stepSize;
+                            double newY = mid.getVector().getYComponent() + dy * AvoidSubParametersConfig.stepSize;
 
                             adjusted[i] = new Pose(newX, newY, mid.getHeading());
                         }
