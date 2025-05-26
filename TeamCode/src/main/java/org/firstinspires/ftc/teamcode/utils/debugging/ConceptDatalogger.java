@@ -53,7 +53,7 @@ public class ConceptDatalogger extends LinearOpMode {
         telemetry.addData("Log file name: ", LogFile.getAbsolutePath());
         telemetry.update();
 
-        datalog = new Datalog(LogFile.getName());
+        datalog = new Datalog(LogFile);
 
         datalog.opModeStatus.set("INIT");
         datalog.battery.set(battery.getVoltage());
@@ -140,9 +140,9 @@ public class ConceptDatalogger extends LinearOpMode {
         public Datalogger.GenericField roll         = new Datalogger.GenericField("Roll");
         public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
 
-        public Datalog(String name) {
+        public Datalog(File logFile) {
             datalogger = Datalogger.builder()
-                    .setFilename(name)
+                    .setFilename(logFile)
                     .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
                     .setFields(
                             opModeStatus,

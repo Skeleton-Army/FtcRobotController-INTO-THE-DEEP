@@ -6,7 +6,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Datalogger {
@@ -17,7 +19,7 @@ public class Datalogger {
         String getValue();
     }
 
-    private String filename;
+    private File logFile;
     private AutoTimestamp timestampMode;
     private List<LoggableField> fields = new ArrayList<>();
     private BufferedWriter writer;
@@ -32,8 +34,8 @@ public class Datalogger {
     public static class Builder {
         private final Datalogger instance = new Datalogger();
 
-        public Builder setFilename(String name) {
-            instance.filename = "/sdcard/FIRST/Datalogs/" + name;
+        public Builder setFilename(File logFile) {
+            instance.logFile = logFile;
             return this;
         }
 
@@ -51,7 +53,7 @@ public class Datalogger {
 
         public Datalogger build() {
             try {
-                instance.writer = new BufferedWriter(new FileWriter(instance.filename));
+                instance.writer = new BufferedWriter(new FileWriter(instance.logFile));
                 instance.startTime = System.nanoTime();
 
                 // Write CSV header
@@ -121,6 +123,13 @@ public class Datalogger {
     }
     public static File setupLogFile(String localName) {
         String logDir = SDcard + "/FIRST/Datalogs";
-        return new File(logDir + "/" + localName + ".csv");
+        if (localName == null) {
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH-mm-ss");
+            return new File(logDir + "/" + "Log-" + dateFormat.format(calendar.getTime()) + "_" + timeFormat.format(calendar.getTime()) + ".csv");
+        } else {
+            return new File(logDir + "/" + localName + ".csv");
+        }
     }
 }

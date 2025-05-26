@@ -14,12 +14,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Utility class for uploading files to an FTP server.
@@ -357,5 +354,22 @@ public class FtpUploading {
      */
     public String getWorkingDirectory() throws IOException {
         return this.ftp.printWorkingDirectory();
+    }
+    public boolean mkdir(String path) throws IOException {
+       return ftp.makeDirectory(path);
+    }
+    public void conpressAndUploadGzip(File srcFile, String dstPath, boolean deleteSrcFile, boolean deleteGzip) throws IOException {
+        byte[] buffer = new byte[1024];
+        try {
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new FileOutputStream(srcFile));
+            FileInputStream fileInputStream = new FileInputStream(dstPath);
+            int totalSize;
+            while ((totalSize = fileInputStream.read(buffer)) > 0) {
+                gzipOutputStream.write(buffer, 0, totalSize);
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+
     }
 }

@@ -78,7 +78,7 @@ public class TeleopApplication extends TeleopOpMode {
         logFile = Datalogger.setupLogFile("localLog");
         telemetry.addData("Local log file ", logFile.getAbsolutePath());
         telemetry.update();
-        datalog = new Datalog(logFile.getName());
+        datalog = new Datalog(logFile);
         datalog.opModeStatus.set("INIT");
         datalog.writeLine();
     }
@@ -418,9 +418,9 @@ public class TeleopApplication extends TeleopOpMode {
         public Datalogger.GenericField roll         = new Datalogger.GenericField("Roll");
         public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
         */
-        public Datalog(String name) {
+        public Datalog(File logFile) {
             datalogger = Datalogger.builder()
-                    .setFilename(name)
+                    .setFilename(logFile)
                     .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
                     .setFields(
                             opModeStatus,
