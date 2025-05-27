@@ -73,8 +73,8 @@ public class TeleopApplication extends TeleopOpMode {
     public void init() {
         Instance = this;
 
-        gamepad1 = new MarrowGamepad(super.gamepad1);
-        gamepad2 = new MarrowGamepad(super.gamepad2);
+        gamepad1 = new MarrowGamepad(this, super.gamepad1);
+        gamepad2 = new MarrowGamepad(this, super.gamepad2);
 
         controls = new TeleopControls(gamepad1, gamepad2);
 
