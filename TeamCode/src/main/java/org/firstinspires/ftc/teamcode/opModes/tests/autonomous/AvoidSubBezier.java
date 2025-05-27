@@ -29,6 +29,7 @@ public class AvoidSubBezier extends OpMode {
     @Override
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower.setupConstants(FConstants.class, LConstants.class);
         follower.setStartingPose(beginPos);
         Pose[] controlPoints = new Pose[3];
 
@@ -64,13 +65,16 @@ public class AvoidSubBezier extends OpMode {
             );
         }
 
-        telemetry.addData("start pos: ", beginPos.getVector());
+        telemetry.addData("start posx: ", beginPos.getVector().getXComponent());
+        telemetry.addData("start posy: ", beginPos.getVector().getYComponent());
 
         telemetry.addLine("------- mid point selected -------");
-        telemetry.addData("mid point: ", Bezier.generatedControls[1].getVector());
+        telemetry.addData("mid pointx: ", Bezier.generatedControls[1].getVector().getXComponent());
+        telemetry.addData("mid pointy: ", Bezier.generatedControls[1].getVector().getYComponent());
         telemetry.addLine("----------------------------------");
 
-        telemetry.addData("end pos: ", targetPos.getVector());
+        telemetry.addData("end posx: ", targetPos.getVector().getXComponent());
+        telemetry.addData("end posy: ", targetPos.getVector().getYComponent());
 
         dashboard.sendTelemetryPacket(packet);
         telemetry.update();
@@ -78,6 +82,7 @@ public class AvoidSubBezier extends OpMode {
 
     @Override
     public void loop() {
+        follower.update();
 
         if (follower.atParametricEnd()) {
             follower.followPath(JuicyBezier.GeneratedPath.paths);

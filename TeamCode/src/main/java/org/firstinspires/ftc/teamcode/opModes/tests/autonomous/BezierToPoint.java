@@ -75,7 +75,6 @@ public class BezierToPoint {
     private static Pose deCasteljau(Pose[] points, double t) {
         int n = points.length;
         Pose[] temp = new Pose[n];
-<<<<<<< HEAD
         //System.arraycopy(points, 0, temp, 0, n);
 
         for (int i = 0; i < n; i++) {
@@ -91,9 +90,9 @@ public class BezierToPoint {
             temp[i].setY(points[i].getY());
             temp[i].setHeading(points[i].getHeading());
         }
-=======
+
         System.arraycopy(points, 0, temp, 0, n);
->>>>>>> dfce099697139bb8c329cda59d4181ad90aab8a1
+
 
         for (int r = 1; r < n; r++) {
             for (int i = 0; i < n - r; i++) {
@@ -114,17 +113,16 @@ public class BezierToPoint {
     private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles, int numSamples) {
         Pose[] adjusted = Arrays.copyOf(controlPoints, controlPoints.length);
 
-<<<<<<< HEAD
         adjusted[0] = controlPoints[0];
         adjusted[controlPoints.length - 1] = controlPoints[controlPoints.length - 1];
         for (int i = 1; i < controlPoints.length - 1; i++) {
             Pose pose = controlPoints[i];
             Pose newPose = pose;
-=======
+        }
+
         for (int iteration = 0; iteration < AvoidSubParametersConfig.maxIterations; iteration++) {
             boolean collisionFound = false;
             Pose[] pathSamples = computeBezierPoints(adjusted, numSamples);
->>>>>>> dfce099697139bb8c329cda59d4181ad90aab8a1
 
             for (Pose p : pathSamples) {
                 for (Obstacle obs : obstacles) {
@@ -158,3 +156,4 @@ public class BezierToPoint {
         return adjusted;
     }
 }
+
