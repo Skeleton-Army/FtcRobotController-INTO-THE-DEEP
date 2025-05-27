@@ -110,6 +110,12 @@ public class Datalogger {
         public void set(String value) {
             this.value = value;
         }
+        public void set(Boolean value) {
+            this.value = Boolean.toString(value);
+        }
+        public void set(int value) {
+            this.value = Integer.toString(value);
+        }
 
         @Override
         public String getName() {

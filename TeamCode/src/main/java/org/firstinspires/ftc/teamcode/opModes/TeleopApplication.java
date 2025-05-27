@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.debugging.Datalogger;
+import org.firstinspires.ftc.teamcode.utils.debugging.FtpUploading;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
@@ -53,7 +54,7 @@ public class TeleopApplication extends TeleopOpMode {
     boolean highBasket = true;
 
     VoltageSensor battery;
-    File logFile;
+    public File logFile;
     Datalog datalog;
 
     @Override
@@ -75,7 +76,7 @@ public class TeleopApplication extends TeleopOpMode {
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
 
         battery = hardwareMap.voltageSensor.get("Control Hub");
-        logFile = Datalogger.setupLogFile("localLog");
+        logFile = Datalogger.setupLogFile(null);
         telemetry.addData("Local log file ", logFile.getAbsolutePath());
         telemetry.update();
         datalog = new Datalog(logFile);
@@ -118,17 +119,17 @@ public class TeleopApplication extends TeleopOpMode {
 //        intakeSensor.updateRGBCache();
 
         // Debugging to Driver Hub
-        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
-        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
-        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
-        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
-        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
-        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
-        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
-        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
-        telemetry.addData("Current voltage: " , battery.getVoltage());
-        telemetry.update();
+//        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
+//        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
+//        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
+//        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
+//        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+//        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
+//        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+//        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
+//        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+//        telemetry.addData("Current voltage: " , battery.getVoltage());
+//        telemetry.update();
         // Debugging to log file
         datalog.loopCounter.set(time);
         datalog.battery.set(battery.getVoltage());
@@ -138,7 +139,7 @@ public class TeleopApplication extends TeleopOpMode {
         datalog.outtakeVel.set(outtake.motor.getVelocity());
         datalog.specArmPos.set(specimenArm.motor.getCurrentPosition());
         datalog.hangPos.set(hang.motor.getCurrentPosition());
-        datalog.outtakeLimit.set(Boolean.toString(!outtakeSwitch.getState()));
+        datalog.outtakeLimit.set(!outtakeSwitch.getState());
         datalog.gamepad2X.set(gamepad2.left_stick_x);
         datalog.gamepad2Y.set(-gamepad2.left_stick_y);
         /*
@@ -399,6 +400,15 @@ public class TeleopApplication extends TeleopOpMode {
             outtake.resetMotor();
         }
     }
+    public void stop() {
+        try {
+            FtpUploading ftpUploading = new FtpUploading();
+            ftpUploading.UploadFile(logFile, "/" + logFile.getName(), FtpUploading.ASCII, true);
+            ftpUploading.disconnect();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static class Datalog {
         private final Datalogger datalogger;
         public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
@@ -429,7 +439,12 @@ public class TeleopApplication extends TeleopOpMode {
                             intakeVel,
                             outtakePos,
                             outtakeVel,
-                            specArmPos
+                            specArmPos,
+                            hangPos,
+                            outtakeLimit,
+                            gamepad2X,
+                            gamepad2Y,
+                            battery
                     )
                     .build();
         }
