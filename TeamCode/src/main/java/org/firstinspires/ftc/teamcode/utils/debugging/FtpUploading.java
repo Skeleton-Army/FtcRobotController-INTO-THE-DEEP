@@ -8,6 +8,7 @@ import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.firstinspires.ftc.teamcode.utils.customExceptions.ConfigurationException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -259,7 +260,7 @@ public class FtpUploading {
             if (Dest.exists()) {
                 this.ftp.retrieveFile(RemoteSrcFile, DestStream);
                 if (DeleteRemote) {
-                    ftp.deleteFile(RemoteSrcFile);
+                    this.ftp.deleteFile(RemoteSrcFile);
                 }
             } else {
                 throw new IOException("Destination file already exists");
@@ -286,7 +287,7 @@ public class FtpUploading {
             if (LocalDestFile.exists()) {
                 this.ftp.retrieveFile(RemoteSrcFile, DestStream);
                 if (DeleteRemote) {
-                    ftp.deleteFile(RemoteSrcFile);
+                    this.ftp.deleteFile(RemoteSrcFile);
                 }
                 return LocalDestFile;
             } else {
@@ -355,14 +356,39 @@ public class FtpUploading {
     public String getWorkingDirectory() throws IOException {
         return this.ftp.printWorkingDirectory();
     }
+
+    /**
+     * Creates a directory at the specified path on the FTP server.
+     *
+     * @param path the directory path to create on the FTP server
+     * @return {@code true} if the directory was created successfully; {@code false} otherwise
+     * @throws IOException if an I/O error occurs during directory creation
+     */
     public boolean mkdir(String path) throws IOException {
-       return ftp.makeDirectory(path);
+       return this.ftp.makeDirectory(path);
     }
-    public void conpressAndUploadGzip(File srcFile, String dstPath, boolean deleteSrcFile, boolean deleteGzip) throws IOException {
-        byte[] buffer = new byte[1024];
+
+    /**
+     * Compresses the specified source file into a GZIP file, uploads it to the FTP server,
+     * and optionally deletes the source file and/or the GZIP file after upload.
+     *
+     * @param srcFile       the file to compress and upload
+     * @param dstPath       the destination path for the GZIP file; if {@code null}, defaults to the same directory as {@code srcFile}
+     * @param gzipName      the desired name for the compressed file
+     * @param deleteSrcFile if {@code true}, deletes the original source file after compression
+     * @param deleteGzip    if {@code true}, deletes the compressed file after uploading
+     * @throws IOException if an I/O error occurs during compression, deletion, renaming, or upload
+     */
+    public void conpressAndUploadGzip(@NotNull File srcFile, String dstPath, String gzipName,boolean deleteSrcFile, boolean deleteGzip) throws IOException {
+        if (dstPath == null) {
+           dstPath = srcFile.getParentFile().getAbsolutePath() + "/" + srcFile.getName() + ".gz";
+        } else {
+            dstPath = dstPath + "/" + srcFile.getName() + ".gz";
+        }
         try {
-            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new FileOutputStream(srcFile));
-            FileInputStream fileInputStream = new FileInputStream(dstPath);
+            byte[] buffer = new byte[1024];
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new FileOutputStream(dstPath));
+            FileInputStream fileInputStream = new FileInputStream(srcFile);
             int totalSize;
             while ((totalSize = fileInputStream.read(buffer)) > 0) {
                 gzipOutputStream.write(buffer, 0, totalSize);
@@ -370,6 +396,74 @@ public class FtpUploading {
         } catch (IOException e) {
             throw new IOException(e);
         }
+       try {
+           if (deleteSrcFile) {
+               if (!srcFile.delete()) {
+                   throw new IOException("File deletion failed");
+               }
+           }
+           File gzipFile = new File(dstPath);
+           if (gzipName.endsWith(".gz")) {
+               gzipName = gzipName + ".gz";
+           }
+           if (!gzipFile.renameTo(new File(gzipFile, gzipName))) {
+               throw new IOException("Gzip file rename failed");
+           }
+           UploadFile(gzipFile, "/" + gzipFile.getName(), FtpUploading.BINARY, deleteGzip);
+       } catch (IOException err) {
+           throw new IOException(err.getMessage());
+       } catch (Exception e) {
+           throw new RuntimeException(e);
+       }
+    }
 
+    /**
+     * Compresses the specified source file path into a GZIP file, uploads it to the FTP server,
+     * and optionally deletes the source file and/or the GZIP file after upload.
+     *
+     * @param srcFile       the path of the file to compress and upload
+     * @param dstPath       the destination path for the GZIP file; if {@code null}, defaults to the same directory as {@code srcFile}
+     * @param gzipName      the desired name for the compressed file
+     * @param deleteSrcFile if {@code true}, deletes the original source file after compression
+     * @param deleteGzip    if {@code true}, deletes the compressed file after uploading
+     * @throws IOException if an I/O error occurs during compression, deletion, renaming, or upload
+     */
+    public void conpressAndUploadGzip(@NotNull String srcFile, String dstPath, String gzipName, boolean deleteSrcFile, boolean deleteGzip) throws IOException {
+        File localFile = new File(srcFile);
+        if (dstPath == null) {
+            dstPath = localFile.getParentFile().getAbsolutePath() + "/" + localFile.getName() + ".gz";
+        } else {
+            dstPath = dstPath + "/" + localFile.getName() + ".gz";
+        }
+        try {
+            byte[] buffer = new byte[1024];
+            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new FileOutputStream(dstPath));
+            FileInputStream fileInputStream = new FileInputStream(localFile);
+            int totalSize;
+            while ((totalSize = fileInputStream.read(buffer)) > 0) {
+                gzipOutputStream.write(buffer, 0, totalSize);
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+        try {
+            if (deleteSrcFile) {
+                if (! localFile.delete()) {
+                    throw new IOException("File deletion failed");
+                }
+            }
+            File gzipFile = new File(dstPath);
+            if (gzipName.endsWith(".gz")) {
+                gzipName = gzipName + ".gz";
+            }
+            if (!gzipFile.renameTo(new File(gzipFile, gzipName))) {
+                throw new IOException("Gzip file rename failed");
+            }
+            UploadFile(gzipFile, "/" + gzipFile.getName(), FtpUploading.BINARY, deleteGzip);
+        } catch (IOException err) {
+            throw new IOException(err.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
