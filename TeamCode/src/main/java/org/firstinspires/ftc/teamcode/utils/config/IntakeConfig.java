@@ -12,11 +12,11 @@ public class IntakeConfig {
 
     public static double currentLimit = 7;
 
-    public static int extendPosition = -450;
+    public static int extendPosition = -535;
     public static int retractPosition = 0;
 
-    public static double clawClosed = 0.6;
-    public static double clawOpen = 0.33;
+    public static double clawClosed = 0.86;
+    public static double clawOpen = 0.5;
     public static double extraOpenClaw = 0;
 
     public static double wristExtend = 1;
