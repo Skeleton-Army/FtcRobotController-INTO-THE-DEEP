@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
 
+import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.pathgen.Vector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -115,39 +117,65 @@ public class BezierToPoint {
 
         adjusted[0] = controlPoints[0];
         adjusted[controlPoints.length - 1] = controlPoints[controlPoints.length - 1];
-        for (int i = 1; i < controlPoints.length - 1; i++) {
-            Pose pose = controlPoints[i];
-            Pose newPose = pose;
-        }
 
         for (int iteration = 0; iteration < AvoidSubParametersConfig.maxIterations; iteration++) {
             boolean collisionFound = false;
+
+            // Sample the curve to check for collisions
             Pose[] pathSamples = computeBezierPoints(adjusted, numSamples);
+
+            // Track total repulsion for each midpoint
+            Vector2d[] repulsionForces = new Vector2d[adjusted.length];
+            for (int i = 0; i < repulsionForces.length; i++) {
+                repulsionForces[i] = new Vector2d(0, 0);
+            }
 
             for (Pose p : pathSamples) {
                 for (Obstacle obs : obstacles) {
                     if (obs.isColliding(p, AvoidSubParametersConfig.width, AvoidSubParametersConfig.height)) {
                         collisionFound = true;
 
+                        Vector2d obsCenter = new Vector2d(obs.x + obs.width / 2.0, obs.y + obs.height / 2.0);
+                        Vector2d pointVec = new Vector2d(p.getX(), p.getY());
+                        Vector2d away = pointVec.minus(obsCenter);
+                        double distance = away.norm();
+
+                        // Minimum safe radius based on obstacle clearance
+                        double safeRadius = Math.max(AvoidSubParametersConfig.width, AvoidSubParametersConfig.height) / 2.0;
+                        double distanceIntoBuffer = Math.max(0, safeRadius - distance);
+                        if (distance == 0) distance = 0.001;
+
+                        double strength = (distanceIntoBuffer / safeRadius) * AvoidSubParametersConfig.stepSize;
+                        Vector2d repulse = away.div(distance).times(strength);
+
+                        // Apply repulsion to the closest mid control point
+                        int closestIndex = -1;
+                        double minDist = Double.MAX_VALUE;
                         for (int i = 1; i < adjusted.length - 1; i++) {
-                            Pose mid = adjusted[i];
-                            double dx = mid.getVector().getXComponent() - (obs.x + obs.width / 2.0);
-                            double dy = mid.getVector().getYComponent() - (obs.y + obs.height / 2.0);
-                            double norm = Math.sqrt(dx * dx + dy * dy);
-                            if (norm == 0) norm = 1;
-                            dx /= norm;
-                            dy /= norm;
-
-                            double newX = mid.getVector().getXComponent() + dx * AvoidSubParametersConfig.stepSize;
-                            double newY = mid.getVector().getYComponent() + dy * AvoidSubParametersConfig.stepSize;
-
-                            adjusted[i] = new Pose(newX, newY, mid.getHeading());
+                            Vector2d v = new Vector2d(adjusted[i].getX(), adjusted[i].getY());
+                            double d = v.minus(pointVec).norm();
+                            if (d < minDist) {
+                                minDist = d;
+                                closestIndex = i;
+                            }
                         }
 
-                        break;
+                        if (closestIndex != -1) {
+                            repulsionForces[closestIndex] = repulsionForces[closestIndex].plus(repulse);
+                        }
+
+                        break; // only respond to first obstacle per sample point
                     }
                 }
+
                 if (collisionFound) break;
+            }
+
+            // Apply forces to midpoints
+            for (int i = 1; i < adjusted.length - 1; i++) {
+                Vector2d v = new Vector2d(adjusted[i].getX(), adjusted[i].getY());
+                Vector2d newPos = v.plus(repulsionForces[i]);
+                adjusted[i] = new Pose(newPos.x, newPos.y, adjusted[i].getHeading());
             }
 
             if (!collisionFound) break;
