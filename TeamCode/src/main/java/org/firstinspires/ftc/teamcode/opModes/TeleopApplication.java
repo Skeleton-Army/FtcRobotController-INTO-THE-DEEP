@@ -8,10 +8,12 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -56,6 +58,7 @@ public class TeleopApplication extends TeleopOpMode {
     VoltageSensor battery;
     public File logFile;
     Datalog datalog;
+    IMU imu;
 
     @Override
     public void init() {
@@ -82,6 +85,13 @@ public class TeleopApplication extends TeleopOpMode {
         datalog = new Datalog(logFile);
         datalog.opModeStatus.set("INIT");
         datalog.writeLine();
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        // IMU initialization
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
     }
 
     @Override
@@ -119,18 +129,31 @@ public class TeleopApplication extends TeleopOpMode {
 //        intakeSensor.updateRGBCache();
 
         // Debugging to Driver Hub
-//        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
-//        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
-//        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
-//        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
-//        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
-//        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
-//        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-//        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
-//        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
-//        telemetry.addData("Current voltage: " , battery.getVoltage());
-//        telemetry.update();
+        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
+        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
+        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
+        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
+        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
+        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
+        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+        telemetry.addData("Current voltage: " , battery.getVoltage());
+        telemetry.addData("Yaw", datalog.yaw);
+        telemetry.addData("Pitch", datalog.pitch);
+        telemetry.addData("Roll", datalog.roll);
+        telemetry.addData("OpMode Status", datalog.opModeStatus);
+        telemetry.addData("Loop Counter", datalog.loopCounter);
+        telemetry.addData("Battery", datalog.battery);
+        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
+            telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
+            telemetry.addData("Voltage", sensor.getVoltage());
+        }
+
+        telemetry.update();
         // Debugging to log file
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+
         datalog.loopCounter.set(time);
         datalog.battery.set(battery.getVoltage());
         datalog.intakePos.set(intake.motor.getCurrentPosition());
@@ -142,31 +165,13 @@ public class TeleopApplication extends TeleopOpMode {
         datalog.outtakeLimit.set(!outtakeSwitch.getState());
         datalog.gamepad2X.set(gamepad2.left_stick_x);
         datalog.gamepad2Y.set(-gamepad2.left_stick_y);
-        /*
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        datalog.robotAngle.set(Math.toDegrees(drive.pose.heading.toDouble()));
+        datalog.robotPosX.set(drive.pose.position.x);
+        datalog.robotPosY.set(drive.pose.position.y);
         datalog.yaw.set(orientation.getYaw());
         datalog.pitch.set(orientation.getPitch());
         datalog.roll.set(orientation.getRoll());
-        */
         datalog.writeLine();
-
-        /*
-        telemetry.addData("Yaw", datalog.yaw);
-        telemetry.addData("Pitch", datalog.pitch);
-        telemetry.addData("Roll", datalog.roll);
-         */
-        telemetry.addLine();
-        telemetry.addData("OpMode Status", datalog.opModeStatus);
-        telemetry.addData("Loop Counter", datalog.loopCounter);
-        telemetry.addData("Battery", datalog.battery);
-
-        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
-            telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
-            telemetry.addData("Voltage", sensor.getVoltage());
-        }
-        telemetry.update();
-
-
     }
 
     public void runIntakeWithDeposit() {
@@ -423,11 +428,12 @@ public class TeleopApplication extends TeleopOpMode {
         public Datalogger.GenericField gamepad2X = new Datalogger.GenericField("Gamepad 2 X");
         public Datalogger.GenericField gamepad2Y = new Datalogger.GenericField("Gamepad 2 Y");
         public Datalogger .GenericField battery = new Datalogger.GenericField("Battery");
-        /* public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
+        public Datalogger.GenericField robotPosX = new Datalogger.GenericField("Robot Position X");
+        public Datalogger.GenericField robotPosY = new Datalogger.GenericField("Robot Position Y");
+        public Datalogger.GenericField robotAngle = new Datalogger.GenericField("Robot Angle");
+        public Datalogger.GenericField yaw          = new Datalogger.GenericField("Yaw");
         public Datalogger.GenericField pitch        = new Datalogger.GenericField("Pitch");
         public Datalogger.GenericField roll         = new Datalogger.GenericField("Roll");
-        public Datalogger.GenericField battery      = new Datalogger.GenericField("Battery");
-        */
         public Datalog(File logFile) {
             datalogger = Datalogger.builder()
                     .setFilename(logFile)
@@ -444,7 +450,13 @@ public class TeleopApplication extends TeleopOpMode {
                             outtakeLimit,
                             gamepad2X,
                             gamepad2Y,
-                            battery
+                            battery,
+                            robotAngle,
+                            robotPosX,
+                            robotPosY,
+                            yaw,
+                            pitch,
+                            roll
                     )
                     .build();
         }
