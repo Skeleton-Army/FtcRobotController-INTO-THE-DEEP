@@ -20,6 +20,7 @@ import com.skeletonarmy.marrow.MarrowGamepad;
 import com.skeletonarmy.marrow.teleop.TeleopOpMode;
 import com.skeletonarmy.marrow.MarrowUtils;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
@@ -143,6 +144,9 @@ public class TeleopApplication extends TeleopOpMode {
 //        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
         telemetry.addData("Intake Rotation Vector", "(" + controls.INTAKE_ROTATION_X.value() + "," + (-controls.INTAKE_ROTATION_Y.value()) + ")");
         telemetry.addData("Intake Rotation", Math.toDegrees(Math.atan2(controls.INTAKE_ROTATION_X.value(), -controls.INTAKE_ROTATION_Y.value())));
+        telemetry.addData("Intake Current", intake.motor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Outtake Current", outtake.motor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Specimen Arm Current", specimenArm.motor.getCurrent(CurrentUnit.AMPS));
 
         telemetry.update();
     }

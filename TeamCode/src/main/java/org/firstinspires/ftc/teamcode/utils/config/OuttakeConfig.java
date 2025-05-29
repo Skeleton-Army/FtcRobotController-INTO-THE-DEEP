@@ -8,7 +8,7 @@ public class OuttakeConfig {
     public static String bucketName = "bucket";
     public static String limitSwitchName = "outtakeSwitch";
 
-    public static double currentLimit = 0;
+    public static double currentLimit = 9;
 
     public static int extendPosition = -1200;
     public static int lowBasketPosition = -700;

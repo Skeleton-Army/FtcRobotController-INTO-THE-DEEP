@@ -10,7 +10,7 @@ public class IntakeConfig {
     public static String wrist2Name = "wrist2";
     public static String rotationName = "rotation";
 
-    public static double currentLimit = 0;
+    public static double currentLimit = 7;
 
     public static int extendPosition = -450;
     public static int retractPosition = 0;
