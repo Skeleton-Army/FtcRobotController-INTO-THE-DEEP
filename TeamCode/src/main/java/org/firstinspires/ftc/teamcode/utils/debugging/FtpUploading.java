@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilters;
 import org.firstinspires.ftc.teamcode.utils.config.FtpConfig;
@@ -18,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Utility class for uploading files to an FTP server.
@@ -393,28 +397,24 @@ public class FtpUploading {
             while ((totalSize = fileInputStream.read(buffer)) > 0) {
                 gzipOutputStream.write(buffer, 0, totalSize);
             }
+            if (deleteSrcFile) {
+                if (!srcFile.delete()) {
+                    throw new IOException("File deletion failed");
+                }
+            }
+            File gzipFile = new File(dstPath);
+            if (!gzipName.endsWith(".gz")) {
+                gzipName = gzipName + ".gz";
+            }
+            if (!gzipFile.renameTo(new File(gzipFile, gzipName))) {
+                throw new IOException("Gzip file rename failed");
+            }
+            UploadFile(gzipFile, "/" + gzipFile.getName(), FtpUploading.BINARY, deleteGzip);
         } catch (IOException e) {
             throw new IOException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-       try {
-           if (deleteSrcFile) {
-               if (!srcFile.delete()) {
-                   throw new IOException("File deletion failed");
-               }
-           }
-           File gzipFile = new File(dstPath);
-           if (gzipName.endsWith(".gz")) {
-               gzipName = gzipName + ".gz";
-           }
-           if (!gzipFile.renameTo(new File(gzipFile, gzipName))) {
-               throw new IOException("Gzip file rename failed");
-           }
-           UploadFile(gzipFile, "/" + gzipFile.getName(), FtpUploading.BINARY, deleteGzip);
-       } catch (IOException err) {
-           throw new IOException(err.getMessage());
-       } catch (Exception e) {
-           throw new RuntimeException(e);
-       }
     }
 
     /**
@@ -443,27 +443,152 @@ public class FtpUploading {
             while ((totalSize = fileInputStream.read(buffer)) > 0) {
                 gzipOutputStream.write(buffer, 0, totalSize);
             }
-        } catch (IOException e) {
-            throw new IOException(e);
-        }
-        try {
             if (deleteSrcFile) {
-                if (! localFile.delete()) {
+                if (!localFile.delete()) {
                     throw new IOException("File deletion failed");
                 }
             }
             File gzipFile = new File(dstPath);
-            if (gzipName.endsWith(".gz")) {
+            if (!gzipName.endsWith(".gz")) {
                 gzipName = gzipName + ".gz";
             }
             if (!gzipFile.renameTo(new File(gzipFile, gzipName))) {
                 throw new IOException("Gzip file rename failed");
             }
             UploadFile(gzipFile, "/" + gzipFile.getName(), FtpUploading.BINARY, deleteGzip);
-        } catch (IOException err) {
-            throw new IOException(err.getMessage());
+        } catch (IOException e) {
+            throw new IOException(e);
+        } catch (Exception err) {
+            throw new RuntimeException(err);
+        }
+    }
+
+    /**
+     * Compresses the specified source file into a ZIP archive and uploads it.
+     *
+     * @param srcFile        The source file to be compressed.
+     * @param dstPath        The destination directory where the ZIP file should be created.
+     *                       If null, the ZIP will be placed in the same directory as {@code srcFile}.
+     * @param zipName        The name to assign to the ZIP file after compression.
+     *                       The method ensures the name ends with ".zip".
+     * @param deleteSrcFile  If true, deletes the original source file after compression.
+     * @param deleteZip      If true, deletes the ZIP file after it has been uploaded.
+     * @throws IOException   If any IO-related operation (e.g., reading, writing, deleting, renaming) fails.
+     */
+    public void compressAndUploadZip(@NotNull File srcFile, String dstPath, String zipName, boolean deleteSrcFile, boolean deleteZip) throws IOException {
+        if (dstPath == null) {
+            dstPath = srcFile.getParentFile().getAbsolutePath() + "/" + srcFile.getName() + ".zip";
+        } else {
+            dstPath = dstPath + "/" + srcFile.getName() + ".zip";
+        }
+        try {
+            byte[] buffer = new byte[1024];
+            ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream(dstPath));
+            FileInputStream fileInputStream = new FileInputStream(srcFile);
+            int totalSize;
+            while ((totalSize = fileInputStream.read(buffer)) > 0) {
+                zipOutputStream.write(buffer, 0, totalSize);
+            }
+            if (deleteSrcFile) {
+                if (!srcFile.delete()) {
+                    throw new IOException("File deletion failed");
+                }
+            }
+            File zipFile = new File(dstPath);
+            if (!zipName.endsWith(".gz")) {
+                zipName = zipName + ".zip";
+            }
+            if (!zipFile.renameTo(new File(zipFile, zipName))) {
+                throw new IOException("Zip file rename failed");
+            }
+            UploadFile(zipFile, "/" + zipFile.getName(), FtpUploading.BINARY, deleteZip);
+        } catch (IOException e) {
+            throw new IOException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Compresses the specified source file path into a ZIP archive and uploads it.
+     *
+     * @param srcFile        The absolute path to the source file to be compressed.
+     * @param dstPath        The destination directory where the ZIP file should be created.
+     *                       If null, the ZIP will be placed in the same directory as {@code srcFile}.
+     * @param zipName        The name to assign to the ZIP file after compression.
+     *                       The method ensures the name ends with ".zip".
+     * @param deleteSrcFile  If true, deletes the original source file after compression.
+     * @param deleteZip      If true, deletes the ZIP file after it has been uploaded.
+     * @throws IOException   If any IO-related operation (e.g., reading, writing, deleting, renaming) fails.
+     */
+    public void compressAndUploadZip (@NotNull String srcFile, String dstPath, String zipName, boolean deleteSrcFile, boolean deleteZip) throws IOException {
+        File localFile = new File(srcFile);
+        if (dstPath == null) {
+            dstPath = localFile.getParentFile().getAbsolutePath() + "/" + localFile.getName() + ".zip";
+        } else {
+            dstPath = dstPath + "/" + localFile.getName() + ".zip";
+        }
+        try {
+            byte[] buffer = new byte[1024];
+            ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(dstPath));
+            FileInputStream fileInputStream = new FileInputStream(localFile);
+            int totalSize;
+            while ((totalSize = fileInputStream.read(buffer)) > 0) {
+                zipOutputStream.write(buffer, 0, totalSize);
+            }
+            if (deleteSrcFile) {
+                if (!localFile.delete()) {
+                    throw new IOException("File deletion failed");
+                }
+            }
+            File ZipFile = new File(dstPath);
+            if (!zipName.endsWith(".zip")) {
+                zipName = zipName + ".zip";
+            }
+            if (!ZipFile.renameTo(new File(ZipFile, zipName))) {
+                throw new IOException("Zip file rename failed");
+            }
+            UploadFile(ZipFile, "/" + ZipFile.getName(), FtpUploading.BINARY, deleteZip);
+        } catch (IOException e) {
+            throw new IOException(e);
+        } catch (Exception err) {
+            throw new RuntimeException(err);
+        }
+    }
+
+    /**
+     * Creates a TAR archive from the specified list of file paths.
+     *
+     * @param filePaths  An array of file paths to include in the TAR archive.
+     * @param dstTar     The desired destination path and filename for the resulting TAR archive.
+     *                   If it does not end with ".tar", the method appends the extension.
+     * @return A {@link File} object representing the created TAR archive.
+     * @throws IOException If any file cannot be read, doesn't exist, or an IO operation fails during archiving.
+     */
+    public static File createTar (@NotNull String[] filePaths, String dstTar) throws IOException {
+        if (!dstTar.endsWith(".tar")) {
+           dstTar = dstTar + ".tar";
+        }
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(dstTar);
+            TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(fileOutputStream);
+            for (String path : filePaths) {
+                File file = new File(path);
+                if (!file.exists()) {
+                    throw new IOException("Input file " + path + " was not found");
+                }
+
+                try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                    TarArchiveEntry tarArchiveEntry = new TarArchiveEntry(file, file.getName());
+                    tarArchiveOutputStream.putArchiveEntry(tarArchiveEntry);
+                    IOUtils.copy(fileInputStream, tarArchiveOutputStream);
+                    tarArchiveOutputStream.closeArchiveEntry();
+                }
+            }
+            tarArchiveOutputStream.finish();
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+        return new File(dstTar);
     }
 }

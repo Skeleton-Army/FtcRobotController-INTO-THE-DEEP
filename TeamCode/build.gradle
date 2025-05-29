@@ -67,6 +67,7 @@ dependencies {
     implementation "commons-net:commons-net:3.6"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'
+    implementation 'org.apache.commons:commons-compress:1.24.0'
 }
 
 tasks.withType(Test).configureEach {
