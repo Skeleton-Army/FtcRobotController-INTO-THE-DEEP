@@ -10,6 +10,8 @@ public class TeleopControls {
     public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_Y;
     public MarrowGamepad.SimpleAnalogState INTAKE_MANUAL_Y;
 
+    public MarrowGamepad.AnalogState INTAKE_ROTATION;
+
     public MarrowGamepad.ButtonState OUTTAKE_BUTTON;
     public MarrowGamepad.ButtonState OUTTAKE_CYCLE_BUTTON;
 

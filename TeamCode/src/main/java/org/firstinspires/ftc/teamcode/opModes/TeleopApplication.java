@@ -117,7 +117,8 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Run systems
         runIntake();
-        runIntakeControls();
+        runIntakeRotation();
+        runManualIntake();
         runGrab();
         runOuttake();
         runSpecimenArm();
@@ -203,7 +204,7 @@ public class TeleopApplication extends TeleopOpMode {
         }
     }
 
-    public void runIntakeControls() {
+    public void runIntakeRotation() {
         // Intake claw rotation
         if (isInState("intake", 1)) {
             double x = controls.INTAKE_ROTATION_X.value();
@@ -214,7 +215,9 @@ public class TeleopApplication extends TeleopOpMode {
                 runAction(intake.rotate(rotation));
             }
         }
+    }
 
+    public void runManualIntake() {
         // Intake manual movement
         if (Math.abs(controls.INTAKE_MANUAL_Y.value()) > 0.1 && isInState("intake", 1) && (controls.INTAKE_MANUAL_Y.value() > 0 || intake.motor.getCurrentPosition() > IntakeConfig.extendPosition)) {
             manuallyMoved = true;
