@@ -10,12 +10,10 @@ public class IntakeConfig {
     public static String wrist2Name = "wrist2";
     public static String rotationName = "rotation";
 
-    public static double motorPower = 1;
+    public static double currentLimit = 0;
+
     public static int extendPosition = -450;
     public static int retractPosition = 0;
-
-    public static int velocityThreshold = 500;
-    public static double startThreshold = 0.5;
 
     public static double clawClosed = 0.6;
     public static double clawOpen = 0.33;

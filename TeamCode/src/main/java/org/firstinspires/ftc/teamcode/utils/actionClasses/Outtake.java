@@ -10,17 +10,18 @@ import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.ServoToPosition;
 import com.skeletonarmy.marrow.actions.MotorToPosition;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 
 public class Outtake {
-    public final CachingDcMotorEx motor;
+    public final AdvancedDcMotor motor;
     private final CachingServo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        motor.setCurrentLimit(OuttakeConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setTargetPosition(0);
 
@@ -35,8 +36,8 @@ public class Outtake {
     }
 
     // General actions
-    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(motor, targetPos, power, OuttakeConfig.velocityThreshold, holdPosition);
+    public Action motorToPosition(int targetPos) {
+        return new MotorToPosition(motor, targetPos);
     }
 
     public Action bucketToPosition(double targetPos) {
@@ -45,7 +46,7 @@ public class Outtake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(OuttakeConfig.extendPosition, OuttakeConfig.motorPower, true);
+        return motorToPosition(OuttakeConfig.extendPosition);
     }
 
     /**
@@ -53,16 +54,16 @@ public class Outtake {
      * @param multiplier The factor by which to extend the arm
      */
     public Action extend(double multiplier) {
-        return motorToPosition((int)(OuttakeConfig.extendPosition * multiplier), OuttakeConfig.motorPower, true);
+        return motorToPosition((int)(OuttakeConfig.extendPosition * multiplier));
     }
 
     public Action extend(boolean highBasket) {
         int pos = highBasket ? OuttakeConfig.extendPosition : OuttakeConfig.lowBasketPosition;
-        return motorToPosition(pos, OuttakeConfig.motorPower, true);
+        return motorToPosition(pos);
     }
 
     public Action retract() {
-        return motorToPosition(OuttakeConfig.retractPosition, OuttakeConfig.motorPower, false);
+        return motorToPosition(OuttakeConfig.retractPosition);
     }
 
     public Action dunk() {

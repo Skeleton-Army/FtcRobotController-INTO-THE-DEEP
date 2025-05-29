@@ -9,10 +9,8 @@ import com.skeletonarmy.marrow.actions.MotorToPosition;
 
 import org.firstinspires.ftc.teamcode.utils.config.HangConfig;
 
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
-
 public class Hang {
-    public final CachingDcMotorEx motor;
+    public final AdvancedDcMotor motor;
 
     public Hang(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, HangConfig.motorName));
@@ -25,20 +23,20 @@ public class Hang {
     }
 
     // General actions
-    public Action hangToPosition(int targetPos, double power) {
-        return new MotorToPosition(motor, targetPos, power, HangConfig.velocityThreshold, false);
+    public Action hangToPosition(int targetPos) {
+        return new MotorToPosition(motor, targetPos);
     }
 
     // Specific actions
     public Action extendHang() {
-        return hangToPosition(HangConfig.extendPosition, HangConfig.hangPower);
+        return hangToPosition(HangConfig.extendPosition);
     }
 
     public Action retractHang() {
-        return hangToPosition(HangConfig.retractPosition, HangConfig.hangPower);
+        return hangToPosition(HangConfig.retractPosition);
     }
 
     public Action middleHang() {
-        return hangToPosition(HangConfig.middlePosition, HangConfig.hangPower);
+        return hangToPosition(HangConfig.middlePosition);
     }
 }

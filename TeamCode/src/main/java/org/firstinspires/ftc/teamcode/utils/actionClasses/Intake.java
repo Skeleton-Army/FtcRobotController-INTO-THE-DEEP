@@ -11,9 +11,9 @@ import com.skeletonarmy.marrow.AdvancedDcMotor;
 import com.skeletonarmy.marrow.actions.MotorToPosition;
 import com.skeletonarmy.marrow.actions.ServoToPosition;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 
 public class Intake {
@@ -25,6 +25,7 @@ public class Intake {
 
     public Intake(HardwareMap hardwareMap) {
         motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        motor.setCurrentLimit(IntakeConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -46,8 +47,8 @@ public class Intake {
     }
 
     // General actions
-    public Action motorToPosition(int targetPos, double power, boolean holdPosition) {
-        return new MotorToPosition(motor, targetPos, power, IntakeConfig.velocityThreshold, holdPosition);
+    public Action motorToPosition(int targetPos) {
+        return new MotorToPosition(motor, targetPos);
     }
 
     public Action clawToPosition(double targetPos) {
@@ -67,7 +68,7 @@ public class Intake {
 
     // Specific actions
     public Action extend() {
-        return motorToPosition(IntakeConfig.extendPosition, IntakeConfig.motorPower, true);
+        return motorToPosition(IntakeConfig.extendPosition);
     }
 
     /**
@@ -75,15 +76,15 @@ public class Intake {
      * @param multiplier The factor by which to extend the arm
      */
     public Action extend(double multiplier) {
-        return motorToPosition((int)(IntakeConfig.extendPosition * multiplier), IntakeConfig.motorPower, true);
+        return motorToPosition((int)(IntakeConfig.extendPosition * multiplier));
     }
 
     public Action retract() {
-        return motorToPosition(IntakeConfig.retractPosition, IntakeConfig.motorPower, false);
+        return motorToPosition(IntakeConfig.retractPosition);
     }
 
     public Action retract(double power) {
-        return motorToPosition(IntakeConfig.retractPosition, power, false);
+        return motorToPosition(IntakeConfig.retractPosition);
     }
 
     public Action closeClaw() {
