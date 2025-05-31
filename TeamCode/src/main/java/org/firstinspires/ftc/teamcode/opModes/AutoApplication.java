@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -62,13 +61,20 @@ public class AutoApplication extends AutoOpMode {
 
     @Override
     public void preAutonomousSetup() {
-        alliance = prompt(new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
-        strategy = prompt(new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
-        extraSpecimens = 0;
+        choiceMenu.enqueuePrompt("alliance", new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
+        choiceMenu.enqueuePrompt("strategy", new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
+        choiceMenu.enqueuePrompt("extraSpecimens", () -> {
+            if (choiceMenu.get("strategy") == Strategy.SPECIMENS) {
+                return new OptionPrompt<>("SELECT HUMAN PLAYER SPECIMENS:", 1, 0);
+            }
+            return null;
+        });
 
-        if (strategy == Strategy.SPECIMENS) {
-            extraSpecimens = prompt(new OptionPrompt<>("SELECT HUMAN PLAYER SPECIMENS:", 1, 0));
-        }
+        choiceMenu.run(); // Blocks until done
+
+        alliance = choiceMenu.get("alliance");
+        strategy = choiceMenu.get("strategy");
+        extraSpecimens = choiceMenu.getOrDefault("extraSpecimens", 0);
 
         telemetry.addData("Selected Alliance", alliance);
         telemetry.addData("Selected Strategy", strategy);
