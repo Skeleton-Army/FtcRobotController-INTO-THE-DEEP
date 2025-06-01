@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.skeletonarmy.marrow.AdvancedDcMotor;
-import com.skeletonarmy.marrow.actions.ServoToPosition;
-import com.skeletonarmy.marrow.actions.MotorToPosition;
+import com.skeletonarmy.marrow.actions.ServoToPositionAction;
+import com.skeletonarmy.marrow.actions.MotorToPositionAction;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
@@ -37,11 +37,11 @@ public class Outtake {
 
     // General actions
     public Action motorToPosition(int targetPos) {
-        return new MotorToPosition(motor, targetPos);
+        return new MotorToPositionAction(motor, targetPos);
     }
 
     public Action bucketToPosition(double targetPos) {
-        return new ServoToPosition(bucketServo, targetPos);
+        return new ServoToPositionAction(bucketServo, targetPos);
     }
 
     // Specific actions

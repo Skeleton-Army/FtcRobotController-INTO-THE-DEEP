@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.skeletonarmy.marrow.AdvancedDcMotor;
-import com.skeletonarmy.marrow.actions.ServoToPosition;
+import com.skeletonarmy.marrow.actions.ServoToPositionAction;
 import com.skeletonarmy.marrow.actions.SleepUntilAction;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -69,11 +69,11 @@ public class SpecimenArm {
     }
 
     public Action gripToPosition(double targetPos) {
-        return new ServoToPosition(gripServo, targetPos);
+        return new ServoToPositionAction(gripServo, targetPos);
     }
 
     public Action grabToPosition(double targetPos) {
-        return new ServoToPosition(grabServo, targetPos);
+        return new ServoToPositionAction(grabServo, targetPos);
     }
 
     // Specific actions

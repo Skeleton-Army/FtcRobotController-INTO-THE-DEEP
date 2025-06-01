@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.skeletonarmy.marrow.AdvancedDcMotor;
-import com.skeletonarmy.marrow.actions.MotorToPosition;
+import com.skeletonarmy.marrow.actions.MotorToPositionAction;
 
 import org.firstinspires.ftc.teamcode.utils.config.HangConfig;
 
@@ -24,7 +24,7 @@ public class Hang {
 
     // General actions
     public Action hangToPosition(int targetPos) {
-        return new MotorToPosition(motor, targetPos);
+        return new MotorToPositionAction(motor, targetPos);
     }
 
     // Specific actions

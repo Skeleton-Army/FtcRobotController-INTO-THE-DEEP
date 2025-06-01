@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.skeletonarmy.marrow.AdvancedDcMotor;
-import com.skeletonarmy.marrow.actions.MotorToPosition;
-import com.skeletonarmy.marrow.actions.ServoToPosition;
+import com.skeletonarmy.marrow.actions.MotorToPositionAction;
+import com.skeletonarmy.marrow.actions.ServoToPositionAction;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
@@ -48,22 +48,22 @@ public class Intake {
 
     // General actions
     public Action motorToPosition(int targetPos) {
-        return new MotorToPosition(motor, targetPos);
+        return new MotorToPositionAction(motor, targetPos);
     }
 
     public Action clawToPosition(double targetPos) {
-        return new ServoToPosition(clawServo, targetPos);
+        return new ServoToPositionAction(clawServo, targetPos);
     }
 
     public Action wristToPosition(double targetPos) {
         return new ParallelAction(
-                new ServoToPosition(wristServo1, targetPos),
-                new ServoToPosition(wristServo2, targetPos)
+                new ServoToPositionAction(wristServo1, targetPos),
+                new ServoToPositionAction(wristServo2, targetPos)
         );
     }
 
     public Action clawToRotation(double targetPos) {
-        return new ServoToPosition(rotationServo, targetPos);
+        return new ServoToPositionAction(rotationServo, targetPos);
     }
 
     // Specific actions

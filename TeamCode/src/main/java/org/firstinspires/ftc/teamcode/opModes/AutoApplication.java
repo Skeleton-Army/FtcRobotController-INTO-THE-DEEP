@@ -60,7 +60,23 @@ public class AutoApplication extends AutoOpMode {
     boolean didCollectSamples = false;
 
     @Override
-    public void preAutonomousSetup() {
+    public void onInit() {
+        // ---- INITIALIZE SUBSYSTEMS ----
+
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
+        specimenArm = new SpecimenArm(hardwareMap);
+
+        outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
+
+        runBlocking(specimenArm.grabClose());
+        runBlocking(intake.wristMiddle());
+        runBlocking(intake.rotate(0));
+
+        // ---- CONFIGURE CHOICE MENU ----
+
         choiceMenu.enqueuePrompt("alliance", new OptionPrompt<>("SELECT AN ALLIANCE:", Alliance.RED, Alliance.BLUE));
         choiceMenu.enqueuePrompt("strategy", new OptionPrompt<>("SELECT A STRATEGY:", Strategy.SPECIMENS, Strategy.BASKET));
         choiceMenu.enqueuePrompt("extraSpecimens", () -> {
@@ -82,13 +98,26 @@ public class AutoApplication extends AutoOpMode {
 
         startPose =
                 strategy == Strategy.SPECIMENS
-                ? new Pose2d(0, -62.5, Math.toRadians(90.00)) // Specimens
-                : new Pose2d(-39, -62.5, Math.toRadians(0)); // Basket
+                        ? new Pose2d(0, -62.5, Math.toRadians(90.00)) // Specimens
+                        : new Pose2d(-39, -62.5, Math.toRadians(0)); // Basket
     }
 
     @Override
-    public void onStateMachineStart() {
-        setFallbackState(() -> gamepad1.guide.isDown() || gamepad2.guide.isDown(), this::resetRobot);
+    public void onStart() {
+        // ---- INITIALIZE SUBSYSTEMS ----
+
+        // Set starting position
+        drive.pose = startPose;
+
+        // Configure webcam CV
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
+
+        driveActions = new Drive(drive, camCV, telemetry);
+
+        // ---- CONFIGURE STARTING STATES ----
+
+        setFallbackState(() -> gamepad1.guide.isDown() || gamepad2.guide.isDown(), "reset");
 
         switch (strategy) {
             case SPECIMENS:
@@ -98,34 +127,7 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
-    @Override
-    public void onInit() {
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
-        intake = new Intake(hardwareMap);
-        outtake = new Outtake(hardwareMap);
-        specimenArm = new SpecimenArm(hardwareMap);
-
-        outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
-
-        runBlocking(specimenArm.grabClose());
-        runBlocking(intake.wristMiddle());
-        runBlocking(intake.rotate(0));
-    }
-
-    @Override
-    public void onStart() {
-        // Set starting position
-        drive.pose = startPose;
-
-        // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
-
-        driveActions = new Drive(drive, camCV, telemetry);
-    }
-
-    // -------------- States --------------
+    // ---- STATES ----
 
     @State(requiredTime = 2, timeoutState = "park")
     public void hangSpecimen() {
@@ -541,7 +543,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         if (collectedSamples < 6) {
-            conditionalTransition(collectedSamples < 3, "collectYellowSample", "sampleFromSubmersible");
+            transition(collectedSamples < 3 ? "collectYellowSample" : "sampleFromSubmersible");
         } else {
             transition("park");
         }
@@ -710,7 +712,7 @@ public class AutoApplication extends AutoOpMode {
     }
 
     @State
-    public void resetRobot() {
+    public void reset() {
         runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.pose)
