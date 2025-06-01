@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.d;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.f;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.i;
-import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.p;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.kD;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.kF;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.kI;
+import static org.firstinspires.ftc.teamcode.utils.config.SpecimenArmConfig.kP;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -33,7 +33,7 @@ public class SpecimenArm {
         motor.setCurrentLimit(SpecimenArmConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setUseCustomPIDF(true);
-        motor.setCustomPIDFCoefficients(p, i, d, f);
+        motor.setCustomPIDFCoefficients(kP, kI, kD, 0);
         motor.setCustomPIDFController(this::customPIDFController);
         motor.setTargetPosition(motor.getCurrentPosition());
 
@@ -115,9 +115,9 @@ public class SpecimenArm {
 
         double pid = controller.calculate(pos, target);
 
-        int diffFromTop = SpecimenArmConfig.topPos - pos;
-        double ff = diffFromTop * controller.getF();
+        int angleFromTop = SpecimenArmConfig.topPos - pos;
+        double f = angleFromTop * kF;
 
-        return pid + ff;
+        return pid + f;
     }
 }

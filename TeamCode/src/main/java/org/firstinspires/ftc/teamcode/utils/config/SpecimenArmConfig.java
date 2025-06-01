@@ -21,8 +21,7 @@ public class SpecimenArmConfig {
     public static double grabClose = 1;
     public static double grabOpen = 0.65;
 
-    public static double p = 0.005, i = 0.1, d = 0.0003;
-    public static double f = 0.0004;
+    public static double kP = 0.005, kI = 0.1, kD = 0.0003, kF = 0.0004;
     public static int topPos = -440;
 
     public static double manualSpeed = 2;
