@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.fieldSize;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.height;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.heightOffset;
-import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.width;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.obstacles;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.width;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.widthOffset;
 
 import com.pedropathing.localization.Pose;
@@ -24,15 +24,19 @@ public class BezierToPoint2 {
 
     public Telemetry telemetry;
     public static boolean useTelemetry;
+    public static List<Point> path;
     public BezierToPoint2(Pose beginPose, Pose endPose, boolean useTelemetry ,Telemetry telemetry) {
         this.beginPose = beginPose;
         this.endPose = endPose;
 
+        Point mid = new Point((beginPose.getX() + endPose.getX()) / 2, (beginPose.getY() + endPose.getY()) / 2);
+        Point[] ctrlPts = new Point[]{new Point(beginPose.getX(), beginPose.getY()), mid, new Point(endPose.getX(), endPose.getY())};
+        path = bezierCurve(ctrlPts, 500);
+
         midPoint = adjustMidpointToAvoid(
                 new Point(beginPose.getX(), beginPose.getY()), new Point(endPose.getX(), endPose.getY()),
-                beginPose.getHeading(), endPose.getHeading(), obstacles, "fastest", 5, telemetry
+                beginPose.getHeading(), endPose.getHeading(),obstacles , "fastest", 5, telemetry
                 );
-
         BezierToPoint2.useTelemetry = useTelemetry;
     }
 
@@ -127,6 +131,18 @@ public class BezierToPoint2 {
         return curve;
     }
 
+    public static boolean isColliding(double startAngle, double endAngle) {
+        boolean collision = false;
+        for (int i = 0; i < path.size(); i++) {
+            double angle = startAngle + (endAngle - startAngle) * i / path.size();
+            if (isOverlapping(path.get(i), angle, obstacles)) {
+                collision = true;
+                break;
+            }
+        }
+        return collision;
+    }
+
     public static Point adjustMidpointToAvoid(
             Point start, Point end,
             double startAngle, double endAngle,
@@ -137,8 +153,8 @@ public class BezierToPoint2 {
     )
     {
         Point mid = new Point((start.x + end.x) / 2, (start.y + end.y) / 2);
-        double[] offsetRange = new double[50];
-        for (int i = 0; i < 50; i++) offsetRange[i] = -80 + i * (160.0 / 49);
+        double[] offsetRange = new double[100];
+        for (int i = 0; i < 100; i++) offsetRange[i] = -80 + i * (160.0 / 49);
 
         double bestShortest = Double.POSITIVE_INFINITY;
         double bestFastest = Double.POSITIVE_INFINITY;
@@ -151,16 +167,9 @@ public class BezierToPoint2 {
             for (double dy : offsetRange) {
                 Point testMid = new Point(mid.x + dx, mid.y + dy);
                 Point[] ctrlPts = new Point[]{start, testMid, end};
-                List<Point> path = bezierCurve(ctrlPts, 500);
+                path = bezierCurve(ctrlPts, 1500);
 
-                boolean collision = false;
-                for (int i = 0; i < path.size(); i++) {
-                    double angle = startAngle + (endAngle - startAngle) * i / path.size();
-                    if (isOverlapping(path.get(i), angle, obstacles)) {
-                        collision = true;
-                        break;
-                    }
-                }
+                boolean collision = isColliding(startAngle, endAngle);
 
                 if (!collision) {
                     double length = 0;

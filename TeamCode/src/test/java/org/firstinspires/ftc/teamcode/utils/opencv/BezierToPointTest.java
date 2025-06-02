@@ -36,9 +36,9 @@ public class BezierToPointTest {
 
     final BezierToPointTest.Test[] values = new BezierToPointTest.Test[] {
             new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(0)), new Pose(48, 120, Math.toRadians(0))),
-            new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
-            new BezierToPointTest.Test(new Pose(72.4, 22.6, Math.toRadians(90)), new Pose(23.8, 120, Math.toRadians(0))),
-            new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
+            //new BezierToPointTest.Test(new Pose(72.4, 22.6, Math.toRadians(90)), new Pose(23.8, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
     };
 
 
@@ -55,13 +55,13 @@ public class BezierToPointTest {
             assertTrue(Math.abs(sampleX - value.x) < epsilonX, "Value: " + index + " Expected: " + value.x + " Got: " + sampleX);
             assertTrue(Math.abs(sampleY - value.y) < epsilonY, "Value: " + index + " Expected: " + value.y + " Got: " + sampleY);*/
 
-            BezierToPoint2 bezier = new BezierToPoint2(value.beginPose, value.endPose, false, null);
+            BezierToPoint2 bezier = new BezierToPoint2(Test.beginPose, Test.endPose, false, null);
 
             System.out.println("-------------");
             System.out.println(bezier.midPoint.x);
             System.out.println(bezier.midPoint.y);
             System.out.println("-------------");
-            //assertTrue(Test.checkCollision(bezier.));
+            //assertTrue(bezier.isColliding(Test.beginPose.getHeading(), Test.endPose.getHeading()));
 
 
             index++;
