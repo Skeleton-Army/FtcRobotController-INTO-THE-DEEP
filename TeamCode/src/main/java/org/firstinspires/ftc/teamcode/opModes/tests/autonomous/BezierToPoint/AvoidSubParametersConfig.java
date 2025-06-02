@@ -1,6 +1,10 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import com.acmerobotics.dashboard.config.Config;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Config
 public class AvoidSubParametersConfig {
@@ -21,5 +25,13 @@ public class AvoidSubParametersConfig {
     public static int stepSize = 1;
     public static int maxIterations = 25;
     public static int numSamplesPos = 50;
+    public static final int fieldSize = 144;
+
+    List<double[][]> corners = new ArrayList<>();
+
+    public static List<double[][]> obstacles = new ArrayList<>(Arrays.asList(
+            new double[][][] {new Obstacle(48, 96, 48, 48).obstacleCorners /* submersible obstacle */}
+    ));
+
 
 }

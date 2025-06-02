@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -8,6 +8,7 @@ import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.JuicyBezier;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.PathBuilder;

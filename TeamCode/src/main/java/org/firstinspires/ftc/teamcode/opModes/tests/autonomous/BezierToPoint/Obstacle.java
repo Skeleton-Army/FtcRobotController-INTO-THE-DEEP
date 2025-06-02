@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import com.pedropathing.localization.Pose;
 
@@ -9,11 +9,20 @@ import com.pedropathing.localization.Pose;
 public class Obstacle {
     public final double x, y, width, height;
 
+    public double[][] obstacleCorners;
+
     public Obstacle(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+
+        obstacleCorners = new double[][] {
+                {x,y},
+                {x + width, y},
+                {x, y + height},
+                {x + width, y + height}
+        };
     }
 
     /**
