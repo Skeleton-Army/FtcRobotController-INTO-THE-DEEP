@@ -39,25 +39,10 @@ android {
     }
 }
 
-// Try connecting to jitpack.io to detect internet
-def online = {
-    try { new URL("https://jitpack.io").openConnection().connect(); true }
-    catch (ignored) { false }
-}.call()
-
-// Don't cache changing modules like SNAPSHOTs when online
-configurations.configureEach {
-    if (online) resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
 repositories {
     mavenCentral()
-    maven {
-        url "https://repo.dairy.foundation/releases"
-    }
-    maven {
-        url "https://jitpack.io"
-    }
+    maven { url = "https://repo.dairy.foundation/releases" }
+    mavenLocal()
 }
 
 dependencies {
@@ -76,9 +61,8 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
 
-    implementation("com.github.Skeleton-Army:Marrow:dev-SNAPSHOT") {
-        changing = online  // Only mark it as changing (i.e., check for updates) when online
-    }
+    implementation "com.skeletonarmy.marrow:core:SNAPSHOT-1c57129"
+    implementation "com.skeletonarmy.marrow:actions:SNAPSHOT-1c57129"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'
