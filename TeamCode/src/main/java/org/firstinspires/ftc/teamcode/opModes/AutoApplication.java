@@ -127,6 +127,11 @@ public class AutoApplication extends AutoOpMode {
         }
     }
 
+    @Override
+    public void onLoop() {
+        telemetry.addData("Time", time);
+    }
+
     // ---- STATES ----
 
     @State(requiredTime = 2, timeoutState = "park")
