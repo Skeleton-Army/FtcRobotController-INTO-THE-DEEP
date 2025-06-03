@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.debugging;
 
+import android.annotation.SuppressLint;
 import android.os.Environment;
 
 import java.io.BufferedWriter;
@@ -8,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,9 +47,7 @@ public class Datalogger {
         }
 
         public Builder setFields(LoggableField... logFields) {
-            for (LoggableField field : logFields) {
-                instance.fields.add(field);
-            }
+            instance.fields.addAll(Arrays.asList(logFields));
             return this;
         }
 
@@ -131,8 +131,8 @@ public class Datalogger {
         String logDir = SDcard + "/FIRST/Datalogs";
         if (localName == null) {
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH-mm-ss");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat timeFormat = new SimpleDateFormat("HH-mm-ss");
             return new File(logDir + "/" + "Log-" + dateFormat.format(calendar.getTime()) + "_" + timeFormat.format(calendar.getTime()) + ".csv");
         } else {
             return new File(logDir + "/" + localName + ".csv");

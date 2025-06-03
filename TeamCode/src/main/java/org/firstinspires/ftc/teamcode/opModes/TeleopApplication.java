@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import androidx.arch.core.executor.DefaultTaskExecutor;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -127,31 +125,7 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Bulk reads from walmart
 //        intakeSensor.updateRGBCache();
-
-        // Debugging to Driver Hub
-        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
-        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
-        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
-        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
-        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
-        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
-        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
-        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
-        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
-        telemetry.addData("Current voltage: " , battery.getVoltage());
-        telemetry.addData("Yaw", datalog.yaw);
-        telemetry.addData("Pitch", datalog.pitch);
-        telemetry.addData("Roll", datalog.roll);
-        telemetry.addData("OpMode Status", datalog.opModeStatus);
-        telemetry.addData("Loop Counter", datalog.loopCounter);
-        telemetry.addData("Battery", datalog.battery);
-        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
-            telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
-            telemetry.addData("Voltage", sensor.getVoltage());
-        }
-
-        telemetry.update();
-        // Debugging to log file
+// Debugging to log file
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
 
         datalog.loopCounter.set(time);
@@ -172,6 +146,30 @@ public class TeleopApplication extends TeleopOpMode {
         datalog.pitch.set(orientation.getPitch());
         datalog.roll.set(orientation.getRoll());
         datalog.writeLine();
+
+        // Debugging to Driver Hub
+        telemetry.addData("Intake Position", intake.motor.getCurrentPosition());
+        telemetry.addData("Intake Velocity", intake.motor.getVelocity());
+        telemetry.addData("Outtake Position", outtake.motor.getCurrentPosition());
+        telemetry.addData("Outtake Velocity", outtake.motor.getVelocity());
+        telemetry.addData("Specimen Arm Position", specimenArm.motor.getCurrentPosition());
+        telemetry.addData("Hang Position", hang.motor.getCurrentPosition());
+        telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
+        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
+        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
+        telemetry.addData("Current voltage: " , battery.getVoltage());
+        telemetry.addData("Yaw", datalog.yaw.getValue());
+        telemetry.addData("Pitch", datalog.pitch.getValue());
+        telemetry.addData("Roll", datalog.roll.getValue());
+        telemetry.addData("OpMode Status", datalog.opModeStatus.getValue());
+        telemetry.addData("Loop Counter", datalog.loopCounter.getValue());
+        telemetry.addData("Battery", datalog.battery.getValue());
+        for (VoltageSensor sensor : hardwareMap.getAll(VoltageSensor.class)) {
+            telemetry.addData("Voltage Sensor Name", sensor.getDeviceName());
+            telemetry.addData("Voltage", sensor.getVoltage());
+        }
+
+        telemetry.update();
     }
 
     public void runIntakeWithDeposit() {
