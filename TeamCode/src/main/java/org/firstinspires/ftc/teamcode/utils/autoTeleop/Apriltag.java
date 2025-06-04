@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -141,4 +142,12 @@ public class Apriltag {
         visionPortal.setProcessorEnabled(aprilTag, false);
     }
 
+    public void debug(Telemetry telemetry) {
+
+        telemetry.addData("solve time: ",aprilTag.getPerTagAvgPoseSolveTime());
+        telemetry.addData("detections: ",aprilTag.getDetections());
+        telemetry.addData("fresh detections: ",aprilTag.getFreshDetections());
+
+        telemetry.update();
+    }
 }

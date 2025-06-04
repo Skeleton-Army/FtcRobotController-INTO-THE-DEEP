@@ -23,7 +23,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 @TeleOp(name = "Apriltag Localization", group = "test")
-public class ApriltagRobotPose extends OpMode {
+public class ApriltagLocalization extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private Position cameraPosition = new Position(DistanceUnit.INCH,
@@ -53,7 +53,7 @@ public class ApriltagRobotPose extends OpMode {
                         CameraConfig.cx,
                         CameraConfig.cy
                 )
-
+                .setNumThreads(3)
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
                 // to load a predefined calibration for your camera.
