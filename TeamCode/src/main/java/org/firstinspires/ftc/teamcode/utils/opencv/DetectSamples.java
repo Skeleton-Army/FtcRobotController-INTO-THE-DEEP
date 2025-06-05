@@ -99,6 +99,7 @@ public class DetectSamples extends OpenCvPipeline {
         List<MatOfPoint> allContours = new ArrayList<>();
 
         DetectSamples.input = input;
+        Mat input2 = input.clone();
 
         for (Threshold t : thresholds) {
             // Apply color filtering to isolate the desired objects
@@ -114,6 +115,7 @@ public class DetectSamples extends OpenCvPipeline {
             allContours.addAll(contours);
 
             masked.release(); // Free memory after use
+            Imgproc.drawContours(input2, contours, -1, new Scalar(255, 255, 255), -1);
         }
 
         for (MatOfPoint contour : allContours) {
@@ -174,7 +176,7 @@ public class DetectSamples extends OpenCvPipeline {
         // Draw contours around detected samples
         //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
 
-        return input;
+        return input2;
     }
 
     /**
@@ -195,7 +197,7 @@ public class DetectSamples extends OpenCvPipeline {
         Mat masked = new Mat();
 
         // Convert the frame to HSV color space
-        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_RGB2YCrCb);
+        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_RGB2HSV);
 
         Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
 
