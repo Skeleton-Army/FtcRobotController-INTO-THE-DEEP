@@ -34,6 +34,11 @@ public class ApriltagLocalization extends OpMode {
     private int decimation = 1;
     private final int decimationMin = 1;
     private final int decimationMax = 5;
+
+    boolean thisDecimationUp = false;
+    boolean thisDecimationDn = false;
+    boolean lastDecimationDn = false;
+    boolean lastDecimationUp = false;
     private void initAprilTag() {
 
         // Create the AprilTag processor.
@@ -162,15 +167,22 @@ public class ApriltagLocalization extends OpMode {
     public void init_loop() {
         telemetryAprilTag();
 
-        if (gamepad1.dpad_up) {
+        thisDecimationUp = gamepad1.dpad_up;
+        thisDecimationDn = gamepad1.dpad_down;
+
+
+        if (thisDecimationUp && !lastDecimationUp) {
             decimation = Range.clip(decimation + 1, decimationMin, decimationMax);
             aprilTag.setDecimation(decimation);
         }
 
-        if (gamepad1.dpad_down) {
+        if (thisDecimationDn && !lastDecimationDn) {
             decimation = Range.clip(decimation - 1, decimationMin, decimationMax);
             aprilTag.setDecimation(decimation);
         }
+
+        lastDecimationUp = thisDecimationUp;
+        lastDecimationDn = thisDecimationDn;
     }
     @Override
     public void loop() {

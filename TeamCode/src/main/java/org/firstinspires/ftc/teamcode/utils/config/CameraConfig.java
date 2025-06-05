@@ -9,8 +9,8 @@ public class CameraConfig {
     public static float z = 12.5f;
     public static float horizontalFOV = 66.584f; // old: 65.76f
     public static float verticalFOV = 40.481f; // old: 39.88f
-    public static int halfImageWidth = 320;
-    public static int halfImageHeight = 180;
+    public static int halfImageWidth = 640;
+    public static int halfImageHeight = 360;
     public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 7.87;
     public static double offsetHorizontal = 0;
@@ -53,10 +53,10 @@ public class CameraConfig {
     };
     // Apriltag settings
 
-    public static double fx = cameraMatrix[0]; // 501.97
-    public static double fy = cameraMatrix[4]; // 501.97
-    public static double cx = cameraMatrix[2]; // 339.442
-    public static double cy = cameraMatrix[5]; // 158.552
+    public static double fx = cameraMatrix[0] * 2; // 501.97
+    public static double fy = cameraMatrix[4] * 2; // 501.97
+    public static double cx = cameraMatrix[2] * 2; // 339.442
+    public static double cy = cameraMatrix[5] * 2; // 158.552
 
     public static double yaw = 0;
     public static double pitch = -90;

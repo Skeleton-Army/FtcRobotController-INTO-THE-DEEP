@@ -46,8 +46,8 @@ public class Apriltag {
         aprilTag = new AprilTagProcessor.Builder()
 
                 // The following default settings are available to un-comment and edit as needed.
-                .setDrawAxes(true)
-                .setDrawCubeProjection(true)
+                //.setDrawAxes(true)
+                //.setDrawCubeProjection(true)
                 //.setDrawTagOutline(true)
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getIntoTheDeepTagLibrary())
@@ -59,7 +59,6 @@ public class Apriltag {
                         CameraConfig.cx,
                         CameraConfig.cy
                 )
-
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
                 // to load a predefined calibration for your camera.
@@ -147,6 +146,7 @@ public class Apriltag {
         telemetry.addData("solve time: ",aprilTag.getPerTagAvgPoseSolveTime());
         telemetry.addData("detections: ",aprilTag.getDetections());
         telemetry.addData("fresh detections: ",aprilTag.getFreshDetections());
+        //telemetry.addData("fresh detections: ",aprilTag.processFrame());
 
         telemetry.update();
     }

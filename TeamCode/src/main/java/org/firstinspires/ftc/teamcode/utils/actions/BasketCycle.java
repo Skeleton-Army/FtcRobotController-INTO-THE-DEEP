@@ -38,7 +38,7 @@ public class BasketCycle implements Action {
             dunkPose = new Pose2d(51,54,Math.toRadians(225));
         }
         else if (Objects.equals(alliance, "red")) {
-            dunkPose = new Pose2d(-52.3,-55.5,Math.toRadians(45));
+            dunkPose = new Pose2d(-56,-54.5,Math.toRadians(45));
         }
 
         extendOuttake = new ParallelAction(

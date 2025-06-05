@@ -88,25 +88,25 @@ public class TeleopApplication extends TeleopOpMode {
         drive = new MecanumDrive(hardwareMap, PoseStorage.currentPose);
 
         // ---------- processors way ----------
-        apriltagProcessor = new Apriltag(hardwareMap, drive);
-        detectSamplesProcessor = new DetectSamplesProcessor(telemetry, drive, SampleColor.YELLOW, SampleColor.RED);
-        visionPortal = new VisionPortal.Builder()
-                .addProcessors(apriltagProcessor.getAprilTagAprocessor(), detectSamplesProcessor) // processor to the vision
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
-                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .enableLiveView(true) // live view for srcpy
-                .setAutoStopLiveView(true)
-                .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
-                .build();
+         //apriltagProcessor = new Apriltag(hardwareMap, drive);
+        //detectSamplesProcessor = new DetectSamplesProcessor(telemetry, drive, SampleColor.YELLOW, SampleColor.RED);
+        //visionPortal = new VisionPortal.Builder()
+         //       .addProcessors(apriltagProcessor.getAprilTagAprocessor()) // processor to the vision
+         //       .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+         //       .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+         //       .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+         //       .enableLiveView(true) // live view for srcpy
+         //       .setAutoStopLiveView(true)
+         //       .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
+         //       .build();
         // ---------- processors way ----------
 
 
         // ---------- opencv pipelines way ----------
-        //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
-        //camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
-        //camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
-        //aprilTagPipeline = camCV.getAprilTagPipeline();
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, drive, true, true);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
+        aprilTagPipeline = camCV.getAprilTagPipeline();
         // ---------- opencv pipelines way ----------
 
         intake = new Intake(hardwareMap);

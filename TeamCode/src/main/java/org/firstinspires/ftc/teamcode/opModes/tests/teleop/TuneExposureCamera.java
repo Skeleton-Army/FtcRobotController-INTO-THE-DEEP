@@ -169,7 +169,7 @@ public class TuneExposureCamera extends LinearOpMode
                 setManualExposure(myExposure, myGain, myFocus);
             }
 
-            // look for clicks to change the gain
+            // look for clicks to change the focus
             if (thisFocusUp && !lastFocusUp) {
                 myFocus = Range.clip(myFocus + 1 , minFocus, maxFocus );
                 setManualExposure(myExposure, myGain, myFocus );
