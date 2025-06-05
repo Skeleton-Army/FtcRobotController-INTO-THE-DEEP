@@ -13,11 +13,17 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
+import org.firstinspires.ftc.teamcode.utils.actions.MoveToPoint;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
@@ -62,7 +68,7 @@ public class Drive {
         return new MoveToPoint(targetPose, follower);
     }
 
-    public Action alignToSample(Vector2d targetSamplePos) {
+    public Action alignToSample(Pose targetSamplePos) {
         return new ParallelAction(
                 new InstantAction(() -> targetSampleStatic = camCV.getBestSample(targetSamplePos)),
                 getTrajectoryToSample(targetSamplePos)

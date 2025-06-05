@@ -195,7 +195,7 @@ public class AutoApplication extends AutoOpMode {
         follower.setStartingPose(startPose);
 
         // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, follower);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, false, false);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
         driveActions = new Drive(follower, camCV, telemetry);

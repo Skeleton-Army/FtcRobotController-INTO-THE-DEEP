@@ -7,14 +7,22 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
+import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
@@ -74,7 +82,7 @@ public class WebcamCV {
                     // ... these parameters are fx, fy, cx, cy.
 
                     .build();
-            aprilTagPipeline = new AprilTagPipeline(aprilTag, drive);
+            aprilTagPipeline = new AprilTagPipeline(aprilTag, follower);
         }
 
     }
@@ -179,14 +187,14 @@ public class WebcamCV {
         if (!onlyAprilTag) {
             if (withAprilTag) {
                 if (colors.length == 2)
-                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0], colors[1]);
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, colors[0], colors[1]);
                 if (colors.length == 1)
-                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, drive, colors[0]);
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, colors[0]);
                 aprilTagSamplesPipeline = (AprilTagSamplesPipeline) selectedPipeline;
             } else if (colors.length == 2)
-                selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0], colors[1]);
+                selectedPipeline = new DetectSamples(telemetry, webcam, follower, colors[0], colors[1]);
             else
-                selectedPipeline = new DetectSamples(telemetry, webcam, drive, colors[0]);
+                selectedPipeline = new DetectSamples(telemetry, webcam, follower, colors[0]);
         }
         else
             selectedPipeline = aprilTagPipeline;

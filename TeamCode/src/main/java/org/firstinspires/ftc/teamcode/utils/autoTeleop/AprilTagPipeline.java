@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 import android.graphics.Canvas;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationHelper;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationIdentity;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Mat;
@@ -21,14 +22,14 @@ import org.openftc.easyopencv.TimestampedOpenCvPipeline;
  */
 public class AprilTagPipeline extends TimestampedOpenCvPipeline
 {
-    private final MecanumDrive drive;
+    private final Follower follower;
     private AprilTagProcessor processor;
     private CameraCalibrationIdentity ident;
 
-    public AprilTagPipeline(AprilTagProcessor processor, MecanumDrive drive)
+    public AprilTagPipeline(AprilTagProcessor processor, Follower follower)
     {
         this.processor = processor;
-        this.drive = drive;
+        this.follower = follower;
     }
 
     public void noteCalibrationIdentity(CameraCalibrationIdentity ident)
@@ -59,15 +60,15 @@ public class AprilTagPipeline extends TimestampedOpenCvPipeline
 
     // gets robot position based on the first apriltag detection,
     // if didn't one, returns the current robot's pos and hope for the best :)
-    public Pose2d getRobotPosByAprilTag() {
+    public Pose getRobotPosByAprilTag() {
         if (!processor.getDetections().isEmpty())  {
             AprilTagDetection detection = processor.getDetections().get(0);
             Position detectionPos = detection.robotPose.getPosition();
 
-            drive.pose = new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
-            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
+            follower.setPose(new Pose(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90)));
+            return new Pose(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
         }
-        return drive.pose;
+        return follower.getPose();
     }
 
     public AprilTagDetection getApriltagDetection() {

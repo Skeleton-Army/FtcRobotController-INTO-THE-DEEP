@@ -10,19 +10,19 @@ import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
 public class Webcam {
 
-    Drive Actionsdrive;
+    Drive actionsDrive;
     Intake intake;
     Outtake outtake;
     String alliance;
-    public Webcam(Drive driveActions, Intake intake, Outtake outtake, String alliance) {
-        this.driveActions = driveActions;
+    public Webcam(Drive actionsDrive, Intake intake, Outtake outtake, String alliance) {
+        this.actionsDrive = actionsDrive;
         this.intake = intake;
         this.outtake = outtake;
         this.alliance = alliance;
     }
 
     public Action basketCycle() {
-        return new BasketCycle(driveActions, outtake, alliance);
+        return new BasketCycle(actionsDrive, outtake, alliance);
     }
 
     public Action specimenCycle() {
@@ -30,6 +30,6 @@ public class Webcam {
     }
 
     public Action pickupSample(Pose targetSamplePos) {
-        return new PickupSample(intake, Actionsdrive, targetSamplePos);
+        return new PickupSample(intake, actionsDrive, targetSamplePos);
     }
 }

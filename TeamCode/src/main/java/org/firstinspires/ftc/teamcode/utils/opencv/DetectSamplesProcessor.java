@@ -6,12 +6,13 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeff
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
+import com.pedropathing.follower.Follower;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
@@ -37,7 +38,7 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
 
     private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
-    private final MecanumDrive drive;
+    private final Follower follower;
 
     private boolean viewportPaused;
 
@@ -47,9 +48,9 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
 
     private static Mat input;
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
-    public DetectSamplesProcessor(Telemetry telemetry, MecanumDrive drive, SampleColor color){
+    public DetectSamplesProcessor(Telemetry telemetry, Follower follower, SampleColor color){
         this.telemetry = telemetry;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color) };
 
         matrix.put(0, 0,
@@ -58,9 +59,9 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
                 cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
-    public DetectSamplesProcessor(Telemetry telemetry, MecanumDrive drive, SampleColor color1, SampleColor color2){
+    public DetectSamplesProcessor(Telemetry telemetry, Follower follower, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
         matrix.put(0, 0,
@@ -152,7 +153,7 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
             RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
             sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 //            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));

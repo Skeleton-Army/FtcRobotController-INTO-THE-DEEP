@@ -21,7 +21,7 @@ public class PickupSample implements Action {
     Pose targetSamplePos;
 
 
-    public PickupSample(Intake intake, Drive actionsDrive, Vector2d targetSamplePos) {
+    public PickupSample(Intake intake, Drive actionsDrive, Pose targetSamplePos) {
         this.intake = intake;
         this.actionsDrive = actionsDrive;
         this.targetSamplePos = targetSamplePos;

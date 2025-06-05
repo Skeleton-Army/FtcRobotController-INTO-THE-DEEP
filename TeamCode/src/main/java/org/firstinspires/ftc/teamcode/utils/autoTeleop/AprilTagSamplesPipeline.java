@@ -6,13 +6,14 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeff
 import android.graphics.Canvas;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationHelper;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationIdentity;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.Threshold;
@@ -56,15 +57,15 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
 
     private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5); //We try new one!
-    private MecanumDrive drive;
+    private Follower follower;
     public static List<Sample> samples = new ArrayList<>();
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
 
     MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
-    public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, MecanumDrive drive, SampleColor color){
+    public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, Follower follower, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] {new Threshold(color)};
         this.processor = processor;
 
@@ -74,10 +75,10 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
                 cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
-    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, MecanumDrive drive, SampleColor color1, SampleColor color2)
+    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, Follower follower, SampleColor color1, SampleColor color2)
     {
         this.telemetry = telemetry;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
         this.processor = processor;
@@ -204,7 +205,7 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
             sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 //            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));
@@ -236,15 +237,15 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
 
     // gets robot position based on the first apriltag detection,
     // if didn't one, returns the current robot's pos and hope for the best :)
-    public Pose2d getRobotPosByAprilTag() {
+    public Pose getRobotPosByAprilTag() {
         if (!processor.getDetections().isEmpty())  {
             AprilTagDetection detection = processor.getDetections().get(0);
             Position detectionPos = detection.robotPose.getPosition();
 
-            drive.pose = new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
-            return new Pose2d(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
+            follower.setPose(new Pose(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90)));
+            return new Pose(detectionPos.x, detectionPos.y, Math.toRadians(detection.robotPose.getOrientation().getYaw() + 90));
         }
-        return drive.pose;
+        return follower.getPose();
     }
 
     public AprilTagDetection getApriltagDetection() {
