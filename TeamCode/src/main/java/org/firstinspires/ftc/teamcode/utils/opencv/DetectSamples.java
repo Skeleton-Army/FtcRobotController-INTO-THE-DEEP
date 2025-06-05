@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
 
-import com.acmerobotics.roadrunner.Vector2d;
+import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -34,7 +32,7 @@ public class DetectSamples extends OpenCvPipeline {
 
     private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
-    private final MecanumDrive drive;
+    private final Follower follower;
 
     private boolean viewportPaused;
 
@@ -46,10 +44,10 @@ public class DetectSamples extends OpenCvPipeline {
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
 
     Point second;
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color) };
 
         matrix.put(0, 0,
@@ -58,10 +56,10 @@ public class DetectSamples extends OpenCvPipeline {
                 cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
         this.webcam = webcam;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
         matrix.put(0, 0,
@@ -148,7 +146,7 @@ public class DetectSamples extends OpenCvPipeline {
             RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
             sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 //            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));

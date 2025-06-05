@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.actions;
 
-import static com.acmerobotics.roadrunner.ftc.Actions.runBlocking;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -9,77 +7,47 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 public class PickupSample implements Action {
-
-    Drive driveActions;
+    Drive actionsDrive;
     Intake intake;
-    Sample targetSample;
+    Pose targetSamplePos;
 
-    double rotationTarget;
 
-    Action extendSequence;
-    Action grabSequence;
-    Action intakeRetract;
-    public PickupSample(Intake intake, Drive driveActions, Sample targetSample) {
+    public PickupSample(Intake intake, Drive actionsDrive, Vector2d targetSamplePos) {
         this.intake = intake;
-        this.driveActions = driveActions;
-        this.targetSample = targetSample;
-
-        double orientation = -targetSample.orientation;
-        double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-        rotationTarget = normalizedOrientation / 90;
-
-        extendSequence = new SequentialAction(
-                intake.wristReady(),
-                intake.openClaw(),
-                new ParallelAction(
-                        intake.extend(1)
-//                        new SequentialAction(
-//                                new SleepUntilAction(() -> intake.motor.getCurrentPosition() >= 400),
-//                                intake.extendWrist()
-//                        )
-                )
-//                new SleepAction(0.1)
-        );
-
-        grabSequence = new SequentialAction(
-                intake.extendWrist(),
-                new SleepAction(0.4),
-                intake.closeClaw(),
-                new SleepAction(0.2)
-//                intake.retractWrist()
-//                new SleepAction(0.1)
-        );
-
-        intakeRetract = new SequentialAction(
-                intake.retractWrist(),
-                intake.rotate(0),
-                intake.retract(),
-                intake.openClaw(),
-                new SleepAction(0.05),
-                intake.wristReady(),
-                new SleepAction(0.2)
-        );
+        this.actionsDrive = actionsDrive;
+        this.targetSamplePos = targetSamplePos;
     }
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        runBlocking(
-                intake.rotate(rotationTarget)
-        );
-
-        runBlocking(
-                new SequentialAction(
-                        new ParallelAction(
-                                driveActions.alignToSample(targetSample.getSamplePosition().position),
-                                extendSequence
-                        ),
-                        grabSequence,
-                        intakeRetract
+        Actions.runBlocking(
+                new ParallelAction(
+                        actionsDrive.alignToSample(targetSamplePos),
+                        new SequentialAction(
+                                // the robot's detecting the sample, and moving to intake position
+                                intake.openClaw(),
+                                intake.wristReady(),
+                                intake.extend(),
+                                intake.extendWrist(),
+                                new SleepAction(0.4),
+                                intake.closeClaw(),
+                                new SleepAction(0.4),
+                                intake.retractWrist(),
+                                new ParallelAction(
+                                        intake.retract(),
+                                        new SleepAction(0.4)
+                                ),
+                                intake.openClaw(),
+                                intake.wristMiddle()
+                        )
                 )
         );
 

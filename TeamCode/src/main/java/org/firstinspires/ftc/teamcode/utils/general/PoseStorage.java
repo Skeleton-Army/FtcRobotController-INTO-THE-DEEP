@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.general;
 
-import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.localization.Pose;
 
 public class PoseStorage {
-    public static Pose2d currentPose = new Pose2d(0, 0, 0);
+    public static Pose currentPose = new Pose(0, 0, 0);
 }

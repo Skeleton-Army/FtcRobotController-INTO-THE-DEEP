@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
 import com.acmerobotics.roadrunner.Action;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.teamcode.utils.actions.BasketCycle;
 import org.firstinspires.ftc.teamcode.utils.actions.PickupSample;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 
 public class Webcam {
 
-    Drive driveActions;
+    Drive Actionsdrive;
     Intake intake;
     Outtake outtake;
     String alliance;
@@ -28,7 +29,7 @@ public class Webcam {
         return new SpecimenCycle();
     }
 
-    public Action pickupSample(Sample targetSample) {
-        return new PickupSample(intake, driveActions, targetSample);
+    public Action pickupSample(Pose targetSamplePos) {
+        return new PickupSample(intake, Actionsdrive, targetSamplePos);
     }
 }

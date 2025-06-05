@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.utils.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.pedropathing.localization.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.opModes.AutoApplication;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.general.ChoiceMenu;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /*
     An OpMode that implements the choice menu and FSM (Finite State Machine).
@@ -32,9 +33,12 @@ public abstract class AutoOpMode extends LinearOpMode {
     private Enum<?> currentState = null;
 
     protected ChoiceMenu choiceMenu;
-    protected MecanumDrive drive;
 
     protected ElapsedTime runtime = new ElapsedTime();
+
+    private Supplier<Boolean> fallbackCondition;
+    private Runnable fallbackFunction;
+    private boolean didFallback = false;
 
     // Abstract method to set the prompts
     public abstract void setPrompts();
@@ -86,6 +90,8 @@ public abstract class AutoOpMode extends LinearOpMode {
         // Enable auto bulk reads
         Utilities.setBulkReadsMode(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         choiceMenu = new ChoiceMenu(telemetry, gamepad1, gamepad2);
         setPrompts();
 
@@ -124,9 +130,7 @@ public abstract class AutoOpMode extends LinearOpMode {
         telemetry.update();
     }
 
-    private void internalStop() {
-        PoseStorage.currentPose = drive.pose;
-    }
+    private void internalStop() {}
 
     /**
      * Run all queued actions.
@@ -165,6 +169,14 @@ public abstract class AutoOpMode extends LinearOpMode {
         TelemetryPacket packet = new TelemetryPacket();
 
         while (action.run(packet) && opModeIsActive()) {
+            if (fallbackCondition.get() && !didFallback) {
+                didFallback = true;
+                fallbackFunction.run();
+
+                requestOpModeStop();
+                break;
+            }
+
             runAsyncActions();
             runAsyncFunctions();
         }
@@ -242,5 +254,15 @@ public abstract class AutoOpMode extends LinearOpMode {
      */
     protected boolean isEnoughTime(AutoApplication.State state) {
         return getRemainingTime() >= state.getRequiredTime();
+    }
+
+    /**
+     * Sets a fallback state for the FSM.
+     * @param condition The condition to check
+     * @param handler The function to run if the condition is true
+     */
+    protected void setFallbackState(Supplier<Boolean> condition, Runnable handler) {
+        fallbackCondition = condition;
+        fallbackFunction = handler;
     }
 }

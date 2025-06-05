@@ -43,6 +43,9 @@ repositories {
     maven {
         url = "https://repo.dairy.foundation/releases"
     }
+    maven {
+        url = 'https://maven.pedropathing.com/'
+    }
 }
 
 dependencies {
@@ -50,13 +53,13 @@ dependencies {
 
     // Both RR and Pedro require excluding the dashboard import (if using the sloth dashboard instead)
 
-    implementation("com.acmerobotics.roadrunner:core:1.0.0") {
-        exclude group: "com.acmerobotics.dashboard"
-    }
-    implementation("com.acmerobotics.roadrunner:ftc:0.1.14") {
+    implementation("com.acmerobotics.roadrunner:ftc:0.1.21") {
         exclude group: "com.acmerobotics.dashboard"
     }
     implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
+        exclude group: "com.acmerobotics.dashboard"
+    }
+    implementation("com.pedropathing:pedro:1.0.9") {
         exclude group: "com.acmerobotics.dashboard"
     }
 
