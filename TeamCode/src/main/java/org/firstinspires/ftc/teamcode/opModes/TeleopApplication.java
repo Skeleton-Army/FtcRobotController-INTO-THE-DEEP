@@ -229,24 +229,24 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runOuttake() {
-        if (controls.OUTTAKE_BUTTON.isJustPressed() && !isActionRunning("intake", 1)) {
+        if (controls.OUTTAKE_BUTTON.isJustPressed()) {
             runSequentialActions(
                     // Extend outtake
-                    new ParallelAction(
-                            outtake.extend(outtakeMode != OuttakeMode.LOW),
-                            new SequentialAction(
-                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
-                                    outtake.bucketReady()
-                            )
+                    new SequentialAction(
+                            new SleepUntilAction(() -> !isActionRunning("intake", 1)),
+                            new ImmediateAction(outtake.extend(outtakeMode != OuttakeMode.LOW)),
+                            new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
+                            outtake.bucketReady()
                     ),
 
                     // Dunk bucket
                     outtakeMode == OuttakeMode.FILLED ? outtake.filledDunk() : outtake.dunk(),
 
                     // Retract outtake
-                    new ParallelAction(
-                            outtake.retract(),
-                            outtake.hold()
+                    new SequentialAction(
+                            outtake.hold(),
+                            new SleepUntilAction(() -> !isActionRunning("intake", 1)),
+                            new ImmediateAction(outtake.retract())
                     )
             );
         }
