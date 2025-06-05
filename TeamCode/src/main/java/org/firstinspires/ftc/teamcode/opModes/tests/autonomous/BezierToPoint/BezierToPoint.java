@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.tests.autonomous;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.localization.Pose;
