@@ -20,36 +20,19 @@ public class Obstacle {
      * Checks if a given Pose (with heading and robot dimensions) collides with this obstacle.
      * Accounts for robot rotation by checking each corner of its bounding box.
      */
-    public boolean isColliding(Pose pose, double robotWidth, double robotHeight) {
-        double cx = pose.getVector().getXComponent();
-        double cy = pose.getVector().getYComponent();
-        double heading = pose.getHeading();
+    public boolean isColliding(Pose pose, double robotWidth, double robotHeight, double clearance) {
+        double px = pose.getVector().getXComponent();
+        double py = pose.getVector().getYComponent();
 
-        double cos = Math.cos(heading);
-        double sin = Math.sin(heading);
+        double halfRobotWidth = robotWidth / 2.0;
+        double halfRobotHeight = robotHeight / 2.0;
 
-        double halfW = robotWidth / 2.0;
-        double halfH = robotHeight / 2.0;
+        double left = px - halfRobotWidth - clearance;
+        double right = px + halfRobotWidth + clearance;
+        double top = py - halfRobotHeight - clearance;
+        double bottom = py + halfRobotHeight + clearance;
 
-        double[][] corners = new double[][] {
-                {-halfW, -halfH},
-                { halfW, -halfH},
-                { halfW,  halfH},
-                {-halfW,  halfH}
-        };
-
-        for (double[] corner : corners) {
-            double localX = corner[0];
-            double localY = corner[1];
-
-            double rotatedX = localX * cos - localY * sin + cx;
-            double rotatedY = localX * sin + localY * cos + cy;
-
-            if (rotatedX >= x && rotatedX <= x + width && rotatedY >= y && rotatedY <= y + height) {
-                return true;
-            }
-        }
-
-        return false;
+        return !(right < this.x || left > this.x + this.width || bottom < this.y || top > this.y + this.height);
     }
+
 }

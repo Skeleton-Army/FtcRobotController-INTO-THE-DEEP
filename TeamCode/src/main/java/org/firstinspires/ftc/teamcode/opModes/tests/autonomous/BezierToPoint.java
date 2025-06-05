@@ -115,54 +115,44 @@ public class BezierToPoint {
     private static Pose[] avoidRectangularObstacles(Pose[] controlPoints, List<Obstacle> obstacles, int numSamples) {
         Pose[] adjusted = Arrays.copyOf(controlPoints, controlPoints.length);
 
-        // Keep start and end fixed
         adjusted[0] = controlPoints[0];
-        adjusted[controlPoints.length - 1] = controlPoints[controlPoints.length - 1];
+        adjusted[adjusted.length - 1] = controlPoints[adjusted.length - 1];
 
         for (int iteration = 0; iteration < AvoidSubParametersConfig.maxIterations; iteration++) {
             boolean collisionFound = false;
             Pose[] pathSamples = computeBezierPoints(adjusted, numSamples);
 
-            // Initialize repulsion forces for each inner control point
-            Vector2d[] repulsionForces = new Vector2d[adjusted.length];
-            for (int i = 0; i < repulsionForces.length; i++) {
-                repulsionForces[i] = new Vector2d(0, 0);
-            }
-
             for (Pose p : pathSamples) {
-                Vector2d pointVec = new Vector2d(p.getX(), p.getY());
-
                 for (Obstacle obs : obstacles) {
-                    if (obs.isColliding(p, AvoidSubParametersConfig.width, AvoidSubParametersConfig.height)) {
+                    if (obs.isColliding(p, AvoidSubParametersConfig.width, AvoidSubParametersConfig.height, AvoidSubParametersConfig.minimalClearance)) {
                         collisionFound = true;
 
-                        // Repulsion vector from obstacle center
-                        Vector2d obsCenter = new Vector2d(obs.x + obs.width / 2.0, obs.y + obs.height / 2.0);
-                        Vector2d away = pointVec.minus(obsCenter);
-                        double distance = away.norm();
-                        if (distance == 0) continue;
-
-                        double safeRadius = Math.max(obs.width, obs.height) / 2.0 + AvoidSubParametersConfig.width;
-                        double distanceIntoBuffer = Math.max(0, safeRadius - distance);
-                        double strength = (distanceIntoBuffer / safeRadius) * AvoidSubParametersConfig.stepSize;
-
-                        Vector2d repulse = away.div(distance).times(strength);
-
-                        // Distribute this repulsion across ALL mid control points (excluding first and last)
                         for (int i = 1; i < adjusted.length - 1; i++) {
-                            Vector2d v = new Vector2d(adjusted[i].getX(), adjusted[i].getY());
-                            double weight = 1.0 / (Math.abs(v.minus(pointVec).norm()) + 1e-6);
-                            repulsionForces[i] = repulsionForces[i].plus(repulse.times(weight));
+                            Pose mid = adjusted[i];
+
+                            double dx = mid.getVector().getXComponent() - (obs.x + obs.width / 2.0);
+                            double dy = mid.getVector().getYComponent() - (obs.y + obs.height / 2.0);
+                            double dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist == 0) dist = 1;
+
+                            dx /= dist;
+                            dy /= dist;
+
+                            double newX = mid.getVector().getXComponent() + dx * AvoidSubParametersConfig.stepSize;
+                            double newY = mid.getVector().getYComponent() + dy * AvoidSubParametersConfig.stepSize;
+
+                            // Clamp to field boundaries
+                            newX = Math.max(0, Math.min(newX, AvoidSubParametersConfig.fieldWidth));
+                            newY = Math.max(0, Math.min(newY, AvoidSubParametersConfig.fieldHeight));
+
+                            adjusted[i] = new Pose(newX, newY, mid.getHeading());
                         }
+
+                        break;
                     }
                 }
-            }
 
-            // Apply repulsion forces to mid control points
-            for (int i = 1; i < adjusted.length - 1; i++) {
-                Vector2d v = new Vector2d(adjusted[i].getX(), adjusted[i].getY());
-                Vector2d newPos = v.plus(repulsionForces[i]);
-                adjusted[i] = new Pose(newPos.x, newPos.y, adjusted[i].getHeading());
+                if (collisionFound) break;
             }
 
             if (!collisionFound) break;
@@ -170,6 +160,9 @@ public class BezierToPoint {
 
         return adjusted;
     }
+
+
+
 
 }
 

@@ -11,15 +11,15 @@ public class AvoidSubParametersConfig {
 
     public static double startAngle = 90;
     public static double endAngle = 0;
+    public static double influenceRadius = 30.0;
+    public static int numSamplesPos = 150;
 
-    public static int width = 18;
-    public static int height = 18;
-
-    public static int widthOffset = 2;
-    public static int heightOffset = 2;
-
-    public static int stepSize = 1;
-    public static int maxIterations = 25;
-    public static int numSamplesPos = 50;
+    public static double stepSize = 10; // how far to push away each iteration
+    public static int maxIterations = 300;
+    public static double minimalClearance = 2.0; // inches away from obstacles
+    public static final double width = 18.0;  // robot width
+    public static final double height = 18.0; // robot height
+    public static final double fieldWidth = 144.0;
+    public static final double fieldHeight = 144.0;
 
 }
