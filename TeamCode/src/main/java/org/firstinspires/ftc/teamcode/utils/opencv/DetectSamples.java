@@ -197,7 +197,7 @@ public class DetectSamples extends OpenCvPipeline {
         Mat masked = new Mat();
 
         // Convert the frame to HSV color space
-        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_RGB2HSV);
+        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_BGR2HSV);
 
         Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
 
