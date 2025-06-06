@@ -12,7 +12,7 @@ public class IntakeConfig {
 
     public static double currentLimit = 7;
 
-    public static int extendPosition = -535;
+    public static int extendPosition = -390;
     public static int retractPosition = 0;
 
     public static double clawClosed = 0.86;
