@@ -23,6 +23,7 @@ public class BezierToPoint2 {
 
     public Telemetry telemetry;
     public static boolean useTelemetry;
+    public static List<Point> path;
     public BezierToPoint2(Pose beginPose, Pose endPose, boolean useTelemetry ,Telemetry telemetry) {
         this.beginPose = beginPose;
         this.endPose = endPose;
@@ -33,6 +34,11 @@ public class BezierToPoint2 {
         );
 
         BezierToPoint2.useTelemetry = useTelemetry;
+        path = new ArrayList<>();
+    }
+
+    public static List<Point> getPath() {
+        return path;
     }
 
     public static class Point {
@@ -153,8 +159,8 @@ public class BezierToPoint2 {
             Telemetry telemetry
     ) {
         Point mid = new Point((start.x + end.x) / 2, (start.y + end.y) / 2);
-        double[] offsetRange = new double[50];
-        for (int i = 0; i < 50; i++) offsetRange[i] = -80 + i * (160.0 / 49);
+        double[] offsetRange = new double[500];
+        for (int i = 0; i < 500; i++) offsetRange[i] = -1000 + i * (160.0 / 49);
 
         double bestShortest = Double.POSITIVE_INFINITY;
         double bestFastest = Double.POSITIVE_INFINITY;
@@ -167,7 +173,7 @@ public class BezierToPoint2 {
             for (double dy : offsetRange) {
                 Point testMid = new Point(mid.x + dx, mid.y + dy);
                 Point[] ctrlPts = new Point[]{start, testMid, end};
-                List<Point> path = bezierCurve(ctrlPts, 500);
+                path = bezierCurve(ctrlPts, 1000);
 
                 boolean collision = false;
                 for (int i = 0; i < path.size(); i++) {

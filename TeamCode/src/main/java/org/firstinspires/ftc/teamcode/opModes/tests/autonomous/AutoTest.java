@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 public class AutoTest extends OpMode {
     Follower follower;
     Pose beginPose = new Pose(-48.34, 59.33, Math.toRadians(-90));
-    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, follower);
+    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, follower, false, false);
 
     @Override
     public void init() {

@@ -40,7 +40,7 @@ public class MoveApriltag implements Action {
             Actions.runBlocking(
                     new FollowPath(follower,
                             follower.pathBuilder()
-                                    .addPath(new BezierLine(apriltag.getRobotPos(detections), targetPose))
+                                    .addPath(new BezierLine(apriltag.getRobotPosByAprilTag(), targetPose))
                                     .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
                                     .build()
                     )

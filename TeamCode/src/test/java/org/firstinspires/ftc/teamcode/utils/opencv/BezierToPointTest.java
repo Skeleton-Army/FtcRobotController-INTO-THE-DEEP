@@ -2,9 +2,10 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.obstacles;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.isOverlapping;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.Point;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.Point;
 import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2;
@@ -25,7 +26,7 @@ public class BezierToPointTest {
             boolean collision = false;
             for (int i = 0; i < path.size(); i++) {
                 double angle = beginPose.getHeading() + (endPose.getHeading() - beginPose.getHeading()) * i / path.size();
-                if (isOverlapping(new BezierToPoint2.Point(path.get(i).getX(), path.get(i).getY()) , angle, obstacles)) {
+                if (isOverlapping(new BezierToPoint2.Point(path.get(i).x, path.get(i).y) , angle, obstacles)) {
                     collision = true;
                     break;
                 }
@@ -61,7 +62,7 @@ public class BezierToPointTest {
             System.out.println(bezier.midPoint.x);
             System.out.println(bezier.midPoint.y);
             System.out.println("-------------");
-            //assertTrue(bezier.isColliding(Test.beginPose.getHeading(), Test.endPose.getHeading()));
+            assertTrue(Test.checkCollision((List<Point>) BezierToPoint2.path));
 
 
             index++;

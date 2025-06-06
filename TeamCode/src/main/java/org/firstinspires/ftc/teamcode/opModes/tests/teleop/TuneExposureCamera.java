@@ -217,6 +217,7 @@ public class TuneExposureCamera extends LinearOpMode
         // Create the WEBCAM vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
                 .addProcessor(aprilTag)
                 .build();

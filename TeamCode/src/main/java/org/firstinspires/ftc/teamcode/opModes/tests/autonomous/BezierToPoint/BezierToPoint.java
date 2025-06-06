@@ -142,8 +142,8 @@ public class BezierToPoint {
                             double newY = mid.getVector().getYComponent() + dy * AvoidSubParametersConfig.stepSize;
 
                             // Clamp to field boundaries
-                            newX = Math.max(0, Math.min(newX, AvoidSubParametersConfig.fieldWidth));
-                            newY = Math.max(0, Math.min(newY, AvoidSubParametersConfig.fieldHeight));
+                            newX = Math.max(0, Math.min(newX, AvoidSubParametersConfig.fieldSize));
+                            newY = Math.max(0, Math.min(newY, AvoidSubParametersConfig.fieldSize));
 
                             adjusted[i] = new Pose(newX, newY, mid.getHeading());
                         }

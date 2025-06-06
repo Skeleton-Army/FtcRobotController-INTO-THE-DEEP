@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 import com.acmerobotics.dashboard.config.Config;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Config
@@ -26,6 +28,14 @@ public class AvoidSubParametersConfig {
     public static double heightOffset = 2;
     public static final double fieldSize = 144.0;
 
-    public static final List<double[][]> obstacles =
+    public static final List<double[][]> obstacles = Arrays.asList(new double[][][] {
+            {
+                    {62, 64.5},
+                    {82, 64.5},
+                    {82, 79.5},
+                    {62, 79.5}
+            }
+    });
+
 
 }
