@@ -668,7 +668,7 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runBlocking(
-                new SleepAction(0.4)
+                new SleepAction(0.1)
         );
 
         Vector2d lower = new Vector2d(-8, -10);
