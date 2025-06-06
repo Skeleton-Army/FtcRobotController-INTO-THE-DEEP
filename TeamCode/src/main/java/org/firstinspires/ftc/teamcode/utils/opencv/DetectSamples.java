@@ -187,32 +187,33 @@ public class DetectSamples extends OpenCvPipeline {
      */
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
-
         MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
-
         Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);
 
-        // Create mask
-        Mat masked = new Mat();
+        // Convert to HSV
+        Mat hsv = new Mat();
+        Imgproc.cvtColor(undistorted, hsv, Imgproc.COLOR_RGB2HSV);
+        undistorted.release();
 
-        // Convert the frame to HSV color space
-        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_BGR2HSV);
+        // Combine masks from all threshold ranges
+        Mat combinedMask = Mat.zeros(hsv.size(), CvType.CV_8UC1);
 
-        Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
+        for (int i = 0; i < threshold.lowerBounds.size(); i++) {
+            Mat tempMask = new Mat();
+            Core.inRange(hsv, threshold.lowerBounds.get(i), threshold.upperBounds.get(i), tempMask);
+            Core.bitwise_or(combinedMask, tempMask, combinedMask);
+            tempMask.release();
+        }
 
-        // Apply color filtering to isolate the desired objects
-        Core.inRange(masked, threshold.lowerBound, threshold.upperBound, binary);
+        hsv.release();
 
-        masked.release(); // Free memory after use
-        undistorted.release(); // Free memory after use
-
-        // Apply morphological operations to remove noise
+        // Apply morphological operations
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_OPEN, kernel); // Removes small noise
-        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_CLOSE, kernel); // Closes small gaps
+        Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
 
-        return binary;
+        return combinedMask;
     }
 
     /**
