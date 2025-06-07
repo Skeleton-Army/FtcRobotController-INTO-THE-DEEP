@@ -15,11 +15,11 @@ public class MovementUtils {
     MecanumDrive drive;
 
     Gamepad gamepad;
-    MarrowGamepad.ButtonState slowModeButton;
+    MarrowGamepad.ControlState<?> slowModeButton;
 
     double multiplier;
 
-    public MovementUtils(Gamepad gamepad, MarrowGamepad.ButtonState slowModeButton) {
+    public MovementUtils(Gamepad gamepad, MarrowGamepad.ControlState<?> slowModeButton) {
         drive = TeleopApplication.Instance.drive;
 
         this.gamepad = gamepad;

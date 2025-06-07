@@ -3,29 +3,29 @@ package org.firstinspires.ftc.teamcode.utils.config;
 import com.skeletonarmy.marrow.MarrowGamepad;
 
 public class TeleopControls {
-    public MarrowGamepad.ControlState SLOW_MODE_BUTTON;
+    public MarrowGamepad.ControlState<?> SLOW_MODE_BUTTON;
 
-    public MarrowGamepad.ControlState INTAKE_BUTTON;
+    public MarrowGamepad.ControlState<?> INTAKE_BUTTON;
     public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_X;
     public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_Y;
     public MarrowGamepad.SimpleAnalogState INTAKE_MANUAL_Y;
 
-    public MarrowGamepad.ControlState INTAKE_ROTATION;
+    public MarrowGamepad.ControlState<?> INTAKE_ROTATION;
 
-    public MarrowGamepad.ControlState OUTTAKE_BUTTON;
-    public MarrowGamepad.ControlState OUTTAKE_CYCLE_BUTTON;
+    public MarrowGamepad.ControlState<?> OUTTAKE_BUTTON;
+    public MarrowGamepad.ControlState<?> OUTTAKE_CYCLE_BUTTON;
 
-    public MarrowGamepad.ControlState GRAB_BUTTON;
-    public MarrowGamepad.ControlState RELEASE_BUTTON;
+    public MarrowGamepad.ControlState<?> GRAB_BUTTON;
+    public MarrowGamepad.ControlState<?> RELEASE_BUTTON;
 
-    public MarrowGamepad.ControlState SPECIMEN_HANG_BUTTON;
-    public MarrowGamepad.ControlState SPECIMEN_INTAKE_BUTTON;
+    public MarrowGamepad.ControlState<?> SPECIMEN_HANG_BUTTON;
+    public MarrowGamepad.ControlState<?> SPECIMEN_INTAKE_BUTTON;
     public MarrowGamepad.SimpleAnalogState SPECIMEN_MANUAL_Y;
 
-    public MarrowGamepad.ControlState HANG_BUTTON;
+    public MarrowGamepad.ControlState<?> HANG_BUTTON;
 
-    public MarrowGamepad.ControlState EMERGENCY_STOP_BUTTON;
-    public MarrowGamepad.ControlState RESET_MOTORS_BUTTON;
+    public MarrowGamepad.ControlState<?> EMERGENCY_STOP_BUTTON;
+    public MarrowGamepad.ControlState<?> RESET_MOTORS_BUTTON;
 
     public TeleopControls(MarrowGamepad gamepad1, MarrowGamepad gamepad2) {
         SLOW_MODE_BUTTON = gamepad1.right_bumper;
