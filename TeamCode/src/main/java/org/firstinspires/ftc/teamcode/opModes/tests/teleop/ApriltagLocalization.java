@@ -5,6 +5,7 @@ import android.util.Size;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
@@ -145,7 +146,7 @@ public class ApriltagLocalization extends OpMode {
                 telemetry.addData("solve time: ", aprilTag.getPerTagAvgPoseSolveTime());
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
-                Drawing.drawRobot(packet.fieldOverlay(), new Pose2d(detection.robotPose.getPosition().x, detection.robotPose.getPosition().y, Math.toRadians(detection.robotPose.getOrientation().getYaw())), "#3F51B5");
+                Drawing.drawRobot(packet.fieldOverlay(), new Pose(detection.robotPose.getPosition().x, detection.robotPose.getPosition().y, Math.toRadians(detection.robotPose.getOrientation().getYaw())), "#3F51B5");
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));

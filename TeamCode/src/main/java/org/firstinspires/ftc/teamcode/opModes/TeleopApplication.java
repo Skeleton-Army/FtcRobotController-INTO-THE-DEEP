@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,11 +20,13 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
@@ -30,9 +34,12 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.MovementConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.general.Drawing;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamplesProcessor;
+import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
 import org.firstinspires.ftc.vision.VisionPortal;
 
@@ -60,12 +67,16 @@ public class TeleopApplication extends TeleopOpMode {
     VisionPortal visionPortal;
     Apriltag apriltagProcessor;
     DetectSamplesProcessor detectSamplesProcessor;
+
+    Drive actionsDrive;
+    Webcam actionCam;
     boolean manuallyMoved = false;
 
     boolean highBasket = true;
 
     IMU imu;
 
+    Sample pickedSample;
     @Override
     public void init() {
         Instance = this;
@@ -84,6 +95,31 @@ public class TeleopApplication extends TeleopOpMode {
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
         imu = follower.poseUpdater.getLocalizer().getIMU(); // the imu pedro also uses for localizations
+
+        actionsDrive = new Drive(follower, camCV, telemetry);
+        actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for
+
+        // ---------- processors way ----------Add commentMore actions
+        //apriltagProcessor = new Apriltag(hardwareMap, drive);
+        //detectSamplesProcessor = new DetectSamplesProcessor(telemetry, drive, SampleColor.YELLOW, SampleColor.RED);
+        //visionPortal = new VisionPortal.Builder()
+        //       .addProcessors(apriltagProcessor.getAprilTagAprocessor()) // processor to the vision
+        //       .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+        //       .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+        //       .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+        //       .enableLiveView(true) // live view for srcpy
+        //       .setAutoStopLiveView(true)
+        //       .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
+        //       .build();
+        // ---------- processors way ----------
+
+
+        // ---------- opencv pipelines way ----------
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, true, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, true, true);
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
+        aprilTagPipeline = camCV.getAprilTagPipeline();
+        // ---------- opencv pipelines way ----------
     }
 
     @Override
@@ -140,7 +176,41 @@ public class TeleopApplication extends TeleopOpMode {
 
         telemetry.addData("IMU acquisition time: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).acquisitionTime);
 
+        TelemetryPacket telemetryPacket = new TelemetryPacket();
+        //c = telemetryPacket.field();
+        telemetryPacket.fieldOverlay().setStroke("blue");
+        Drawing.drawRobot(telemetryPacket.fieldOverlay(), follower.getPose(), "blue"); // where the robot thinks he is
+
+        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket);
         telemetry.update();
+    }
+
+    public void runDriverSequences() {
+        camCV.lookForSamples();
+        pickedSample = camCV.getBestSample(follower.getPose());
+
+
+        if (Utilities.isPressed(gamepad1.a)) { // running the pickupSample sequence
+            runAction("driver sequence",actionCam.pickupSample(pickedSample.getSamplePosition()));
+        }
+        if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline != null) || apriltagProcessor != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
+            runAction("driver sequence",actionCam.basketCycle());
+        }
+        if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
+            runAction("driver sequence",actionsDrive.MoveToPoint(new Pose(0,0,0)));
+        }
+
+        // TODO: do this, needs to do the bezier path to submersible
+        /*if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
+            runSequentialActions("driver sequence",
+                    actionCam.basketCycle(),
+                    actionsDrive.goToSubmersible(),
+                    actionCam.pickupSample(pickedSample.getSamplePosition())
+            );
+        }*/
+        if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action
+            stopAction("driver sequence");
+        }
     }
 
     public void movement(boolean robotCentric) {

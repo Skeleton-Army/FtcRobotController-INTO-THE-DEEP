@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
@@ -24,7 +25,7 @@ public class BasketCycle implements Action {
 
     Outtake outtake;
 
-    Pose2d dunkPose;
+    Pose dunkPose;
 
     Action extendOuttake;
 
@@ -35,10 +36,10 @@ public class BasketCycle implements Action {
         this.outtake = outtake;
 
         if (Objects.equals(alliance, "blue")) {
-            dunkPose = new Pose2d(51,54,Math.toRadians(225));
+            dunkPose = new Pose(51,54,Math.toRadians(225));
         }
         else if (Objects.equals(alliance, "red")) {
-            dunkPose = new Pose2d(-56,-54.5,Math.toRadians(45));
+            dunkPose = new Pose(-56,-54.5,Math.toRadians(45));
         }
 
         extendOuttake = new ParallelAction(

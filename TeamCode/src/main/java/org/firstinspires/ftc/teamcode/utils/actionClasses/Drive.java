@@ -64,7 +64,7 @@ public class Drive {
         this.telemetry = telemetry;
     }
 
-    public Action MoveToPoint(Pose2d targetPose) {
+    public Action MoveToPoint(Pose targetPose) {
         return new MoveToPoint(targetPose, follower);
     }
 
