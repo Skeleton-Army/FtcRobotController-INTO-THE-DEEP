@@ -13,7 +13,7 @@ public class OneDriverTeleopControls extends TeleopControls {
         INTAKE_MANUAL_Y = gamepad2.right_stick_y;
 
         OUTTAKE_BUTTON = gamepad1.y;
-        OUTTAKE_CYCLE_BUTTON = gamepad1.back;
+        OUTTAKE_CYCLE_BUTTON = gamepad1.share;
 
         GRAB_BUTTON = gamepad1.right_bumper;
         RELEASE_BUTTON = gamepad2.left_bumper;

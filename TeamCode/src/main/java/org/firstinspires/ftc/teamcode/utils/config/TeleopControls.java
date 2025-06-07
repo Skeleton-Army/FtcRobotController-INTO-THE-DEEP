@@ -36,7 +36,7 @@ public class TeleopControls {
         INTAKE_MANUAL_Y = gamepad2.right_stick_y;
 
         OUTTAKE_BUTTON = gamepad2.y;
-        OUTTAKE_CYCLE_BUTTON = gamepad2.back;
+        OUTTAKE_CYCLE_BUTTON = gamepad2.share;
 
         GRAB_BUTTON = gamepad2.right_bumper;
         RELEASE_BUTTON = gamepad2.left_bumper;
