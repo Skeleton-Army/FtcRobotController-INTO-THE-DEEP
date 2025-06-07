@@ -667,12 +667,12 @@ public class AutoApplication extends AutoOpMode {
                         .build()
         );
 
-        runBlocking(
-                new SleepAction(0.1)
-        );
+//        runBlocking(
+//                new SleepAction(0.1)
+//        );
 
-        Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 8);
+        Vector2d lower = new Vector2d(-10, -8);
+        Vector2d upper = new Vector2d(0, 8);
 
         camCV.resetSampleList();
 
