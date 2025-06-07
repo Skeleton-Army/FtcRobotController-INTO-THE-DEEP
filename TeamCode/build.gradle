@@ -61,8 +61,8 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
 
-    implementation "com.skeletonarmy.marrow:core:SNAPSHOT-d6eec4c"
-    implementation "com.skeletonarmy.marrow:actions:SNAPSHOT-5c78cd8"
+    implementation "com.skeletonarmy.marrow:core:SNAPSHOT-2aa539e"
+    implementation "com.skeletonarmy.marrow:actions:SNAPSHOT-2aa539e"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'
