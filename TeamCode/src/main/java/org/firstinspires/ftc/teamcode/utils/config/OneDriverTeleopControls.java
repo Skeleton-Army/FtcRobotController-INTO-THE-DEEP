@@ -9,17 +9,17 @@ public class OneDriverTeleopControls extends TeleopControls {
         SLOW_MODE_BUTTON = gamepad2.right_bumper;
 
         INTAKE_BUTTON = gamepad1.a;
-        INTAKE_ROTATION = gamepad1.right_trigger;
+        INTAKE_ROTATION = gamepad1.left_bumper;
         INTAKE_MANUAL_Y = gamepad2.right_stick_y;
 
         OUTTAKE_BUTTON = gamepad1.y;
         OUTTAKE_CYCLE_BUTTON = gamepad1.back;
 
         GRAB_BUTTON = gamepad1.right_bumper;
-        RELEASE_BUTTON = gamepad1.left_bumper;
+        RELEASE_BUTTON = gamepad2.left_bumper;
 
-        SPECIMEN_HANG_BUTTON = gamepad1.dpad_up;
-        SPECIMEN_INTAKE_BUTTON = gamepad1.dpad_down;
+        SPECIMEN_HANG_BUTTON = gamepad1.left_trigger;
+        SPECIMEN_INTAKE_BUTTON = gamepad1.right_trigger;
         SPECIMEN_MANUAL_Y = gamepad2.right_stick_y;
 
         HANG_BUTTON = gamepad1.start;
