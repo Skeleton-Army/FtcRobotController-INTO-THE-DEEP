@@ -1,34 +1,23 @@
 package org.firstinspires.ftc.teamcode.utils.actionClasses;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupInterval;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupIntervalDivision;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupMinInterval;
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupSpeed;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.pickupTimeout;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
-import org.opencv.core.Point;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Drive {
-    public static Sample targetSampleStatic;
-
     MecanumDrive drive;
     Apriltag apriltag;
     WebcamCV camCV;
@@ -59,10 +48,7 @@ public class Drive {
     }
 
     public Action alignToSample(Vector2d targetSamplePos) {
-        return new ParallelAction(
-                new InstantAction(() -> targetSampleStatic = camCV.getBestSample(targetSamplePos)),
-                getTrajectoryToSample(targetSamplePos)
-        );
+        return getTrajectoryToSample(targetSamplePos);
     }
 
     public Action alignToSample(Sample targetSample) {

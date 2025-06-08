@@ -689,18 +689,9 @@ public class AutoApplication extends AutoOpMode {
 
         if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
-        //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
-
-//        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
-
         double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
-
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
         runBlocking(
                 intake.rotate(rotationTarget)
@@ -709,23 +700,12 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                driveActions.alignToSample(targetSample.getSamplePosition().position),
+                                driveActions.alignToSample(targetSample),
                                 extendSequence
                         ),
                         grabSequence
                 )
         );
-
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
-//
-//                )
-//        );
 
         addTransition(State.PUT_IN_BASKET);
     }
