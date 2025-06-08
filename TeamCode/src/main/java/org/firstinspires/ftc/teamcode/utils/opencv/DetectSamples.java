@@ -158,7 +158,8 @@ public class DetectSamples extends OpenCvPipeline {
                 continue; // Skip this contour
             }
 
-            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
+            MatOfPoint2f ellipsePoints = new MatOfPoint2f(hullPoints.toArray());
+            RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
 
             // Create and add the new sample
             Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
@@ -178,6 +179,11 @@ public class DetectSamples extends OpenCvPipeline {
 //            double angle = Math.toRadians(90 - ellipse.angle);
 //            Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 50 * Math.cos(angle), lowestPoint.y - 50 * Math.sin(angle)), new Scalar(0, 0, 0));
 //            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
+
+            hullIndices.release();
+            hullPoints.release();
+            ellipsePoints.release();
+            contour.release();
 
             samplesFrame.add(sample);
         }
@@ -228,6 +234,8 @@ public class DetectSamples extends OpenCvPipeline {
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
+
+        kernel.release();
 
         return combinedMask;
     }
