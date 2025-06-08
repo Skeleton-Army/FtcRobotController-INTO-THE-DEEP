@@ -1,17 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -28,8 +23,6 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
-
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 enum Alliance {
     RED,
@@ -658,12 +651,12 @@ public class AutoApplication extends AutoOpMode {
                         .build()
         );
 
-        runBlocking(
-                new SleepAction(0.4)
-        );
+//        runBlocking(
+//                new SleepAction(0.1)
+//        );
 
-        Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 8);
+        Vector2d lower = new Vector2d(-10, -8);
+        Vector2d upper = new Vector2d(0, 8);
 
         camCV.resetSampleList();
 
@@ -680,18 +673,11 @@ public class AutoApplication extends AutoOpMode {
 
         if (targetSample == null) targetSample = camCV.getBestSample(bestSamplePos);
 
-        //        Sample targetSample = camCV.getBestSample(new Vector2d(-3, drive.pose.position.y + CameraConfig.pickupSampleOffsetX));
-
-//        telemetry.addData("Target Sample", targetSample.getSamplePosition().position);
+        targetSample.setTargetSample(); // Draw target sample on frame
 
         double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
-
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
 
         runBlocking(
                 intake.rotate(rotationTarget)
@@ -700,23 +686,12 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SequentialAction(
                         new ParallelAction(
-                                driveActions.alignToSample(targetSample.getSamplePosition().position),
+                                driveActions.alignToSample(targetSample),
                                 extendSequence
                         ),
                         grabSequence
                 )
         );
-
-//        runBlocking(
-//                new SequentialAction(
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
-//
-//                )
-//        );
 
         addTransition(State.PUT_IN_BASKET);
     }
