@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.obstacles;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.Point;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.isOverlapping;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pedropathing.localization.Pose;
-import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.Point;
 import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2;
@@ -36,10 +36,11 @@ public class BezierToPointTest {
     }
 
     final BezierToPointTest.Test[] values = new BezierToPointTest.Test[] {
-            new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(0)), new Pose(48, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
             //new BezierToPointTest.Test(new Pose(72.4, 22.6, Math.toRadians(90)), new Pose(23.8, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
+            new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(90)), new Pose(18, 125, Math.toRadians(0))),
     };
 
 
