@@ -196,7 +196,9 @@ public class DetectSamples extends OpenCvPipeline {
         // Draw the target sample
         if (targetSample != null) {
             Imgproc.circle(input, targetSample.center, 10, new Scalar(0, 255, 255), 3);
+            Imgproc.circle(mask, targetSample.center, 10, new Scalar(0, 255, 255), 3);
             Imgproc.putText(input, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(0, 0, 0), 2);
+            Imgproc.putText(mask, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(0, 0, 0), 2);
         }
 
         return mask;
