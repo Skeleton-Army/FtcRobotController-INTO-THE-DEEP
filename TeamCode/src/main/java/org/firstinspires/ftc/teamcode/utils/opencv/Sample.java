@@ -127,4 +127,8 @@ public class Sample {
     public boolean isTooSmall() {
         return (widthInches * heightInches <= CameraConfig.MIN_AREA);
     }
+
+    public void setTargetSample() {
+        DetectSamples.targetSample = this;
+    }
 }
