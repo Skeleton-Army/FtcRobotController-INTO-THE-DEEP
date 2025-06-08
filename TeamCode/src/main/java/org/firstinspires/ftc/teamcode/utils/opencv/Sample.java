@@ -13,7 +13,7 @@ public class Sample {
 
     public Point center;
     private final Pose2d detectionPose; // The pose where the sample was detected
-    private double sampleX, sampleY, horizontalAngle, quality;
+    private double sampleX, sampleY;
     private double centerX, centerY;
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
@@ -26,13 +26,6 @@ public class Sample {
         this.detectionPose = detectionPose;
         calculatePosition(rect);
     }
-
-//    public Sample(Point lowest, Pose2d detectionPose, MatOfPoint contour) {
-//        this.lowest = lowest;
-//        this.detectionPose = detectionPose;
-//        this.contour = contour;
-//        calculatePosition();
-//    }
 
     // Getters for sample properties
     public double getSampleX() {
@@ -47,10 +40,6 @@ public class Sample {
     }
     public double getCenterY() {
         return centerY;
-    }
-
-    public double getQuality() {
-        return quality;
     }
 
     public Pose2d getSamplePosition() {
