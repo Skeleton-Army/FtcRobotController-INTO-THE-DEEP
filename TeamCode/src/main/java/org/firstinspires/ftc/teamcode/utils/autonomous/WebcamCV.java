@@ -181,7 +181,7 @@ public class WebcamCV {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        FtcDashboard.getInstance().startCameraStream(webcam, 15);
+        FtcDashboard.getInstance().startCameraStream(webcam, 30);
 
         OpenCvPipeline selectedPipeline = null;
         if (!onlyAprilTag) {
@@ -221,6 +221,7 @@ public class WebcamCV {
         return this.aprilTagPipeline;
     }
 
+    public AprilTagProcessor getAprilTagProcessor() {return this.aprilTag;}
 
 
     /**
