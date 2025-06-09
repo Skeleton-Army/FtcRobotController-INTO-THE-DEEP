@@ -51,12 +51,29 @@ public class CameraConfig {
             0.0,    // p2
             0.0     // k3
     };
+
+    // camera settings for the new global shutter camera
+    /*public static final double[] cameraMatrix = {
+            688.9972, 0, 613.914,  // fx, 0, cx
+            0, 688.5173, 397.1161,  // 0, fy, cy
+            0, 0, 1                         // 0, 0, 1
+    };
+
+    // Distortion coefficients (k1, k2, p1, p2, k3)
+    public static final double[] distCoeffs = {
+            -0.3246,  // k1
+            0.1010,   // k2
+            0.0,    // p1
+            0.0,    // p2
+            0.0     // k3
+    };*/
     // Apriltag settings
 
-    public static double fx = cameraMatrix[0] * 2; // 501.97
-    public static double fy = cameraMatrix[4] * 2; // 501.97
-    public static double cx = cameraMatrix[2] * 2; // 339.442
-    public static double cy = cameraMatrix[5] * 2; // 158.552
+    // multiply by 2 if using the original camera
+    public static double fx = cameraMatrix[0];
+    public static double fy = cameraMatrix[4];
+    public static double cx = cameraMatrix[2];
+    public static double cy = cameraMatrix[5];
 
     public static double yaw = 0;
     public static double pitch = -90;
