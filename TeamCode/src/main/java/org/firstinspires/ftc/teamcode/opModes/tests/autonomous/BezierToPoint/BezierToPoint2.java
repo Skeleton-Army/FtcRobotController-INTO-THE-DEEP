@@ -29,12 +29,30 @@ public class BezierToPoint2 {
         this.endPose = endPose;
 
         midPoint = adjustMidpointToAvoid(
-                new Point(beginPose.getX(), beginPose.getY()), new Point(endPose.getX(), endPose.getY()),
-                beginPose.getHeading(), endPose.getHeading(), obstacles , "fastest", 5, telemetry
+                new Point(beginPose.getX(), beginPose.getY()),
+                new Point(endPose.getX(), endPose.getY()),
+                beginPose.getHeading(),
+                endPose.getHeading(),
+                obstacles,
+                "widest", // <-- try "fastest", "shortest", or "widest"
+                2,
+                telemetry,
+                "right"
         );
 
+
+        if (midPoint == null) {
+            midPoint = new Point((beginPose.getX() + endPose.getX()) / 2, (beginPose.getY() + endPose.getY()) / 2 + 30);
+        }
+
         BezierToPoint2.useTelemetry = useTelemetry;
-        path = new ArrayList<>();
+        path = bezierCurve(new Point[]{new Point(beginPose.getX(), beginPose.getY()), midPoint, new Point(endPose.getX(), endPose.getY())}, 1000);
+
+        if (useTelemetry && telemetry != null) {
+            telemetry.addData("Final Midpoint", "x: %.2f, y: %.2f", midPoint.x, midPoint.y);
+            telemetry.addData("Path Points", path.size());
+            telemetry.update();
+        }
     }
 
     public static List<Point> getPath() {
@@ -110,7 +128,7 @@ public class BezierToPoint2 {
                 if (pointInPolygon(corner, obs)) return true;
             }
 
-            if (minDistanceBetweenPolygons(rotated, obs) < 3.0) return true; // Clearance check
+            if (minDistanceBetweenPolygons(rotated, obs) < 5.0) return true;
         }
 
         for (double[] corner : rotated) {
@@ -156,115 +174,140 @@ public class BezierToPoint2 {
             List<double[][]> obstacles,
             String preference,
             int topN,
-            Telemetry telemetry
+            Telemetry telemetry,
+            String preferredSide
     ) {
+        Point direction = new Point(end.x - start.x, end.y - start.y);
+        double mag = Math.hypot(direction.x, direction.y);
+        direction.x /= mag;
+        direction.y /= mag;
+
+        Point perpendicular = new Point(-direction.y, direction.x);
         Point mid = new Point((start.x + end.x) / 2, (start.y + end.y) / 2);
-        double[] offsetRange = new double[500];
-        for (int i = 0; i < 500; i++) offsetRange[i] = -1000 + i * (160.0 / 49);
+
+        // Finer and wider offset test range
+        List<Double> offsetMagnitudes = new ArrayList<>();
+        for (int i = -200; i <= 200; i += 5) {
+            offsetMagnitudes.add((double) i);
+        }
 
         double bestShortest = Double.POSITIVE_INFINITY;
         double bestFastest = Double.POSITIVE_INFINITY;
+        double bestClearance = -1;
+
         Point bestMidShortest = null;
         Point bestMidFastest = null;
+        Point bestMidWidest = null;
 
         List<Point[]> validCandidates = new ArrayList<>();
 
-        for (double dx : offsetRange) {
-            for (double dy : offsetRange) {
-                Point testMid = new Point(mid.x + dx, mid.y + dy);
-                Point[] ctrlPts = new Point[]{start, testMid, end};
-                path = bezierCurve(ctrlPts, 1000);
+        for (double offset : offsetMagnitudes) {
+            if ("left".equals(preferredSide) && offset > 0) continue;
+            if ("right".equals(preferredSide) && offset < 0) continue;
+            Point testMid = new Point(mid.x + perpendicular.x * offset, mid.y + perpendicular.y * offset);
+            Point[] ctrlPts = new Point[]{start, testMid, end};
+            List<Point> candidatePath = bezierCurve(ctrlPts, 500);
 
-                boolean collision = false;
-                for (int i = 0; i < path.size(); i++) {
-                    double angle = startAngle + (endAngle - startAngle) * i / path.size();
-                    if (isOverlapping(path.get(i), angle, obstacles)) {
-                        collision = true;
-                        break;
+            boolean collision = false;
+            double minClearance = Double.POSITIVE_INFINITY;
+
+            for (int i = 0; i < candidatePath.size(); i++) {
+                Point pt = candidatePath.get(i);
+                double angle = startAngle + (endAngle - startAngle) * i / candidatePath.size();
+                if (isOverlapping(pt, angle, obstacles)) {
+                    collision = true;
+                    break;
+                }
+            }
+
+            if (!collision) {
+                double length = 0;
+                double curvaturePenalty = 0;
+
+                for (int i = 1; i < candidatePath.size(); i++) {
+                    double dx1 = candidatePath.get(i).x - candidatePath.get(i - 1).x;
+                    double dy1 = candidatePath.get(i).y - candidatePath.get(i - 1).y;
+                    length += Math.hypot(dx1, dy1);
+                    if (i > 1) {
+                        double dx0 = candidatePath.get(i - 1).x - candidatePath.get(i - 2).x;
+                        double dy0 = candidatePath.get(i - 1).y - candidatePath.get(i - 2).y;
+                        double angle1 = Math.atan2(dy0, dx0);
+                        double angle2 = Math.atan2(dy1, dx1);
+                        double delta = Math.abs(angle2 - angle1);
+                        if (delta > Math.PI) delta = 2 * Math.PI - delta;
+                        curvaturePenalty += delta;
                     }
                 }
 
-                if (!collision) {
-                    double length = 0;
-                    double curvaturePenalty = 0;
-                    for (int i = 1; i < path.size(); i++) {
-                        double dx1 = path.get(i).x - path.get(i - 1).x;
-                        double dy1 = path.get(i).y - path.get(i - 1).y;
-                        length += Math.hypot(dx1, dy1);
-                        if (i > 1) {
-                            double dx0 = path.get(i - 1).x - path.get(i - 2).x;
-                            double dy0 = path.get(i - 1).y - path.get(i - 2).y;
-                            double angle1 = Math.atan2(dy0, dx0);
-                            double angle2 = Math.atan2(dy1, dx1);
-                            double delta = Math.abs(angle2 - angle1);
-                            if (delta > Math.PI) delta = 2 * Math.PI - delta;
-                            curvaturePenalty += delta;
-                        }
+                // Calculate clearance (minimum distance to any obstacle)
+                for (double[][] obs : obstacles) {
+                    double[][] robotCorners = rotatePolygon(new double[][]{
+                            {-width / 2.0, -height / 2.0},
+                            {width / 2.0, -height / 2.0},
+                            {width / 2.0, height / 2.0},
+                            {-width / 2.0, height / 2.0}
+                    }, 0); // angle 0 for midpoint
+
+                    for (int j = 0; j < robotCorners.length; j++) {
+                        robotCorners[j][0] += testMid.x;
+                        robotCorners[j][1] += testMid.y;
                     }
 
-                    double fastCost = length + 100 * curvaturePenalty;
+                    double clearance = minDistanceBetweenPolygons(robotCorners, obs);
+                    if (clearance < minClearance) minClearance = clearance;
+                }
 
-                    validCandidates.add(ctrlPts);
+                validCandidates.add(ctrlPts);
 
-                    if (length < bestShortest) {
-                        bestShortest = length;
-                        bestMidShortest = testMid;
-                    }
+                double fastCost = length + 100 * curvaturePenalty;
 
-                    if (fastCost < bestFastest) {
-                        bestFastest = fastCost;
-                        bestMidFastest = testMid;
-                    }
+                if (length < bestShortest) {
+                    bestShortest = length;
+                    bestMidShortest = testMid;
+                }
+
+                if (fastCost < bestFastest) {
+                    bestFastest = fastCost;
+                    bestMidFastest = testMid;
+                }
+
+                if (minClearance > bestClearance) {
+                    bestClearance = minClearance;
+                    bestMidWidest = testMid;
                 }
             }
         }
 
-        if (useTelemetry) {
-            telemetry.addData("Checked candidates", offsetRange.length * offsetRange.length);
-            telemetry.addData("Valid midpoints", validCandidates.size());
+        // Debug output
+        if (useTelemetry && telemetry != null) {
+            telemetry.addData("Checked Candidates", offsetMagnitudes.size());
+            telemetry.addData("Valid Midpoints", validCandidates.size());
 
             if (validCandidates.size() > 0) {
                 for (int i = 0; i < Math.min(topN, validCandidates.size()); i++) {
                     Point midpt = validCandidates.get(i)[1];
                     telemetry.addData("Midpoint #" + (i + 1), "x: %.2f, y: %.2f", midpt.x, midpt.y);
                 }
-            }
-
-            if ("fastest".equals(preference) && bestMidFastest != null) {
-                telemetry.addData("Selected", "Fastest path");
-                return bestMidFastest;
-            } else if ("shortest".equals(preference) && bestMidShortest != null) {
-                telemetry.addData("Selected", "Shortest path");
-                return bestMidShortest;
-            } else if (bestMidFastest != null) {
-                telemetry.addData("Selected", "Fallback: Fastest path");
-                return bestMidFastest;
-            } else if (bestMidShortest != null) {
-                telemetry.addData("Selected", "Fallback: Shortest path");
-                return bestMidShortest;
             } else {
-                telemetry.addData("Selected", "Default midpoint - no valid paths");
-                return mid;
+                telemetry.addLine("No valid path candidates found!");
             }
+
+            telemetry.update();
         }
 
-        if (validCandidates.size() > 0) {
-            for (int i = 0; i < Math.min(topN, validCandidates.size()); i++) {
-                Point midpt = validCandidates.get(i)[1];
-            }
-        }
+        if (validCandidates.isEmpty()) return null;
 
-        if ("fastest".equals(preference) && bestMidFastest != null) {
-            return bestMidFastest;
-        } else if ("shortest".equals(preference) && bestMidShortest != null) {
-            return bestMidShortest;
-        } else if (bestMidFastest != null) {
-            return bestMidFastest;
-        } else if (bestMidShortest != null) {
-            return bestMidShortest;
-        } else {
-            return mid;
-        }
+        // Final selection logic
+        if ("fastest".equals(preference) && bestMidFastest != null) return bestMidFastest;
+        if ("shortest".equals(preference) && bestMidShortest != null) return bestMidShortest;
+        if ("widest".equals(preference) && bestMidWidest != null) return bestMidWidest;
 
+        // Fallback
+        if (bestMidFastest != null) return bestMidFastest;
+        if (bestMidShortest != null) return bestMidShortest;
+        if (bestMidWidest != null) return bestMidWidest;
+
+        return null;
     }
+
 }

@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
@@ -23,7 +22,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
@@ -150,6 +148,7 @@ public class TeleopApplication extends TeleopOpMode {
         runResetMotors();
         outtakeLimitSwitch();
 
+        runDriverSequences();
         // Run all queued actions
         runAllActions();
 
@@ -176,12 +175,8 @@ public class TeleopApplication extends TeleopOpMode {
 
         telemetry.addData("IMU acquisition time: ",imu.getRobotAngularVelocity(AngleUnit.DEGREES).acquisitionTime);
 
-        TelemetryPacket telemetryPacket = new TelemetryPacket();
-        //c = telemetryPacket.field();
-        telemetryPacket.fieldOverlay().setStroke("blue");
-        Drawing.drawRobot(telemetryPacket.fieldOverlay(), follower.getPose(), "blue"); // where the robot thinks he is
+        follower.drawOnDashBoard(); // draws the robot position
 
-        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket);
         telemetry.update();
     }
 
@@ -189,6 +184,16 @@ public class TeleopApplication extends TeleopOpMode {
         camCV.lookForSamples();
         pickedSample = camCV.getBestSample(follower.getPose());
 
+        TelemetryPacket telemetryPacket = new TelemetryPacket();
+        //c = telemetryPacket.field();
+        telemetryPacket.fieldOverlay().setStroke("blue");
+        if (aprilTagPipeline != null){
+            Drawing.drawRobot(telemetryPacket.fieldOverlay(), aprilTagPipeline.getRobotPosByAprilTag(), "blue"); // where the robot thinks he is
+        }
+        if (apriltagProcessor != null) {
+            Drawing.drawRobot(telemetryPacket.fieldOverlay(), apriltagProcessor.getRobotPosByAprilTag(), "blue"); // where the robot thinks he is
+        }
+        FtcDashboard.getInstance().sendTelemetryPacket(telemetryPacket);
 
         if (Utilities.isPressed(gamepad1.a)) { // running the pickupSample sequence
             runAction("driver sequence",actionCam.pickupSample(pickedSample.getSamplePosition()));
@@ -209,7 +214,8 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }*/
         if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action
-            stopAction("driver sequence");
+            stopAllActions();
+            //stopAction("driver sequence");
         }
     }
 
