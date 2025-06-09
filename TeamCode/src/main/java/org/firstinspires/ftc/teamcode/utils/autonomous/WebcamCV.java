@@ -181,7 +181,7 @@ public class WebcamCV {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        FtcDashboard.getInstance().startCameraStream(webcam, 15);
+        FtcDashboard.getInstance().startCameraStream(webcam, 30);
 
         OpenCvPipeline selectedPipeline = null;
         if (!onlyAprilTag) {
@@ -206,7 +206,7 @@ public class WebcamCV {
             @Override
             public void onOpened()
             {
-                webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
             }
 
             @Override
@@ -221,6 +221,7 @@ public class WebcamCV {
         return this.aprilTagPipeline;
     }
 
+    public AprilTagProcessor getAprilTagProcessor() {return this.aprilTag;}
 
 
     /**
