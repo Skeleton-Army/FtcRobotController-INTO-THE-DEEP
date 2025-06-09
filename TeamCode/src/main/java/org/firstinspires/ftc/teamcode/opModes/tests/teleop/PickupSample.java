@@ -1,12 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.teleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -18,9 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -58,6 +52,8 @@ public class PickupSample extends TeleopOpMode {
     public void init_loop() {
         if (camCV.lookForSamples()) {
             targetSample = camCV.getBestSample(new Vector2d(30,0));
+            targetSample.setTargetSample(); // Draw target sample on frame
+
             Pose2d targetSamplePos = targetSample.getSamplePosition();
 
             telemetry.addLine("Detected samples");
@@ -73,18 +69,13 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(
-                driveActions.alignToSample(targetSample.getSamplePosition().position)
-        );
-
-        double orientation = -Drive.targetSampleStatic.orientation;
+        double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
 
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        Actions.runBlocking(
+                driveActions.alignToSample(targetSample)
+        );
 
         Actions.runBlocking(
                 intake.rotate(rotationTarget)
@@ -97,12 +88,6 @@ public class PickupSample extends TeleopOpMode {
                         intake.extend(),
                         intake.extendWrist(),
                         new SleepAction(0.3),
-
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
 
                         intake.closeClaw(),
                         new SleepAction(0.2),

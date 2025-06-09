@@ -32,20 +32,19 @@ public class DetectSamples extends OpenCvPipeline {
     public List<Sample> samples = new ArrayList<>();
     public OpenCvCamera webcam;
 
+    public static Sample targetSample = null;
+
     private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
     private final MecanumDrive drive;
 
     private boolean viewportPaused;
 
-    // Adjusted yellow HSV bounds
-    private static final float epsilonConstant = 0.025f;
     private static final Size kernelSize = new Size(5, 5);
 
-    private static Mat input;
-    Mat matrix = new Mat(3, 3, CvType.CV_64F);
+    public static Mat matrix = new Mat(3, 3, CvType.CV_64F);
+    public static MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
 
-    Point second;
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
@@ -98,7 +97,6 @@ public class DetectSamples extends OpenCvPipeline {
         List<Sample> samplesFrame = new ArrayList<>();
         List<MatOfPoint> allContours = new ArrayList<>();
 
-        DetectSamples.input = input;
         Mat mask = input.clone();
 
         for (Threshold t : thresholds) {
@@ -160,7 +158,8 @@ public class DetectSamples extends OpenCvPipeline {
                 continue; // Skip this contour
             }
 
-            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
+            MatOfPoint2f ellipsePoints = new MatOfPoint2f(hullPoints.toArray());
+            RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
 
             // Create and add the new sample
             Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
@@ -181,6 +180,11 @@ public class DetectSamples extends OpenCvPipeline {
 //            Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 50 * Math.cos(angle), lowestPoint.y - 50 * Math.sin(angle)), new Scalar(0, 0, 0));
 //            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
 
+            hullIndices.release();
+            hullPoints.release();
+            ellipsePoints.release();
+            contour.release();
+
             samplesFrame.add(sample);
         }
 
@@ -188,6 +192,14 @@ public class DetectSamples extends OpenCvPipeline {
 
         // Draw contours around detected samples
         //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
+
+        // Draw the target sample
+        if (targetSample != null) {
+            Imgproc.circle(input, targetSample.center, 10, new Scalar(0, 255, 255), 3);
+            Imgproc.circle(mask, targetSample.center, 10, new Scalar(0, 255, 255), 3);
+            Imgproc.putText(input, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(0, 0, 0), 2);
+            Imgproc.putText(mask, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(0, 0, 0), 2);
+        }
 
         return mask;
     }
@@ -200,7 +212,6 @@ public class DetectSamples extends OpenCvPipeline {
      */
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
-        MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
         Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);
 
@@ -225,6 +236,8 @@ public class DetectSamples extends OpenCvPipeline {
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
+
+        kernel.release();
 
         return combinedMask;
     }
