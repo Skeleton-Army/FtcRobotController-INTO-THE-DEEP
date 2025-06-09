@@ -602,7 +602,7 @@ public class AutoApplication extends AutoOpMode {
 
         runAsync(
                 new SequentialAction(
-                        new SleepAction(0.3),
+                        new SleepAction(0.1),
                         outtake.hold(),
                         outtake.retract()
                 )
