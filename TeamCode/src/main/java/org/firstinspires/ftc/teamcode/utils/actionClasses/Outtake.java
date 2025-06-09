@@ -20,7 +20,7 @@ public class Outtake {
     private final CachingServo bucketServo;
 
     public Outtake(HardwareMap hardwareMap) {
-        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
+        motor = new AdvancedDcMotor(OuttakeConfig.motorName, hardwareMap.get(DcMotorEx.class, OuttakeConfig.motorName));
         motor.setCurrentLimit(OuttakeConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setTargetPosition(0);

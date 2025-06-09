@@ -29,7 +29,7 @@ public class SpecimenArm {
     private final CachingServo grabServo;
 
     public SpecimenArm(HardwareMap hardwareMap) {
-        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
+        motor = new AdvancedDcMotor(SpecimenArmConfig.motorName, hardwareMap.get(DcMotorEx.class, SpecimenArmConfig.motorName));
         motor.setCurrentLimit(SpecimenArmConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setUseCustomPIDF(true);

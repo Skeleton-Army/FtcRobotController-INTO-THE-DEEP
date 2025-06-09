@@ -24,7 +24,7 @@ public class Intake {
     private final CachingServo rotationServo;
 
     public Intake(HardwareMap hardwareMap) {
-        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
+        motor = new AdvancedDcMotor(IntakeConfig.motorName, hardwareMap.get(DcMotorEx.class, IntakeConfig.motorName));
         motor.setCurrentLimit(IntakeConfig.currentLimit, CurrentUnit.AMPS);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

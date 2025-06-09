@@ -13,7 +13,7 @@ public class Hang {
     public final AdvancedDcMotor motor;
 
     public Hang(HardwareMap hardwareMap) {
-        motor = new AdvancedDcMotor(hardwareMap.get(DcMotorEx.class, HangConfig.motorName));
+        motor = new AdvancedDcMotor(HangConfig.motorName, hardwareMap.get(DcMotorEx.class, HangConfig.motorName));
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
