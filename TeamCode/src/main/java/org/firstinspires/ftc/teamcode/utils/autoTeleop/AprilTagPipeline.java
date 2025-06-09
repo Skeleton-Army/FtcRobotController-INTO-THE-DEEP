@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
+import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
+
 import android.graphics.Canvas;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -10,9 +13,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationHelper;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationIdentity;
+import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.openftc.easyopencv.TimestampedOpenCvPipeline;
 
 /*
@@ -26,10 +33,18 @@ public class AprilTagPipeline extends TimestampedOpenCvPipeline
     private AprilTagProcessor processor;
     private CameraCalibrationIdentity ident;
 
+    Mat undistored = new Mat();
+    MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
+    Mat matrix = new Mat(3, 3, CvType.CV_64F);
     public AprilTagPipeline(AprilTagProcessor processor, Follower follower)
     {
         this.processor = processor;
         this.follower = follower;
+
+        matrix.put(0, 0,
+                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
+                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
+                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
     }
 
     public void noteCalibrationIdentity(CameraCalibrationIdentity ident)
@@ -47,7 +62,8 @@ public class AprilTagPipeline extends TimestampedOpenCvPipeline
     @Override
     public Mat processFrame(Mat input, long captureTimeNanos)
     {
-        Object drawCtx = processor.processFrame(input, captureTimeNanos);
+        Calib3d.undistort(input, undistored, matrix, dist);
+        Object drawCtx = processor.processFrame(undistored, captureTimeNanos);
         requestViewportDrawHook(drawCtx);
         return input;
     }
