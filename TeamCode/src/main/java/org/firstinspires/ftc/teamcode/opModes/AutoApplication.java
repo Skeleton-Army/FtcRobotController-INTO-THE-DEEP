@@ -452,12 +452,16 @@ public class AutoApplication extends AutoOpMode {
 
         switch (collectedSamples) {
             case 1:
+                runAsync(
+                        intake.rotate(-0.3)
+                );
+
                 // Collect first sample
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(4.5, wristSequence)
-                                        .strafeToLinearHeading(new Vector2d(-56, -56), Math.toRadians(65))
+                                        .afterDisp(1, wristSequence)
+                                        .strafeToLinearHeading(new Vector2d(-58, -49), Math.toRadians(60))
                                         .build()
                         )
                 );
@@ -467,7 +471,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(7, wristSequence)
+                                        .afterDisp(1, wristSequence)
                                         .strafeToLinearHeading(new Vector2d(-57, -50), Math.toRadians(80))
                                         .build()
                         )
@@ -482,7 +486,7 @@ public class AutoApplication extends AutoOpMode {
                 runBlocking(
                         new SequentialAction(
                                 drive.actionBuilder(drive.pose)
-                                        .afterDisp(9, wristSequence)
+                                        .afterDisp(4, wristSequence)
                                         .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
                                         .build()
                         )
@@ -528,9 +532,9 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -800),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < (collectedSamples == 0 ? -650 : -800)),
                 outtake.dunk(),
-                new SleepAction(0.2)
+                new SleepAction((collectedSamples == 0 ? 0 : 0.2))
         );
 
         Action dunkSequence = new ParallelAction(
@@ -543,13 +547,13 @@ public class AutoApplication extends AutoOpMode {
                 dunk,
 
                 intake.openClaw(),
-                intake.extend(0.9),
+                intake.extend(),
                 intake.wristReady()
         );
 
         double angle;
         if (collectedSamples == 0) {
-            angle = 65;
+            angle = 60;
         } else if (collectedSamples == 1 || collectedSamples == 2) {
             angle = 80;
         } else {
@@ -561,7 +565,7 @@ public class AutoApplication extends AutoOpMode {
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
                                     .setTangent(Math.PI / 2)
-                                    .splineToLinearHeading(new Pose2d(-55.5, -56.5, Math.toRadians(angle)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
+                                    .splineToLinearHeading(new Pose2d(-59, -53, Math.toRadians(angle)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
                                     .build(),
                             dunkAndExtendSequence
                     )
@@ -570,7 +574,7 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new ParallelAction(
                             drive.actionBuilder(drive.pose)
-                                    .strafeToLinearHeading(new Vector2d(-58, -53), Math.toRadians(angle))
+                                    .strafeToLinearHeading(new Vector2d(-59, -53), Math.toRadians(angle))
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
@@ -586,23 +590,24 @@ public class AutoApplication extends AutoOpMode {
             if (collectedSamples == 6) angleCompensation = 10;
             if (collectedSamples == 7) angleCompensation = 15;
 
+            runAsync(
+                    drive.actionBuilder(drive.pose)
+                            .setTangent(Math.toRadians(200))
+                            .splineToLinearHeading(new Pose2d(-55.5 + xCompensation, -56.5 + yCompensation, Math.toRadians(angle + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
+                            .build()
+            );
+
             runBlocking(
-                    new ParallelAction(
-                            drive.actionBuilder(drive.pose)
-                                    .setTangent(Math.toRadians(200))
-                                    .splineToLinearHeading(new Pose2d(-55.5 + xCompensation, -56.5 + yCompensation, Math.toRadians(angle + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
-                                    .build(),
-                            new SequentialAction(
-                                    intakeRetract,
-                                    dunkSequence
-                            )
+                    new SequentialAction(
+                            intakeRetract,
+                            dunkSequence
                     )
             );
         }
 
         runAsync(
                 new SequentialAction(
-                        new SleepAction(0.1),
+                        new SleepAction(0.2),
                         outtake.hold(),
                         outtake.retract()
                 )
@@ -655,9 +660,9 @@ public class AutoApplication extends AutoOpMode {
                         .build()
         );
 
-//        runBlocking(
-//                new SleepAction(0.1)
-//        );
+        runBlocking(
+                new SleepAction(0.2)
+        );
 
         Vector2d lower = new Vector2d(-10, -8);
         Vector2d upper = new Vector2d(0, 8);
