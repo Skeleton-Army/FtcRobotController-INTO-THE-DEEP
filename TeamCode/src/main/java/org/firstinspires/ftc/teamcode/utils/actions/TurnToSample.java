@@ -15,12 +15,13 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 
 public class TurnToSample implements Action {
     final MecanumDrive drive;
     final Intake intake;
-    final Sample targetSample;
-    public TurnToSample(MecanumDrive drive, Intake intake, Sample targetSample) {
+    final SampleInfo targetSample;
+    public TurnToSample(MecanumDrive drive, Intake intake, SampleInfo targetSample) {
         this.drive = drive;
         this.intake = intake;
         this.targetSample = targetSample;
@@ -29,29 +30,14 @@ public class TurnToSample implements Action {
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
         try {
-            Vector2d currPose = drive.pose.position;
-            Vector2d sampleVec = targetSample.getSamplePosition().position;
-            Vector2d relative = sampleVec.minus(currPose);
-            double distance = relative.norm();
-            double targetAngle = Math.atan2(relative.y, relative.x) + Math.acos(IntakeConfig.offsetFromCenterX / distance) - Math.PI / 2;
-
-            double orientation = Math.toDegrees(targetAngle) - targetSample.orientation;
-//            telemetryPacket.addLine(orientation + "");
-            double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
-//            telemetryPacket.addLine(normalizedOrientation + "");
-            double rotationTarget = normalizedOrientation / 90;
-//            telemetryPacket.addLine(rotationTarget + "");
-//            telemetryPacket.addLine(Utilities.remap(0.5, -1, 0, 1, IntakeConfig.rotationLeft, IntakeConfig.rotationForward, IntakeConfig.rotationRight) + "");
-//            telemetryPacket.addLine(sampleVec.toString());
-
             Actions.runBlocking(
-                    intake.rotate(rotationTarget)
+                    intake.rotate(targetSample.getIntakeRotation())
             );
             Actions.runBlocking(new SleepAction(0.5));
 
             Actions.runBlocking(
                     drive.actionBuilder(new Pose2d(drive.pose.position.x, drive.pose.position.y, drive.pose.heading.toDouble()))
-                            .turnTo(targetAngle)
+                            .turnTo(targetSample.getTurnAngle())
                             .build()
             );
         }

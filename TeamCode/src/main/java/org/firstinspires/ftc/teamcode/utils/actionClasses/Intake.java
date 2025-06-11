@@ -71,7 +71,8 @@ public class Intake {
     }
 
     public Action extendInches(double distance) {
-        return motorToPosition((int)(IntakeConfig.tickOverInch * distance), IntakeConfig.motorPower, true);
+        int target = Math.min(IntakeConfig.extendPosition, (int) (IntakeConfig.tickOverInch * distance));
+        return motorToPosition(target, IntakeConfig.motorPower, true);
     }
 
     /**

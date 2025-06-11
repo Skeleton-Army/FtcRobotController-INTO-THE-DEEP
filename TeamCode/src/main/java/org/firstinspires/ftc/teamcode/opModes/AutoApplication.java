@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
+import org.firstinspires.ftc.teamcode.utils.actions.TurnToSample;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
@@ -618,9 +620,6 @@ public class AutoApplication extends AutoOpMode {
         runBlocking(
                 new SleepAction(0.4));
 
-        Vector2d lower = new Vector2d(-8, -10);
-        Vector2d upper = new Vector2d(5, 8);
-
         camCV.resetSampleList();
 
         // TODO: Add some sort of validation For example if (bad == yes): don't. This is
@@ -628,25 +627,20 @@ public class AutoApplication extends AutoOpMode {
 
         // Grab sample
         runBlocking(
-                new SleepUntilAction(() -> camCV.lookForSamples()));
+                    new SleepUntilAction(() -> camCV.lookForSamples())
+        );
 
+        SampleInfo sampleInfo = camCV.getMinAngleSample(drive.pose);
 
-
-        // runBlocking(
-        // new SequentialAction(
-        // drive.actionBuilder(drive.pose)
-        // .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX,
-        // drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100,
-        // 100))
-        // .afterDisp(wiggleDistance, intake.closeClaw())
-        // .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX,
-        // drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100,
-        // 100))
-        // .build(),
-        //
-        // )
-        // );
-
+        runBlocking(
+                new SequentialAction(
+                    new ParallelAction(
+                        new TurnToSample(drive, intake, sampleInfo),
+                        intake.wristToPosition(sampleInfo.getExtendTarget())
+                    ),
+                    intake.closeClaw()
+                )
+        );
         addTransition(State.PUT_IN_BASKET);
     }
 

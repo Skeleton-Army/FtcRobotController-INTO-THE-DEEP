@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -96,6 +97,22 @@ public class WebcamCV {
         }
 
         return closest;
+    }
+
+    public SampleInfo getMinAngleSample(Pose2d currentPose) {
+        SampleInfo currentBest = null;
+        double heading = currentPose.heading.toDouble();
+        for (Sample currSample : samples) {
+            SampleInfo sampleInfo = new SampleInfo(currSample, currentPose);
+            if (!sampleInfo.isReachable()) {
+                continue;
+            }
+            if (currentBest == null
+                    || Math.abs(sampleInfo.getTurnAngle() - heading) < Math.abs(currentBest.getTurnAngle() - heading)) {
+                currentBest = sampleInfo;
+            }
+        }
+        return currentBest;
     }
 
     // checking if the sample is between the boundaries that we can collect
