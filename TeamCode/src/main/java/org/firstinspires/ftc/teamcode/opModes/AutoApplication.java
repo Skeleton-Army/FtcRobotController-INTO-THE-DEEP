@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
@@ -15,6 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
+import org.firstinspires.ftc.teamcode.utils.actions.FailoverAction;
+import org.firstinspires.ftc.teamcode.utils.actions.NoSleepAction;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
@@ -443,54 +447,79 @@ public class AutoApplication extends AutoOpMode {
         collectedSamples++;
 
         Action wristSequence = new SequentialAction(
-                intake.extendWrist()
-//                new SleepAction(0.15)
+                intake.extendWrist(),
+                new SleepAction(0.15)
         );
 
         runAsync(intake.openClaw());
         runAsync(intake.rotate(0));
 
+        FailoverAction traj;
         switch (collectedSamples) {
             case 1:
+                // Collect first sample
+
                 runAsync(
                         intake.rotate(-0.3)
                 );
 
-                // Collect first sample
+                traj = new FailoverAction(
+                        drive.actionBuilder(drive.pose)
+                                .strafeToLinearHeading(new Vector2d(-58, -49), Math.toRadians(60))
+                                .build(),
+                        new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0)))
+                );
+
+                runAsync(traj);
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(1, wristSequence)
-                                        .strafeToLinearHeading(new Vector2d(-58, -49), Math.toRadians(60))
-                                        .build()
+                                wristSequence,
+                                new InstantAction(traj::failover) // Cancel trajectory
                         )
                 );
+
                 break;
             case 2:
                 // Collect second sample
+
+                traj = new FailoverAction(
+                        drive.actionBuilder(drive.pose)
+                                .strafeToLinearHeading(new Vector2d(-57, -50), Math.toRadians(80))
+                                .build(),
+                        new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0)))
+                );
+
+                runAsync(traj);
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(1, wristSequence)
-                                        .strafeToLinearHeading(new Vector2d(-57, -50), Math.toRadians(80))
-                                        .build()
+                                wristSequence,
+                                new InstantAction(traj::failover) // Cancel trajectory
                         )
                 );
+
                 break;
             case 3:
                 // Collect third sample
+
                 runAsync(
                         intake.rotate(0.2)
                 );
 
+                traj = new FailoverAction(
+                        drive.actionBuilder(drive.pose)
+                                .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
+                                .build(),
+                        new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0)))
+                );
+
+                runAsync(traj);
                 runBlocking(
                         new SequentialAction(
-                                drive.actionBuilder(drive.pose)
-                                        .afterDisp(4, wristSequence)
-                                        .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
-                                        .build()
+                                wristSequence,
+                                new InstantAction(traj::failover) // Cancel trajectory
                         )
                 );
+
                 break;
         }
 
@@ -511,15 +540,18 @@ public class AutoApplication extends AutoOpMode {
             return;
         }
 
-        Action intakeRetract = new SequentialAction(
+        Action intakeRetract = new ParallelAction(
                 outtake.hold(),
                 intake.retractWrist(),
                 intake.rotate(0),
                 intake.retract(),
-                intake.openClaw(),
-                new SleepAction(0.05),
-                intake.wristReady(),
-                new SleepAction(0.2)
+                new SequentialAction(
+                        new SleepAction(0.4), // Wait for wrist to go up
+                        intake.openClaw(),
+                        new SleepAction(0.05),
+                        intake.wristReady(),
+                        new SleepAction(0.2)
+                )
         );
 
         Action extendOuttake = new ParallelAction(
@@ -643,14 +675,10 @@ public class AutoApplication extends AutoOpMode {
 
         Action grabSequence = new SequentialAction(
                 intake.extendWrist(),
-                new SleepAction(0.3),
+                new SleepAction(0.2),
                 intake.closeClaw(),
                 new SleepAction(0.1)
-//                intake.retractWrist()
-//                new SleepAction(0.1)
         );
-
-//        if (collectedSamples == 5) camCV.startStream();
 
         double xCompensation = collectedSamples >= 6 ? 2 : 0;
 
@@ -693,14 +721,13 @@ public class AutoApplication extends AutoOpMode {
         );
 
         runBlocking(
-                new SequentialAction(
-                        new ParallelAction(
-                                driveActions.alignToSample(targetSample),
-                                extendSequence
-                        ),
-                        grabSequence
+                new ParallelAction(
+                        driveActions.alignToSample(targetSample),
+                        extendSequence
                 )
         );
+
+        runBlocking(grabSequence);
 
         addTransition(State.PUT_IN_BASKET);
     }
