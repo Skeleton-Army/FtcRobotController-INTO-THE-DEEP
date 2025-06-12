@@ -23,11 +23,11 @@ public class SampleInfo {
         Vector2d relative = sampleVec.minus(currPose.position);
         this.distance = relative.norm();
         this.turnAngle = Math.atan2(relative.y, relative.x) + Math.acos(IntakeConfig.offsetFromCenterX / distance) - Math.PI / 2;
-        this.extendTarget = Math.sqrt(Math.pow(distance, 2) - Math.pow(IntakeConfig.offsetFromCenterX, 2));
+        this.extendTarget = Math.sqrt(Math.pow(distance, 2) - Math.pow(IntakeConfig.offsetFromCenterX, 2)) - IntakeConfig.wristLength - 8.2;
     }
 
     public double getIntakeRotation() {
-        double orientation = Math.toDegrees(turnAngle) - sample.orientation;
+        double orientation = -sample.orientation - Math.toDegrees(turnAngle);
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         return normalizedOrientation / 90;
     }

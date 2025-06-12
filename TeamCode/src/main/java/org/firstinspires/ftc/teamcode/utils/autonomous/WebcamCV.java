@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusCo
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -109,7 +110,7 @@ public class WebcamCV {
 
         for (Sample currSample : samples) {
             SampleInfo sampleInfo = new SampleInfo(currSample, currentPose);
-
+            telemetry.addLine("" + sampleInfo.getExtendTarget());
             if (!sampleInfo.isReachable()) {
                 continue;
             }

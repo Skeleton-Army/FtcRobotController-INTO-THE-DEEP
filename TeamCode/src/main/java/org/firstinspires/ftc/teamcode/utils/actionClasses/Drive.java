@@ -58,7 +58,7 @@ public class Drive {
 
     public Action turnToSample(SampleInfo targetSample) {
         return drive.actionBuilder(drive.pose)
-                .turnTo(targetSample.getTurnAngle())
+                .turn(targetSample.getTurnAngle())
                 .build();
     }
 

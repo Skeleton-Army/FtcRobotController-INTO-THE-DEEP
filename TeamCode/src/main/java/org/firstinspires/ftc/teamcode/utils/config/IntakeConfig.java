@@ -33,4 +33,5 @@ public class IntakeConfig {
     public static double manualSpeed = 0.6;
     public static double tickOverInch = -31; //TODO: 😭😭😭
     public static double offsetFromCenterX = CameraConfig.pickupSampleOffsetX; //TODO: YOU
+    public static double wristLength = 3.5;
 }
