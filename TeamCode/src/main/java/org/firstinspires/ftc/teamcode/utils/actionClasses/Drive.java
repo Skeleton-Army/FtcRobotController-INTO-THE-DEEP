@@ -18,11 +18,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actions.LoopAction;
 import org.firstinspires.ftc.teamcode.utils.actions.MoveApriltag;
-import org.firstinspires.ftc.teamcode.utils.actions.TurnToSample;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 import org.opencv.core.Point;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -127,9 +127,13 @@ public class Drive {
                 2
         );
     }
-    public Action turnToSample(Intake intake, Sample targetSample) {
-        return new TurnToSample(drive, intake, targetSample);
+
+    public Action turnToSample(SampleInfo targetSample) {
+        return drive.actionBuilder(drive.pose)
+                    .turnTo(targetSample.getTurnAngle())
+                    .build();
     }
+
     private PoseVelocity2d getVelocityToSample(Vector2d targetSamplePos, double firstDist) {
         // Assuming the vector is (sampleX, sampleY) sample position relative to the robot
 

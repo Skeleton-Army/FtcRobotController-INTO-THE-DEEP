@@ -1,17 +1,12 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleBackDistance;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.wiggleDistance;
-
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
@@ -21,18 +16,12 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
-import org.firstinspires.ftc.teamcode.utils.actions.TurnToSample;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
-
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
 enum Alliance {
     RED,
@@ -603,11 +592,7 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2),
                 intake.closeClaw(),
                 new SleepAction(0.1)
-        // intake.retractWrist()
-        // new SleepAction(0.1)
         );
-
-        // if (collectedSamples == 5) camCV.startStream();
 
         double xCompensation = collectedSamples >= 6 ? 2 : 0;
 
@@ -618,12 +603,12 @@ public class AutoApplication extends AutoOpMode {
                         .build());
 
         runBlocking(
-                new SleepAction(0.4));
+                new SleepAction(0.4)
+        );
 
         camCV.resetSampleList();
 
-        // TODO: Add some sort of validation For example if (bad == yes): don't. This is
-        // here because funny. There will never be any validation, deal with it.
+        // TODO: Add some sort of validation For example if (bad == yes): don't. This is here because funny. There will never be any validation, deal with it.
 
         // Grab sample
         runBlocking(
@@ -633,14 +618,21 @@ public class AutoApplication extends AutoOpMode {
         SampleInfo sampleInfo = camCV.getMinAngleSample(drive.pose);
 
         runBlocking(
+                intake.rotate(sampleInfo.getIntakeRotation())
+        );
+
+        runBlocking(
                 new SequentialAction(
-                    new ParallelAction(
-                        new TurnToSample(drive, intake, sampleInfo),
-                        intake.wristToPosition(sampleInfo.getExtendTarget())
-                    ),
-                    intake.closeClaw()
+                        new ParallelAction(
+                                driveActions.turnToSample(sampleInfo),
+                                intake.motorToPosition(sampleInfo.getExtendTarget(), 1, true),
+                                intake.wristReady(),
+                                intake.openClaw()
+                        ),
+                        grabSequence
                 )
         );
+
         addTransition(State.PUT_IN_BASKET);
     }
 

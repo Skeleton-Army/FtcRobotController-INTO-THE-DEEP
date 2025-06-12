@@ -102,16 +102,20 @@ public class WebcamCV {
     public SampleInfo getMinAngleSample(Pose2d currentPose) {
         SampleInfo currentBest = null;
         double heading = currentPose.heading.toDouble();
+
         for (Sample currSample : samples) {
             SampleInfo sampleInfo = new SampleInfo(currSample, currentPose);
+
             if (!sampleInfo.isReachable()) {
                 continue;
             }
+
             if (currentBest == null
                     || Math.abs(sampleInfo.getTurnAngle() - heading) < Math.abs(currentBest.getTurnAngle() - heading)) {
                 currentBest = sampleInfo;
             }
         }
+
         return currentBest;
     }
 

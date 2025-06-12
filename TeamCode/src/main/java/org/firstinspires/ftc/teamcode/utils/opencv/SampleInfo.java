@@ -6,9 +6,11 @@ import com.acmerobotics.roadrunner.Vector2d;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 public class SampleInfo {
-    private Sample sample;
-    private Pose2d currPose;
+    private final Sample sample;
+    private final Pose2d currPose;
     private double extendTarget;
+    private double distance;
+    private double turnAngle;
 
     public SampleInfo(Sample sample, Pose2d currPose) {
         this.sample = sample;
@@ -29,15 +31,15 @@ public class SampleInfo {
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         return normalizedOrientation / 90;
     }
+
     public Sample getSample() {
         return sample;
     }
 
-    private double distance;
-
     public double getTurnAngle() {
         return turnAngle;
     }
+
     public boolean isReachable() {
         return ((int) (extendTarget * IntakeConfig.tickOverInch) <= IntakeConfig.extendPosition);
     }
@@ -46,10 +48,7 @@ public class SampleInfo {
         return distance;
     }
 
-    public double getExtendTarget() {
-        return extendTarget;
+    public int getExtendTarget() {
+        return (int)extendTarget;
     }
-
-    private double turnAngle;
-
 }
