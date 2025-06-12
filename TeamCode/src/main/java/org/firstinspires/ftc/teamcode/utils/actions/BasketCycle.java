@@ -36,10 +36,10 @@ public class BasketCycle implements Action {
         this.outtake = outtake;
 
         if (Objects.equals(alliance, "blue")) {
-            dunkPose = new Pose(51,54,Math.toRadians(225));
+            dunkPose = new Pose(51,54,Math.toRadians(225), false);
         }
         else if (Objects.equals(alliance, "red")) {
-            dunkPose = new Pose(-56,-54.5,Math.toRadians(45));
+            dunkPose = new Pose(-56,-54.5,Math.toRadians(45), false);
         }
 
         extendOuttake = new ParallelAction(

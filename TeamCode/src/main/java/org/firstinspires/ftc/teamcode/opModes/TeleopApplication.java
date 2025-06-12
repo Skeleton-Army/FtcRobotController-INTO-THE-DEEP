@@ -201,18 +201,16 @@ public class TeleopApplication extends TeleopOpMode {
         if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline != null) || apriltagProcessor != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
             runAction("driver sequence",actionCam.basketCycle());
         }
-        if (Utilities.isPressed(gamepad1.x)) { // running specimenCycle sequence, only could run when an apriltag is in sight
-            runAction("driver sequence",actionsDrive.MoveToPoint(new Pose(0,0,0)));
-        }
 
-        // TODO: do this, needs to do the bezier path to submersible
-        /*if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
+
+        // TODO: do this, needs to do the bezier path to submersible -> now we do have one!!
+        if (Utilities.isPressed(gamepad1.guide)) { // super cycle! puts the sample in the basket and go to the submersible to get another one
             runSequentialActions("driver sequence",
                     actionCam.basketCycle(),
-                    actionsDrive.goToSubmersible(),
+                    actionsDrive.MoveToPoint(new Pose(-32, -5, Math.toRadians(0), false)),
                     actionCam.pickupSample(pickedSample.getSamplePosition())
             );
-        }*/
+        }
         if(Utilities.isPressed(gamepad1.right_bumper)) { // stops the current driver action
             stopAllActions();
             //stopAction("driver sequence");
