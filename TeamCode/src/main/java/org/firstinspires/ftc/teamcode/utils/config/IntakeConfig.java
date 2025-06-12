@@ -11,26 +11,26 @@ public class IntakeConfig {
     public static String rotationName = "rotation";
 
     public static double motorPower = 1;
-    public static int extendPosition = 500;
-    public static int retractPosition = -100;
+    public static int extendPosition = -390;
+    public static int retractPosition = 0;
 
     public static int velocityThreshold = 500;
     public static double startThreshold = 0.5;
 
-    public static double clawClosed = 0.61;
-    public static double clawOpen = 0.45;
+    public static double clawClosed = 0.86;
+    public static double clawOpen = 0.5;
     public static double extraOpenClaw = 0;
 
-    public static double wristExtend = 0.88;
+    public static double wristExtend = 0.96;
     public static double wristRetract = 0.35;
     public static double wristMiddle = 0.6;
-    public static double wristReady = 0.7;
+    public static double wristReady = 0.75;
 
     public static double rotationLeft = 0.82;
     public static double rotationForward = 0.46;
     public static double rotationRight = 0;
 
-    public static double manualSpeed = -0.35;
+    public static double manualSpeed = 0.6;
     public static double tickOverInch = -1; //TODO: FIND CORRECT VALUE PLEASE😭😭😭
     public static double offsetFromCenterX = CameraConfig.pickupSampleOffsetX; //TODO: YOU
 }
