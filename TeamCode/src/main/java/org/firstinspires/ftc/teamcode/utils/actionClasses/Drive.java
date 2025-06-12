@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.autoTeleop.Apriltag;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 
 public class Drive {
     MecanumDrive drive;
@@ -53,6 +54,12 @@ public class Drive {
 
     public Action alignToSample(Sample targetSample) {
         return alignToSample(targetSample.getSamplePosition().position);
+    }
+
+    public Action turnToSample(SampleInfo targetSample) {
+        return drive.actionBuilder(drive.pose)
+                .turnTo(targetSample.getTurnAngle())
+                .build();
     }
 
     private Action getTrajectoryToSample(Vector2d targetSamplePos) {

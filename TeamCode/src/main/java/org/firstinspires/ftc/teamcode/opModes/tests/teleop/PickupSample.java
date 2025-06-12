@@ -51,7 +51,7 @@ public class PickupSample extends TeleopOpMode {
 
     @Override
     public void init_loop() {
-        if (camCV.lookForSamples()) {
+        if (camCV.lookForSamples() && camCV.getMinAngleSample(drive.pose) != null) {
             targetSample = camCV.getMinAngleSample(drive.pose);
             Pose2d targetSamplePos = targetSample.getSample().getSamplePosition();
 
@@ -76,7 +76,7 @@ public class PickupSample extends TeleopOpMode {
                 new SequentialAction(
                         new ParallelAction(
                                 driveActions.turnToSample(targetSample),
-                                intake.motorToPosition(targetSample.getExtendTarget(), 1, true),
+                                intake.extendInches(targetSample.getExtendTarget()),
                                 intake.wristReady(),
                                 intake.openClaw()
                         ),

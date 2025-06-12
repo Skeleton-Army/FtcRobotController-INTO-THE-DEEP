@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.opencv.SampleInfo;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 
@@ -684,7 +685,7 @@ public class AutoApplication extends AutoOpMode {
                 new SequentialAction(
                         new ParallelAction(
                                 driveActions.turnToSample(sampleInfo),
-                                intake.motorToPosition(sampleInfo.getExtendTarget(), 1, true),
+                                intake.extendInches(sampleInfo.getExtendTarget()),
                                 intake.wristReady(),
                                 intake.openClaw()
                         ),

@@ -41,7 +41,7 @@ public class SampleInfo {
     }
 
     public boolean isReachable() {
-        return ((int) (extendTarget * IntakeConfig.tickOverInch) <= IntakeConfig.extendPosition);
+        return (int)(extendTarget * IntakeConfig.tickOverInch) >= IntakeConfig.extendPosition;
     }
 
     public double getDistance() {
