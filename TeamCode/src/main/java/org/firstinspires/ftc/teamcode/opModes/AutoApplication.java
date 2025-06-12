@@ -448,7 +448,7 @@ public class AutoApplication extends AutoOpMode {
 
         Action wristSequence = new SequentialAction(
                 intake.extendWrist(),
-                new SleepAction(0.15)
+                new SleepAction(0.2)
         );
 
         runAsync(intake.openClaw());
@@ -473,6 +473,7 @@ public class AutoApplication extends AutoOpMode {
                 runAsync(traj);
                 runBlocking(
                         new SequentialAction(
+                                new SleepAction(0.3),
                                 wristSequence,
                                 new InstantAction(traj::failover) // Cancel trajectory
                         )
@@ -492,6 +493,7 @@ public class AutoApplication extends AutoOpMode {
                 runAsync(traj);
                 runBlocking(
                         new SequentialAction(
+                                new SleepAction(0.4),
                                 wristSequence,
                                 new InstantAction(traj::failover) // Cancel trajectory
                         )
@@ -505,6 +507,10 @@ public class AutoApplication extends AutoOpMode {
                         intake.rotate(0.2)
                 );
 
+                runAsync(
+                        intake.extraOpenClaw()
+                );
+
                 traj = new FailoverAction(
                         drive.actionBuilder(drive.pose)
                                 .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
@@ -515,6 +521,7 @@ public class AutoApplication extends AutoOpMode {
                 runAsync(traj);
                 runBlocking(
                         new SequentialAction(
+                                new SleepAction(0.7),
                                 wristSequence,
                                 new InstantAction(traj::failover) // Cancel trajectory
                         )
@@ -546,9 +553,8 @@ public class AutoApplication extends AutoOpMode {
                 intake.rotate(0),
                 intake.retract(),
                 new SequentialAction(
-                        new SleepAction(0.4), // Wait for wrist to go up
+                        new SleepAction(0.35), // Wait for wrist to go up
                         intake.openClaw(),
-                        new SleepAction(0.05),
                         intake.wristReady(),
                         new SleepAction(0.2)
                 )
@@ -564,9 +570,9 @@ public class AutoApplication extends AutoOpMode {
         );
 
         Action dunk = new SequentialAction(
-                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < (collectedSamples == 0 ? -650 : -800)),
+                new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -800),
                 outtake.dunk(),
-                new SleepAction((collectedSamples == 0 ? 0 : 0.2))
+                new SleepAction(collectedSamples == 0 || collectedSamples == 3 ? 0.1 : 0.2)
         );
 
         Action dunkSequence = new ParallelAction(
