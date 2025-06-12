@@ -65,7 +65,6 @@ public class Apriltag {
                 // to load a predefined calibration for your camera.
                 //.setLensIntrinsics(1413.91, 1413.91, 965.446, 529.378)
                 // ... these parameters are fx, fy, cx, cy.
-
                 .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
