@@ -59,8 +59,8 @@ public class CameraConfig {
     public static double cy = cameraMatrix[5];
 
     public static double yaw = 0;
-    public static double pitch = -90;
-    public static double roll = offsetVertical;
+    public static double pitch = offsetVertical;
+    public static double roll = 0;
     public static double offsetXApriltag = 6.6;
     public static double offsetYApriltag = 8.2;
     public static double offsetZApriltag = 9.4;
