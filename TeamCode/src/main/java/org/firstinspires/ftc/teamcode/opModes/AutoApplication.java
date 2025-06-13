@@ -507,10 +507,6 @@ public class AutoApplication extends AutoOpMode {
                         intake.rotate(0.2)
                 );
 
-                runAsync(
-                        intake.extraOpenClaw()
-                );
-
                 traj = new FailoverAction(
                         drive.actionBuilder(drive.pose)
                                 .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
@@ -553,7 +549,7 @@ public class AutoApplication extends AutoOpMode {
                 intake.rotate(0),
                 intake.retract(),
                 new SequentialAction(
-                        new SleepAction(0.35), // Wait for wrist to go up
+                        new SleepAction(0.4), // Wait for wrist to go up
                         intake.openClaw(),
                         intake.wristReady(),
                         new SleepAction(0.2)
@@ -686,11 +682,11 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.1)
         );
 
-        double xCompensation = collectedSamples >= 6 ? 2 : 0;
+//        double xCompensation = collectedSamples >= 6 ? -2 : 0;
 
         runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(-32 - xCompensation, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                        .splineTo(new Vector2d(-32, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
                         .build()
         );
 
@@ -698,8 +694,8 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(0.2)
         );
 
-        Vector2d lower = new Vector2d(-10, -8);
-        Vector2d upper = new Vector2d(0, 8);
+        Vector2d lower = new Vector2d(-10, -6);
+        Vector2d upper = new Vector2d(-2, 8);
 
         camCV.resetSampleList();
 
