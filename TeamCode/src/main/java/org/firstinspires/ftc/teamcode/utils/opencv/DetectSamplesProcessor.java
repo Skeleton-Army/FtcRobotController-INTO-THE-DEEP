@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
@@ -13,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
@@ -48,26 +47,31 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
 
     private static Mat input;
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
-    public DetectSamplesProcessor(Telemetry telemetry, Follower follower, SampleColor color){
+    MatOfDouble dist;
+    public DetectSamplesProcessor(Telemetry telemetry, Follower follower,String webcamName, SampleColor color){
         this.telemetry = telemetry;
         this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color) };
 
+        Camera targetCamera = CamerasManager.getByName(webcamName);
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
+        dist = new MatOfDouble(targetCamera.distCoeffs[0], targetCamera.distCoeffs[1], targetCamera.distCoeffs[2], targetCamera.distCoeffs[3], targetCamera.distCoeffs[4]);
     }
 
-    public DetectSamplesProcessor(Telemetry telemetry, Follower follower, SampleColor color1, SampleColor color2){
+    public DetectSamplesProcessor(Telemetry telemetry, Follower follower,String webcamName, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
         this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
+        Camera targetCamera = CamerasManager.getByName(webcamName);
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
+        dist = new MatOfDouble(targetCamera.distCoeffs[0], targetCamera.distCoeffs[1], targetCamera.distCoeffs[2], targetCamera.distCoeffs[3], targetCamera.distCoeffs[4]);
     }
 
     /**
@@ -191,8 +195,6 @@ public class DetectSamplesProcessor implements VisionProcessor, CameraStreamSour
      */
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
-
-        MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
 
         Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);

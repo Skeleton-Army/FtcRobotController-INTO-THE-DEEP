@@ -4,7 +4,6 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -22,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 public class AutoTest extends OpMode {
     Follower follower;
     Pose beginPose = new Pose(-48.34, 59.33, Math.toRadians(-90));
-    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, follower, false, false);
+    WebcamCV camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",false, false);
 
     @Override
     public void init() {

@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import com.pedropathing.localization.Pose;
 
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
@@ -18,6 +20,8 @@ public class Sample {
     private Pose fieldPos; // Field-relative position of the sample
     public double widthInches;
     public double heightInches;
+
+    Camera camera = CamerasManager.getByName("Webcam 1");
 
     public Sample(Point lowest, Point center, RotatedRect rect, Pose detectionPose) {
         this.lowest = lowest;
@@ -64,8 +68,8 @@ public class Sample {
 
         // Step 1. Convert pixel coordinates to normalized image coordinates.
         // x' = (u - cx) / fx, y' = (v - cy) / fy.
-        double xNorm = (x - CameraConfig.cameraMatrix[2]) / CameraConfig.cameraMatrix[0];
-        double yNorm = (y - CameraConfig.cameraMatrix[5]) / CameraConfig.cameraMatrix[4];
+        double xNorm = (x - camera.cameraMatrix[2]) / camera.cameraMatrix[0];
+        double yNorm = (y - camera.cameraMatrix[5]) / camera.cameraMatrix[4];
 
         // Step 2. Form the ray in the "level" camera coordinate system.
         // (Flip y because image coordinates increase downward.)
@@ -76,8 +80,8 @@ public class Sample {
         //       -cos(tilt)*yNorm - sin(tilt),
         //       -sin(tilt)*yNorm + cos(tilt) ].
         double dX = xNorm;
-        double dY = -Math.cos(Math.toRadians(CameraConfig.offsetVertical)) * yNorm - Math.sin(Math.toRadians(CameraConfig.offsetVertical));
-        double dZ = -Math.sin(Math.toRadians(CameraConfig.offsetVertical)) * yNorm + Math.cos(Math.toRadians(CameraConfig.offsetVertical));
+        double dY = -Math.cos(Math.toRadians(camera.pitch)) * yNorm - Math.sin(Math.toRadians(camera.pitch));
+        double dZ = -Math.sin(Math.toRadians(camera.pitch)) * yNorm + Math.cos(Math.toRadians(camera.pitch));
 
         // Step 3. Find the intersection with the ground plane (Y = 0).
         // The ray originates at the camera center: C = (camX, H, camZ).
@@ -94,33 +98,33 @@ public class Sample {
 
     /// Calculates the sample position in robot-relative coordinates
     private void calculatePosition(RotatedRect rect) {
-        Pose lowestPos = pixelToWorld(lowest.x, lowest.y, CameraConfig.z);
+        Pose lowestPos = pixelToWorld(lowest.x, lowest.y, camera.offsetZ);
 
         sampleY = lowestPos.getY();
         sampleX = lowestPos.getX();
 
         double angle = Math.toRadians(90 - rect.angle);
-        Pose second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CameraConfig.z);
+        Pose second = pixelToWorld(lowest.x + 50 * Math.cos(angle), lowest.y - 50 * Math.sin(angle), CamerasManager.getByName("Webcam 1").offsetZ);
         orientation = Math.toDegrees(Math.atan((lowestPos.getY() - second.getY()) / (lowestPos.getX() - second.getX())));
 
-        Pose centerPos = pixelToWorld(center.x, center.y, CameraConfig.z - 0.75);
+        Pose centerPos = pixelToWorld(center.x, center.y, CamerasManager.getByName("Webcam 1").offsetZ - 0.75);
         centerY = centerPos.getY();
         centerX = centerPos.getX();
 
         // Adjust positions based on camera offsets
-        sampleY += CameraConfig.offsetY;
-        sampleX -= CameraConfig.offsetX;
-        centerY += CameraConfig.offsetY;
-        centerX -= CameraConfig.offsetX;
+        sampleY += camera.offsetY;
+        sampleX -= camera.offsetX;
+        centerY += camera.offsetY;
+        centerX -= camera.offsetX;
     }
 
     public void calculateArea(Rect boundingRect) {
         int width = boundingRect.width;
         double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
-        widthInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
+        widthInches = Math.tan(widthToAngle) * (sampleY - camera.offsetY);
 
-        double topYWorld = (CameraConfig.z - 1.5) / Math.tan(Math.toRadians((boundingRect.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
-        heightInches = topYWorld - (sampleY - CameraConfig.offsetY);
+        double topYWorld = (camera.offsetZ - 1.5) / Math.tan(Math.toRadians((boundingRect.y - (double) camera.height / 2) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
+        heightInches = topYWorld - (sampleY - camera.offsetY);
     }
 
     // Calculates the sample position relative to the field

@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
-
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -44,28 +43,33 @@ public class DetectSamples extends OpenCvPipeline {
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
 
     Point second;
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, SampleColor color){
+    MatOfDouble dist;
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, String webcamName,SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color) };
 
+        Camera targetCamera = CamerasManager.getByName(webcamName);
+
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
     }
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, SampleColor color1, SampleColor color2){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, String webcamName, SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
+        Camera targetCamera = CamerasManager.getByName(webcamName);
+
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
     }
 
     /**
@@ -183,8 +187,6 @@ public class DetectSamples extends OpenCvPipeline {
      */
     private Mat mask(Mat frame, Threshold threshold) {
         // Undistort frame
-
-        MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
 
         Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);

@@ -12,8 +12,6 @@ import com.pedropathing.localization.Pose;
 
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Drive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 
 public class PickupSample implements Action {
     Drive actionsDrive;

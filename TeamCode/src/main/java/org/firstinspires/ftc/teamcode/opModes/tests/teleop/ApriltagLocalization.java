@@ -4,7 +4,6 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,8 +14,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.teamcode.utils.general.Drawing;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -27,10 +27,13 @@ import java.util.List;
 public class ApriltagLocalization extends OpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
+
+    String WebcamName = "Webcam 1";
+    Camera camera = CamerasManager.getByName(WebcamName);
     private Position cameraPosition = new Position(DistanceUnit.INCH,
-            CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0);
+            camera.offsetX, camera.offsetY, camera.offsetZ, 0);
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            CameraConfig.yaw, CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
+            camera.yaw, camera.pitch, camera.roll, 0); //TODO: figure out these!!!
 
     private int decimation = 1;
     private final int decimationMin = 1;
@@ -54,10 +57,10 @@ public class ApriltagLocalization extends OpMode {
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
-                        CameraConfig.fx,
-                        CameraConfig.fy,
-                        CameraConfig.cx,
-                        CameraConfig.cy
+                        camera.fx,
+                        camera.fy,
+                        camera.cx,
+                        camera.cy
                 )
                 .setNumThreads(3)
                 // == CAMERA CALIBRATION ==
@@ -85,7 +88,7 @@ public class ApriltagLocalization extends OpMode {
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2));
+        builder.setCameraResolution(new Size(camera.width, camera.height));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableLiveView(true);

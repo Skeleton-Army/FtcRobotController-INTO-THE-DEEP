@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.AutoOpMode;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
 import org.firstinspires.ftc.teamcode.utils.general.prompts.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
@@ -195,7 +195,7 @@ public class AutoApplication extends AutoOpMode {
         follower.setStartingPose(startPose);
 
         // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, follower, false, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",false, false);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE });
 
         driveActions = new Drive(follower, camCV, telemetry);

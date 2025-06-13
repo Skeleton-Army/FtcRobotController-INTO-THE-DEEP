@@ -4,12 +4,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
-import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
-import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
-import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -43,13 +39,13 @@ public class Utilities {
         return webcam;
     }
 
-    public static void openCamera(OpenCvWebcam webcamOpencv) {
+    public static void openCamera(OpenCvWebcam webcamOpencv, String webcamName) {
         webcamOpencv.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                webcamOpencv.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+                webcamOpencv.startStreaming(CamerasManager.getByName(webcamName).width, CamerasManager.getByName(webcamName).height, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
             }
 
             @Override

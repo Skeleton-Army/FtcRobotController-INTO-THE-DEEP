@@ -13,7 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagSamplesPipeline;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -47,17 +48,23 @@ public class WebcamCV {
     Telemetry telemetry;
     Follower follower;
 
-    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, Follower follower, boolean withAprilTag, boolean onlyAprilTag) {
+    Camera camera;
+    String webcamName;
+    public WebcamCV(HardwareMap hardwareMap, Telemetry telemetry, Follower follower,String webcamName, boolean withAprilTag, boolean onlyAprilTag) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.follower = follower;
         this.withAprilTag = withAprilTag;
         this.onlyAprilTag = onlyAprilTag;
+
+        this.webcamName = webcamName;
+        camera = CamerasManager.getByName(webcamName);
+
         if (withAprilTag || onlyAprilTag) {
             Position cameraPosition = new Position(DistanceUnit.INCH,
-                    CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
+                    camera.offsetX, camera.offsetY, camera.offsetZ, 0); //TODO: figure out these!!!
             YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-                    CameraConfig.yaw, CameraConfig.offsetVertical,0, 0); //TODO: figure out these!!!
+                    camera.yaw, camera.pitch,camera.roll, 0); //TODO: figure out these!!!
             aprilTag = new AprilTagProcessor.Builder()
 
                     // The following default settings are available to un-comment and edit as needed.
@@ -69,10 +76,10 @@ public class WebcamCV {
                     //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                     .setCameraPose(cameraPosition, cameraOrientation)
                     .setLensIntrinsics(
-                            CameraConfig.fx,
-                            CameraConfig.fy,
-                            CameraConfig.cx,
-                            CameraConfig.cy
+                            camera.fx,
+                            camera.fy,
+                            camera.cx,
+                            camera.cy
                     )
 
                     // == CAMERA CALIBRATION ==
@@ -82,7 +89,7 @@ public class WebcamCV {
                     // ... these parameters are fx, fy, cx, cy.
 
                     .build();
-            aprilTagPipeline = new AprilTagPipeline(aprilTag, follower);
+            aprilTagPipeline = new AprilTagPipeline(aprilTag, follower, webcamName);
         }
 
     }
@@ -179,7 +186,7 @@ public class WebcamCV {
      */
     public void configureWebcam(SampleColor[] colors) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, webcamName), cameraMonitorViewId);
 
         FtcDashboard.getInstance().startCameraStream(webcam, 30);
 
@@ -187,14 +194,14 @@ public class WebcamCV {
         if (!onlyAprilTag) {
             if (withAprilTag) {
                 if (colors.length == 2)
-                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, colors[0], colors[1]);
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, webcamName,colors[0], colors[1]);
                 if (colors.length == 1)
-                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, colors[0]);
+                    selectedPipeline = new AprilTagSamplesPipeline(aprilTag, telemetry, follower, webcamName,colors[0]);
                 aprilTagSamplesPipeline = (AprilTagSamplesPipeline) selectedPipeline;
             } else if (colors.length == 2)
-                selectedPipeline = new DetectSamples(telemetry, webcam, follower, colors[0], colors[1]);
+                selectedPipeline = new DetectSamples(telemetry, webcam, follower, webcamName,colors[0], colors[1]);
             else
-                selectedPipeline = new DetectSamples(telemetry, webcam, follower, colors[0]);
+                selectedPipeline = new DetectSamples(telemetry, webcam, follower, webcamName,colors[0]);
         }
         else
             selectedPipeline = aprilTagPipeline;
@@ -206,7 +213,7 @@ public class WebcamCV {
             @Override
             public void onOpened()
             {
-                webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
+                webcam.startStreaming(camera.width, camera.height, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
             }
 
             @Override
@@ -236,6 +243,6 @@ public class WebcamCV {
     }
 
     public void startStream() {
-        webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+        webcam.startStreaming(camera.width, camera.height, OpenCvCameraRotation.UPRIGHT);
     }
 }

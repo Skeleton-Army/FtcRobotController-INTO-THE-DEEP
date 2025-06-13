@@ -98,8 +98,8 @@ public class TeleopApplication extends TeleopOpMode {
         actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for
 
         // ---------- processors way ----------Add commentMore actions
-        //apriltagProcessor = new Apriltag(hardwareMap, drive);
-        //detectSamplesProcessor = new DetectSamplesProcessor(telemetry, drive, SampleColor.YELLOW, SampleColor.RED);
+        //apriltagProcessor = new Apriltag(hardwareMap, follower);
+        //detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, SampleColor.YELLOW, SampleColor.RED);
         //visionPortal = new VisionPortal.Builder()
         //       .addProcessors(apriltagProcessor.getAprilTagAprocessor()) // processor to the vision
         //       .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
@@ -113,8 +113,8 @@ public class TeleopApplication extends TeleopOpMode {
 
 
         // ---------- opencv pipelines way ----------
-        camCV = new WebcamCV(hardwareMap, telemetry, follower, true, false);
-        camCV = new WebcamCV(hardwareMap, telemetry, follower, true, true);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",true, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",true, true);
         camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
         aprilTagPipeline = camCV.getAprilTagPipeline();
         // ---------- opencv pipelines way ----------

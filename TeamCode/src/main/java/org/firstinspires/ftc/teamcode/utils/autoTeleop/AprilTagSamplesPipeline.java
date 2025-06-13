@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
-
 import android.graphics.Canvas;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 
@@ -14,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationHelper;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibrationIdentity;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.opencv.Threshold;
@@ -61,21 +59,24 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     public static List<Sample> samples = new ArrayList<>();
     Mat matrix = new Mat(3, 3, CvType.CV_64F);
 
-    MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
-    public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, Follower follower, SampleColor color){
+    MatOfDouble dist;
+    public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, Follower follower, String webcamName, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
         this.follower = follower;
         thresholds = new Threshold[] {new Threshold(color)};
         this.processor = processor;
 
+        Camera targetCamera = CamerasManager.getByName(webcamName);
+
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
+        dist = new MatOfDouble(targetCamera.distCoeffs[0], targetCamera.distCoeffs[1], targetCamera.distCoeffs[2], targetCamera.distCoeffs[3], targetCamera.distCoeffs[4]);
     }
 
-    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, Follower follower, SampleColor color1, SampleColor color2)
+    public AprilTagSamplesPipeline(AprilTagProcessor processor, Telemetry telemetry, Follower follower, String webcamName, SampleColor color1, SampleColor color2)
     {
         this.telemetry = telemetry;
         this.follower = follower;
@@ -83,10 +84,13 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
 
         this.processor = processor;
         processor.setDecimation(3); // set low decimation to save memory, and there is no need to for any higher :)
+        Camera targetCamera = CamerasManager.getByName(webcamName);
+
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                targetCamera.cameraMatrix[0], targetCamera.cameraMatrix[1], targetCamera.cameraMatrix[2],
+                targetCamera.cameraMatrix[3], targetCamera.cameraMatrix[4], targetCamera.cameraMatrix[5],
+                targetCamera.cameraMatrix[6], targetCamera.cameraMatrix[7], targetCamera.cameraMatrix[8]);
+        dist = new MatOfDouble(targetCamera.distCoeffs[0], targetCamera.distCoeffs[1], targetCamera.distCoeffs[2], targetCamera.distCoeffs[3], targetCamera.distCoeffs[4]);
     }
 
     public void noteCalibrationIdentity(CameraCalibrationIdentity ident)

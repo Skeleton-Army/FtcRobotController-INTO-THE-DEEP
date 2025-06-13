@@ -40,7 +40,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -98,6 +99,8 @@ public class TuneExposureCamera extends LinearOpMode
     boolean lastFocusUp = false;
     boolean lastFocusDn = false;
 
+    String selectedWebcam = "Webcam 1";
+    Camera camera = CamerasManager.getByName(selectedWebcam);
     boolean isApriltag = false;
     @Override public void runOpMode()
     {
@@ -208,17 +211,17 @@ public class TuneExposureCamera extends LinearOpMode
     private void initAprilTag() {
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder()
-                .setLensIntrinsics(CameraConfig.fx,
-                        CameraConfig.fy,
-                        CameraConfig.cx,
-                        CameraConfig.cy)
+                .setLensIntrinsics(camera.fx,
+                        camera.fy,
+                        camera.cx,
+                        camera.cy)
                 .build();
 
         // Create the WEBCAM vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+                .setCameraResolution(new Size(camera.width, camera.height))
                 .addProcessor(aprilTag)
                 .build();
     }

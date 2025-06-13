@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -51,7 +51,7 @@ public class NewCamera extends LinearOpMode {
             portal1 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setLiveViewContainerId(portal1ViewId)
-                    .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight  * 2))
+                    .setCameraResolution(new Size(CamerasManager.getByName("Webcam 1").width, CamerasManager.getByName("Webcam 1").height))
                     .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
 
                     //      .addProcessor(aprilTagProcessor1)
@@ -61,7 +61,7 @@ public class NewCamera extends LinearOpMode {
             portal2 = new VisionPortal.Builder()
                     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
                     .setLiveViewContainerId(portal2ViewId)
-                    .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
+                    .setCameraResolution(new Size(CamerasManager.getByName("Webcam 2").width, CamerasManager.getByName("Webcam 2").height))
                     .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 //    .addProcessor(aprilTagProcessor2)
                     .build();
@@ -91,9 +91,8 @@ public class NewCamera extends LinearOpMode {
                 // Just show some basic telemetry to demonstrate both processors are working in parallel
                 // on their respective cameras. If you want to see more detail about the information you
                 // can get back from the processor, you should look at ConceptAprilTag.
-                //telemetry.addData("Number of tags in Camera 1", aprilTagProcessor1.getDetections().size());
-                //telemetry.addData("Number of tags in Camera 2", aprilTagProcessor2.getDetections().size());
-                telemetry.addData("my dad", "9000");
+                telemetry.addData("Number of tags in Camera 1", aprilTagProcessor1.getDetections().size());
+                telemetry.addData("Number of tags in Camera 2", aprilTagProcessor2.getDetections().size());
                 telemetry.update();
                 sleep(20);
             }

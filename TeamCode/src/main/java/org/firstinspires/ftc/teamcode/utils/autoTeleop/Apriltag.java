@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.autoTeleop;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,7 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -18,13 +18,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+// creates an Apriltag processor the desired camera
 public class Apriltag {
     private static AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
-    private Position cameraPosition = new Position(DistanceUnit.INCH,
-            CameraConfig.offsetXApriltag, CameraConfig.offsetYApriltag, CameraConfig.offsetZApriltag, 0); //TODO: figure out these!!!
-    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
-            CameraConfig.yaw, CameraConfig.offsetVertical, 0, 0); //TODO: figure out these!!!
+    private Position cameraPosition;
+    private YawPitchRollAngles cameraOrientation;
 
 
     List<AprilTagDetection> currentDetections;
@@ -33,9 +32,14 @@ public class Apriltag {
 
     static Follower follower;
 
-    public Apriltag(HardwareMap hardwareMap, Follower follower) {
+    Camera camera;
+    public Apriltag(HardwareMap hardwareMap, Follower follower, String cameraName) {
         this.hardwareMap = hardwareMap;
         this.follower = follower;
+
+        camera = CamerasManager.getByName(cameraName);
+        cameraPosition = new Position(DistanceUnit.INCH,camera.offsetX, camera.offsetY, camera.offsetZ, 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES, camera.yaw,  camera.pitch, camera.roll,0);
 
         initAprilTag(); // creates the apriltag processor
         //disableApriltag();
@@ -55,10 +59,10 @@ public class Apriltag {
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setCameraPose(cameraPosition, cameraOrientation)
                 .setLensIntrinsics(
-                        CameraConfig.fx,
-                        CameraConfig.fy,
-                        CameraConfig.cx,
-                        CameraConfig.cy
+                        camera.fx,
+                        camera.fy,
+                        camera.cx,
+                        camera.cy
                 )
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
@@ -74,7 +78,7 @@ public class Apriltag {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(1);
+        aprilTag.setDecimation(3);
 
         // Create the vision portal by using a builder.
         //VisionPortal.Builder builder = new VisionPortal.Builder();

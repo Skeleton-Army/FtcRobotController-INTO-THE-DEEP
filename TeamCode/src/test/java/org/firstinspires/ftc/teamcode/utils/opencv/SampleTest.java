@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pedropathing.localization.Pose;
 
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 
@@ -38,8 +37,8 @@ class SampleTest {
 
     @org.junit.jupiter.api.Test
     void testSampleDetection() {
-        CameraConfig.offsetX = 0;
-        CameraConfig.offsetY = 0;
+        //CameraConfig.offsetX = 0;
+        //CameraConfig.offsetY = 0;
 
         int index = 1;
 

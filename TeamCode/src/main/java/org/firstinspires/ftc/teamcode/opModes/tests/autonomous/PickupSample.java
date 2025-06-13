@@ -6,8 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -21,9 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Webcam;
 import org.firstinspires.ftc.teamcode.utils.actions.FollowPath;
-import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
-import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.Sample;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
 import org.firstinspires.ftc.teamcode.utils.teleop.TeleopOpMode;
@@ -53,7 +49,7 @@ public class PickupSample extends TeleopOpMode {
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
 
-        camCV = new WebcamCV(hardwareMap, telemetry, follower, false, false);
+        camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",false, false);
         camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, SampleColor.RED});
 
         driveActions = new Drive(follower, camCV, telemetry);
