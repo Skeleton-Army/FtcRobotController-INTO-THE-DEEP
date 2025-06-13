@@ -17,7 +17,7 @@ public class CameraConfig {
     public static double offsetVertical = 20.45;
 
     public static double pickupSampleOffsetX = 1.5;
-    public static double pickupSampleOffsetY = 24;
+    public static double pickupSampleOffsetY = 23;
 
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;
@@ -33,19 +33,26 @@ public class CameraConfig {
     public static double wiggleDistance = 1.5;
     public static double wiggleBackDistance = 0.5;
 
+    public static long exposure = 2;
+    public static long focus = 13;
 
     // Distortion coefficients
 
     // Camera matrix
     public static final double[] cameraMatrix = {
-            487.30053838, 0, 323.60546032,  // fx, 0, cx
-            0, 488.41988506, 168.14294789,  // 0, fy, cy
+            496.040455195, 0, 322.226720938,  // fx, 0, cx
+            0, 496.912794034, 179.36243685,  // 0, fy, cy
             0, 0, 1                         // 0, 0, 1
     };
 
     // Distortion coefficients (k1, k2, p1, p2, k3)
-    public static final double[] distCoeffs = { -7.02600880e-04, 1.35749951e-01, -6.60544203e-03, 3.00740926e-04, -5.93395658e-01 };
-
+    public static final double[] distCoeffs = {
+            0.0145220035986483,  // k1
+            -0.0121145654176830,   // k2
+            0.0,    // p1
+            0.0,    // p2
+            0.0     // k3
+    };
     // Apriltag settings
 
     public static double fx = cameraMatrix[0];

@@ -52,6 +52,8 @@ public class PickupSample extends OpMode {
     public void init_loop() {
         if (camCV.lookForSamples()) {
             targetSample = camCV.getBestSample(new Vector2d(30,0));
+            targetSample.setTargetSample(); // Draw target sample on frame
+
             Pose2d targetSamplePos = targetSample.getSamplePosition();
 
             telemetry.addLine("Detected samples");
@@ -67,18 +69,13 @@ public class PickupSample extends OpMode {
 
     @Override
     public void start() {
-        Actions.runBlocking(
-                driveActions.alignToSample(targetSample.getSamplePosition().position)
-        );
-
-        double orientation = -Drive.targetSampleStatic.orientation;
+        double orientation = -targetSample.orientation;
         double normalizedOrientation = (90 - Math.abs(orientation)) * Math.signum(orientation);
         double rotationTarget = normalizedOrientation / 90;
 
-//        double wiggleX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleDistance;
-//        double wiggleBackX = Math.sin(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
-//        double wiggleBackY = Math.cos(Math.toRadians(normalizedOrientation)) * wiggleBackDistance;
+        Actions.runBlocking(
+                driveActions.alignToSample(targetSample)
+        );
 
         Actions.runBlocking(
                 intake.rotate(rotationTarget)
@@ -91,12 +88,6 @@ public class PickupSample extends OpMode {
                         intake.extend(),
                         intake.extendWrist(),
                         new SleepAction(0.3),
-
-//                        drive.actionBuilder(drive.pose)
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x + wiggleX, drive.pose.position.y - wiggleY), null, new ProfileAccelConstraint(-100, 100))
-//                                .afterDisp(wiggleDistance, intake.closeClaw())
-//                                .strafeToConstantHeading(new Vector2d(drive.pose.position.x - wiggleBackX, drive.pose.position.y + wiggleBackY), null, new ProfileAccelConstraint(-100, 100))
-//                                .build(),
 
                         intake.closeClaw(),
                         new SleepAction(0.2),

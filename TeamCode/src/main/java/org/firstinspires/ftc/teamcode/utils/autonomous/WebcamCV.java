@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamples;
@@ -19,6 +22,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class handles webcam-based computer vision for detecting samples on the field.
@@ -140,6 +144,7 @@ public class WebcamCV {
             public void onOpened()
             {
                 webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+                setupCamera(webcam.getExposureControl(), webcam.getFocusControl());
             }
 
             @Override
@@ -157,11 +162,11 @@ public class WebcamCV {
         samples = new ArrayList<>();
     }
 
-    public void stopStream() {
-        webcam.stopStreaming();
-    }
+    private void setupCamera(ExposureControl exposureControl, FocusControl focusControl) {
+        exposureControl.setMode(ExposureControl.Mode.Manual);
+        exposureControl.setExposure(CameraConfig.exposure, TimeUnit.MILLISECONDS);
 
-    public void startStream() {
-        webcam.startStreaming(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2, OpenCvCameraRotation.UPRIGHT);
+        focusControl.setMode(FocusControl.Mode.Fixed);
+        focusControl.setFocusLength(CameraConfig.focus);
     }
 }
