@@ -14,10 +14,10 @@ public class CameraConfig {
     public static double offsetX = 6.1; // x is horizontal not IDO-style, -is when overshooting (it passes it = backwards)
     public static double offsetY = 7.87;
     public static double offsetHorizontal = 0;
-    public static double offsetVertical = 20.45;
+    public static double offsetVertical = 21.2;
 
-    public static double pickupSampleOffsetX = 1.7;
-    public static double pickupSampleOffsetY = 23;
+    public static double pickupSampleOffsetX = 2;
+    public static double pickupSampleOffsetY = 24;
 
     public static double pickupInterval = 0.6;
     public static double pickupIntervalDivision = 1.3;
@@ -35,8 +35,6 @@ public class CameraConfig {
 
     public static long exposure = 2;
     public static long focus = 13;
-
-    // Distortion coefficients
 
     // Camera matrix
     public static final double[] cameraMatrix = {
