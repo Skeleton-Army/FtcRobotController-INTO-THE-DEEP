@@ -618,17 +618,16 @@ public class AutoApplication extends AutoOpMode {
                     )
             );
         } else {
-            double xCompensation = collectedSamples >= 6 ? 3 : 0;
-            double yCompensation = collectedSamples >= 6 ? -3 : 0;
-            double angleCompensation = 0;
-
-            if (collectedSamples == 6) angleCompensation = 10;
-            if (collectedSamples == 7) angleCompensation = 15;
+//            double xCompensation = collectedSamples >= 6 ? 3 : 0;
+//            double yCompensation = collectedSamples >= 6 ? -3 : 0;
+//            double angleCompensation = 0;
+//
+//            if (collectedSamples == 6) angleCompensation = 10;
+//            if (collectedSamples == 7) angleCompensation = 15;
 
             runAsync(
                     drive.actionBuilder(drive.pose)
-                            .setTangent(Math.toRadians(200))
-                            .splineToLinearHeading(new Pose2d(-55.5 + xCompensation, -56.5 + yCompensation, Math.toRadians(angle + angleCompensation)), Math.toRadians(225), null, new ProfileAccelConstraint(-80, 200))
+                            .strafeTo(new Vector2d(-58.5, -55.5), null, new ProfileAccelConstraint(-80, 200))
                             .build()
             );
 
@@ -687,7 +686,7 @@ public class AutoApplication extends AutoOpMode {
 
         runBlocking(
                 drive.actionBuilder(drive.pose)
-                        .splineTo(new Vector2d(-32, -5), Math.toRadians(0), null, new ProfileAccelConstraint(-100, 200))
+                        .strafeTo(new Vector2d(-30, -10), null, new ProfileAccelConstraint(-80, 200))
                         .build()
         );
 
