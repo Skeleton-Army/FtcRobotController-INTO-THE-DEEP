@@ -6,6 +6,9 @@ import org.opencv.core.Scalar;
 
 @Config
 public class SampleConfig {
+    public static double MAX_AREA = 13;
+    public static double MIN_AREA = 4;
+
     static public Scalar lowerBlue = new Scalar(105, 110, 0);
     static public Scalar upperBlue = new Scalar(130, 255, 170);
     static public Scalar lowerRed1 = new Scalar(0, 100, 20);

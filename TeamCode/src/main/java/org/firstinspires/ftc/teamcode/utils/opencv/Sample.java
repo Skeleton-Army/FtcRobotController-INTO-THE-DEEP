@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.sun.tools.javac.util.MandatoryWarningHandler;
 
 import org.firstinspires.ftc.teamcode.utils.config.CameraConfig;
+import org.firstinspires.ftc.teamcode.utils.config.SampleConfig;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
@@ -17,8 +19,6 @@ public class Sample {
     private double centerX, centerY;
     public double orientation;
     private Pose2d fieldPos; // Field-relative position of the sample
-    public double widthInches;
-    public double heightInches;
 
     public Sample(Point lowest, Point center, RotatedRect rect, Pose2d detectionPose) {
         this.lowest = lowest;
@@ -104,14 +104,6 @@ public class Sample {
         centerX -= CameraConfig.offsetX;
     }
 
-    public void calculateArea(Rect boundingRect) {
-        int width = boundingRect.width;
-        double widthToAngle = Math.toRadians(width * CameraConfig.hOVERwidth);
-        widthInches = Math.tan(widthToAngle) * (sampleY - CameraConfig.offsetY);
-
-        double topYWorld = (CameraConfig.z - 1.5) / Math.tan(Math.toRadians((boundingRect.y - CameraConfig.halfImageHeight) * CameraConfig.vOverHeight() + CameraConfig.offsetVertical));
-        heightInches = topYWorld - (sampleY - CameraConfig.offsetY);
-    }
 
     // Calculates the sample position relative to the field
     public void calculateField() {
@@ -120,15 +112,12 @@ public class Sample {
         fieldPos = new Pose2d(new Vector2d(x, y), orientation - Math.toDegrees(detectionPose.heading.toDouble()));
     }
 
-    public boolean isTooBig() {
-        return (widthInches * heightInches >= CameraConfig.MAX_AREA);
-    }
-
-    public boolean isTooSmall() {
-        return (widthInches * heightInches <= CameraConfig.MIN_AREA);
-    }
-
-    public void setTargetSample() {
-        DetectSamples.targetSample = this;
+    public boolean isValid(Rect boundingRect) {
+        Vector2d topLeft = pixelToWorld(boundingRect.x, boundingRect.y, 1.5);
+        Vector2d bottomRight = pixelToWorld(boundingRect.x + boundingRect.width, boundingRect.y + boundingRect.height, 0);
+        double width = Math.abs(topLeft.x - bottomRight.x);
+        double height = Math.abs(topLeft.y - bottomRight.y);
+        double area = width * height;
+        return area >= SampleConfig.MIN_AREA && area <= SampleConfig.MAX_AREA;
     }
 }
