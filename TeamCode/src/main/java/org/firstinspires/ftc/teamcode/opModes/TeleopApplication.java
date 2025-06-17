@@ -183,7 +183,7 @@ public class TeleopApplication extends TeleopOpMode {
                                             new SleepAction(0.2),
                                             outtake.bucketMiddle()
                                     ),
-                                    controls.INTAKE_BUTTON::isUp
+                                    controls.INTAKE_THROW_BUTTON::isUp
                             )
                     )
             );

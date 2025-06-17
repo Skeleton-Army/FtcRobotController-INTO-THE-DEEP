@@ -6,6 +6,7 @@ public class TeleopControls {
     public MarrowGamepad.ControlState<?> SLOW_MODE_BUTTON;
 
     public MarrowGamepad.ControlState<?> INTAKE_BUTTON;
+    public MarrowGamepad.ControlState<?> INTAKE_THROW_BUTTON;
     public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_X;
     public MarrowGamepad.SimpleAnalogState INTAKE_ROTATION_Y;
     public MarrowGamepad.SimpleAnalogState INTAKE_MANUAL_Y;
@@ -31,6 +32,7 @@ public class TeleopControls {
         SLOW_MODE_BUTTON = gamepad1.right_bumper;
 
         INTAKE_BUTTON = gamepad2.a;
+        INTAKE_THROW_BUTTON = gamepad2.a;
         INTAKE_ROTATION_X = gamepad2.left_stick_x;
         INTAKE_ROTATION_Y = gamepad2.left_stick_y;
         INTAKE_MANUAL_Y = gamepad2.right_stick_y;
