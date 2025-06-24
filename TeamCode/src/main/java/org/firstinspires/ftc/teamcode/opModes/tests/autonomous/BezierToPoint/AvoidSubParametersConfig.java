@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,19 +19,19 @@ public class AvoidSubParametersConfig {
 
     public static double stepSize = 10; // how far to push away each iteration
     public static int maxIterations = 300;
-    public static double minimalClearance = 2.0; // inches away from obstacles
+    public static double minimalClearance = 2; // inches away from obstacles
     public static final double width = 18.0;  // robot width
     public static final double height = 18.0; // robot height
-    public static double widthOffset = 2;
-    public static double heightOffset = 2;
+    public static double widthOffset = 0;
+    public static double heightOffset = 0;
     public static final double fieldSize = 144.0;
 
     public static final List<double[][]> obstacles = Arrays.asList(new double[][][] {
             {
-                    {62, 64.5},
-                    {82, 64.5},
-                    {82, 79.5},
-                    {62, 79.5}
+                    {48, 48},
+                    {96, 48},
+                    {96, 96},
+                    {48, 96}
             }
     });
 

@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
-import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.pathgen.Vector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -142,8 +140,8 @@ public class BezierToPoint {
                             double newY = mid.getVector().getYComponent() + dy * AvoidSubParametersConfig.stepSize;
 
                             // Clamp to field boundaries
-                            newX = Math.max(0, Math.min(newX, AvoidSubParametersConfig.fieldSize));
-                            newY = Math.max(0, Math.min(newY, AvoidSubParametersConfig.fieldSize));
+                            //newX = Math.max(0, Math.min(newX, AvoidSubParametersConfig.fieldSize));
+                            //newY = Math.max(0, Math.min(newY, AvoidSubParametersConfig.fieldSize));
 
                             adjusted[i] = new Pose(newX, newY, mid.getHeading());
                         }

@@ -24,9 +24,13 @@ public class BezierToPoint2 {
     public Telemetry telemetry;
     public static boolean useTelemetry;
     public static List<Point> path;
+    public static Point testMid;
     public BezierToPoint2(Pose beginPose, Pose endPose, boolean useTelemetry ,Telemetry telemetry) {
         this.beginPose = beginPose;
         this.endPose = endPose;
+
+        // starting mid point
+        midPoint = new Point((beginPose.getX() + endPose.getX()) / 2, (beginPose.getY() + endPose.getY()) / 2);
 
         midPoint = adjustMidpointToAvoid(
                 new Point(beginPose.getX(), beginPose.getY()),
@@ -35,14 +39,14 @@ public class BezierToPoint2 {
                 endPose.getHeading(),
                 obstacles,
                 "widest", // <-- try "fastest", "shortest", or "widest"
-                2,
+                5,
                 telemetry,
                 "right"
         );
 
 
         if (midPoint == null) {
-            midPoint = new Point((beginPose.getX() + endPose.getX()) / 2, (beginPose.getY() + endPose.getY()) / 2 + 30);
+            midPoint = new Point((beginPose.getX() + endPose.getX()) / 2, (beginPose.getY() + endPose.getY()) / 2);
         }
 
         BezierToPoint2.useTelemetry = useTelemetry;
@@ -128,7 +132,7 @@ public class BezierToPoint2 {
                 if (pointInPolygon(corner, obs)) return true;
             }
 
-            if (minDistanceBetweenPolygons(rotated, obs) < 5.0) return true;
+            if (minDistanceBetweenPolygons(rotated, obs) < 2) return true;
         }
 
         for (double[] corner : rotated) {
@@ -175,7 +179,7 @@ public class BezierToPoint2 {
             String preference,
             int topN,
             Telemetry telemetry,
-            String preferredSide
+            String preferredSide  // You can keep this in signature, but it's no longer used
     ) {
         Point direction = new Point(end.x - start.x, end.y - start.y);
         double mag = Math.hypot(direction.x, direction.y);
@@ -185,11 +189,14 @@ public class BezierToPoint2 {
         Point perpendicular = new Point(-direction.y, direction.x);
         Point mid = new Point((start.x + end.x) / 2, (start.y + end.y) / 2);
 
-        // Finer and wider offset test range
+        // Search offsets from center outwards, both left and right
         List<Double> offsetMagnitudes = new ArrayList<>();
-        for (int i = -200; i <= 200; i += 5) {
+        for (int i = 0; i <= 20000; i += 10) {
             offsetMagnitudes.add((double) i);
+            if (i != 0) offsetMagnitudes.add((double) -i);
         }
+
+        offsetMagnitudes.sort((a, b) -> Double.compare(Math.abs(a), Math.abs(b)));
 
         double bestShortest = Double.POSITIVE_INFINITY;
         double bestFastest = Double.POSITIVE_INFINITY;
@@ -202,14 +209,11 @@ public class BezierToPoint2 {
         List<Point[]> validCandidates = new ArrayList<>();
 
         for (double offset : offsetMagnitudes) {
-            if ("left".equals(preferredSide) && offset > 0) continue;
-            if ("right".equals(preferredSide) && offset < 0) continue;
-            Point testMid = new Point(mid.x + perpendicular.x * offset, mid.y + perpendicular.y * offset);
+            testMid = new Point(mid.x + perpendicular.x * offset, mid.y + perpendicular.y * offset);
             Point[] ctrlPts = new Point[]{start, testMid, end};
-            List<Point> candidatePath = bezierCurve(ctrlPts, 500);
+            List<Point> candidatePath = bezierCurve(ctrlPts, 1000);
 
             boolean collision = false;
-            double minClearance = Double.POSITIVE_INFINITY;
 
             for (int i = 0; i < candidatePath.size(); i++) {
                 Point pt = candidatePath.get(i);
@@ -239,14 +243,17 @@ public class BezierToPoint2 {
                     }
                 }
 
-                // Calculate clearance (minimum distance to any obstacle)
+                double fastCost = length + 100 * curvaturePenalty;
+
+                // Clearance calculation (optional)
+                double minClearance = Double.POSITIVE_INFINITY;
                 for (double[][] obs : obstacles) {
                     double[][] robotCorners = rotatePolygon(new double[][]{
                             {-width / 2.0, -height / 2.0},
                             {width / 2.0, -height / 2.0},
                             {width / 2.0, height / 2.0},
                             {-width / 2.0, height / 2.0}
-                    }, 0); // angle 0 for midpoint
+                    }, 0);
 
                     for (int j = 0; j < robotCorners.length; j++) {
                         robotCorners[j][0] += testMid.x;
@@ -258,8 +265,6 @@ public class BezierToPoint2 {
                 }
 
                 validCandidates.add(ctrlPts);
-
-                double fastCost = length + 100 * curvaturePenalty;
 
                 if (length < bestShortest) {
                     bestShortest = length;
@@ -278,17 +283,17 @@ public class BezierToPoint2 {
             }
         }
 
-        // Debug output
+        // Telemetry output
         if (useTelemetry && telemetry != null) {
             telemetry.addData("Checked Candidates", offsetMagnitudes.size());
             telemetry.addData("Valid Midpoints", validCandidates.size());
 
-            if (validCandidates.size() > 0) {
-                for (int i = 0; i < Math.min(topN, validCandidates.size()); i++) {
-                    Point midpt = validCandidates.get(i)[1];
-                    telemetry.addData("Midpoint #" + (i + 1), "x: %.2f, y: %.2f", midpt.x, midpt.y);
-                }
-            } else {
+            for (int i = 0; i < Math.min(topN, validCandidates.size()); i++) {
+                Point midpt = validCandidates.get(i)[1];
+                telemetry.addData("Midpoint #" + (i + 1), "x: %.2f, y: %.2f", midpt.x, midpt.y);
+            }
+
+            if (validCandidates.isEmpty()) {
                 telemetry.addLine("No valid path candidates found!");
             }
 
@@ -297,7 +302,7 @@ public class BezierToPoint2 {
 
         if (validCandidates.isEmpty()) return null;
 
-        // Final selection logic
+        // Return based on selected preference
         if ("fastest".equals(preference) && bestMidFastest != null) return bestMidFastest;
         if ("shortest".equals(preference) && bestMidShortest != null) return bestMidShortest;
         if ("widest".equals(preference) && bestMidWidest != null) return bestMidWidest;
@@ -309,5 +314,6 @@ public class BezierToPoint2 {
 
         return null;
     }
+
 
 }

@@ -3,12 +3,15 @@ package org.firstinspires.ftc.teamcode.utils.opencv;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.obstacles;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.Point;
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.isOverlapping;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.testMid;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.pedropathing.localization.Pose;
-import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2;
+
+import java.util.List;
 
 public class BezierToPointTest {
 
@@ -37,10 +40,13 @@ public class BezierToPointTest {
 
     final BezierToPointTest.Test[] values = new BezierToPointTest.Test[] {
             //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
             //new BezierToPointTest.Test(new Pose(72.4, 22.6, Math.toRadians(90)), new Pose(23.8, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
-            new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(90)), new Pose(18, 125, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(0)), new Pose(48, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(90)), new Pose(95, 120, Math.toRadians(0))),
+            new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(0)), new Pose(24, 120, Math.toRadians(0))),
     };
 
 
@@ -49,23 +55,36 @@ public class BezierToPointTest {
         int index = 1;
 
         for (BezierToPointTest.Test value : values ) {
-            /*Sample sample = new Sample(value.input, value.input, new RotatedRect(), new Pose(0, 0, 0));
 
-            double sampleX = sample.getSampleX();
-            double sampleY = sample.getSampleY();
+            BezierToPoint2 bezier = new BezierToPoint2(value.beginPose, value.endPose, false, null);
 
-            assertTrue(Math.abs(sampleX - value.x) < epsilonX, "Value: " + index + " Expected: " + value.x + " Got: " + sampleX);
-            assertTrue(Math.abs(sampleY - value.y) < epsilonY, "Value: " + index + " Expected: " + value.y + " Got: " + sampleY);*/
+            Point p = new Point((value.beginPose.getX() + value.endPose.getX()) / 2, (value.beginPose.getY() + value.endPose.getY()) / 2);
 
-            BezierToPoint2 bezier = new BezierToPoint2(Test.beginPose, Test.endPose, false, null);
+            if ((bezier.midPoint != null) && (bezier.midPoint.x != p.x) || (bezier.midPoint.y != p.y)) {
+                System.out.println("-------------");
+                System.out.println(bezier.midPoint.x);
+                System.out.println(bezier.midPoint.y);
+                System.out.println("-------------");
+                assertTrue(value.checkCollision(bezier.path));
+            }
 
-            System.out.println("-------------");
-            System.out.println(bezier.midPoint.x);
-            System.out.println(bezier.midPoint.y);
-            System.out.println("-------------");
-            assertTrue(Test.checkCollision((List<Point>) BezierToPoint2.path));
+            else {
+                System.out.println("-------------");
+                System.out.println("failed to find a mid point!");
+                System.out.println("-------------");
+
+                System.out.println(bezier.midPoint.x);
+                System.out.println(bezier.midPoint.y);
+                System.out.println(p.x);
+                System.out.println(p.y);
+
+                System.out.println(testMid.x);
+                System.out.println(testMid.y);
 
 
+
+                fail();
+            }
             index++;
         }
     }
