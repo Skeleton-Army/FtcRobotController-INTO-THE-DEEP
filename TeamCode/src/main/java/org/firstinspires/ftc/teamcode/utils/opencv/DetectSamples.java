@@ -117,7 +117,7 @@ public class DetectSamples extends OpenCvPipeline {
             // Add the newly found contours to the master list
             allContours.addAll(contours);
 
-            Scalar color = new Scalar(255, 255, 255);
+            /*Scalar color = new Scalar(255, 255, 255);
             switch (t.color) {
                 case RED:
                     color = new Scalar(255, 0, 0);
@@ -128,8 +128,8 @@ public class DetectSamples extends OpenCvPipeline {
                 case YELLOW:
                     color = new Scalar(255, 255, 0);
                     break;
-            }
-            Imgproc.drawContours(input, contours, -1, color, -1); // Draw mask
+            }*/
+            //Imgproc.drawContours(input, contours, -1, color, -1); // Draw mask
 
             masked.release();
         }
@@ -189,10 +189,10 @@ public class DetectSamples extends OpenCvPipeline {
         //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
 
         // Draw the target sample
-        if (targetSample != null) {
+        /*if (targetSample != null) {
             Imgproc.circle(input, targetSample.center, 10, new Scalar(0, 255, 255), 3);
             Imgproc.putText(input, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(255, 255, 255), 2);
-        }
+        }*/
 
         for (MatOfPoint c : allContours) {
             c.release();
@@ -213,13 +213,15 @@ public class DetectSamples extends OpenCvPipeline {
 
         combinedMask.setTo(new Scalar(0));
 
+        Mat tempMask = new Mat();
+
         for (int i = 0; i < threshold.lowerBounds.size(); i++) {
-            Mat tempMask = new Mat();
+            tempMask.setTo(new Scalar(0, 0, 0));
             Core.inRange(hsv, threshold.lowerBounds.get(i), threshold.upperBounds.get(i), tempMask);
             Core.bitwise_or(combinedMask, tempMask, combinedMask);
-            tempMask.release();
         }
 
+        tempMask.release();
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
 
