@@ -6,15 +6,11 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.JuicyBezier;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
@@ -28,7 +24,7 @@ public class AvoidSubBezier extends OpMode {
     Pose targetPos = new Pose(AvoidSubParametersConfig.endX, AvoidSubParametersConfig.endY, Math.toRadians(AvoidSubParametersConfig.endAngle));
 
     Obstacle SubObstacle = new Obstacle(48, 96, 48, 48);
-    BezierToPoint2 Bezier;
+    BezierToPoint Bezier;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket packet = new TelemetryPacket();
 
@@ -48,7 +44,7 @@ public class AvoidSubBezier extends OpMode {
         List<Obstacle> obstacles = new ArrayList<>();
         obstacles.add(SubObstacle);
 
-        Bezier = new BezierToPoint2(beginPos, targetPos, true, telemetry);
+        Bezier = new BezierToPoint(beginPos, targetPos, true, telemetry);
 
         path = follower.pathBuilder()
                     .addPath(

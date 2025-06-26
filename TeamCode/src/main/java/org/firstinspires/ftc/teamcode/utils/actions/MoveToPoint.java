@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -14,14 +13,13 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2;
-import org.firstinspires.ftc.teamcode.utils.autoTeleop.AprilTagPipeline;
+import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint;
 
 public class MoveToPoint implements Action {
     Pose targetPose;
 
     Follower follower;
-    BezierToPoint2 bezier;
+    BezierToPoint bezier;
     Telemetry telemetry;
 
     public MoveToPoint(Pose targetPose, Follower follower, Telemetry telemetry) {
@@ -32,7 +30,7 @@ public class MoveToPoint implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        bezier = new BezierToPoint2(follower.getPose(), new Pose(-55, -55, Math.toRadians(45), false),true, telemetry);
+        bezier = new BezierToPoint(follower.getPose(), new Pose(-55, -55, Math.toRadians(45), false),true, telemetry);
         PathChain path = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(

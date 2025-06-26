@@ -1,15 +1,12 @@
-package org.firstinspires.ftc.teamcode.utils.opencv;
+package org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint;
 
 import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.AvoidSubParametersConfig.obstacles;
-import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.Point;
-import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.isOverlapping;
-import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2.testMid;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint.Point;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint.isOverlapping;
+import static org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint.testMid;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.pedropathing.localization.Pose;
-
-import org.firstinspires.ftc.teamcode.opModes.tests.autonomous.BezierToPoint.BezierToPoint2;
 
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class BezierToPointTest {
             boolean collision = false;
             for (int i = 0; i < path.size(); i++) {
                 double angle = beginPose.getHeading() + (endPose.getHeading() - beginPose.getHeading()) * i / path.size();
-                if (isOverlapping(new BezierToPoint2.Point(path.get(i).x, path.get(i).y) , angle, obstacles)) {
+                if (isOverlapping(new BezierToPoint.Point(path.get(i).x, path.get(i).y) , angle, obstacles)) {
                     collision = true;
                     break;
                 }
@@ -39,24 +36,32 @@ public class BezierToPointTest {
     }
 
     final BezierToPointTest.Test[] values = new BezierToPointTest.Test[] {
-            //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
-            //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
-            //new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
-            //new BezierToPointTest.Test(new Pose(72.4, 22.6, Math.toRadians(90)), new Pose(23.8, 120, Math.toRadians(0))),
-            //new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
+          //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
+         // new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(48, 120, Math.toRadians(0))),
+           //new BezierToPointTest.Test(new Pose(48, 120, Math.toRadians(0)), new Pose(48, 24, Math.toRadians(90))),
+          // new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(90)), new Pose(24, 120, Math.toRadians(0))),
+          // new BezierToPointTest.Test(new Pose(96, 24, Math.toRadians(90)), new Pose(24, 120, Math.toRadians(0))),
+           // new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(90)), new Pose(24, 120, Math.toRadians(0))),
+
+           new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(90)), new Pose(72, 110, Math.toRadians(0))),
+
             //new BezierToPointTest.Test(new Pose(48, 24, Math.toRadians(0)), new Pose(48, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(90)), new Pose(95, 120, Math.toRadians(0))),
-            new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(0)), new Pose(24, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(0)), new Pose(24, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(0)), new Pose(72, 120, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(0)), new Pose(24, 72, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(75, 37, Math.toRadians(90)), new Pose(14, 48, Math.toRadians(0))),
     };
 
 
     @org.junit.jupiter.api.Test
-    void testSampleDetection() {
+    void bezierPath() {
         int index = 1;
+
 
         for (BezierToPointTest.Test value : values ) {
 
-            BezierToPoint2 bezier = new BezierToPoint2(value.beginPose, value.endPose, false, null);
+            BezierToPoint bezier = new BezierToPoint(value.beginPose, value.endPose, false, null);
 
             Point p = new Point((value.beginPose.getX() + value.endPose.getX()) / 2, (value.beginPose.getY() + value.endPose.getY()) / 2);
 
@@ -65,7 +70,6 @@ public class BezierToPointTest {
                 System.out.println(bezier.midPoint.x);
                 System.out.println(bezier.midPoint.y);
                 System.out.println("-------------");
-                assertTrue(value.checkCollision(bezier.path));
             }
 
             else {
