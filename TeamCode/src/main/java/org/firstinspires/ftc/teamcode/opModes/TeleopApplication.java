@@ -1,17 +1,11 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,17 +13,19 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Hang;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Intake;
-import org.firstinspires.ftc.teamcode.utils.actionClasses.IntakeSensor;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.Outtake;
 import org.firstinspires.ftc.teamcode.utils.actionClasses.SpecimenArm;
 import org.firstinspires.ftc.teamcode.utils.actions.ConditionAction;
-import org.firstinspires.ftc.teamcode.utils.actions.NoSleepAction;
+import org.firstinspires.ftc.teamcode.utils.actions.ImmediateAction;
 import org.firstinspires.ftc.teamcode.utils.actions.SleepUntilAction;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.TeleopControls;
+import org.firstinspires.ftc.teamcode.utils.general.MarrowGamepad;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 import org.firstinspires.ftc.teamcode.utils.teleop.MovementUtils;
@@ -49,6 +45,9 @@ public class TeleopApplication extends TeleopOpMode {
 
     public MecanumDrive drive;
 
+    MarrowGamepad gamepad1;
+    MarrowGamepad gamepad2;
+
     Intake intake;
     Outtake outtake;
     SpecimenArm specimenArm;
@@ -66,9 +65,18 @@ public class TeleopApplication extends TeleopOpMode {
 
     ElapsedTime runtime = new ElapsedTime();
 
+    boolean resetOuttake = false;
+
+    TeleopControls controls;
+
     @Override
     public void init() {
         Instance = this;
+
+        gamepad1 = new MarrowGamepad(this, super.gamepad1);
+        gamepad2 = new MarrowGamepad(this, super.gamepad2);
+
+        controls = new TeleopControls(gamepad1, gamepad2);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -80,7 +88,7 @@ public class TeleopApplication extends TeleopOpMode {
         hang = new Hang(hardwareMap);
 //        intakeSensor = new IntakeSensor(hardwareMap);
 
-        movementUtils = new MovementUtils(hardwareMap);
+        movementUtils = new MovementUtils(super.gamepad1, controls.SLOW_MODE_BUTTON);
 
         outtakeSwitch = hardwareMap.get(DigitalChannel.class, OuttakeConfig.limitSwitchName);
     }
@@ -94,6 +102,9 @@ public class TeleopApplication extends TeleopOpMode {
         runAction(intake.rotate(0));
 
         runtime.reset();
+
+        gamepad1.gamepad().rumble(100);
+        gamepad2.gamepad().rumble(100);
     }
 
     @Override
@@ -103,7 +114,8 @@ public class TeleopApplication extends TeleopOpMode {
 
         // Run systems
         runIntake();
-        runIntakeControls();
+        runIntakeRotation();
+        runManualIntake();
         runGrab();
         runOuttake();
         runSpecimenArm();
@@ -128,22 +140,24 @@ public class TeleopApplication extends TeleopOpMode {
         telemetry.addData("Outtake Limit Switch", !outtakeSwitch.getState());
 //        telemetry.addData("Intake Color Sensor RGB", intakeSensor.getRGBValues()[0] + "," + intakeSensor.getRGBValues()[1] + "," + intakeSensor.getRGBValues()[2]);
 //        telemetry.addData("Got Sample", intakeSensor.gotYellowSample() + " " + intakeSensor.gotRedSample() + " " + intakeSensor.gotBlueSample() + " " + intakeSensor.gotSample());
-        telemetry.addData("Gamepad2 X", gamepad2.left_stick_x);
-        telemetry.addData("Gamepad2 Y", -gamepad2.left_stick_y);
-        telemetry.addData("Intake Rotation", Math.toDegrees(Math.atan2(gamepad2.left_stick_x, -gamepad2.left_stick_y)));
+        telemetry.addData("Intake Rotation Vector", "(" + controls.INTAKE_ROTATION_X.value() + "," + (-controls.INTAKE_ROTATION_Y.value()) + ")");
+        telemetry.addData("Intake Rotation", Math.toDegrees(Math.atan2(controls.INTAKE_ROTATION_X.value(), -controls.INTAKE_ROTATION_Y.value())));
+        telemetry.addData("Intake Current", intake.motor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Outtake Current", outtake.motor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Specimen Arm Current", specimenArm.motor.getCurrent(CurrentUnit.AMPS));
 
         telemetry.update();
     }
 
     public void runIntake() {
-        if (Utilities.isPressed(gamepad2.a)) {
+        if (controls.INTAKE_BUTTON.isJustPressed()) {
             runSequentialActions(
                     "intake",
 
                     // Extend intake
                     new SequentialAction(
                             intake.wristReady(),
-                            intake.extend(0.75)
+                            intake.extend()
                     ),
 
                     // Retract intake
@@ -152,7 +166,7 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.wristMiddle(),
                             intake.rotate(0),
                             new SleepAction(0.2),
-                            new NoSleepAction(intake.retract()),
+                            new ImmediateAction(intake.retract()),
 
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() > IntakeConfig.extendPosition * 0.3),
 
@@ -166,16 +180,16 @@ public class TeleopApplication extends TeleopOpMode {
                                             new SleepAction(0.2),
                                             outtake.bucketMiddle()
                                     ),
-                                    () -> !gamepad2.a
+                                    controls.INTAKE_THROW_BUTTON::isUp
                             )
                     )
             );
         }
-        else if (Utilities.isReleased(gamepad2.a) && isInState("intake", 0) && !isActionRunning("intake", 1)) {
+        else if (controls.INTAKE_BUTTON.isJustReleased() && isInState("intake", 0) && !isActionRunning("intake", 1)) {
             runAction(
                     new SequentialAction(
                             intake.wristMiddle(),
-                            new NoSleepAction(intake.extend()),
+                            new ImmediateAction(intake.extend()),
                             new SleepUntilAction(() -> intake.motor.getCurrentPosition() < IntakeConfig.extendPosition * 0.5),
                             intake.wristReady(),
                             intake.openClaw(),
@@ -187,40 +201,24 @@ public class TeleopApplication extends TeleopOpMode {
         }
     }
 
-    public void runIntakeControls() {
+    public void runIntakeRotation() {
         // Intake claw rotation
         if (isInState("intake", 1)) {
-//            double x = Math.ceil(Math.abs(gamepad2.left_stick_x)) * Math.signum(gamepad2.left_stick_x);
-//            double y = Math.ceil(Math.abs(gamepad2.left_stick_y)) * Math.signum(-gamepad2.left_stick_y);
-
-//            String key = (int) x + "," + (int) y;
-//
-//            switch (key) {
-//                case "-1,0":
-//                    runAction(intake.rotate(-1)); break;
-//                case "-1,1":
-//                    runAction(intake.rotate(-0.5)); break;
-//                case "0,1":
-//                    runAction(intake.rotate(0)); break;
-//                case "1,1":
-//                    runAction(intake.rotate(0.5)); break;
-//                case "1,0":
-//                    runAction(intake.rotate(1)); break;
-//            }
-
-            double x = gamepad2.left_stick_x;
-            double y = -gamepad2.left_stick_y;
+            double x = controls.INTAKE_ROTATION_X.value();
+            double y = -controls.INTAKE_ROTATION_Y.value();
             double rotation = Math.toDegrees(Math.atan2(x, y)) / 90;
 
             if (rotation >= -1 && rotation <= 1) {
                 runAction(intake.rotate(rotation));
             }
         }
+    }
 
+    public void runManualIntake() {
         // Intake manual movement
-        if (Math.abs(gamepad2.right_stick_y) > 0.1 && isInState("intake", 1) && (gamepad2.right_stick_y > 0 || intake.motor.getCurrentPosition() > IntakeConfig.extendPosition)) {
+        if (Math.abs(controls.INTAKE_MANUAL_Y.value()) > 0.1 && isInState("intake", 1) && (controls.INTAKE_MANUAL_Y.value() > 0 || intake.motor.getCurrentPosition() > IntakeConfig.extendPosition)) {
             manuallyMoved = true;
-            intake.setPower(gamepad2.right_stick_y * IntakeConfig.manualSpeed);
+            intake.setPower(controls.INTAKE_MANUAL_Y.value() * IntakeConfig.manualSpeed);
         } else if (manuallyMoved) {
             manuallyMoved = false;
             intake.setPower(0);
@@ -228,37 +226,37 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runOuttake() {
-        if (Utilities.isPressed(gamepad2.y) && !isActionRunning("intake", 1)) {
+        if (controls.OUTTAKE_BUTTON.isJustPressed()) {
             runSequentialActions(
                     // Extend outtake
-                    new ParallelAction(
-                            outtake.extend(outtakeMode != OuttakeMode.LOW),
-                            new SequentialAction(
-                                    new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
-                                    outtake.bucketReady()
-                            )
+                    new SequentialAction(
+                            new SleepUntilAction(() -> !isActionRunning("intake", 1)),
+                            new ImmediateAction(outtake.extend(outtakeMode != OuttakeMode.LOW)),
+                            new SleepUntilAction(() -> outtake.motor.getCurrentPosition() < -400),
+                            outtake.bucketReady()
                     ),
 
                     // Dunk bucket
                     outtakeMode == OuttakeMode.FILLED ? outtake.filledDunk() : outtake.dunk(),
 
                     // Retract outtake
-                    new ParallelAction(
-                            outtake.retract(),
-                            outtake.hold()
+                    new SequentialAction(
+                            outtake.hold(),
+                            new SleepUntilAction(() -> !isActionRunning("intake", 1)),
+                            new ImmediateAction(outtake.retract())
                     )
             );
         }
 
-        if (Utilities.isPressed(gamepad2.back)) {
+        if (controls.OUTTAKE_CYCLE_BUTTON.isJustPressed()) {
             outtakeMode = OuttakeMode.values()[(outtakeMode.ordinal() + 1) % OuttakeMode.values().length]; // Cycle to next mode
 
-            gamepad2.rumbleBlips(outtakeMode.ordinal() + 1);
+            gamepad2.gamepad().rumbleBlips(outtakeMode.ordinal() + 1);
         }
     }
 
     public void runGrab() {
-        if (Utilities.isPressed(gamepad2.right_bumper) && isInState("intake", 1)) {
+        if (controls.GRAB_BUTTON.isJustPressed() && isInState("intake", 1)) {
             runAction(
                     new SequentialAction(
                             intake.openClaw(),
@@ -269,7 +267,7 @@ public class TeleopApplication extends TeleopOpMode {
                             intake.wristReady()
                     )
             );
-        } else if (Utilities.isPressed(gamepad2.left_bumper)) {
+        } else if (controls.RELEASE_BUTTON.isJustPressed()) {
             runAction(
                     new SequentialAction(
                             isInState("intake", 1) ? intake.wristReady() : new NullAction(), // Move wrist if intaking samples, else only open claw
@@ -287,7 +285,7 @@ public class TeleopApplication extends TeleopOpMode {
             stopAction("specimen_grab");
         };
 
-        if (Utilities.isPressed(gamepad2.dpad_up)) {
+        if (controls.SPECIMEN_HANG_BUTTON.isJustPressed()) {
             stopOtherActions.run();
 
             runAction(
@@ -297,7 +295,7 @@ public class TeleopApplication extends TeleopOpMode {
                             specimenArm.goToOuttake()
                     )
             );
-        } else if (Utilities.isReleased(gamepad2.dpad_up)) {
+        } else if (controls.SPECIMEN_HANG_BUTTON.isJustReleased()) {
             stopOtherActions.run();
 
             runAction(
@@ -310,7 +308,7 @@ public class TeleopApplication extends TeleopOpMode {
             );
         }
 
-        if (Utilities.isPressed(gamepad2.dpad_down)) {
+        if (controls.SPECIMEN_INTAKE_BUTTON.isJustPressed()) {
             stopOtherActions.run();
 
             runAction(
@@ -321,7 +319,7 @@ public class TeleopApplication extends TeleopOpMode {
                             specimenArm.grabOpen()
                     )
             );
-        } else if (Utilities.isReleased(gamepad2.dpad_down)) {
+        } else if (controls.SPECIMEN_INTAKE_BUTTON.isJustReleased()) {
             stopOtherActions.run();
 
             runAction(
@@ -331,17 +329,15 @@ public class TeleopApplication extends TeleopOpMode {
         }
 
         // Run manual control if dpad is held down
-        if (gamepad2.dpad_down || gamepad2.dpad_up) {
+        if (controls.SPECIMEN_INTAKE_BUTTON.isDown() || controls.SPECIMEN_HANG_BUTTON.isDown()) {
             runAction(
-                    specimenArm.runManualControl(gamepad2.right_stick_y)
+                    specimenArm.runManualControl(controls.SPECIMEN_MANUAL_Y.value())
             );
         }
-
-        specimenArm.update();
     }
 
     public void runHang() {
-        if (Utilities.isPressed(gamepad2.start)) {
+        if (controls.HANG_BUTTON.isJustPressed()) {
             hangExtended = true;
 
             runSequentialActions(
@@ -366,7 +362,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runEmergencyStop() {
-        if (Utilities.isPressed(gamepad2.b)) {
+        if (controls.EMERGENCY_STOP_BUTTON.isJustPressed()) {
             stopAllActions();
 
             // Stop all motors
@@ -381,14 +377,20 @@ public class TeleopApplication extends TeleopOpMode {
     }
 
     public void runResetMotors() {
-        if (Utilities.isPressed(gamepad2.guide)) {
+        if (controls.RESET_MOTORS_BUTTON.isJustPressed()) {
             intake.resetMotor();
         }
     }
 
     public void outtakeLimitSwitch() {
-        if (Utilities.isPressed(!outtakeSwitch.getState())) {
-            outtake.resetMotor();
+        if (!outtakeSwitch.getState()) {
+            if (!resetOuttake) {
+                resetOuttake = true;
+                outtake.resetMotor();
+            }
+        }
+        else {
+            resetOuttake = false;
         }
     }
 }

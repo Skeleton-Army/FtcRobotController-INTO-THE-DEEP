@@ -4,29 +4,29 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.teamcode.utils.general.MarrowGamepad;
 
 import org.firstinspires.ftc.teamcode.opModes.TeleopApplication;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.config.MotionProfileConfig;
-import org.firstinspires.ftc.teamcode.utils.general.Utilities;
 
 public class MovementUtils {
     MecanumDrive drive;
 
-    Gamepad gamepad1;
-    Gamepad gamepad2;
+    Gamepad gamepad;
+    MarrowGamepad.ControlState<?> slowModeButton;
 
     double multiplier;
 
-    public MovementUtils(HardwareMap hardwareMap) {
+    public MovementUtils(Gamepad gamepad, MarrowGamepad.ControlState<?> slowModeButton) {
         drive = TeleopApplication.Instance.drive;
-        gamepad1 = TeleopApplication.Instance.gamepad1;
-        gamepad2 = TeleopApplication.Instance.gamepad2;
+
+        this.gamepad = gamepad;
+        this.slowModeButton = slowModeButton;
     }
 
     void calculateMultipliers() {
-        boolean slowModeActive = gamepad1.right_bumper;
+        boolean slowModeActive = slowModeButton.isDown();
 
         multiplier = slowModeActive ? MotionProfileConfig.SLOW_MODE_MULTIPLIER : 1;
     }
@@ -35,7 +35,7 @@ public class MovementUtils {
         calculateMultipliers();
 
         // Get the smoothed velocity and pose
-        PoseVelocity2d smoothedVelPose = MotionProfiling.getSmoothingPowersVelPose(gamepad1);
+        PoseVelocity2d smoothedVelPose = MotionProfiling.getSmoothingPowersVelPose(gamepad);
 
         // Apply the slow mode multiplier to the input
         PoseVelocity2d velPoseWithMultiplier = new PoseVelocity2d(
@@ -59,7 +59,7 @@ public class MovementUtils {
 
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
-        Vector2d input = Utilities.rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad1)
+        Vector2d input = rotate((MotionProfiling.getSmoothingPowersVector2D(gamepad)
         ), -drive.lazyImu.get().getRobotYawPitchRollAngles().getYaw());
 
         // Pass in the rotated input + right stick value for rotation
@@ -67,11 +67,18 @@ public class MovementUtils {
         drive.setDrivePowers(
                 new PoseVelocity2d(
                         new Vector2d(input.x * multiplier, input.y * multiplier),
-                        MotionProfiling.calculateSmoothedYawSpeed(gamepad1) * multiplier
+                        MotionProfiling.calculateSmoothedYawSpeed(gamepad) * multiplier
                 )
         );
 
         // Update everything. Odometry. Etc.
         drive.updatePoseEstimate();
+    }
+
+    public static Vector2d rotate(Vector2d original, double angle) {
+        double rx = (original.x * Math.cos(angle)) - (original.y * Math.sin(angle));
+        double ry = (original.x * Math.sin(angle)) + (original.y * Math.cos(angle));
+
+        return new Vector2d(rx, ry);
     }
 }
