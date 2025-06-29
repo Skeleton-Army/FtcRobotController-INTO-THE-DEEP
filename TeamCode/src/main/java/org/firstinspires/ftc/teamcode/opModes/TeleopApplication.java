@@ -181,7 +181,7 @@ public class TeleopApplication extends TeleopOpMode {
                     )
             );
         }
-        else if (controls.INTAKE_BUTTON.isJustReleased() && isInState("intake", 0) && !isActionRunning("intake", 1)) {
+        else if (controls.INTAKE_THROW_BUTTON.isJustReleased() && isInState("intake", 0) && !isActionRunning("intake", 1)) {
             runAction(
                     new SequentialAction(
                             intake.wristMiddle(),
