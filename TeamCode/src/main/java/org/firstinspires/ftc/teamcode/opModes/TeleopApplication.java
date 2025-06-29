@@ -63,8 +63,6 @@ public class TeleopApplication extends TeleopOpMode {
 
     OuttakeMode outtakeMode = OuttakeMode.HIGH;
 
-    ElapsedTime runtime = new ElapsedTime();
-
     boolean resetOuttake = false;
 
     TeleopControls controls;
@@ -100,8 +98,6 @@ public class TeleopApplication extends TeleopOpMode {
 
         runAction(intake.wristMiddle());
         runAction(intake.rotate(0));
-
-        runtime.reset();
 
         gamepad1.gamepad().rumble(100);
         gamepad2.gamepad().rumble(100);
@@ -349,14 +345,6 @@ public class TeleopApplication extends TeleopOpMode {
 
                     // Retract hang
                     hang.retractHang()
-            );
-        }
-
-        if (runtime.seconds() >= 90 && !hangExtended) {
-            hangExtended = true;
-
-            runAction(
-                    hang.middleHang()
             );
         }
     }
