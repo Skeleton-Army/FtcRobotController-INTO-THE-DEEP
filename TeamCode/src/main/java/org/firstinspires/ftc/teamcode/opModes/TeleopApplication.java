@@ -330,6 +330,8 @@ public class TeleopApplication extends TeleopOpMode {
                     specimenArm.runManualControl(controls.SPECIMEN_MANUAL_Y.value())
             );
         }
+
+        specimenArm.update();
     }
 
     public void runHang() {
