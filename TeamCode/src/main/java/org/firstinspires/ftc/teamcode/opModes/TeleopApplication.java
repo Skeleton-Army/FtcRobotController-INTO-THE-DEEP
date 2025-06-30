@@ -414,6 +414,7 @@ public class TeleopApplication extends TeleopOpMode {
     }
     public static class Datalog {
         private final Datalogger datalogger;
+        public Datalogger.GenericField timeStamp = new Datalogger.GenericField("Time Stamp");
         public Datalogger.GenericField opModeStatus = new Datalogger.GenericField("OpModeStatus");
         public Datalogger.GenericField loopCounter  = new Datalogger.GenericField("Loop Counter");
         public Datalogger.GenericField intakePos = new Datalogger.GenericField("Intake Position");
@@ -437,6 +438,7 @@ public class TeleopApplication extends TeleopOpMode {
                     .setFilename(logFile)
                     .setAutoTimestamp(Datalogger.AutoTimestamp.DECIMAL_SECONDS)
                     .setFields(
+                            timeStamp,
                             opModeStatus,
                             loopCounter,
                             intakePos,
