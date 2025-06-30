@@ -36,7 +36,7 @@ public class BezierToPoint {
                 beginPose.getHeading(),
                 endPose.getHeading(),
                 obstacles,
-                "widest", // <-- try "fastest", "shortest", or "widest"
+                "shortest", // <-- try "fastest", "shortest", or "widest"
                 5,
                 telemetry,
                 "right"
@@ -170,6 +170,27 @@ public class BezierToPoint {
         return curve;
     }
 
+    public static double computeDynamicTBias(Point start, Point end, List<double[][]> obstacles) {
+        double minDistStart = Double.MAX_VALUE;
+        double minDistEnd = Double.MAX_VALUE;
+
+        for (double[][] obs : obstacles) {
+            for (double[] vertex : obs) {
+                double distToStart = Math.hypot(start.x - vertex[0], start.y - vertex[1]);
+                double distToEnd = Math.hypot(end.x - vertex[0], end.y - vertex[1]);
+
+                if (distToStart < minDistStart) minDistStart = distToStart;
+                if (distToEnd < minDistEnd) minDistEnd = distToEnd;
+            }
+        }
+
+        double total = minDistStart + minDistEnd;
+        if (total == 0) return 0.5; // avoid divide by zero
+
+        // Inverse relationship: closer to end = lower tBias
+        return minDistStart / total; // Normalized to [0, 1]
+    }
+
     public static Point adjustMidpointToAvoid(
             Point start, Point end,
             double startAngle, double endAngle,
@@ -186,10 +207,11 @@ public class BezierToPoint {
 
         Point perpendicular = new Point(-direction.y, direction.x);
         // Step 1: Base midpoint shifted along the path direction
-        double tBias = 0.5;  // try values like 0.4, 0.45, 0.5, 0.55, etc.
+        double tBias = computeDynamicTBias(start, end, obstacles);
+        System.out.println(tBias);
         Point mid = new Point(
-                start.x + direction.x * mag * tBias,
-                start.y + direction.y * mag * tBias
+                start.x * (1 - tBias) + end.x * tBias,
+                start.y * (1 - tBias) + end.y * tBias
         );
 
 
