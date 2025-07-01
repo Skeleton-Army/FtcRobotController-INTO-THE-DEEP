@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -35,10 +34,10 @@ public class BasketCycle implements Action {
         this.Actionsdrive = Actionsdrive;
         this.outtake = outtake;
 
-        if (Objects.equals(alliance, "blue")) {
+        if (Objects.equals(alliance, "Blue")) {
             dunkPose = new Pose(51,54,Math.toRadians(225), false);
         }
-        else if (Objects.equals(alliance, "red")) {
+        else if (Objects.equals(alliance, "Red")) {
             dunkPose = new Pose(-56,-54.5,Math.toRadians(45), false);
         }
 

@@ -30,7 +30,7 @@ public class MoveToPoint implements Action {
 
     @Override
     public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-        bezier = new BezierToPoint(follower.getPose(), new Pose(-55, -55, Math.toRadians(45), false),true, telemetry);
+        bezier = new BezierToPoint(follower.getPose(), targetPose,true, telemetry);
         PathChain path = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
@@ -39,7 +39,7 @@ public class MoveToPoint implements Action {
                                 new Point(bezier.endPose.getX(),bezier.endPose.getY(),Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(bezier.endPose.getHeading(), bezier.endPose.getHeading())
+                .setLinearHeadingInterpolation(bezier.beginPose.getHeading(), bezier.endPose.getHeading())
                 .build();
         Actions.runBlocking(
                 new InstantAction(() -> follower.followPath(path))

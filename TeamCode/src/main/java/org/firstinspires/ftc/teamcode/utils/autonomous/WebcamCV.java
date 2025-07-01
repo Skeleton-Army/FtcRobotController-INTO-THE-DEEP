@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class handles webcam-based computer vision for detecting samples on the field.
+ * This class handles webcam-based computer vision for detecting samples on the field and for apriltag detections.
+ * the class may be created for apriltag cameras, sample detection cameras or for both.
  */
 public class WebcamCV {
     private final boolean withAprilTag;

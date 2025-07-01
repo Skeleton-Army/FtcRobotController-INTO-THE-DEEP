@@ -88,6 +88,7 @@ public class AutoApplication extends AutoOpMode {
     int collectedSamples = 0;
     int hangedSpecimens = 0;
 
+    static String selectedAlliance;
     boolean didCollectSamples = false;
 
     private final Pose basketPose = new Pose(128.00, 16.00, Math.toRadians(135.00));
@@ -125,7 +126,7 @@ public class AutoApplication extends AutoOpMode {
     @Override
     public void onPromptsSelected() {
         // Fetch choices
-        String selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
+        selectedAlliance = choiceMenu.getValueOf("alliance", "Red").toString();
         String selectedStrategy = choiceMenu.getValueOf("strategy", "Basket").toString();
         String selectedSpecimens = choiceMenu.getValueOf("specimens", "1").toString();
 

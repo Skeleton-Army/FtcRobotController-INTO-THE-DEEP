@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
+import android.util.Size;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -16,6 +18,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
@@ -32,6 +35,7 @@ import org.firstinspires.ftc.teamcode.utils.autonomous.WebcamCV;
 import org.firstinspires.ftc.teamcode.utils.config.IntakeConfig;
 import org.firstinspires.ftc.teamcode.utils.config.MovementConfig;
 import org.firstinspires.ftc.teamcode.utils.config.OuttakeConfig;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.teamcode.utils.general.Drawing;
 import org.firstinspires.ftc.teamcode.utils.general.PoseStorage;
 import org.firstinspires.ftc.teamcode.utils.general.Utilities;
@@ -59,6 +63,7 @@ public class TeleopApplication extends TeleopOpMode {
     DigitalChannel outtakeSwitch;
 
     WebcamCV camCV;
+    WebcamCV apriltagsCam;
 
     AprilTagPipeline aprilTagPipeline;
 
@@ -95,27 +100,29 @@ public class TeleopApplication extends TeleopOpMode {
         imu = follower.poseUpdater.getLocalizer().getIMU(); // the imu pedro also uses for localizations
 
         actionsDrive = new Drive(follower, camCV, telemetry);
-        actionCam = new Webcam(actionsDrive, intake, outtake, "red"); // TODO: find a way to select an alliance for
+        actionCam = new Webcam(actionsDrive, intake, outtake, AutoApplication.selectedAlliance); // TODO: find a way to select an alliance for
 
         // ---------- processors way ----------Add commentMore actions
-        //apriltagProcessor = new Apriltag(hardwareMap, follower);
-        //detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, SampleColor.YELLOW, SampleColor.RED);
-        //visionPortal = new VisionPortal.Builder()
-        //       .addProcessors(apriltagProcessor.getAprilTagAprocessor()) // processor to the vision
-        //       .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-        //       .setCameraResolution(new Size(CameraConfig.halfImageWidth * 2, CameraConfig.halfImageHeight * 2))
-        //       .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-        //       .enableLiveView(true) // live view for srcpy
-        //       .setAutoStopLiveView(true)
-        //       .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
-        //       .build();
+        apriltagProcessor = new Apriltag(hardwareMap, follower, "Webcam 1");
+        detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, "Webcam 1",SampleColor.YELLOW, SampleColor.RED);
+        visionPortal = new VisionPortal.Builder()
+               .addProcessors(apriltagProcessor.getAprilTagAprocessor()) // processor to the vision
+               .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+               .setCameraResolution(new Size(CamerasManager.getByName("Webcam 1").width, CamerasManager.getByName("Webcam 1").height))
+               .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+               .enableLiveView(true) // live view for srcpy
+               .setAutoStopLiveView(true)
+               .setShowStatsOverlay(true) // the small pink box at the bottom which shows the fps, resolution ect.
+               .build();
         // ---------- processors way ----------
 
 
         // ---------- opencv pipelines way ----------
         camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",true, false);
-        camCV = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 1",true, true);
-        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, SampleColor.RED}); // TODO: find a way to select an alliance for correct sequences
+        //apriltagsCam = new WebcamCV(hardwareMap, telemetry, follower, "Webcam 2",true, true);
+
+        SampleColor color = AutoApplication.selectedAlliance.equals("Red") ? SampleColor.RED : SampleColor.BLUE;
+        camCV.configureWebcam(new SampleColor[] { SampleColor.YELLOW, color});
         aprilTagPipeline = camCV.getAprilTagPipeline();
         // ---------- opencv pipelines way ----------
     }
@@ -199,7 +206,7 @@ public class TeleopApplication extends TeleopOpMode {
             runAction("driver sequence",actionCam.pickupSample(pickedSample.getSamplePosition()));
         }
         if (Utilities.isPressed(gamepad1.y) && ((aprilTagPipeline != null) || apriltagProcessor != null)) { // running basketCycle sequence, only could run when an apriltag is in sight
-            runAction("driver sequence",actionCam.basketCycle());
+            runAction("driver sequence", actionCam.basketCycle());
         }
 
 
@@ -227,7 +234,6 @@ public class TeleopApplication extends TeleopOpMode {
                 -gamepad1.right_stick_x * multiplier * MovementConfig.YAW_MULTIPLIER,
                 robotCentric);
 
-        follower.update();
     }
 
     public void runIntakeWithDeposit() {
