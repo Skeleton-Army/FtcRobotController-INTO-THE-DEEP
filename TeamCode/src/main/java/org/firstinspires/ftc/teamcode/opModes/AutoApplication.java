@@ -633,7 +633,9 @@ public class AutoApplication extends AutoOpMode {
             runBlocking(
                     new SequentialAction(
                             intakeRetract,
-                            dunkSequence
+                            extendOuttake,
+                            new SleepUntilAction(() -> drive.pose.position.y <= -50),
+                            dunk
                     )
             );
         }
