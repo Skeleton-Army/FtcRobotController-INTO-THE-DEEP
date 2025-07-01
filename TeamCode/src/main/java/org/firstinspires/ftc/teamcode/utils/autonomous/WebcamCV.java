@@ -215,6 +215,7 @@ public class WebcamCV {
             public void onOpened()
             {
                 webcam.startStreaming(camera.width, camera.height, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
+                                setupCamera(webcam.getExposureControl(), webcam.getFocusControl());
             }
 
             @Override
@@ -239,11 +240,17 @@ public class WebcamCV {
         samples = new ArrayList<>();
     }
 
+    private void setupCamera(ExposureControl exposureControl, FocusControl focusControl) {
+        exposureControl.setMode(ExposureControl.Mode.Manual);
+        exposureControl.setExposure(CameraConfig.exposure, TimeUnit.MILLISECONDS);
+
+        focusControl.setMode(FocusControl.Mode.Fixed);
+        focusControl.setFocusLength(CameraConfig.focus);
+        }
+    public void startStream() {
+        webcam.startStreaming(camera.width, camera.height, OpenCvCameraRotation.UPRIGHT, OpenCvWebcam.StreamFormat.MJPEG);
+    }
     public void stopStream() {
         webcam.stopStreaming();
-    }
-
-    public void startStream() {
-        webcam.startStreaming(camera.width, camera.height, OpenCvCameraRotation.UPRIGHT);
     }
 }

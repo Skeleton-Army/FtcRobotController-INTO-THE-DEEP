@@ -29,7 +29,6 @@ public class Outtake {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // General actions
@@ -65,6 +64,10 @@ public class Outtake {
 
     public Action dunk() {
         return bucketToPosition(OuttakeConfig.bucketDunk);
+    }
+
+    public Action filledDunk() {
+        return bucketToPosition(OuttakeConfig.bucketFilledDunk);
     }
 
     public Action hold() {

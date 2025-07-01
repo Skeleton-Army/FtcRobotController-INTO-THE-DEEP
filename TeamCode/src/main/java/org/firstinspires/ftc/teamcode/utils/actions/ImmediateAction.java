@@ -5,10 +5,10 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
-public class NoSleepAction implements Action {
+public class ImmediateAction implements Action {
     private final Action action;
 
-    public NoSleepAction(Action action) {
+    public ImmediateAction(Action action) {
         this.action = action;
     }
 

@@ -1,32 +1,37 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerBlue;
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerRed;
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.lowerYellow;
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperBlue;
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperRed;
-import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.upperYellow;
+import static org.firstinspires.ftc.teamcode.utils.config.SampleConfig.*;
 
 import org.opencv.core.Scalar;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Threshold {
-    public Scalar lowerBound;
-    public Scalar upperBound;
+    public SampleColor color;
+    public List<Scalar> lowerBounds;
+    public List<Scalar> upperBounds;
+
     public Threshold(SampleColor color) {
+        this.color = color;
+        this.lowerBounds = new ArrayList<>();
+        this.upperBounds = new ArrayList<>();
+
         switch (color) {
             case YELLOW:
-                this.lowerBound = lowerYellow;
-                this.upperBound = upperYellow;
+                lowerBounds.add(lowerYellow);
+                upperBounds.add(upperYellow);
                 break;
 
             case RED:
-                this.lowerBound = lowerRed;
-                this.upperBound = upperRed;
+                lowerBounds.add(lowerRed1);
+                upperBounds.add(upperRed1);
+                lowerBounds.add(lowerRed2);
+                upperBounds.add(upperRed2);
                 break;
 
             case BLUE:
-                this.lowerBound = lowerBlue;
-                this.upperBound = upperBlue;
+                lowerBounds.add(lowerBlue);
+                upperBounds.add(upperBlue);
                 break;
         }
     }
