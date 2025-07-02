@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class CameraConfig {
     public static double MAX_AREA = 12;
-    public static double MIN_AREA = 6;
+    public static double MIN_AREA = 5;
     public static float z = 12.5f;
     public static float horizontalFOV = 66.584f; // old: 65.76f
     public static float verticalFOV = 40.481f; // old: 39.88f
