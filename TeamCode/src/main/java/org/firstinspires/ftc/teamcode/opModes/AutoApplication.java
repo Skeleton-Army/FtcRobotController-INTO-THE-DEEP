@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -507,17 +508,15 @@ public class AutoApplication extends AutoOpMode {
 
                 traj = new FailoverAction(
                         drive.actionBuilder(drive.pose)
-                                .strafeToLinearHeading(new Vector2d(-54.5, -45.5), Math.toRadians(120))
+                                .strafeToLinearHeading(new Vector2d(-54, -45.5), Math.toRadians(120))
                                 .build(),
                         new InstantAction(() -> drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0)))
                 );
 
-                runAsync(traj);
                 runBlocking(
                         new SequentialAction(
-                                new SleepAction(0.7),
-                                wristSequence,
-                                new InstantAction(traj::failover) // Cancel trajectory
+                                traj,
+                                wristSequence
                         )
                 );
 
@@ -569,15 +568,12 @@ public class AutoApplication extends AutoOpMode {
                 new SleepAction(collectedSamples == 0 || collectedSamples == 3 ? 0.1 : 0.2)
         );
 
-        Action dunkSequence = new ParallelAction(
+        Action dunkAndExtendSequence = new ParallelAction(
                 extendOuttake,
                 dunk
         );
 
-        Action dunkAndExtendSequence = new ParallelAction(
-                extendOuttake,
-                dunk,
-
+        Action readyIntakeSequence = new ParallelAction(
                 intake.openClaw(),
                 intake.extend(),
                 intake.wristReady()
@@ -599,7 +595,8 @@ public class AutoApplication extends AutoOpMode {
                                     .setTangent(Math.PI / 2)
                                     .splineToLinearHeading(new Pose2d(-59, -53, Math.toRadians(angle)), Math.toRadians(225), null, new ProfileAccelConstraint(-100, 200))
                                     .build(),
-                            dunkAndExtendSequence
+                            dunkAndExtendSequence,
+                            readyIntakeSequence
                     )
             );
         } else if (collectedSamples <= 3) {
@@ -610,7 +607,10 @@ public class AutoApplication extends AutoOpMode {
                                     .build(),
                             new SequentialAction(
                                     intakeRetract,
-                                    dunkAndExtendSequence
+                                    new ParallelAction(
+                                            dunkAndExtendSequence,
+                                            collectedSamples <= 2 ? readyIntakeSequence : new NullAction()
+                                    )
                             )
                     )
             );
@@ -619,8 +619,8 @@ public class AutoApplication extends AutoOpMode {
             double yCompensation = collectedSamples >= 6 ? -3 : 0;
             double angleCompensation = 0;
 
-            if (collectedSamples == 6) angleCompensation = 10;
-            if (collectedSamples == 7) angleCompensation = 15;
+//            if (collectedSamples == 6) angleCompensation = 10;
+//            if (collectedSamples == 7) angleCompensation = 15;
 
             runAsync(
                     drive.actionBuilder(drive.pose)
@@ -633,7 +633,7 @@ public class AutoApplication extends AutoOpMode {
                     new SequentialAction(
                             intakeRetract,
                             extendOuttake,
-                            new SleepUntilAction(() -> drive.pose.position.y <= -50),
+                            new SleepUntilAction(() -> drive.pose.position.y <= -45),
                             dunk
                     )
             );

@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMat
 import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
 
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -138,48 +139,49 @@ public class DetectSamples extends OpenCvPipeline {
         }
 
         for (MatOfPoint contour : allContours) {
-            Point[] contourArray = contour.toArray();
+            try {
+                Point[] contourArray = contour.toArray();
 
-            if (contourArray.length < 5) {
-                continue; // Skip this contour
-            }
+                Imgproc.convexHull(contour, hullIndices);
 
-            Imgproc.convexHull(contour, hullIndices);
+                List<Point> hullPointList = new ArrayList<>();
+                for (int index : hullIndices.toArray()) {
+                    hullPointList.add(contourArray[index]);
+                }
+                hullPoints.fromList(hullPointList);
 
-            List<Point> hullPointList = new ArrayList<>();
-            for (int index : hullIndices.toArray()) {
-                hullPointList.add(contourArray[index]);
-            }
-            hullPoints.fromList(hullPointList);
+                // Calculate moments of the convex hull
+                Moments moments = Imgproc.moments(hullPoints);
 
-            // Calculate moments of the convex hull
-            Moments moments = Imgproc.moments(hullPoints);
+                // Calculate the center of mass (centroid)
+                double m00 = moments.get_m00();
+                double cx = moments.get_m10() / m00;
+                double cy = moments.get_m01() / m00;
 
-            // Calculate the center of mass (centroid)
-            double m00 = moments.get_m00();
-            double cx = moments.get_m10() / m00;
-            double cy = moments.get_m01() / m00;
+                Point center = new Point(cx, cy);
 
-            Point center = new Point(cx, cy);
+                // Get the lowest point in the detected contour
+                Point lowestPoint = getLowestPoint(contour);
 
-            // Get the lowest point in the detected contour
-            Point lowestPoint = getLowestPoint(contour);
+                if (contour.toArray().length < 5 || hullPoints.toArray().length < 5) {
+                    continue; // Skip this contour
+                }
 
-            ellipsePoints.fromArray(hullPoints.toArray());
-            RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
+                ellipsePoints.fromArray(hullPoints.toArray());
+                RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
 
-            // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
-            sample.calculateArea(Imgproc.boundingRect(contour));
+                // Create and add the new sample
+                Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
+                sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 
-            if (sample.isTooBig() || sample.isTooSmall()) {
-                continue;
-            }
+                if (sample.isTooBig() || sample.isTooSmall()) {
+                    continue;
+                }
 
-            Imgproc.circle(input, center, 5, new Scalar(255, 0, 255));
+                Imgproc.circle(input, center, 5, new Scalar(255, 0, 255));
 //            Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
-            sample.calculateField();
+                sample.calculateField();
 
 //            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
 //            Imgproc.ellipse(input, ellipse, new Scalar(0, 255, 0));
@@ -187,7 +189,10 @@ public class DetectSamples extends OpenCvPipeline {
 //            Imgproc.line(input, lowestPoint, new Point(lowestPoint.x + 50 * Math.cos(angle), lowestPoint.y - 50 * Math.sin(angle)), new Scalar(0, 0, 0));
 //            Imgproc.putText(input, "" + ellipse.angle, new Point(20, 20), 0, 1, new Scalar(0, 0, 0));
 
-            samplesFrame.add(sample);
+                samplesFrame.add(sample);
+            } catch (Exception e) {
+                RobotLog.addGlobalWarningMessage("OpenCV Pipeline error: " + e.getMessage());
+            }
         }
 
         samples = samplesFrame;
