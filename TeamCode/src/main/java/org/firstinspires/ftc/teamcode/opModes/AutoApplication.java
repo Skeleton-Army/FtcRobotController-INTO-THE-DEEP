@@ -119,6 +119,11 @@ public class AutoApplication extends AutoOpMode {
                 break;
         }
 
+        // Configure webcam CV
+        camCV = new WebcamCV(hardwareMap, telemetry, drive);
+        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE});
+
+        driveActions = new Drive(drive, camCV, telemetry);
 //        runAsync(
 //                new SequentialAction(
 //                        new SleepAction(3),
@@ -171,12 +176,6 @@ public class AutoApplication extends AutoOpMode {
     public void onStart() {
         // Set starting position
         drive.pose = startPose;
-
-        // Configure webcam CV
-        camCV = new WebcamCV(hardwareMap, telemetry, drive);
-        camCV.configureWebcam(new SampleColor[]{SampleColor.YELLOW, alliance == Alliance.RED ? SampleColor.RED : SampleColor.BLUE});
-
-        driveActions = new Drive(drive, camCV, telemetry);
 
         //runAsync(this::outtakeLimitSwitch);
         runAsync(specimenArm::update);
