@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils.opencv;
 
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.cameraMatrix;
-import static org.firstinspires.ftc.teamcode.utils.config.CameraConfig.distCoeffs;
+
+import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.Camera;
+import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -33,14 +34,14 @@ public class DetectSamples extends OpenCvPipeline {
 
     private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
-    private final MecanumDrive drive;
+    private final Follower follower;
 
     private boolean viewportPaused;
 
     private static final Size kernelSize = new Size(5, 5);
 
     public static Mat matrix = new Mat(3, 3, CvType.CV_64F);
-    public static MatOfDouble dist = new MatOfDouble(distCoeffs[0], distCoeffs[1], distCoeffs[2], distCoeffs[3], distCoeffs[4]);
+    public static MatOfDouble dist;
 
     private final Mat undistorted = new Mat();
     private final Mat hsv = new Mat();
@@ -52,28 +53,29 @@ public class DetectSamples extends OpenCvPipeline {
     private final MatOfPoint hullPoints = new MatOfPoint();
     private final MatOfPoint2f ellipsePoints = new MatOfPoint2f();
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color){
+    Camera camera;
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, String webcamName,SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color) };
 
+        camera = CamerasManager.getByName(webcamName);
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                camera.cameraMatrix);
+        dist = new MatOfDouble(camera.distCoeffs);
     }
 
-    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, MecanumDrive drive, SampleColor color1, SampleColor color2){
+    public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, String webcamName,SampleColor color1, SampleColor color2){
         this.telemetry = telemetry;
         this.webcam = webcam;
-        this.drive = drive;
+        this.follower = follower;
         thresholds = new Threshold[] { new Threshold(color1), new Threshold(color2) };
 
+        camera = CamerasManager.getByName(webcamName);
         matrix.put(0, 0,
-                cameraMatrix[0], cameraMatrix[1], cameraMatrix[2],
-                cameraMatrix[3], cameraMatrix[4], cameraMatrix[5],
-                cameraMatrix[6], cameraMatrix[7], cameraMatrix[8]);
+                camera.cameraMatrix);
+        dist = new MatOfDouble(camera.distCoeffs);
     }
 
     /**
@@ -166,7 +168,7 @@ public class DetectSamples extends OpenCvPipeline {
             RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
 
             // Create and add the new sample
-            Sample sample = new Sample(lowestPoint, center, ellipse, drive.pose);
+            Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
             sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
 //            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));

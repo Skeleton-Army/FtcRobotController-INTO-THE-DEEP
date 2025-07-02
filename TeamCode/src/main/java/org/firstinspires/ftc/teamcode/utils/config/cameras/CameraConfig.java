@@ -30,6 +30,8 @@ public class CameraConfig {
     public static double vOVERheight = CameraConfig.vOverHeight();
     public static double hOVERwidth = CameraConfig.hOverWidth();
 
+    public static long exposure = 2;
+    public static long focus = 13;
     public static float hOverWidth() {
         return horizontalFOV / (CamerasManager.getByName("webcam 1").width * 2);
     }

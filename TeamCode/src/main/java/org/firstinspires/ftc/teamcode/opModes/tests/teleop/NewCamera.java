@@ -94,7 +94,7 @@ public class NewCamera extends LinearOpMode {
                 telemetry.addData("Number of tags in Camera 1", aprilTagProcessor1.getDetections().size());
                 telemetry.addData("Number of tags in Camera 2", aprilTagProcessor2.getDetections().size());
                 telemetry.update();
-                sleep(20);
+                //sleep(20);
             }
         }
 }

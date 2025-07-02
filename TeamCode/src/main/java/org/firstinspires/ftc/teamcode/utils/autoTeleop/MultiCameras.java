@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.opModes.AutoApplication;
 import org.firstinspires.ftc.teamcode.utils.config.cameras.CamerasManager;
 import org.firstinspires.ftc.teamcode.utils.opencv.DetectSamplesProcessor;
 import org.firstinspires.ftc.teamcode.utils.opencv.SampleColor;
@@ -20,9 +21,9 @@ import org.firstinspires.ftc.vision.VisionPortal;
 
 public class MultiCameras {
 
-    VisionPortal portal1;
-    VisionPortal portal2;
-    VisionPortal portal3;
+    public VisionPortal portal1;
+    public VisionPortal portal2;
+     public VisionPortal portal3;
     Apriltag apriltagProcessor1; // TODO: this is null!!
     Apriltag apriltagProcessor2;
     Apriltag apriltagProcessor3;
@@ -37,7 +38,7 @@ public class MultiCameras {
         int portal3ViewId = viewIds[2];
 
         apriltagProcessor1 = new Apriltag(hardwareMap, follower, CameraName1); // creating the apriltag processor by the given camera
-        DetectSamplesProcessor detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, CameraName1, SampleColor.YELLOW, SampleColor.RED);
+        DetectSamplesProcessor detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, CameraName1, SampleColor.YELLOW, AutoApplication.selectedAlliance.equals("Red") ? SampleColor.RED : SampleColor.BLUE);
         portal1 = new VisionPortal.Builder()
                 .addProcessors(detectSamplesProcessor/*, apriltagProcessor1.getAprilTagAprocessor()*/) // processor to the vision
                 .setCamera(hardwareMap.get(WebcamName.class, CameraName1))
@@ -78,7 +79,7 @@ public class MultiCameras {
         int portal2ViewId = viewIds[1];
 
         Apriltag apriltagProcessor1 = new Apriltag(hardwareMap, follower, CameraName1);
-        DetectSamplesProcessor detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, CameraName1, SampleColor.YELLOW, SampleColor.RED);
+        DetectSamplesProcessor detectSamplesProcessor = new DetectSamplesProcessor(telemetry, follower, CameraName1, SampleColor.YELLOW, AutoApplication.selectedAlliance.equals("Red") ? SampleColor.RED : SampleColor.BLUE);
         portal1 = new VisionPortal.Builder()
                 .addProcessors(detectSamplesProcessor/*, apriltagProcessor1.getAprilTagAprocessor()*/) // processor to the vision
                 .setCamera(hardwareMap.get(WebcamName.class, CameraName1))

@@ -49,17 +49,28 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     private CameraCalibrationIdentity ident;
 
     boolean viewportPaused;
-    public OpenCvCamera webcam;
-    private final Telemetry telemetry;
-    private static Mat input;
-
-    private static final float epsilonConstant = 0.025f;
-    private static final Size kernelSize = new Size(5, 5); //We try new one!
-    private Follower follower;
     public static List<Sample> samples = new ArrayList<>();
-    Mat matrix = new Mat(3, 3, CvType.CV_64F);
+    public OpenCvCamera webcam;
 
-    MatOfDouble dist;
+    public static Sample targetSample = null;
+
+    private final Telemetry telemetry;
+        private final Follower follower;
+
+    private static final Size kernelSize = new Size(5, 5);
+
+    public static Mat matrix = new Mat(3, 3, CvType.CV_64F);
+    public static MatOfDouble dist;
+
+    private final Mat undistorted = new Mat();
+    private final Mat hsv = new Mat();
+    private final Mat combinedMask = new Mat();
+    private final Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
+    private final List<MatOfPoint> allContours = new ArrayList<>();
+    private final Mat hierarchy = new Mat();
+    private final MatOfInt hullIndices = new MatOfInt();
+    private final MatOfPoint hullPoints = new MatOfPoint();
+    private final MatOfPoint2f ellipsePoints = new MatOfPoint2f();
     public AprilTagSamplesPipeline(AprilTagProcessor processor,Telemetry telemetry, Follower follower, String webcamName, SampleColor color){
         this.telemetry = telemetry;
         this.webcam = webcam;
@@ -125,41 +136,29 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
     }
 
     private Mat mask(Mat frame, Threshold threshold) {
-        // Undistort frame
-
-
-        Mat undistorted = new Mat();
         Calib3d.undistort(frame, undistorted, matrix, dist);
+        Imgproc.cvtColor(undistorted, hsv, Imgproc.COLOR_RGB2HSV);
 
-        // Create mask
-        Mat masked = new Mat();
+        combinedMask.setTo(new Scalar(0));
 
-        // Convert the frame to HSV color space
-        Imgproc.cvtColor(undistorted, masked, Imgproc.COLOR_RGB2YCrCb);
+        for (int i = 0; i < threshold.lowerBounds.size(); i++) {
+            Mat tempMask = new Mat();
+            Core.inRange(hsv, threshold.lowerBounds.get(i), threshold.upperBounds.get(i), tempMask);
+            Core.bitwise_or(combinedMask, tempMask, combinedMask);
+            tempMask.release();
+        }
 
-        Mat binary = Mat.zeros(undistorted.size(), Imgproc.THRESH_BINARY);
+        Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
 
-        // Apply color filtering to isolate the desired objects
-        Core.inRange(masked, threshold.lowerBound, threshold.upperBound, binary);
-
-        masked.release(); // Free memory after use
-        undistorted.release(); // Free memory after use
-
-        // Apply morphological operations to remove noise
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_OPEN, kernel); // Removes small noise
-        Imgproc.morphologyEx(binary, binary, Imgproc.MORPH_CLOSE, kernel); // Closes small gaps
-
-        return binary;
+        return combinedMask.clone(); // safe copy, avoids future bugs
     }
 
     @Override
     public Mat processFrame(Mat input, long captureTimeNanos)
     {
         List<Sample> samplesFrame = new ArrayList<>();
-        List<MatOfPoint> allContours = new ArrayList<>();
-
-        AprilTagSamplesPipeline.input = input;
+        allContours.clear();  // Clear previous frame's contours
 
         for (Threshold t : thresholds) {
             // Apply color filtering to isolate the desired objects
@@ -169,21 +168,38 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             List<MatOfPoint> contours = new ArrayList<>();
 
             // Find contours in the masked image
-            Imgproc.findContours(masked, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+            Imgproc.findContours(masked, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
             // Add the newly found contours to the master list
             allContours.addAll(contours);
 
-            masked.release(); // Free memory after use
+            Scalar color = new Scalar(255, 255, 255);
+            switch (t.color) {
+                case RED:
+                    color = new Scalar(255, 0, 0);
+                    break;
+                case BLUE:
+                    color = new Scalar(0, 0, 255);
+                    break;
+                case YELLOW:
+                    color = new Scalar(255, 255, 0);
+                    break;
+            }
+            Imgproc.drawContours(input, contours, -1, color, -1); // Draw mask
+
+            masked.release();
         }
 
         for (MatOfPoint contour : allContours) {
-            MatOfInt hullIndices = new MatOfInt();
+            Point[] contourArray = contour.toArray();
+
+            if (contourArray.length < 5) {
+                continue; // Skip this contour
+            }
+
             Imgproc.convexHull(contour, hullIndices);
 
-            MatOfPoint hullPoints = new MatOfPoint();
             List<Point> hullPointList = new ArrayList<>();
-            Point[] contourArray = contour.toArray();
             for (int index : hullIndices.toArray()) {
                 hullPointList.add(contourArray[index]);
             }
@@ -202,11 +218,8 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
             // Get the lowest point in the detected contour
             Point lowestPoint = getLowestPoint(contour);
 
-            if (contour.toArray().length < 5) {
-                continue; // Skip this contour
-            }
-
-            RotatedRect ellipse = Imgproc.fitEllipse(new MatOfPoint2f(hullPoints.toArray()));
+            ellipsePoints.fromArray(hullPoints.toArray());
+            RotatedRect ellipse = Imgproc.fitEllipse(ellipsePoints);
 
             // Create and add the new sample
             Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
@@ -231,6 +244,19 @@ public class AprilTagSamplesPipeline extends TimestampedOpenCvPipeline
         }
 
         samples = samplesFrame;
+
+        // Draw contours around detected samples
+        //Imgproc.drawContours(input, contours, -1, new Scalar(255, 0, 0));
+
+        // Draw the target sample
+        if (targetSample != null) {
+            Imgproc.circle(input, targetSample.center, 10, new Scalar(0, 255, 255), 3);
+            Imgproc.putText(input, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(255, 255, 255), 2);
+        }
+
+        for (MatOfPoint c : allContours) {
+            c.release();
+        }
 
         // AprilTag part
         Object drawCtx = processor.processFrame(input, captureTimeNanos);
