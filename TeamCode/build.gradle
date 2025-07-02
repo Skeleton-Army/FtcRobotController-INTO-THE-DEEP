@@ -20,7 +20,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "dev.frozenmilk:Load:0.2.1"
+        classpath "dev.frozenmilk:Load:0.2.3"
     }
 }
 
@@ -60,8 +60,8 @@ dependencies {
         exclude group: "com.acmerobotics.dashboard"
     }
 
-    implementation "com.acmerobotics.slothboard:dashboard:0.2.1+0.4.16"
-    implementation "dev.frozenmilk.sinister:Sloth:0.2.1"
+    implementation "com.acmerobotics.slothboard:dashboard:0.2.3+0.4.16"
+    implementation "dev.frozenmilk.sinister:Sloth:0.2.3"
     implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
