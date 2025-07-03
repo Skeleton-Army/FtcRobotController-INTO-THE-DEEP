@@ -29,6 +29,8 @@ public class Outtake {
 
     public void resetMotor() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setPower(0);
     }
 
     // General actions

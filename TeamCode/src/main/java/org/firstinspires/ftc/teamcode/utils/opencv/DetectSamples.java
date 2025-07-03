@@ -45,13 +45,13 @@ public class DetectSamples extends OpenCvPipeline {
 
     private final Mat undistorted = new Mat();
     private final Mat hsv = new Mat();
-    private final Mat combinedMask = new Mat();
     private final Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
     private final List<MatOfPoint> allContours = new ArrayList<>();
     private final Mat hierarchy = new Mat();
     private final MatOfInt hullIndices = new MatOfInt();
     private final MatOfPoint hullPoints = new MatOfPoint();
     private final MatOfPoint2f ellipsePoints = new MatOfPoint2f();
+    private final Mat tempMask = new Mat();
 
     Camera camera;
     public DetectSamples(Telemetry telemetry, OpenCvCamera webcam, Follower follower, String webcamName,SampleColor color){
@@ -104,7 +104,7 @@ public class DetectSamples extends OpenCvPipeline {
      */
     public Mat processFrame(Mat input) {
         List<Sample> samplesFrame = new ArrayList<>();
-        allContours.clear();  // Clear previous frame's contours
+        allContours.clear();
 
         for (Threshold t : thresholds) {
             // Apply color filtering to isolate the desired objects
@@ -119,6 +119,8 @@ public class DetectSamples extends OpenCvPipeline {
             // Add the newly found contours to the master list
             allContours.addAll(contours);
 
+            masked.release(); // Free memory after use
+
             Scalar color = new Scalar(255, 255, 255);
             switch (t.color) {
                 case RED:
@@ -132,8 +134,6 @@ public class DetectSamples extends OpenCvPipeline {
                     break;
             }
             Imgproc.drawContours(input, contours, -1, color, -1); // Draw mask
-
-            masked.release();
         }
 
         for (MatOfPoint contour : allContours) {
@@ -171,13 +171,13 @@ public class DetectSamples extends OpenCvPipeline {
             Sample sample = new Sample(lowestPoint, center, ellipse, follower.getPose());
             sample.calculateArea(Imgproc.boundingRect(contour));
 //            Imgproc.putText(input, "(" + Math.round(sample.widthInches * 10) / 10 + ", " + Math.round(sample.heightInches * 10) / 10 + ")", lowestPoint, 0, 1, new Scalar(0, 0, 0));
-//            Imgproc.circle(input, center, 1, new Scalar(255, 0, 0));
 
             if (sample.isTooBig() || sample.isTooSmall()) {
                 continue;
             }
 
-            Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
+            Imgproc.circle(input, center, 5, new Scalar(255, 0, 255));
+//            Imgproc.drawMarker(input, lowestPoint, new Scalar(255, 0, 255));
             sample.calculateField();
 
 //            Imgproc.putText(input, "" + sample.orientation, new Point(200, 200), 0, 1, new Scalar(0, 0 ,0));
@@ -200,10 +200,6 @@ public class DetectSamples extends OpenCvPipeline {
             Imgproc.putText(input, "Target", new Point(targetSample.center.x + 12, targetSample.center.y - 12), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(255, 255, 255), 2);
         }
 
-        for (MatOfPoint c : allContours) {
-            c.release();
-        }
-
         return input;
     }
 
@@ -214,22 +210,25 @@ public class DetectSamples extends OpenCvPipeline {
      * - Applies morphological operations to clean up noise.
      */
     private Mat mask(Mat frame, Threshold threshold) {
-        Calib3d.undistort(frame, undistorted, matrix, dist);
-        Imgproc.cvtColor(undistorted, hsv, Imgproc.COLOR_RGB2HSV);
+        // Undistort frame
+//        Calib3d.undistort(frame, undistorted, matrix, dist);
 
-        combinedMask.setTo(new Scalar(0));
+        // Convert to HSV
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
+
+        // Combine masks from all threshold ranges
+        Mat combinedMask = Mat.zeros(hsv.size(), CvType.CV_8UC1);
 
         for (int i = 0; i < threshold.lowerBounds.size(); i++) {
-            Mat tempMask = new Mat();
             Core.inRange(hsv, threshold.lowerBounds.get(i), threshold.upperBounds.get(i), tempMask);
             Core.bitwise_or(combinedMask, tempMask, combinedMask);
-            tempMask.release();
         }
 
+        // Apply morphological operations
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(combinedMask, combinedMask, Imgproc.MORPH_CLOSE, kernel);
 
-        return combinedMask.clone(); // safe copy, avoids future bugs
+        return combinedMask;
     }
 
     /**
@@ -249,23 +248,5 @@ public class DetectSamples extends OpenCvPipeline {
         {
             webcam.resumeViewport();
         }
-    }
-
-    public void releaseAll() {
-        undistorted.release();
-        hsv.release();
-        combinedMask.release();
-        kernel.release();
-        hierarchy.release();
-        hullIndices.release();
-        hullPoints.release();
-        ellipsePoints.release();
-        matrix.release();
-        dist.release();
-
-        for (MatOfPoint c : allContours) {
-            c.release();
-        }
-        allContours.clear();
     }
 }
