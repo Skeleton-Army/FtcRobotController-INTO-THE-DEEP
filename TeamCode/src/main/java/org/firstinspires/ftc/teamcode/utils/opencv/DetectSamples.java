@@ -31,7 +31,6 @@ public class DetectSamples extends OpenCvPipeline {
 
     public static Sample targetSample = null;
 
-    private final Telemetry telemetry;
     private final Threshold[] thresholds; // Array of threshold objects for filtering different colors
     private final MecanumDrive drive;
 
