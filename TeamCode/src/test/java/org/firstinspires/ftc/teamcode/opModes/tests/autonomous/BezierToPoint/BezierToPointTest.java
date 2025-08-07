@@ -50,8 +50,11 @@ public class BezierToPointTest {
             //new BezierToPointTest.Test(new Pose(120, 24, Math.toRadians(0)), new Pose(24, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(0)), new Pose(72, 120, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(72, 24, Math.toRadians(45)), new Pose(24, 72, Math.toRadians(275))),
-            new BezierToPointTest.Test(new Pose(75, 37, Math.toRadians(90)), new Pose(14, 48, Math.toRadians(0))),
+            //new BezierToPointTest.Test(new Pose(75, 37, Math.toRadians(90)), new Pose(14, 48, Math.toRadians(0))),
             //new BezierToPointTest.Test(new Pose(72.41331802525832, 35.3800229621125, Math.toRadians(90)), new Pose(18.847301951779563, 123.8300803673938, Math.toRadians(0))),
+
+            // the new obstacles
+            new BezierToPointTest.Test(new Pose(24, 24, Math.toRadians(0)), new Pose(72, 72, Math.toRadians(0))),
     };
 
 
