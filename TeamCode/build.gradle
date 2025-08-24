@@ -43,6 +43,7 @@ repositories {
     maven {
         url = "https://repo.dairy.foundation/releases"
     }
+    maven { url 'https://psilynx.github.io/PsiKit/gradle' }
 }
 
 dependencies {
@@ -68,6 +69,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
     testImplementation 'junit:junit:4.13.1'
     implementation 'org.apache.commons:commons-compress:1.24.0'
+    implementation 'org.psilynx:psikit:0.0.4'
 }
 
 tasks.withType(Test).configureEach {

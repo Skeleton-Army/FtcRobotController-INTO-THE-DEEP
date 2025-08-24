@@ -556,39 +556,4 @@ public class FtpUploading {
         }
     }
 
-    /**
-     * Creates a TAR archive from the specified list of file paths.
-     *
-     * @param filePaths  An array of file paths to include in the TAR archive.
-     * @param dstTar     The desired destination path and filename for the resulting TAR archive.
-     *                   If it does not end with ".tar", the method appends the extension.
-     * @return A {@link File} object representing the created TAR archive.
-     * @throws IOException If any file cannot be read, doesn't exist, or an IO operation fails during archiving.
-     */
-    public static File createTar (@NotNull String[] filePaths, String dstTar) throws IOException {
-        if (!dstTar.endsWith(".tar")) {
-           dstTar = dstTar + ".tar";
-        }
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(dstTar);
-            TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(fileOutputStream);
-            for (String path : filePaths) {
-                File file = new File(path);
-                if (!file.exists()) {
-                    throw new IOException("Input file " + path + " was not found");
-                }
-
-                try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                    TarArchiveEntry tarArchiveEntry = new TarArchiveEntry(file, file.getName());
-                    tarArchiveOutputStream.putArchiveEntry(tarArchiveEntry);
-                    IOUtils.copy(fileInputStream, tarArchiveOutputStream);
-                    tarArchiveOutputStream.closeArchiveEntry();
-                }
-            }
-            tarArchiveOutputStream.finish();
-        } catch (IOException e) {
-            throw new IOException(e);
-        }
-        return new File(dstTar);
-    }
 }
